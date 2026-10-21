@@ -635,6 +635,25 @@ Done when: The plugin opens cited lines on AB3.
 
 - [ ] **IDE-01 IntelliJ plugin** `[jvm]` `[smoke]` — the JCEF host done 2026-10-19: `webview/hosts/jcef.ts`, `webview/jcef.ts` and `node esbuild.mjs --intellij`, which writes `out/intellij/jcef.js` and `jcef.css`. Tests: `jcef.test.ts` (2: messages go out as JSON through `sustainPost` and come in through `sustainReceive`; `sustainDark` picks the palette). The built bundle was also run once in happy-dom, where it posted `ready` and showed an empty state sent through `sustainReceive`. Each of 3 deliberate breaks failed a test. The bundle stays out of `dist/`, because `.vscodeignore` cannot leave out one file of a folder it includes. The `intellij/` project waits for a JDK and Gradle (see Waiting).
 
+## Deployment (owner request, 2026-10-22)
+
+The owner asked to deploy the cloud with payments, analytics, metrics, the landing page and an install link, on the owner's own AWS account and domain, from `kerktaiheng/aisus`. Google Analytics was weighed and set aside: CLD-08 forbids third-party analytics, so the site counts visits with a self-hosted Umami served from its own domain. Stripe starts in test mode.
+
+### Deployment proposal (2026-10-22)
+
+| Location | Change | Est. LoC |
+|---|---|---|
+| `deploy/aws-up.sh`, `deploy/aws-down.sh` | One `t4g.small` in `ap-southeast-1` under the `aisus` profile: a key pair, a security group open on 80 and 443 and on 22 from the deployer's address, a 20 GB gp3 disk and an Elastic IP; and the teardown that removes all of it | +120 |
+| `deploy/server-setup.sh` | Docker, the Compose plugin and 2 GB of swap on Amazon Linux 2023 | +40 |
+| `deploy/compose.yaml`, `deploy/Caddyfile`, `deploy/prometheus.yml`, `deploy/grafana/` | The cloud image behind Caddy with automatic HTTPS, Umami with its Postgres, Prometheus, node-exporter and Grafana under `/grafana` | +160 |
+| `deploy/deploy.sh`, `deploy/stripe-setup.sh`, `deploy/env.example` | Copy the stack to the server, write its `.env` from `~/.config/aisus/secrets.env`, pull and restart; create the Team product, its monthly per-seat price and the webhook in Stripe's test mode | +140 |
+| `.github/workflows/cloud-image.yml` | Build the cloud image for arm64 on pushes to main and push it to GHCR, in repositories whose `CLOUD_IMAGE` variable is `true` | +40 |
+| `cloud/src/app/install/route.ts` | `/install` redirects to the newest release's `.vsix`, and to the releases page without one | +40 |
+| `cloud/src/app/layout.tsx`, the privacy page, the landing page | Umami's script from the site's own `/stats/` path when `UMAMI_WEBSITE_ID` is set; the privacy page names it; Install on the landing page, with click events | +40 |
+| `cloud/src/app/api/metrics/route.ts` | Accounts, repositories, uploads and subscriptions in Prometheus's text format, behind `METRICS_TOKEN` | +60 |
+
+Tests: unit tests for the install redirect, the analytics tag and the metrics text. The CLD-08 `[web]` test stays as it is, since the site adds no script without `UMAMI_WEBSITE_ID`. The deployed site is checked live once it is up.
+
 ## Log
 
 - 2026-10-18 — D5 closed pending owner. Gates: `npm run check` exit 0 (1073 tests, 55 ADRs); `npm run test:e2e` exit 0 on VS Code 1.126.0 and 1.141.0 (single 74, empty 3, multi 2 each); cloud `vitest` 35 passed; cloud `[web]` 8 passed against the built app. Every new test was seen to fail once with its behaviour broken: 16 deliberate breaks across D5. Deployment is a hard stop and waits for the owner (see Waiting).
