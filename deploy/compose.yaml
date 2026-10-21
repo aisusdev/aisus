@@ -1,0 +1,125 @@
+# The production stack on one server: the cloud behind Caddy's automatic HTTPS, Umami for visit
+# counts, and Prometheus, node-exporter and Grafana for metrics. deploy.sh writes .env beside this
+# file from the deployer's secrets, then runs `docker compose up -d --build` here.
+name: aisus
+
+services:
+  cloud:
+    build:
+      context: ..
+      dockerfile: cloud/Dockerfile
+    image: aisus-cloud:latest
+    restart: unless-stopped
+    environment:
+      NEXTAUTH_URL: https://${DOMAIN:?set DOMAIN}
+      NEXTAUTH_SECRET: ${NEXTAUTH_SECRET:?set NEXTAUTH_SECRET}
+      GITHUB_CLIENT_ID: ${GITHUB_CLIENT_ID:?set GITHUB_CLIENT_ID}
+      GITHUB_CLIENT_SECRET: ${GITHUB_CLIENT_SECRET:?set GITHUB_CLIENT_SECRET}
+      STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY:-}
+      STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET:-}
+      STRIPE_TEAM_PRICE: ${STRIPE_TEAM_PRICE:-}
+      SUSTAIN_TEAM_PRICE_TEXT: ${SUSTAIN_TEAM_PRICE_TEXT:-}
+      SUSTAIN_RELEASES_REPO: ${SUSTAIN_RELEASES_REPO:-}
+      UMAMI_WEBSITE_ID: ${UMAMI_WEBSITE_ID:-}
+      METRICS_TOKEN: ${METRICS_TOKEN:?set METRICS_TOKEN}
+    volumes:
+      - cloud-data:/data
+    mem_limit: 768m
+
+  caddy:
+    image: caddy:2.11.7
+    restart: unless-stopped
+    environment:
+      DOMAIN: ${DOMAIN}
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+    depends_on:
+      - cloud
+      - umami
+      - grafana
+
+  umami:
+    image: ghcr.io/umami-software/umami:3.4.0
+    restart: unless-stopped
+    init: true
+    environment:
+      DATABASE_URL: postgresql://umami:${UMAMI_DB_PASSWORD:?set UMAMI_DB_PASSWORD}@umami-db:5432/umami
+      APP_SECRET: ${UMAMI_APP_SECRET:?set UMAMI_APP_SECRET}
+      DISABLE_TELEMETRY: "1"
+    depends_on:
+      umami-db:
+        condition: service_healthy
+    mem_limit: 384m
+
+  umami-db:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: umami
+      POSTGRES_USER: umami
+      POSTGRES_PASSWORD: ${UMAMI_DB_PASSWORD}
+    volumes:
+      - umami-db:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U umami -d umami"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    mem_limit: 192m
+
+  prometheus:
+    image: prom/prometheus:v3.15.1
+    restart: unless-stopped
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.path=/prometheus
+      - --storage.tsdb.retention.time=30d
+      - --storage.tsdb.retention.size=2GB
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./secrets/metrics_token:/etc/prometheus/metrics_token:ro
+      - prometheus-data:/prometheus
+    mem_limit: 256m
+
+  node-exporter:
+    image: prom/node-exporter:v1.12.1
+    restart: unless-stopped
+    command:
+      - --path.rootfs=/host
+    pid: host
+    volumes:
+      - /:/host:ro,rslave
+    mem_limit: 64m
+
+  grafana:
+    image: grafana/grafana:13.2.4
+    restart: unless-stopped
+    environment:
+      GF_SERVER_ROOT_URL: https://${DOMAIN}/grafana/
+      GF_SERVER_SERVE_FROM_SUB_PATH: "true"
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:?set GRAFANA_ADMIN_PASSWORD}
+      GF_USERS_ALLOW_SIGN_UP: "false"
+      GF_AUTH_ANONYMOUS_ENABLED: "false"
+      GF_ANALYTICS_REPORTING_ENABLED: "false"
+      GF_ANALYTICS_CHECK_FOR_UPDATES: "false"
+      GF_NEWS_NEWS_FEED_ENABLED: "false"
+    volumes:
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./grafana/dashboards:/var/lib/grafana/dashboards:ro
+      - grafana-data:/var/lib/grafana
+    mem_limit: 256m
+
+volumes:
+  cloud-data:
+  caddy-data:
+  caddy-config:
+  umami-db:
+  prometheus-data:
+  grafana-data:

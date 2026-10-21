@@ -21,3 +21,5 @@ release/
 bench/results/
 research/change-collection/
 .scratch/
+deploy/.env
+deploy/secrets/

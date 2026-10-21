@@ -1,0 +1,21 @@
+# What Prometheus reads, every 30 seconds, inside the compose network.
+global:
+  scrape_interval: 30s
+
+scrape_configs:
+  - job_name: sustain
+    metrics_path: /api/metrics
+    authorization:
+      type: Bearer
+      credentials_file: /etc/prometheus/metrics_token
+    static_configs:
+      - targets: ["cloud:3000"]
+  - job_name: node
+    static_configs:
+      - targets: ["node-exporter:9100"]
+  - job_name: caddy
+    static_configs:
+      - targets: ["caddy:2020"]
+  - job_name: prometheus
+    static_configs:
+      - targets: ["localhost:9090"]

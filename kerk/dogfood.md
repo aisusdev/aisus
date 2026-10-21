@@ -69,3 +69,20 @@ Open http://localhost:3000 and sign in. To put a map on it:
 ### With your real GitHub account
 
 Create a GitHub OAuth app whose callback URL is `http://localhost:3000/api/auth/callback/github`. Start the cloud with the command above, using the app's client ID and secret and leaving out the three `GITHUB_OAUTH_URL`, `GITHUB_API_URL` and `SUSTAIN_OIDC_JWKS_URL` settings. Sign-in and repository access then come from GitHub. `docker compose -f cloud/docker-compose.yml up --build` runs the same app in Docker, with the four settings in `cloud/.env`.
+
+## Deploy the cloud
+
+`deploy/` puts the cloud, Umami and Grafana on one AWS server from `kerktaiheng/aisus`. Secrets live in `~/.config/aisus/secrets.env`, and [deploy/env.example](../deploy/env.example) lists them.
+
+```bash
+aws configure --profile aisus
+deploy/aws-up.sh
+deploy/deploy.sh --setup
+deploy/deploy.sh
+```
+
+1. `aws-up.sh` creates the server and prints its IP. Point your domain's `@` and `stats` A records at it, and put `DOMAIN=` in the secrets file. Until then the site answers on `<ip>.sslip.io`.
+2. Create a GitHub OAuth app with the callback `https://<domain>/api/auth/callback/github`, and put its ID and secret in the secrets file.
+3. Put your Stripe test key in the secrets file, run `deploy/stripe-setup.sh`, then `deploy/deploy.sh` again.
+
+The site is at `https://<domain>`, visit counts at `https://stats.<domain>`, and metrics at `https://<domain>/grafana/`. Both log in as `admin`, with the passwords `deploy.sh` wrote to the secrets file. `deploy/aws-down.sh --yes` removes the server and everything on it.
