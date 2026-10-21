@@ -1,5 +1,6 @@
 // CLD-08: the privacy page: the "maps, not code" rule and the exact upload schema.
 import { UPLOAD_SCHEMA } from "../../../../src/model/upload";
+import { statsWebsite } from "../../lib/stats";
 
 export default function PrivacyPage() {
   return (
@@ -13,7 +14,15 @@ export default function PrivacyPage() {
       </p>
       <p>Your coding agent runs on your machine or your CI runner. Sustain never calls a language model and never reads your repository.</p>
       <h2>What is collected about you</h2>
-      <p>Your GitHub login, name and the organizations you belong to, so the cloud can apply your GitHub permissions. There are no analytics and no third-party scripts.</p>
+      <p>Your GitHub login, name and the organizations you belong to, so the cloud can apply your GitHub permissions. There are no third-party scripts.</p>
+      {statsWebsite() === null ? (
+        <p>There are no analytics.</p>
+      ) : (
+        <p>
+          Visits are counted by Umami, which runs on Sustain Cloud&apos;s own server. It sets no cookies, counts nothing when your browser asks not to be tracked, and
+          leaves out search parameters and the tokens of share links.
+        </p>
+      )}
       <p>When an account subscribes to Team, Stripe takes the payment. Sustain Cloud keeps only the account&apos;s plan, its Stripe customer and subscription ids, and its seat count.</p>
       <h2>Deleting data</h2>
       <p>Owners can delete a map, a repository&apos;s data, or their whole account from Settings. Deletion is immediate and covers uploads, checks and tokens.</p>

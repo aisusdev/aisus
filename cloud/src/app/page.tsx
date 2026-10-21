@@ -1,4 +1,6 @@
-// CLD-08: the landing page, with the pricing note.
+// CLD-08: the landing page, with the pricing note and the ways to install Sustain.
+import { releasesRepo } from "../lib/install";
+
 export default function Landing() {
   return (
     <main className="page">
@@ -11,10 +13,20 @@ export default function Landing() {
         <strong>Maps, not code.</strong> The cloud stores maps and check results only; your agent and your code stay on your machine and your CI runner.{" "}
         <a href="/privacy">How uploads are checked</a>.
       </p>
+      <h2>Install</h2>
+      <p>
+        <a className="button button--primary" href="/install" data-umami-event="install">
+          Download for VS Code
+        </a>{" "}
+        Then choose <strong>Install from VSIX…</strong> in the Extensions view, click the Sustain icon and press Generate. It works in Cursor and Devin Desktop too.
+      </p>
+      <p>
+        Without VS Code, add the skills to Claude Code or Codex with <code>npx skills add {releasesRepo()}</code> and run <code>/sustain-architecture</code>.
+      </p>
       <h2>Pricing</h2>
       <p>Free during beta.</p>
       <p>
-        <a className="button button--primary" href="/signin">
+        <a className="button button--primary" href="/signin" data-umami-event="sign-in">
           Sign in with GitHub
         </a>{" "}
         <a className="button" href="/docs">
