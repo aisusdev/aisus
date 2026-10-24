@@ -75,7 +75,7 @@ function text(selector: string): string[] {
 }
 
 function click(label: string): void {
-  const target = [...container.querySelectorAll("button")].find((node) => node.textContent === label);
+  const target = [...container.querySelectorAll("button")].find((node) => node.textContent === label && !node.hidden);
   if (!target) throw new Error(`no button "${label}"`);
   target.click();
 }
@@ -185,8 +185,46 @@ describe("UI-01 sidebar states", () => {
   });
 });
 
+describe("UI-01 tabs", () => {
+  const shown = (): string[] => [...container.querySelectorAll<HTMLElement>(".panel")].filter((panel) => !panel.hidden).map((panel) => panel.id);
+  const tab = (id: string): HTMLElement => container.querySelector<HTMLElement>(`[data-tab="${id}"]`)!;
+
+  test("Map, Ask, Review and Learn each show their own sections, and the arrow keys move between them", () => {
+    home.render(state({ maps: [map({})] }));
+    expect(text("[role=tab]")).toEqual(["Map", "Ask", "Review", "Learn"]);
+    expect(shown()).toEqual(["panel-map"]);
+    expect(container.querySelector("#panel-map .composer")).not.toBeNull();
+    expect(container.querySelector("#panel-ask .ask")).not.toBeNull();
+    expect(container.querySelector("#panel-review .review")).not.toBeNull();
+    expect(container.querySelector("#panel-learn .practice")).not.toBeNull();
+    tab("review").click();
+    expect(shown()).toEqual(["panel-review"]);
+    expect(tab("review").getAttribute("aria-selected")).toBe("true");
+    tab("review").dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowRight" }));
+    expect(shown()).toEqual(["panel-learn"]);
+    tab("learn").dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowRight" }));
+    expect(shown()).toEqual(["panel-map"]);
+    home.render(state({ maps: [map({})] }));
+    expect(shown()).toEqual(["panel-map"]);
+  });
+
+  test("Setup sits above the tabs only while a check fails", () => {
+    home.render(state({ setup: [{ id: "node", ok: false, detail: "Node not found" }] }));
+    expect(container.querySelector(".setup")!.nextElementSibling?.className).toBe("tabs");
+    home.render(state());
+    expect(container.querySelector(".setup")!.closest(".panel")?.id).toBe("panel-map");
+  });
+
+  test("a run that starts opens the Map tab", () => {
+    home.render(state());
+    tab("learn").click();
+    home.render(state({ run: run({}) }));
+    expect(shown()).toEqual(["panel-map"]);
+  });
+});
+
 describe("CST-03 cost before every run", () => {
-  const ESTIMATE = "About 180k–260k tokens (about $0.50–$0.80 at API prices; on a subscription it uses part of your plan's limit)";
+  const ESTIMATE = "About 180k–260k tokens ($0.50–$0.80 at API prices)";
   const generate = (): HTMLButtonElement => container.querySelector<HTMLButtonElement>(".composer__generate")!;
 
   test("the estimate shows under Generate, and one click generates below the threshold", () => {
@@ -217,7 +255,7 @@ describe("CST-03 cost before every run", () => {
   });
 
   test("Ask shows what a question costs, and above the threshold asks for a second click", () => {
-    const ask = { blocked: null, turns: [], estimate: "About 30k–60k tokens (about $0.10–$0.20 at API prices; on a subscription it uses part of your plan's limit)", confirm: true };
+    const ask = { blocked: null, turns: [], estimate: "About 30k–60k tokens ($0.10–$0.20 at API prices)", confirm: true };
     home.render(state({ ask }));
     expect(text(".ask__estimate")).toEqual([ask.estimate]);
     container.querySelector<HTMLTextAreaElement>(".ask__question")!.value = "Where are payments retried?";
@@ -291,7 +329,7 @@ describe("UI-06 Ask", () => {
 
   test("while an answer streams, Ask is disabled and Stop shows", () => {
     home.render(state({ ask: { estimate: null, confirm: false, blocked: null, turns: [{ ...turn, status: "running", blocks: [], usage: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 }, costUsd: null }] } }));
-    expect(text(".turn__pending")).toEqual(["Claude Code is reading the map…"]);
+    expect(text(".turn__pending")).toEqual(["Reading the map…"]);
     const ask = [...container.querySelectorAll("button")].find((node) => node.textContent === "Ask")!;
     expect(ask.disabled).toBe(true);
     const stop = [...container.querySelectorAll<HTMLButtonElement>("button")].find((node) => node.textContent === "Stop")!;
@@ -322,9 +360,9 @@ describe("ARC-02 Rules", () => {
     expect(posted).toEqual([{ type: "suggestRules" }]);
   });
 
-  test("without rules it says how to add one, and without a map the section is left out", () => {
+  test("without rules it says there are none, and without a map the section is left out", () => {
     home.render(state({ maps: [map({})], rules: { map: null, rules: [] } }));
-    expect(text(".rules__empty")).toEqual(["No rules yet. Suggest some, or right-click an arrow or a box on the map."]);
+    expect(text(".rules__empty")).toEqual(["No rules yet."]);
     home.render(state({ maps: [], rules: { map: null, rules: [] } }));
     expect(container.querySelector(".rules")).toBeNull();
   });
@@ -333,10 +371,10 @@ describe("ARC-02 Rules", () => {
 describe("ARC-03 Hotspots", () => {
   test("the five most changed boxes with their commits and lines, or a line saying none changed", () => {
     home.render(state({ maps: [map({})], hotspots: { days: 90, boxes: [{ id: "api", label: "API", commits: 9, lines: 120 }, { id: "db", label: "DB", commits: 1, lines: 1 }] } }));
-    expect(text(".hotspots__window")).toEqual(["Most changed in the last 90 days"]);
+    expect(text(".hotspots .section__title")).toEqual(["Hotspots · 90 days"]);
     expect(text(".hotspot")).toEqual(["API · 9 commits · 120 lines", "DB · 1 commit · 1 line"]);
     home.render(state({ maps: [map({})], hotspots: { days: 30, boxes: [] } }));
-    expect(text(".hotspots__empty")).toEqual(["No box's code changed in that time."]);
+    expect(text(".hotspots__empty")).toEqual(["No changes in 30 days."]);
   });
 });
 

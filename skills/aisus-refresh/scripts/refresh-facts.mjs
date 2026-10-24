@@ -342,8 +342,7 @@ function tokenAmount(tokens) {
 var usd = (value) => `$${Math.max(0.01, value).toFixed(2)}`;
 function estimateText(range, price) {
   const tokens = `About ${tokenAmount(range.low)}\u2013${tokenAmount(range.high)} tokens`;
-  const subscription = "on a subscription it uses part of your plan's limit";
-  return price === null ? `${tokens} (${subscription})` : `${tokens} (about ${usd(price.low)}\u2013${usd(price.high)} at API prices; ${subscription})`;
+  return price === null ? tokens : `${tokens} (${usd(price.low)}\u2013${usd(price.high)} at API prices)`;
 }
 function runEstimate(size, agent, kind, confirmAbove) {
   const range = estimate(size, agent, kind);

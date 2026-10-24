@@ -1,6 +1,6 @@
-// The aisus sidebar's DOM (UI-01): header, composer, run card, maps, setup and learning
-// session. Built from the HomeState the host sends; every string goes in as text. The composer's
-// text box persists across states, so typing survives updates.
+// The aisus sidebar's DOM (UI-01) is a header, the Map, Ask, Review and Learn tabs, and Setup above the tabs
+// while a check fails. It is built from the HomeState the host sends, and every string goes in as text.
+// The composer's text box persists across states. Typing survives updates.
 import { mapStatus, relativeAge, runFigures, tokenCount } from "../src/model/home";
 import type { AskTurn, AskView, HomeState, HomeWebviewMessage, MapItem, PracticeQuestionView, PracticeView, ReviewView, RunCard } from "../src/model/messages";
 import type { Grade } from "../src/model/practice";
@@ -57,6 +57,21 @@ export function phaseLine(run: RunCard): string | null {
   }
 }
 
+/** The sidebar's tabs, in order, with what each one says. */
+export const TABS = [
+  ["map", "Map"],
+  ["ask", "Ask"],
+  ["review", "Review"],
+  ["learn", "Learn"],
+] as const;
+export type Tab = (typeof TABS)[number][0];
+
+/** Where the chosen tab is kept while the view is hidden. */
+export interface TabStore {
+  get(): Tab | null;
+  set(tab: Tab): void;
+}
+
 export interface Home {
   render(state: HomeState): void;
   /** Updates the running card's clock. */
@@ -64,12 +79,12 @@ export interface Home {
 }
 
 /** Builds the sidebar in `container`. `now` gives the host's clock. */
-export function createHome(container: HTMLElement, post: Post, now: () => Date = () => new Date()): Home {
+export function createHome(container: HTMLElement, post: Post, now: () => Date = () => new Date(), store: TabStore | null = null): Home {
   const header = el("header", "header");
   const composer = el("section", "section composer");
   const focus = el("textarea", "composer__focus");
   focus.rows = 2;
-  focus.placeholder = "What should the map focus on? (optional)";
+  focus.placeholder = "Focus (optional)";
   focus.setAttribute("aria-label", "Focus");
   const controls = el("div", "composer__controls");
   // CST-03: above the threshold the first click arms the button and the second sends the run.
@@ -136,7 +151,55 @@ export function createHome(container: HTMLElement, post: Post, now: () => Date =
   question.addEventListener("keydown", (event) => {
     if (event.key === "Enter" && (event.metaKey || event.ctrlKey) && !askButton.disabled) askButton.click();
   });
-  container.append(header, composer, runSlot, healthSlot, maps, reviewSlot, rulesSlot, hotspotsSlot, setup, practiceSlot, session, askSection);
+  // The tab strip follows the WAI-ARIA tabs pattern, and each panel keeps its elements between states.
+  const tablist = el("div", "tabs");
+  tablist.setAttribute("role", "tablist");
+  tablist.setAttribute("aria-label", "aisus");
+  const panels = new Map<Tab, HTMLElement>();
+  const tabs = new Map<Tab, HTMLElement>();
+  for (const [id, label] of TABS) {
+    const tab = el("div", "tab", label);
+    tab.id = `tab-${id}`;
+    tab.dataset["tab"] = id;
+    tab.setAttribute("role", "tab");
+    tab.setAttribute("aria-controls", `panel-${id}`);
+    tab.addEventListener("click", () => selectTab(id, true));
+    tab.addEventListener("keydown", (event) => {
+      const index = TABS.findIndex(([entry]) => entry === id);
+      const next = event.key === "ArrowRight" ? index + 1 : event.key === "ArrowLeft" ? index - 1 : event.key === "Home" ? 0 : event.key === "End" ? TABS.length - 1 : null;
+      if (next === null) return;
+      event.preventDefault();
+      selectTab(TABS[(next + TABS.length) % TABS.length]![0], true);
+    });
+    tabs.set(id, tab);
+    tablist.append(tab);
+    const panel = el("div", `panel panel--${id}`);
+    panel.id = `panel-${id}`;
+    panel.setAttribute("role", "tabpanel");
+    panel.setAttribute("aria-labelledby", tab.id);
+    panels.set(id, panel);
+  }
+  panels.get("map")!.append(composer, runSlot, maps, setup);
+  panels.get("ask")!.append(askSection);
+  panels.get("review")!.append(healthSlot, reviewSlot, rulesSlot, hotspotsSlot);
+  panels.get("learn")!.append(practiceSlot, session);
+  container.append(header, tablist, ...panels.values());
+  let selected: Tab = "map";
+
+  function selectTab(id: Tab, focusTab = false): void {
+    selected = id;
+    for (const [entry, tab] of tabs) {
+      const on = entry === id;
+      tab.classList.toggle("tab--on", on);
+      tab.setAttribute("aria-selected", String(on));
+      tab.tabIndex = on ? 0 : -1;
+      panels.get(entry)!.hidden = !on;
+    }
+    if (focusTab) tabs.get(id)!.focus();
+    store?.set(id);
+  }
+  const stored = store?.get() ?? null;
+  selectTab(TABS.some(([entry]) => entry === stored) && stored !== null ? stored : "map");
 
   let current: HomeState | null = null;
   let figures: HTMLElement | null = null;
@@ -170,7 +233,7 @@ export function createHome(container: HTMLElement, post: Post, now: () => Date =
     const running = state.run?.status === "running";
     focus.disabled = state.root === null;
     if (state.composer.agents.length === 0) {
-      controls.append(el("span", "composer__none", "No agent found on PATH. See Setup below."));
+      controls.append(el("span", "composer__none", "No agent found."));
     } else {
       const agent = el("select", "composer__agent");
       agent.setAttribute("aria-label", "Agent");
@@ -219,7 +282,7 @@ export function createHome(container: HTMLElement, post: Post, now: () => Date =
     }
     if (run.denials.length > 0) {
       const denied = el("div", "run__denials");
-      denied.append(el("p", "run__denials-title", "The agent was refused:"));
+      denied.append(el("p", "run__denials-title", "Refused"));
       const list = el("ul", "run__denial-list");
       for (const denial of run.denials) list.append(el("li", "", denial));
       denied.append(list, button("Run in terminal instead", "button", () => post({ type: "runInTerminal" })));
@@ -270,7 +333,7 @@ export function createHome(container: HTMLElement, post: Post, now: () => Date =
     if (state.root === null || state.rules === null || state.maps.length === 0) return;
     const block = section("Rules", "rules");
     if (state.rules.rules.length === 0) {
-      block.append(el("p", "rules__empty", "No rules yet. Suggest some, or right-click an arrow or a box on the map."));
+      block.append(el("p", "rules__empty", "No rules yet."));
     } else {
       const list = el("ul", "rules__list");
       for (const rule of state.rules.rules) {
@@ -303,9 +366,8 @@ export function createHome(container: HTMLElement, post: Post, now: () => Date =
   function renderHotspots(state: HomeState): void {
     hotspotsSlot.replaceChildren();
     if (state.root === null || state.hotspots === null || state.maps.length === 0) return;
-    const block = section("Hotspots", "hotspots");
-    block.append(el("p", "hotspots__window", `Most changed in the last ${state.hotspots.days} days`));
-    if (state.hotspots.boxes.length === 0) block.append(el("p", "hotspots__empty", "No box's code changed in that time."));
+    const block = section(`Hotspots · ${state.hotspots.days} days`, "hotspots");
+    if (state.hotspots.boxes.length === 0) block.append(el("p", "hotspots__empty", `No changes in ${state.hotspots.days} days.`));
     else {
       const list = el("ol", "hotspots__list");
       for (const box of state.hotspots.boxes) list.append(el("li", "hotspot", `${box.label} · ${box.commits} commit${box.commits === 1 ? "" : "s"} · ${box.lines} line${box.lines === 1 ? "" : "s"}`));
@@ -369,6 +431,8 @@ export function createHome(container: HTMLElement, post: Post, now: () => Date =
       }
       setup.append(list, button("Check again", "link", () => post({ type: "checkSetup" })));
     }
+    if (failing) tablist.before(setup);
+    else panels.get("map")!.append(setup);
     if (checks !== null && failing !== setupFailing) setup.open = failing;
     if (checks !== null) setupFailing = failing;
   }
@@ -445,12 +509,12 @@ export function createHome(container: HTMLElement, post: Post, now: () => Date =
       buttons.push(start);
       scopes.append(start);
     }
-    block.append(el("p", "practice__intro", "Your agent asks three questions about the code and grades your answers. The results stay on this machine."), scopes);
+    block.append(scopes);
     if (view.blocked !== null) block.append(el("p", "practice__note", view.blocked));
     else if (view.estimate !== null) block.append(el("p", "practice__estimate", view.estimate));
     if (check !== null) {
       block.append(el("div", "practice__scope", check.scope));
-      if (check.status === "running") block.append(el("p", "practice__pending", "Your agent is writing three questions…"), button("Stop", "button", () => post({ type: "practiceCancel" })));
+      if (check.status === "running") block.append(el("p", "practice__pending", "Writing questions…"), button("Stop", "button", () => post({ type: "practiceCancel" })));
       if (check.error !== null) block.append(el("p", "practice__error", check.error));
       const list = el("ol", "practice__questions");
       check.questions.forEach((entry, index) => list.append(practiceQuestion(check.scope, entry, index, busy)));
@@ -470,7 +534,7 @@ export function createHome(container: HTMLElement, post: Post, now: () => Date =
     const entry = el("div", `turn turn--${turn.status}`);
     entry.append(el("div", "turn__question", turn.question));
     if (turn.blocks.length > 0) entry.append(renderAnswer(turn.blocks, post));
-    else if (turn.status === "running") entry.append(el("p", "turn__pending", `${turn.agent} is reading the map…`));
+    else if (turn.status === "running") entry.append(el("p", "turn__pending", "Reading the map…"));
     if (turn.error !== null) entry.append(el("p", "turn__error", turn.error));
     const input = turn.usage.input + turn.usage.cacheRead + turn.usage.cacheWrite;
     const figures = [turn.agent];
@@ -498,8 +562,16 @@ export function createHome(container: HTMLElement, post: Post, now: () => Date =
 
   return {
     render(state) {
+      // Work that starts anywhere opens the tab that shows it.
+      const started = (was: boolean | undefined, now: boolean): boolean => now && was !== true;
+      const prev = current;
+      if (started(prev?.run?.status === "running", state.run?.status === "running")) selectTab("map");
+      else if (started(prev?.ask.turns.at(-1)?.status === "running", state.ask.turns.at(-1)?.status === "running")) selectTab("ask");
+      else if (started(prev?.practice.check?.status === "running", state.practice.check?.status === "running")) selectTab("learn");
       current = state;
       renderHeader(state);
+      tablist.hidden = state.root === null;
+      if (state.root === null && selected !== "map") selectTab("map");
       renderComposer(state);
       renderRun(state.run);
       renderMaps(state.maps);

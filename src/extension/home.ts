@@ -130,7 +130,7 @@ export class HomeView implements vscode.WebviewViewProvider, vscode.Disposable {
     if (root !== null && agent !== null) {
       try {
         const launch = launchNotes(this.context, root, agent, runMode, agents.find((entry) => entry.cli === agent)?.headless ?? true);
-        notes = launch.map((note) => note.text);
+        notes = launch.filter((note) => note.kind === "estimate" && agent !== "devin").map((note) => note.text);
         confirm = launch.some((note) => note.confirm === true);
       } catch (error) {
         notes = [(error as Error).message];

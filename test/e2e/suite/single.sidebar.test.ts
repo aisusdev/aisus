@@ -121,7 +121,7 @@ suite("UI-01 aisus sidebar", () => {
     assert.equal(state?.composer.runMode, "sidebar");
   });
 
-  test("UI-01 SET-03 CST-03 Generate from the sidebar takes one click, states the estimate, installs the skill it stated and launches with the typed focus", async () => {
+  test("UI-01 SET-03 CST-03 Generate from the sidebar takes one click, states only the estimate, installs the skill and launches with the typed focus", async () => {
     for (const dir of [".agents", ".claude"]) rmSync(join(homedir(), dir), { recursive: true, force: true });
     await hook.setDataNoteShown(false);
     agents(["claude"]);
@@ -130,10 +130,7 @@ suite("UI-01 aisus sidebar", () => {
     await reveal();
     const [estimate, ...notes] = hook.homeState().state?.composer.notes ?? [];
     assert.match(estimate ?? "", ESTIMATE);
-    assert.deepEqual(notes, [
-      "Installs the aisus-architecture skill in ~/.claude/skills/.",
-      "Your agent reads this folder and sends what it reads to its own provider. aisus sends nothing.",
-    ]);
+    assert.deepEqual(notes, []);
 
     await hook.postFromHome({ type: "generate", focus: "payment flow" });
     await settled();

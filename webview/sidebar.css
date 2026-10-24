@@ -51,10 +51,8 @@ select.header__folder,
 
 .section__title {
   margin: 0 0 6px;
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
+  font-size: 1em;
+  font-weight: 600;
   color: var(--vscode-sideBarSectionHeader-foreground, var(--vscode-foreground));
   cursor: default;
 }
@@ -99,7 +97,6 @@ select.header__folder,
 
 .composer__note {
   margin: 0;
-  font-size: 0.9em;
 }
 
 .toggle {
@@ -198,7 +195,6 @@ select.header__folder,
   padding: 0;
   list-style: none;
   font-family: var(--vscode-editor-font-family);
-  font-size: 0.9em;
 }
 
 .feed {
@@ -334,7 +330,6 @@ select.header__folder,
   gap: 6px;
 }
 
-.practice__intro,
 .practice__note,
 .practice__estimate,
 .practice__pending,
@@ -485,10 +480,6 @@ select.header__folder,
   overflow-wrap: anywhere;
 }
 
-.turn__figures {
-  font-size: 0.9em;
-}
-
 .turn__error {
   margin: 4px 0;
   color: var(--vscode-errorForeground);
@@ -575,16 +566,13 @@ select.header__folder,
 .rules__empty {
   margin: 0;
   color: var(--vscode-descriptionForeground);
-  font-size: 0.9em;
 }
 
 /* Hotspots (ARC-03) */
 
-.hotspots__window,
 .hotspots__empty {
   margin: 0 0 4px;
   color: var(--vscode-descriptionForeground);
-  font-size: 0.9em;
 }
 
 .hotspots__list {
@@ -602,4 +590,55 @@ select.header__folder,
 
 .health__item--attention .health__open {
   color: var(--vscode-editorWarning-foreground);
+}
+
+/* Tabs */
+
+.tabs {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  display: flex;
+  gap: 12px;
+  padding: 4px 0 0;
+  background: var(--vscode-sideBar-background);
+  border-bottom: 1px solid var(--vscode-sideBarSectionHeader-border, var(--vscode-widget-border, transparent));
+}
+
+.tabs[hidden],
+.panel[hidden] {
+  display: none;
+}
+
+.tab {
+  padding: 4px 0;
+  color: var(--vscode-panelTitle-inactiveForeground, var(--vscode-descriptionForeground));
+  border-bottom: 1px solid transparent;
+  cursor: pointer;
+  user-select: none;
+}
+
+.tab:hover {
+  color: var(--vscode-panelTitle-activeForeground, var(--vscode-foreground));
+}
+
+.tab--on {
+  color: var(--vscode-panelTitle-activeForeground, var(--vscode-foreground));
+  border-bottom-color: var(--vscode-panelTitle-activeBorder, var(--vscode-focusBorder));
+}
+
+.tab:focus-visible {
+  outline: 1px solid var(--vscode-focusBorder);
+  outline-offset: -1px;
+}
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.panel > :first-child.section,
+.panel > .section.composer:first-child {
+  border-top: none;
 }

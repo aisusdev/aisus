@@ -45,7 +45,7 @@ describe("FR-RF-01 repo-facts CLI", () => {
   test("CST-03 prints each agent's estimate for a full run, as the sidebar states it", () => {
     const facts = runScript("repo-facts", [], { cwd: gitRepo({ "src/app.ts": "a\n".repeat(30) }) }).json();
     expect(facts.estimate).toEqual(skillEstimates(sizeFacts(facts.size), "full"));
-    expect(facts.estimate.claude.text).toMatch(/^About \d+k–\d+k tokens \(about \$\d+\.\d\d–\$\d+\.\d\d at API prices; on a subscription it uses part of your plan's limit\)$/);
+    expect(facts.estimate.claude.text).toMatch(/^About \d+k–\d+k tokens \(\$\d+\.\d\d–\$\d+\.\d\d at API prices\)$/);
   });
 
   test("CST-05 prints the tier's read budget", () => {

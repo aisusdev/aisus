@@ -99,7 +99,7 @@ export function prompts(stubs: UiStubs): number {
 }
 
 /** CST-03's estimate line. */
-export const ESTIMATE = /^About \d+k–\d+k tokens \(about \$\d+\.\d\d–\$\d+\.\d\d at API prices; on a subscription it uses part of your plan's limit\)$/;
+export const ESTIMATE = /^About \d+k–\d+k tokens \(\$\d+\.\d\d–\$\d+\.\d\d at API prices\)$/;
 
 /** A modal's detail after its first paragraph, which must be the estimate (CST-03). */
 export function afterEstimate(detail: string): string {

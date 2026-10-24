@@ -530,7 +530,7 @@ Built after deploy. The owner reorders these milestones from user feedback, and 
 
 **CST-02 Token estimate.** `src/model/estimate.ts` estimates tokens per agent and run kind from non-test lines and file count, returning `{low, high, basis}`. `basis` is `"provisional"` until `npm run bench:fit` fits coefficients from `bench/results/`. `pricing.json` holds per-model prices with an `asOf` date and an official source URL. AC: estimates grow with size; `bench:fit` on fixture results reproduces known coefficients; price arithmetic. `[unit]`
 
-**CST-03 Cost before every run.** The line under Generate, the palette modal and every token-spending action show "About 180k–260k tokens (about $0.50–$0.80 at API prices; on a subscription it uses part of your plan's limit)". Above `aisus.confirmAboveTokens` (default 300,000), a second click is needed. The skill prints the same estimate in its step 2. Supersedes `spec.md` §3's "no budget or consent flow". AC: text `[unit]`; the second click `[e2e]`.
+**CST-03 Cost before every run.** The line under Generate, the palette modal and every token-spending action show "About 180k–260k tokens ($0.50–$0.80 at API prices)". Above `aisus.confirmAboveTokens` (default 300,000), a second click is needed. The skill prints the same estimate in its step 2. Supersedes `spec.md` §3's "no budget or consent flow". AC: text `[unit]`; the second click `[e2e]`.
 
 **CST-05 Exploration budget.** The architecture skill keeps to a read budget per tier (S 25, M 45, L 70 reads and searches). AC: `repo-facts` prints the tier, and the skill names each budget. `[unit]`
 

@@ -103,8 +103,7 @@ const usd = (value: number): string => `$${Math.max(0.01, value).toFixed(2)}`;
 /** CST-03: the line every token-spending action shows before a run. */
 export function estimateText(range: Estimate, price: { low: number; high: number } | null): string {
   const tokens = `About ${tokenAmount(range.low)}–${tokenAmount(range.high)} tokens`;
-  const subscription = "on a subscription it uses part of your plan's limit";
-  return price === null ? `${tokens} (${subscription})` : `${tokens} (about ${usd(price.low)}–${usd(price.high)} at API prices; ${subscription})`;
+  return price === null ? tokens : `${tokens} (${usd(price.low)}–${usd(price.high)} at API prices)`;
 }
 
 /** What a run will cost and whether it needs a second click: above `confirmAbove` tokens at the top of the range. */

@@ -91,12 +91,12 @@ test("CST-02 a fit never lets an estimate shrink as the repository grows", () =>
   expect(line.perFile).toBe(0);
 });
 
-test("CST-03 the estimate line gives the token range, the API price and what it means on a subscription", () => {
+test("CST-03 the estimate line gives the token range and the API price", () => {
   const range = { low: 182_000, high: 257_000, basis: "provisional" as const };
-  expect(estimateText(range, { low: 0.5, high: 0.8 })).toBe("About 180k–260k tokens (about $0.50–$0.80 at API prices; on a subscription it uses part of your plan's limit)");
-  expect(estimateText(range, null)).toBe("About 180k–260k tokens (on a subscription it uses part of your plan's limit)");
+  expect(estimateText(range, { low: 0.5, high: 0.8 })).toBe("About 180k–260k tokens ($0.50–$0.80 at API prices)");
+  expect(estimateText(range, null)).toBe("About 180k–260k tokens");
   expect([tokenAmount(4_000), tokenAmount(995_000), tokenAmount(1_240_000), tokenAmount(2_000_000)]).toEqual(["10k", "1M", "1.2M", "2M"]);
-  expect(estimateText({ ...range, low: 1_000 }, { low: 0.001, high: 0.004 })).toContain("about $0.01–$0.01 at API prices");
+  expect(estimateText({ ...range, low: 1_000 }, { low: 0.001, high: 0.004 })).toContain("($0.01–$0.01 at API prices)");
 });
 
 test("CST-03 a run needs a second click only when the top of its range is above the threshold", () => {
