@@ -12,7 +12,8 @@ set -euo pipefail
 
 state=$HOME/.config/aisus
 secrets=$state/secrets.env
-setting() { grep -m1 "^$1=" "$secrets" | cut -d= -f2- || true; }
+# A value is read without the spaces a paste can leave around it.
+setting() { grep -m1 "^$1=" "$secrets" | cut -d= -f2- | sed 's/^[[:space:]]*//; s/[[:space:]]*$//' || true; }
 remember() {
   sed -i "/^$1=/d" "$secrets"
   printf '%s=%s\n' "$1" "$2" >> "$secrets"

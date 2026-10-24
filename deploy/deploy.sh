@@ -31,7 +31,8 @@ if [[ ${1:-} == --setup ]]; then
 fi
 REF=${1:-main}
 
-setting() { grep -m1 "^$1=" "$secrets" | cut -d= -f2- || true; }
+# A value is read without the spaces a paste can leave around it.
+setting() { grep -m1 "^$1=" "$secrets" | cut -d= -f2- | sed 's/^[[:space:]]*//; s/[[:space:]]*$//' || true; }
 remember() {
   sed -i "/^$1=/d" "$secrets"
   printf '%s=%s\n' "$1" "$2" >> "$secrets"
@@ -46,12 +47,16 @@ if [[ -z "$(setting GITHUB_CLIENT_ID)" ]]; then
 fi
 
 # The server's .env holds exactly what compose.yaml reads.
+quoted() {
+  [[ $2 != *"'"* ]] || { echo "$1 holds a single quote" >&2; exit 1; }
+  printf "%s='%s'\n" "$1" "$2"
+}
 server_env() {
   local name
-  printf 'DOMAIN=%s\n' "$DOMAIN"
+  quoted DOMAIN "$DOMAIN"
   for name in NEXTAUTH_SECRET GITHUB_CLIENT_ID GITHUB_CLIENT_SECRET STRIPE_SECRET_KEY STRIPE_WEBHOOK_SECRET STRIPE_TEAM_PRICE \
     SUSTAIN_TEAM_PRICE_TEXT SUSTAIN_RELEASES_REPO UMAMI_WEBSITE_ID METRICS_TOKEN UMAMI_APP_SECRET UMAMI_DB_PASSWORD GRAFANA_ADMIN_PASSWORD; do
-    printf '%s=%s\n' "$name" "$(setting "$name")"
+    quoted "$name" "$(setting "$name")"
   done
   [[ -n "$(setting GITHUB_CLIENT_ID)" ]] || printf 'GITHUB_CLIENT_ID=not-set\nGITHUB_CLIENT_SECRET=not-set\n'
 }
