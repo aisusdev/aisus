@@ -706,6 +706,23 @@ The owner found the cloud's first run unusable: after signing in, nothing listed
 
 Tests: unit tests for the plans, Checkout and the webhook with Pro and Team, the repository list and the home's data, and the GitHub App's token handling; `[web]` tests for the signed-in home, the plan gate, the checklist and the upgrade path against the mocks; a unit test for the extension's share link.
 
+### Day 1 proposal (2026-10-24)
+
+Day 1 also brings the website design the owner asked for (`kerk/website-mockup.html`) and the first run's steps from `kerk/onboarding-mockup.html` that work without the GitHub App. The App's install step waits for phase 3. Until then the first run has three steps.
+
+| Location | Change | Est. LoC |
+|---|---|---|
+| `cloud/src/app/globals.css`, `cloud/src/app/layout.tsx`, a footer component | The website design on every page: dark tokens with the lime accent, system fonts, a header with the brand mark, Docs, Gallery, Pricing, Privacy, Sign in and Download, and a footer. The map, pull request, dashboard, settings, gallery, docs, privacy, share-link and sign-in pages keep their content in the new style | +450 / -170 |
+| `cloud/src/app/page.tsx`, `cloud/src/components/Landing.tsx`, `cloud/src/components/ProductFrame.tsx` | Signed out, `/` is the mockup's landing page: the hero, the product frame with its Map, PR and Freshness tabs, the agents strip, how it works, "Maps, not code", pricing built from `PLANS` and the price texts, and the install section | +600 |
+| `cloud/src/lib/github.ts`, `cloud/src/lib/store.ts` | `repositories(token)` reads the user's 100 most recently pushed repositories with their permissions, and `adminOrganizations(token)` the organizations they administer. Both are read live and never stored. `mainMapTimes(db, names)` gives each repository's latest default-branch map | +80 |
+| `cloud/src/lib/billingRequests.ts`, `cloud/src/lib/billing.ts` | Billing also accepts the user's own account and the organizations GitHub says they administer. Checkout returns to `/?upgraded=<account>` | +60 |
+| `cloud/src/components/FirstRun.tsx`, `cloud/src/components/Home.tsx` | Signed in, `/` shows the first run until an account the user belongs to has Pro or Team, or billing is off. Step 1 picks the account, with "Ask an admin of <organization>" for a member who is not an admin. Step 2 starts the plan through Checkout. Step 3 sets up a repository through its settings and the publish command. "Skip for now" and every later visit show "Your repositories" by account, with the plan, Upgrade or Manage billing, each repository's map status with Set up or Open, "Open another public repository", and the banner after Checkout | +500 |
+| `cloud/src/components/PlanGate.tsx`, the map, pull request, dashboard and share-link pages | One gate says what Pro or Team adds, with Upgrade for someone who can buy it and "Ask an admin of <owner>" for everyone else | +90 |
+| `cloud/src/components/Actions.tsx`, `cloud/src/app/settings/[owner]/[repo]/page.tsx` | A new token comes with the full publish command, filled in, and a warning that shell history keeps it. A signed-in user who does not own the repository sees who can manage it instead of a 404 | +50 |
+| `docs/spec-v0.3.md` CLD-08 | The pricing note becomes pricing for Free, Pro and Team (ADR 0067) | +1 / -1 |
+
+Tests: unit tests for the two GitHub reads, the map times, and billing for the user's own account and an administered organization; a `[web]` spec `cld14-first-run.spec.ts` for sign-in, the three steps through the mocked Checkout, the banner, the repository list, and the plan gate for an admin and a member. The existing `[web]` specs follow the new markup.
+
 ## Log
 
 - 2026-10-18 — D5 closed pending owner. Gates: `npm run check` exit 0 (1073 tests, 55 ADRs); `npm run test:e2e` exit 0 on VS Code 1.126.0 and 1.141.0 (single 74, empty 3, multi 2 each); cloud `vitest` 35 passed; cloud `[web]` 8 passed against the built app. Every new test was seen to fail once with its behaviour broken: 16 deliberate breaks across D5. Deployment is a hard stop and waits for the owner (see Waiting).
