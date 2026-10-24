@@ -4,7 +4,7 @@ aisus is a VS Code extension with agent skills. A coding agent maps a repository
 
 ## Current work
 
-`docs/spec-v0.3.md` is the contract and `docs/progress-v0.3.md` the state of the v0.3 build on branch `kerk`. Follow the spec's resume protocol (§7) at the start of every session. `docs/vision.md` explains why a feature exists. It adds no requirements.
+`docs/spec-v0.3.md` is the contract and `docs/progress-v0.3.md` the state of the v0.3 build on `main` at github.com/aisusdev/aisus. Read `docs/handoff.md` first. It says what is unfinished and how to change each part. Follow the spec's resume protocol (§7) at the start of every session. `docs/vision.md` explains why a feature exists. It adds no requirements.
 
 ## Working agreement
 
@@ -42,8 +42,8 @@ For example, "A skill whose files differ from the bundled copy is reinstalled be
 
 ## Git
 
-- Commit each finished feature on `kerk` after its gates pass, as `v0.3 <IDs>: <summary>`. Stage only that feature's files.
-- The owner pushes and merges. Leave `origin` and `main` alone.
+- Commit each finished feature on `main` after its gates pass, as `v0.3 <IDs>: <summary>`. Stage only that feature's files.
+- Push only when the person you work for says so.
 - Before any revert, reset, rebase, merge, amend or squash, state the exact resulting history and wait for a yes.
 
 ## Installs
