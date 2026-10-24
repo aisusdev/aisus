@@ -36,7 +36,8 @@ services:
       - "443:443"
       - "443:443/udp"
     volumes:
-      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      # Folders, not files: git replaces a changed file, and a single-file mount would keep the old one.
+      - ./caddy:/etc/caddy:ro
       - caddy-data:/data
       - caddy-config:/config
     depends_on:
@@ -77,12 +78,12 @@ services:
     image: prom/prometheus:v3.15.1
     restart: unless-stopped
     command:
-      - --config.file=/etc/prometheus/prometheus.yml
+      - --config.file=/etc/prometheus/config/prometheus.yml
       - --storage.tsdb.path=/prometheus
       - --storage.tsdb.retention.time=30d
       - --storage.tsdb.retention.size=2GB
     volumes:
-      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./prometheus:/etc/prometheus/config:ro
       - ./secrets/metrics_token:/etc/prometheus/metrics_token:ro
       - prometheus-data:/prometheus
     mem_limit: 256m

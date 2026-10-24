@@ -73,9 +73,12 @@ set -euo pipefail
 cd aisus/deploy
 docker compose config --quiet
 set -a; . ./.env; set +a
-docker run --rm -e DOMAIN -v "$PWD/Caddyfile:/etc/caddy/Caddyfile:ro" caddy:2.11.7 caddy validate --config /etc/caddy/Caddyfile --adapter caddyfile
-docker run --rm --entrypoint promtool -v "$PWD/prometheus.yml:/etc/prometheus/prometheus.yml:ro" -v "$PWD/secrets/metrics_token:/etc/prometheus/metrics_token:ro" prom/prometheus:v3.15.1 check config /etc/prometheus/prometheus.yml
+docker run --rm -e DOMAIN -v "$PWD/caddy:/etc/caddy:ro" caddy:2.11.7 caddy validate --config /etc/caddy/Caddyfile --adapter caddyfile
+docker run --rm --entrypoint promtool -v "$PWD/prometheus:/etc/prometheus/config:ro" -v "$PWD/secrets/metrics_token:/etc/prometheus/metrics_token:ro" prom/prometheus:v3.15.1 check config /etc/prometheus/config/prometheus.yml
 docker compose up -d --build --remove-orphans
+# Running services read their configuration again: Caddy reloads, and Prometheus reloads on SIGHUP.
+docker compose exec -T caddy caddy reload --config /etc/caddy/Caddyfile --adapter caddyfile
+docker compose kill -s SIGHUP prometheus >/dev/null
 docker image prune -f >/dev/null
 REMOTE
 
