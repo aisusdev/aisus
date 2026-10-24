@@ -16,7 +16,7 @@ import { newToken } from "../../src/lib/tokens";
 import { COMMIT, MAP, mapUpload, oidcKeys, oidcToken } from "../support/fixtures";
 
 const KEYS = oidcKeys();
-const BILLING = { STRIPE_SECRET_KEY: "sk_test_unit", STRIPE_WEBHOOK_SECRET: "whsec_unit", STRIPE_TEAM_PRICE: "price_team" };
+const BILLING = { STRIPE_SECRET_KEY: "sk_test_unit", STRIPE_WEBHOOK_SECRET: "whsec_unit", STRIPE_PRO_PRICE: "price_pro", STRIPE_TEAM_PRICE: "price_team" };
 let db: Database;
 let me: SignedIn;
 let restore: () => void;

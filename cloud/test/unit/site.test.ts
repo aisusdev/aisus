@@ -69,13 +69,13 @@ describe("metrics", () => {
     const repo = await upsertRepository(db, { githubId: 9, owner: "acme", name: "shop", private: true, defaultBranch: "main" });
     await upsertRepository(db, { githubId: 10, owner: "acme", name: "open-site", private: false, defaultBranch: "main" });
     await saveUpload(db, { repoId: repo.id, kind: "map", commit: COMMIT, branch: "main", pull: null, payload: MAP, via: "token" } as typeof uploads.$inferInsert);
-    await db.insert(accountPlans).values({ account: "acme", plan: "team", seats: 3 });
+    await db.insert(accountPlans).values([{ account: "acme", plan: "team", seats: 3 }, { account: "dev", plan: "pro", seats: 1 }]);
     const text = await metricsText(db);
     expect(text).toContain("# TYPE aisus_accounts gauge\naisus_accounts 2\n");
     expect(text).toContain('aisus_repositories{visibility="private"} 1\naisus_repositories{visibility="public"} 1\n');
     expect(text).toContain('aisus_uploads{kind="map"} 1\naisus_uploads{kind="check"} 0\n');
-    expect(text).toContain('aisus_paid_accounts{plan="team"} 1\n');
-    expect(text).toContain("aisus_paid_seats 3\n");
+    expect(text).toContain('aisus_paid_accounts{plan="pro"} 1\naisus_paid_accounts{plan="team"} 1\n');
+    expect(text).toContain("aisus_paid_seats 4\n");
     expect(text).not.toMatch(/dev|ops|acme|shop/);
   });
 

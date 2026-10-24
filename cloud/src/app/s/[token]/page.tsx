@@ -1,6 +1,7 @@
 // CLD-06: a share link's read-only view of the repository's main map, until it expires or is revoked.
 import { notFound } from "next/navigation";
 import { MapViewer } from "../../../components/MapViewer";
+import { planOfRepository } from "../../../lib/billing";
 import { mapPageData } from "../../../lib/mapPage";
 import { services } from "../../../lib/services";
 import { openShare } from "../../../lib/shares";
@@ -14,8 +15,20 @@ export default async function SharedMapPage({ params }: { params: Promise<{ toke
   const db = await openDb();
   const shared = await openShare(db, token, now());
   if (shared === null) notFound();
-  const map = await mainMap(db, shared.repo);
   const { owner, name } = shared.repo;
+  // CLD-07: a link shows the map only while the account's plan keeps it.
+  const { refusal } = await planOfRepository(db, shared.repo);
+  if (refusal !== null) {
+    return (
+      <main className="page">
+        <h1>
+          {owner}/{name}
+        </h1>
+        <p className="muted plan-note">{refusal}</p>
+      </main>
+    );
+  }
+  const map = await mainMap(db, shared.repo);
   if (!map) {
     return (
       <main className="page">

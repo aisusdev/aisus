@@ -22,6 +22,11 @@ export function sameSite(request: Request): boolean {
   }
 }
 
+/** The site's address, from NEXTAUTH_URL or else the request's own origin, without a trailing slash. */
+export function siteOf(request: Request): string {
+  return (process.env["NEXTAUTH_URL"] || new URL(request.url).origin).replace(/\/+$/, "");
+}
+
 /** The signed-in user, or a refusal. */
 export async function signedIn(request: Request): Promise<SignedIn | Response> {
   if (!sameSite(request)) return refuse(403, "Changes must come from this site.");

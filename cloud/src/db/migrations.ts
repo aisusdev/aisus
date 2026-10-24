@@ -96,4 +96,11 @@ ALTER TABLE uploads ADD COLUMN token_id integer REFERENCES tokens(id) ON DELETE 
 ALTER TABLE uploads ADD COLUMN size integer;
 `,
   },
+  {
+    id: "0005_pro_plan",
+    sql: `
+ALTER TABLE account_plans DROP CONSTRAINT account_plans_plan_check;
+ALTER TABLE account_plans ADD CONSTRAINT account_plans_plan_check CHECK (plan IN ('free', 'pro', 'team', 'enterprise'));
+`,
+  },
 ];

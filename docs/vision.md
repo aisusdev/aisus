@@ -149,12 +149,13 @@ The extension stays free and local. The cloud is for teams, and it stores **maps
 - **When to build it.** Cloud v1 (map and PR pages, uploads, free during beta) ships in the deploy track (D5). Paid plans, the dashboard and self-hosting wait for the iterate track (I5). A sensible gate before charging: about 10 teams uploading every week.
 - **Running costs.** One web app and one Postgres database. No inference, no code storage.
 
-Plans (prices proposed, kept in `cloud/plans.ts` configuration):
+Plans (set by the owner on 2026-10-24, ADR 0067; prices kept in configuration):
 
 | Plan | Price | Includes |
 |---|---|---|
-| Free | $0 | Unlimited public repositories, 1 private repository, 30 days of history, public gallery |
-| Team | Proposal: $12 per seat per month | Private repositories, full history, PR pages, dashboard, share links |
+| Free | $0 | The extension, the skills, the CLI and the Action's pull request comment, local only. No cloud. |
+| Pro | $5 a month | aisus cloud for your own repositories, public and private, with full history, PR pages and share links |
+| Team | $10 per seat per month | Pro for everyone in a GitHub organization, with its repositories, the dashboard and seats |
 | Enterprise | Quote | Self-hosted image (CLD-10), no data leaves the company, support |
 
 For comparison: AppMap Team $15 per developer, CodeViz Teams $50 per seat, IcePanel $40–80 per editor.
@@ -172,7 +173,6 @@ For comparison: AppMap Team $15 per developer, CodeViz Teams $50 per seat, IcePa
 | After CS3216 | Maintainers, release cadence; the cloud plan above as the funding path |
 | Cloud name and domain | Needed for OAuth callbacks, the Action's OIDC audience and the site |
 | Cloud hosting | Proposal: a managed Node host with managed Postgres; the self-host image covers Enterprise |
-| Team price | Proposal: $12 per seat per month |
 | Extension network exception | Not at deploy: uploads go through the CLI and the Action only. CLD-12 (iterate) would let one opt-in file reach the cloud |
 | Committed maps | PR checks need the map committed in `.archify/`; the README will say so |
 

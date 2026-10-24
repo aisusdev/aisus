@@ -98,7 +98,7 @@ export const shareLinks = pgTable("share_links", {
 export const accountPlans = pgTable("account_plans", {
   /** The GitHub login that owns repositories. */
   account: text("account").primaryKey(),
-  plan: text("plan", { enum: ["free", "team", "enterprise"] }).notNull(),
+  plan: text("plan", { enum: ["free", "pro", "team", "enterprise"] }).notNull(),
   stripeCustomer: text("stripe_customer"),
   stripeSubscription: text("stripe_subscription"),
   seats: integer("seats"),

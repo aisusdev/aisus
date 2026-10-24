@@ -1,7 +1,7 @@
 // The account: organizations, repository spaces and roles, the plans of the accounts the user owns
 // repositories of, exporting the user's data, and deleting the account (CLD-01, CLD-07, CLD-11, CLD-13).
 import { redirect } from "next/navigation";
-import { billingConfig } from "../../../plans";
+import { billingConfig, planToBuy } from "../../../plans";
 import { DeleteButton, PlanButton } from "../../components/Actions";
 import { organizationsOf, spacesOf } from "../../lib/access";
 import { planOfAccount, storedPlan } from "../../lib/billing";
@@ -51,18 +51,29 @@ export default async function SettingsPage() {
         <p className="muted">Plans belong to the accounts whose repositories you own.</p>
       ) : (
         <ul className="plans">
-          {plans.map(({ account, plan, customer }) => (
-            <li key={account}>
-              {account}: <strong className="plan-name">{plan.label}</strong>{" "}
-              {plan.id === "free" ? (
-                <>
-                  <span className="muted">One private repository and 30 days of history.{billing.teamPriceText ? ` Team is ${billing.teamPriceText}.` : ""}</span> <PlanButton url="/api/v1/billing/checkout" account={account} label="Upgrade to Team" />
-                </>
-              ) : customer !== null ? (
-                <PlanButton url="/api/v1/billing/portal" account={account} label="Manage billing" />
-              ) : null}
-            </li>
-          ))}
+          {plans.map(({ account, plan, customer }) => {
+            // Your own account upgrades to Pro, and an organization's to Team. A subscription changes in the portal.
+            const offer = planToBuy(account, user.login);
+            const price = billing.priceTexts[offer];
+            const subscribed = customer !== null && (plan.id === "pro" || plan.id === "team");
+            const upgrade = !subscribed && (plan.id === "free" || (offer === "team" && plan.id === "pro"));
+            return (
+              <li key={account}>
+                {account}: <strong className="plan-name">{plan.label}</strong>{" "}
+                {subscribed ? (
+                  <PlanButton url="/api/v1/billing/portal" account={account} label="Manage billing" />
+                ) : upgrade && offer === "pro" ? (
+                  <>
+                    <span className="muted">Pro keeps the maps of your own repositories, public and private, with full history, pull request pages and share links.{price ? ` Pro is ${price}.` : ""}</span> <PlanButton url="/api/v1/billing/checkout" account={account} label="Upgrade to Pro" />
+                  </>
+                ) : upgrade ? (
+                  <>
+                    <span className="muted">Team keeps the maps of {account}&apos;s repositories for everyone in it, with the team dashboard.{price ? ` Team is ${price}.` : ""}</span> <PlanButton url="/api/v1/billing/checkout" account={account} label="Upgrade to Team" />
+                  </>
+                ) : null}
+              </li>
+            );
+          })}
         </ul>
       )}
       <h2>Your data</h2>

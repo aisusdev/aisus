@@ -61,6 +61,14 @@ export default defineConfig({
     { command: `node test/web/mockGithub.mjs ${GITHUB}`, url: `http://127.0.0.1:${GITHUB}/.well-known/jwks`, reuseExistingServer: false },
     { command: `node test/web/mockStripe.mjs ${STRIPE} ${WEBHOOK_SECRET}`, url: `http://127.0.0.1:${STRIPE}/health`, reuseExistingServer: false },
     app(APP, {}),
-    app(BILLED_APP, { STRIPE_SECRET_KEY: "sk_test_web", STRIPE_WEBHOOK_SECRET: WEBHOOK_SECRET, STRIPE_TEAM_PRICE: "price_team_web", STRIPE_API_URL: `http://127.0.0.1:${STRIPE}`, AISUS_TEAM_PRICE_TEXT: "$8 per seat a month" }),
+    app(BILLED_APP, {
+      STRIPE_SECRET_KEY: "sk_test_web",
+      STRIPE_WEBHOOK_SECRET: WEBHOOK_SECRET,
+      STRIPE_PRO_PRICE: "price_pro_web",
+      STRIPE_TEAM_PRICE: "price_team_web",
+      STRIPE_API_URL: `http://127.0.0.1:${STRIPE}`,
+      AISUS_PRO_PRICE_TEXT: "$5 a month",
+      AISUS_TEAM_PRICE_TEXT: "$10 per seat a month",
+    }),
   ],
 });

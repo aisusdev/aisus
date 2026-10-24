@@ -17,6 +17,6 @@ export async function POST(request: Request): Promise<Response> {
   } catch {
     return refuse(400, "The event is not JSON.");
   }
-  await applyEvent(await db(), event, now());
+  await applyEvent(await db(), config, event, now());
   return Response.json({ received: true });
 }

@@ -42,9 +42,10 @@ async function oidcToken(repo: string): Promise<string> {
   return `${head}.${body}.${sign("RSA-SHA256", Buffer.from(`${head}.${body}`), createPrivateKey(pem)).toString("base64url")}`;
 }
 
-export async function upload(request: APIRequestContext, repo: string, body: Record<string, unknown>): Promise<void> {
+/** Uploads `body` for `repo` and expects `status`, 201 unless given. */
+export async function upload(request: APIRequestContext, repo: string, body: Record<string, unknown>, status = 201): Promise<void> {
   const response = await request.post("/api/v1/uploads", { data: { repo, commit: COMMIT, ...body }, headers: { authorization: `Bearer ${await oidcToken(repo)}` } });
-  expect(response.status(), await response.text()).toBe(201);
+  expect(response.status(), await response.text()).toBe(status);
 }
 
 export function check(pull: number): Record<string, unknown> {

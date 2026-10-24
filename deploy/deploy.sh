@@ -46,8 +46,8 @@ if [[ -z "$(setting GITHUB_CLIENT_ID)" ]]; then
   echo "GITHUB_CLIENT_ID is not set yet, so sign-in will not work. The rest of the site deploys." >&2
 fi
 
-# The server's .env holds exactly what compose.yaml reads. Each value is single-quoted, which Bash and
-# Compose both read literally, so a price such as "$8 per seat a month" stays as written.
+# The server's .env holds exactly what compose.yaml reads. Each value is single-quoted, which Bash
+# and Compose both read literally. A price such as "$10 per seat a month" therefore stays as written.
 quoted() {
   [[ $2 != *"'"* ]] || { echo "$1 holds a single quote, which the server's .env cannot carry." >&2; exit 1; }
   printf "%s='%s'\n" "$1" "$2"
@@ -55,8 +55,8 @@ quoted() {
 server_env() {
   local name
   quoted DOMAIN "$DOMAIN"
-  for name in NEXTAUTH_SECRET GITHUB_CLIENT_ID GITHUB_CLIENT_SECRET STRIPE_SECRET_KEY STRIPE_WEBHOOK_SECRET STRIPE_TEAM_PRICE \
-    AISUS_TEAM_PRICE_TEXT AISUS_RELEASES_REPO UMAMI_WEBSITE_ID METRICS_TOKEN UMAMI_APP_SECRET UMAMI_DB_PASSWORD GRAFANA_ADMIN_PASSWORD; do
+  for name in NEXTAUTH_SECRET GITHUB_CLIENT_ID GITHUB_CLIENT_SECRET STRIPE_SECRET_KEY STRIPE_WEBHOOK_SECRET STRIPE_PRO_PRICE STRIPE_TEAM_PRICE \
+    AISUS_PRO_PRICE_TEXT AISUS_TEAM_PRICE_TEXT AISUS_RELEASES_REPO UMAMI_WEBSITE_ID METRICS_TOKEN UMAMI_APP_SECRET UMAMI_DB_PASSWORD GRAFANA_ADMIN_PASSWORD; do
     quoted "$name" "$(setting "$name")"
   done
   [[ -n "$(setting GITHUB_CLIENT_ID)" ]] || printf 'GITHUB_CLIENT_ID=not-set\nGITHUB_CLIENT_SECRET=not-set\n'

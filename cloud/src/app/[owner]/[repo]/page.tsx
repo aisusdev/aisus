@@ -6,7 +6,7 @@ import { MapViewer } from "../../../components/MapViewer";
 import { mapName, mapPageData } from "../../../lib/mapPage";
 import { openSpace } from "../../../lib/pages";
 import { services } from "../../../lib/services";
-import { planOfAccount } from "../../../lib/billing";
+import { planOfRepository } from "../../../lib/billing";
 import { historySince, latestCheck, mainMap, mapHistory } from "../../../lib/store";
 
 export const dynamic = "force-dynamic";
@@ -18,8 +18,19 @@ export default async function MapPage({ params, searchParams }: { params: Promis
   if (space === "sign-in") redirect(`/signin?callbackUrl=${encodeURIComponent(`/${owner}/${name}`)}`);
   if (space === "not-found") notFound();
   const db = await services().db();
-  // CLD-07: the account's plan decides how much history shows.
-  const history = await mapHistory(db, space.repo.id, historySince(await planOfAccount(db, owner), services().now()));
+  // CLD-07: the account's plan decides whether maps show, and how much history.
+  const { plan, refusal } = await planOfRepository(db, space.repo);
+  if (refusal !== null) {
+    return (
+      <main className="page">
+        <h1>
+          {owner}/{name}
+        </h1>
+        <p className="muted plan-note">{refusal}</p>
+      </main>
+    );
+  }
+  const history = await mapHistory(db, space.repo.id, historySince(plan, services().now()));
   const shown = chosen === undefined ? await mainMap(db, space.repo) : history.find((row) => String(row.id) === chosen);
   if (!shown) {
     return (

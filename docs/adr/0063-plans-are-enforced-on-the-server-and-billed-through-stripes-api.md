@@ -1,5 +1,5 @@
 ---
-status: accepted
+status: superseded by [ADR-0067](0067-plans-are-free-pro-and-team.md)
 date: 2026-10-19
 decision-makers: implementer
 ---

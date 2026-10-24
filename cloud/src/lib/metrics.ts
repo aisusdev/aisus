@@ -39,6 +39,7 @@ export async function metricsText(db: Database, now = new Date()): Promise<strin
     gauge("aisus_upload_tokens", "Upload tokens that exist.", [["", Number(uploadTokens?.n ?? 0)]]),
     gauge("aisus_share_links", "Share links that are neither expired nor revoked.", [["", Number(links?.n ?? 0)]]),
     gauge("aisus_paid_accounts", "Accounts on a paid plan, by plan.", [
+      ['{plan="pro"}', valueOf(plans, "pro")],
       ['{plan="team"}', valueOf(plans, "team")],
       ['{plan="enterprise"}', valueOf(plans, "enterprise")],
     ]),

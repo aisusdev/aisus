@@ -103,7 +103,7 @@ export function NewShareLink({ url, days }: { url: string; days: readonly number
   );
 }
 
-/** CLD-07: Upgrade to Team or Manage billing: asks the server for Stripe's page and goes there. */
+/** CLD-07: Upgrade to Pro, Upgrade to Team or Manage billing: asks the server for Stripe's page and goes there. */
 export function PlanButton({ url, account, label }: { url: string; account: string; label: string }) {
   const [error, setError] = useState<string | null>(null);
   return (

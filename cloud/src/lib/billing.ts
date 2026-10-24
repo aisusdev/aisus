@@ -1,11 +1,11 @@
 // CLD-07: each account's plan, Stripe Checkout and the Customer Portal through Stripe's REST API, and
-// the webhook that sets the plan once its signature checks out. An account is the GitHub login that
-// owns repositories, a person's or an organization's.
+// the webhook that sets the plan once its signature checks out (ADR 0067). An account is the GitHub
+// login that owns repositories, a person's or an organization's.
 import { createHmac, timingSafeEqual } from "node:crypto";
-import { and, eq, ne, sql } from "drizzle-orm";
-import { planFor, type BillingConfig, type Plan, type PlanId } from "../../plans";
+import { eq, sql } from "drizzle-orm";
+import { cloudRefusal, planFor, type BillingConfig, type PaidPlanId, type Plan, type PlanId } from "../../plans";
 import type { Database } from "../db/client";
-import { access, accountPlans, repositories, uploads } from "../db/schema";
+import { access, accountPlans, repositories, users } from "../db/schema";
 
 /** How far a webhook's signed time may be from now. */
 export const SIGNATURE_TOLERANCE_S = 300;
@@ -25,14 +25,16 @@ export async function setPlan(db: Database, account: string, fields: { plan: Pla
   await db.insert(accountPlans).values({ account, ...values }).onConflictDoUpdate({ target: accountPlans.account, set: values });
 }
 
-/** The private repositories of `account`, other than `repoId`, that hold uploads. */
-export async function privateRepositoriesKept(db: Database, account: string, repoId: number): Promise<number> {
-  const [row] = await db
-    .select({ count: sql<number>`count(distinct ${uploads.repoId})::int` })
-    .from(uploads)
-    .innerJoin(repositories, eq(uploads.repoId, repositories.id))
-    .where(and(eq(repositories.owner, account), eq(repositories.private, true), ne(uploads.repoId, repoId)));
-  return row?.count ?? 0;
+/** Whether `account` is a person's own: someone has signed in here with that GitHub login. Every other account is an organization's. */
+export async function personalAccount(db: Database, account: string): Promise<boolean> {
+  const [row] = await db.select({ id: users.id }).from(users).where(eq(users.login, account)).limit(1);
+  return row !== undefined;
+}
+
+/** The plan in force for `repo`'s account, and why it keeps no maps of `repo`, or `null` when it keeps them. */
+export async function planOfRepository(db: Database, repo: { owner: string }, env: NodeJS.ProcessEnv = process.env): Promise<{ plan: Plan; refusal: string | null }> {
+  const plan = await planOfAccount(db, repo.owner, env);
+  return { plan, refusal: cloudRefusal(plan, repo.owner, { organization: !(await personalAccount(db, repo.owner)) }) };
 }
 
 /** Seats to buy for `account`: the people with access to its repositories here, at least one. */
@@ -56,20 +58,25 @@ async function stripe(config: BillingConfig, path: string, params: Record<string
   return body;
 }
 
-/** A Stripe Checkout page that subscribes `account` to Team for `seats`, returning to `site`. */
-export async function checkoutUrl(config: BillingConfig, account: string, seats: number, site: string, fetcher?: typeof fetch): Promise<string> {
+/**
+ * A Stripe Checkout page that subscribes `account` to `plan` for `seats`, returning to `site`. The
+ * session and its subscription carry the account and the plan in their metadata.
+ */
+export async function checkoutUrl(config: BillingConfig, account: string, plan: PaidPlanId, seats: number, site: string, fetcher?: typeof fetch): Promise<string> {
   const session = await stripe(
     config,
     "/v1/checkout/sessions",
     {
       mode: "subscription",
-      "line_items[0][price]": config.teamPrice,
+      "line_items[0][price]": config.prices[plan],
       "line_items[0][quantity]": String(seats),
       success_url: `${site}/settings?upgraded=${encodeURIComponent(account)}`,
       cancel_url: `${site}/settings`,
       client_reference_id: account,
       "metadata[account]": account,
+      "metadata[plan]": plan,
       "subscription_data[metadata][account]": account,
+      "subscription_data[metadata][plan]": plan,
     },
     fetcher,
   );
@@ -99,8 +106,19 @@ export function signatureValid(payload: string, header: string | null, secret: s
   });
 }
 
-/** Sets the plan a verified Stripe event decides; returns the account it changed, or `null` for an event that changes none. */
-export async function applyEvent(db: Database, event: unknown, now = new Date()): Promise<string | null> {
+/** `value` when it names a plan Stripe sells. */
+function paidPlan(value: unknown): PaidPlanId | undefined {
+  return value === "pro" || value === "team" ? value : undefined;
+}
+
+/**
+ * Sets the plan a verified Stripe event decides; returns the account it changed, or `null` for an
+ * event that changes none. A completed Checkout sets the plan in its metadata. A subscription sets
+ * the plan of the price it bills. For a price `config` does not name, it sets the plan in the price's
+ * metadata, or else the plan in the subscription's metadata. Every subscription before Pro was Team.
+ * Team is therefore the plan when none of them says.
+ */
+export async function applyEvent(db: Database, config: BillingConfig, event: unknown, now = new Date()): Promise<string | null> {
   const typed = event as { type?: unknown; data?: { object?: Record<string, unknown> } };
   const object = typed.data?.object ?? {};
   const metadata = (object["metadata"] ?? {}) as Record<string, unknown>;
@@ -109,13 +127,15 @@ export async function applyEvent(db: Database, event: unknown, now = new Date())
   const id = (value: unknown): string | undefined => (typeof value === "string" ? value : undefined);
   switch (typed.type) {
     case "checkout.session.completed":
-      await setPlan(db, account, { plan: "team", ...(id(object["customer"]) ? { customer: id(object["customer"])! } : {}), ...(id(object["subscription"]) ? { subscription: id(object["subscription"])! } : {}) }, now);
+      await setPlan(db, account, { plan: paidPlan(metadata["plan"]) ?? "team", ...(id(object["customer"]) ? { customer: id(object["customer"])! } : {}), ...(id(object["subscription"]) ? { subscription: id(object["subscription"])! } : {}) }, now);
       return account;
     case "customer.subscription.updated": {
-      const items = (object["items"] as { data?: { quantity?: unknown }[] } | undefined)?.data ?? [];
+      const items = (object["items"] as { data?: { quantity?: unknown; price?: { id?: unknown; metadata?: Record<string, unknown> } }[] } | undefined)?.data ?? [];
       const seats = typeof items[0]?.quantity === "number" ? items[0].quantity : undefined;
+      const price = items[0]?.price?.id;
+      const bought = price === config.prices.pro ? "pro" : price === config.prices.team ? "team" : (paidPlan(items[0]?.price?.metadata?.["plan"]) ?? paidPlan(metadata["plan"]) ?? "team");
       const active = object["status"] === "active" || object["status"] === "trialing";
-      await setPlan(db, account, { plan: active ? "team" : "free", ...(seats ? { seats } : {}) }, now);
+      await setPlan(db, account, { plan: active ? bought : "free", ...(seats ? { seats } : {}) }, now);
       return account;
     }
     case "customer.subscription.deleted":

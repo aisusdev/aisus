@@ -85,7 +85,7 @@ aisus pays down three debts that AI-assisted coding creates: **comprehension** (
 | LRN-02 | Java bug kinds | Bug-hunt sessions on Java code (CS2103) | Skill | I4 |
 | CLD-05 | Team dashboard | Freshness, uncovered code, violations and hotspots across a team's repositories, over time | Architecture | I5 |
 | CLD-06 | Share links | Expiring read-only links to private maps | Comprehension | I5 |
-| CLD-07 | Plans and billing | Paid Team and Enterprise plans through Stripe | — | I5 |
+| CLD-07 | Plans and billing | Paid Pro and Team plans through Stripe | — | I5 |
 | CLD-10 | Self-hosting | The cloud as a Docker image | — | I5 |
 | CLD-12 | Share from the extension | Opt-in upload from VS Code, showing exactly what is sent | — | I5 |
 | CLD-13 | Export and audit | Export all data; an upload audit log | — | I5 |
@@ -671,8 +671,9 @@ Everything is aggregated per repository. No per-person view, query or export exi
 **CLD-06 Share links.** Expiring (1, 7 or 30 days), revocable, read-only links to private maps. AC: `[web]`.
 
 **CLD-07 Plans and billing.** Stripe Checkout and the Customer Portal, with signature-verified webhooks setting the plan. `cloud/plans.ts` defines the plans, enforced on the server:
-- **Free:** public repositories, 1 private repository, 30 days of history.
-- **Team (per seat):** private repositories, full history, PR pages, the dashboard, share links.
+- **Free:** no cloud. The extension, the skills, the CLI and the Action's PR comment stay free and local. The cloud refuses uploads with 402, naming Pro and Team and the upgrade address, and shows no maps.
+- **Pro (US$5 a month):** the cloud for one person's own repositories, public and private, with full history, PR pages and share links. Bought by that person for their own account, quantity 1.
+- **Team (US$10 per seat a month):** Pro for everyone in a GitHub organization, with its repositories, the dashboard and seats. Bought for an organization's account by someone with admin access to one of its repositories.
 - **Enterprise:** self-hosted.
 
 Prices live in configuration. AC: signed test webhooks and limits `[unit]`; the upgrade flow against mocked Stripe `[web]`.

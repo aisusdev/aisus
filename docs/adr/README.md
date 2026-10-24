@@ -66,7 +66,8 @@ Decisions for Sustain in [MADR 4.0](https://adr.github.io/madr/) format; the pro
 | [0060](0060-tours-are-a-sidecar-the-viewer-plays.md) | Tours are a sidecar the viewer plays | accepted | 2026-10-19 |
 | [0061](0061-sessions-enforce-the-hunt-in-each-agents-own-hooks.md) | Sessions enforce the hunt in each agent's own hooks | accepted | 2026-10-19 |
 | [0062](0062-bug-kinds-per-language.md) | Bug kinds per language | accepted | 2026-10-19 |
-| [0063](0063-plans-are-enforced-on-the-server-and-billed-through-stripes-api.md) | Plans are enforced on the server and billed through Stripe's API | accepted | 2026-10-19 |
+| [0063](0063-plans-are-enforced-on-the-server-and-billed-through-stripes-api.md) | Plans are enforced on the server and billed through Stripe's API | superseded by [ADR-0067](0067-plans-are-free-pro-and-team.md) | 2026-10-19 |
 | [0064](0064-layout-runs-in-web-workers-from-blob-urls.md) | Layout runs in Web Workers from Blob URLs | accepted | 2026-10-19 |
 | [0065](0065-devin-joins-the-composer-and-other-agents-get-copied-prompts.md) | Devin joins the composer, and other agents get copied prompts | accepted | 2026-10-19 |
 | [0066](0066-the-product-is-named-aisus.md) | The product is named aisus | accepted | 2026-10-24 |
+| [0067](0067-plans-are-free-pro-and-team.md) | Plans are Free, Pro and Team | accepted | 2026-10-24 |
