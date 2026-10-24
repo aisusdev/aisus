@@ -7,12 +7,12 @@ Run every command from this repository with the Node version in `.nvmrc`. Start 
 ```bash
 npm ci
 npm run package
-code --install-extension aisus-0.2.0.vsix
+code --install-extension aisus-0.3.0.vsix
 ```
 
 Reload VS Code, open any project and click the aisus icon in the Activity Bar. Type an optional focus and press **Generate**. The setup checklist in the sidebar names anything missing, such as an agent CLI, and offers a fix. Generating needs Claude Code, Codex or Devin installed and signed in.
 
-Cursor installs the same file with `cursor --install-extension aisus-0.2.0.vsix`. After pulling new code, package and install again.
+Cursor installs the same file with `cursor --install-extension aisus-0.3.0.vsix`. After pulling new code, package and install again.
 
 ## Put aisus in another project
 
