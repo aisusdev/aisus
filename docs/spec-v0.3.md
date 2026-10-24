@@ -475,7 +475,7 @@ Private unless an owner marks a public repository's maps public. AC: `[web]`.
 - a landing page;
 - docs, rendered from the repository's README and `docs/`;
 - a privacy page publishing the upload schema and the "maps, not code" rule;
-- a pricing note ("free during beta");
+- pricing for Free, Pro and Team (ADR 0067);
 - a gallery of public maps.
 
 No third-party analytics. AC: `[web]`.
