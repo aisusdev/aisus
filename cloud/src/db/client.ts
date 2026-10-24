@@ -28,14 +28,14 @@ export async function openDatabase(dataDir?: string): Promise<Database> {
 }
 
 /** One database per process. Next loads this module once per bundle, so the instance lives on globalThis. */
-const holder = globalThis as typeof globalThis & { sustainDatabase?: Promise<Database> };
+const holder = globalThis as typeof globalThis & { aisusDatabase?: Promise<Database> };
 
-/** The app's database, from `SUSTAIN_DB`: `memory`, or a PGlite folder. */
+/** The app's database, from `AISUS_DB`: `memory`, or a PGlite folder. */
 export function database(): Promise<Database> {
-  holder.sustainDatabase ??= (() => {
-    const setting = process.env["SUSTAIN_DB"] ?? "memory";
+  holder.aisusDatabase ??= (() => {
+    const setting = process.env["AISUS_DB"] ?? "memory";
     if (/^postgres(ql)?:/.test(setting)) throw new Error("A Postgres URL needs the production driver; see the deployment notes in progress-v0.3.md.");
     return openDatabase(setting === "memory" ? undefined : setting);
   })();
-  return holder.sustainDatabase;
+  return holder.aisusDatabase;
 }

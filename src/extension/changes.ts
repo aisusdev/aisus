@@ -1,4 +1,4 @@
-// FRS-04: `Sustain: Show Changes on Diagram` and the map's title-bar button. The user picks a
+// FRS-04: `aisus: Show Changes on Diagram` and the map's title-bar button. The user picks a
 // scope; git's diff marks the boxes it touches on the shown map.
 import * as vscode from "vscode";
 import { markChanges, parseDiff, rangeOf, type FileChange } from "../model/changes";

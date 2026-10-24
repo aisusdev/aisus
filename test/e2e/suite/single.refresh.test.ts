@@ -39,7 +39,7 @@ suite("FRS-06 Refresh from the UI", () => {
   const terminals: vscode.Terminal[] = [];
 
   function installSkills(...names: string[]): void {
-    const extensionPath = vscode.extensions.getExtension("sustain.sustain")!.extensionPath;
+    const extensionPath = vscode.extensions.getExtension("aisus.aisus")!.extensionPath;
     for (const name of names) writeSkill(homedir(), join(extensionPath, "dist/skills", name), skillTargets(homedir(), name), name);
   }
 
@@ -53,14 +53,14 @@ suite("FRS-06 Refresh from the UI", () => {
   }
 
   suiteSetup(async () => {
-    hook = (await vscode.extensions.getExtension("sustain.sustain")!.activate()) as TestHook;
+    hook = (await vscode.extensions.getExtension("aisus.aisus")!.activate()) as TestHook;
   });
 
   setup(async () => {
     root = vscode.workspace.workspaceFolders![0]!.uri.fsPath;
     ui = stubUi();
     savedPath = process.env["PATH"];
-    const bin = mkdtempSync(join(tmpdir(), "sustain-bin-"));
+    const bin = mkdtempSync(join(tmpdir(), "aisus-bin-"));
     cleanup.push(bin);
     writeFileSync(join(bin, "claude"), "#!/bin/sh\nsleep 30\n");
     chmodSync(join(bin, "claude"), 0o755);
@@ -71,9 +71,9 @@ suite("FRS-06 Refresh from the UI", () => {
       `.archify/${RUN}/candidate.json`,
       JSON.stringify({ meta: { title: "Shop" }, components: [{ id: "api", label: "API", type: "backend", sources: [{ path: "src/a.ts", line: 1 }, { path: "src/a.ts" }] }] }),
     );
-    installSkills("sustain-architecture", "sustain-refresh");
+    installSkills("aisus-architecture", "aisus-refresh");
     await hook.setDataNoteShown(true);
-    await vscode.workspace.getConfiguration("sustain").update("runMode", "terminal", vscode.ConfigurationTarget.Global);
+    await vscode.workspace.getConfiguration("aisus").update("runMode", "terminal", vscode.ConfigurationTarget.Global);
   });
 
   teardown(async () => {
@@ -81,79 +81,79 @@ suite("FRS-06 Refresh from the UI", () => {
     process.env["PATH"] = savedPath;
     for (const terminal of terminals.splice(0)) terminal.dispose();
     await vscode.commands.executeCommand("workbench.action.closeAllEditors");
-    await vscode.workspace.getConfiguration("sustain").update("runMode", undefined, vscode.ConfigurationTarget.Global);
+    await vscode.workspace.getConfiguration("aisus").update("runMode", undefined, vscode.ConfigurationTarget.Global);
     for (const dir of cleanup.splice(0)) rmSync(dir, { recursive: true, force: true });
     for (const dir of [".archify", "src"]) rmSync(join(root, dir), { recursive: true, force: true });
     for (const dir of [".agents", ".claude"]) rmSync(join(homedir(), dir), { recursive: true, force: true });
   });
 
   test("FRS-06 the map's title-bar Refresh runs the refresh skill on the shown map", async () => {
-    await vscode.commands.executeCommand("sustain.openArchitecture");
+    await vscode.commands.executeCommand("aisus.openArchitecture");
     await until(() => hook.panelState().open, "the map");
-    assert.equal(await launched(() => vscode.commands.executeCommand("sustain.refreshArchitecture")), `/sustain-refresh --from ${RUN}`);
+    assert.equal(await launched(() => vscode.commands.executeCommand("aisus.refreshArchitecture")), `/aisus-refresh --from ${RUN}`);
     assert.equal(hook.runCard()?.focus, "Refresh of Shop");
   });
 
   test("FRS-06 the freshness header's Refresh does the same", async () => {
-    await vscode.commands.executeCommand("sustain.openArchitecture");
+    await vscode.commands.executeCommand("aisus.openArchitecture");
     await until(() => hook.panelState().open, "the map");
-    assert.equal(await launched(() => hook.postFromWebview({ type: "refresh" })), `/sustain-refresh --from ${RUN}`);
+    assert.equal(await launched(() => hook.postFromWebview({ type: "refresh" })), `/aisus-refresh --from ${RUN}`);
   });
 
   test("FRS-06 the maps list refreshes its map", async () => {
-    await vscode.commands.executeCommand("workbench.view.extension.sustain");
+    await vscode.commands.executeCommand("workbench.view.extension.aisus");
     await until(() => hook.homeState().visible, "the sidebar");
-    assert.equal(await launched(() => hook.postFromHome({ type: "refreshMap", file: candidate })), `/sustain-refresh --from ${RUN}`);
+    assert.equal(await launched(() => hook.postFromHome({ type: "refreshMap", file: candidate })), `/aisus-refresh --from ${RUN}`);
   });
 
   test("FRS-06 Refresh this box limits the refresh to the files the box cites", async () => {
-    await vscode.commands.executeCommand("sustain.openArchitecture");
+    await vscode.commands.executeCommand("aisus.openArchitecture");
     await until(() => hook.panelState().open, "the map");
-    const prompt = await launched(() => vscode.commands.executeCommand("sustain.refreshBox", { componentId: "api", webview: "sustain.architecture" }));
-    assert.equal(prompt, `/sustain-refresh --from ${RUN} --paths src/a.ts`);
+    const prompt = await launched(() => vscode.commands.executeCommand("aisus.refreshBox", { componentId: "api", webview: "aisus.architecture" }));
+    assert.equal(prompt, `/aisus-refresh --from ${RUN} --paths src/a.ts`);
     assert.equal(hook.runCard()?.focus, "Refresh of Shop · 1 file");
   });
 
   test("ACC-06 This Box Is Wrong… saves the note in feedback.json and offers Refresh this box, which refreshes it", async () => {
-    await vscode.commands.executeCommand("sustain.openArchitecture");
+    await vscode.commands.executeCommand("aisus.openArchitecture");
     await until(() => hook.panelState().open, "the map");
     ui.answers.inputBox.push("It also handles refunds.");
     ui.answers.info.push("Refresh this box");
-    const prompt = await launched(() => vscode.commands.executeCommand("sustain.flagBox", { componentId: "api", webview: "sustain.architecture" }));
+    const prompt = await launched(() => vscode.commands.executeCommand("aisus.flagBox", { componentId: "api", webview: "aisus.architecture" }));
     assert.equal(ui.inputBoxes[0]?.prompt, "What is wrong with API?");
     const offer = ui.infos.find((call) => call.message === "Saved your note on API in feedback.json.");
     assert.deepEqual(offer?.rest, ["Refresh this box"]);
-    assert.equal(prompt, `/sustain-refresh --from ${RUN} --paths src/a.ts`);
+    assert.equal(prompt, `/aisus-refresh --from ${RUN} --paths src/a.ts`);
     const feedback = JSON.parse(readFileSync(join(root, ".archify", RUN, "feedback.json"), "utf8")) as { schema: number; notes: { component: string; note: string; createdAt: string }[] };
     assert.equal(feedback.schema, 1);
     assert.deepEqual(feedback.notes.map((note) => [note.component, note.note]), [["api", "It also handles refunds."]]);
     assert.match(feedback.notes[0]!.createdAt, /^\d{4}-\d{2}-\d{2}T/);
 
     ui.answers.inputBox.push(undefined);
-    await vscode.commands.executeCommand("sustain.flagBox", { componentId: "api", webview: "sustain.architecture" });
+    await vscode.commands.executeCommand("aisus.flagBox", { componentId: "api", webview: "aisus.architecture" });
     ui.answers.inputBox.push("The cited line is the old client.");
     ui.answers.info.push(undefined);
-    await vscode.commands.executeCommand("sustain.flagBox", { componentId: "api", webview: "sustain.architecture" });
+    await vscode.commands.executeCommand("aisus.flagBox", { componentId: "api", webview: "aisus.architecture" });
     const notes = (JSON.parse(readFileSync(join(root, ".archify", RUN, "feedback.json"), "utf8")) as typeof feedback).notes;
     assert.deepEqual(notes.map((note) => note.note), ["It also handles refunds.", "The cited line is the old client."]);
   });
 
   test("FRS-06 SAF-01 CST-03 a missing refresh skill is installed after one modal", async () => {
-    rmSync(join(homedir(), ".agents/skills/sustain-refresh"), { recursive: true, force: true });
-    rmSync(join(homedir(), ".claude/skills/sustain-refresh"), { force: true });
-    await vscode.commands.executeCommand("sustain.openArchitecture");
+    rmSync(join(homedir(), ".agents/skills/aisus-refresh"), { recursive: true, force: true });
+    rmSync(join(homedir(), ".claude/skills/aisus-refresh"), { force: true });
+    await vscode.commands.executeCommand("aisus.openArchitecture");
     await until(() => hook.panelState().open, "the map");
     ui.answers.info.push("Refresh");
-    await launched(() => vscode.commands.executeCommand("sustain.refreshArchitecture"));
+    await launched(() => vscode.commands.executeCommand("aisus.refreshArchitecture"));
     assert.equal(ui.infos[0]!.message, "Refresh with Claude Code?");
-    assert.equal(afterEstimate((ui.infos[0]!.rest[0] as { detail: string }).detail), "Installs the sustain-refresh skill in ~/.claude/skills/.");
-    assert.ok(readFileSync(join(homedir(), ".agents/skills/sustain-refresh/SKILL.md"), "utf8").includes("name: sustain-refresh"));
+    assert.equal(afterEstimate((ui.infos[0]!.rest[0] as { detail: string }).detail), "Installs the aisus-refresh skill in ~/.claude/skills/.");
+    assert.ok(readFileSync(join(homedir(), ".agents/skills/aisus-refresh/SKILL.md"), "utf8").includes("name: aisus-refresh"));
   });
 
   test("FRS-06 without a map Refresh is Generate", async () => {
     rmSync(join(root, ".archify"), { recursive: true, force: true });
     ui.answers.inputBox.push(undefined);
-    await vscode.commands.executeCommand("sustain.refreshArchitecture");
+    await vscode.commands.executeCommand("aisus.refreshArchitecture");
     assert.deepEqual(ui.inputBoxes, [{ prompt: "Focus (optional)" }]);
   });
 });

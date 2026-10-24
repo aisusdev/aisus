@@ -33,7 +33,7 @@ function diagram(title: string): string {
 function webviewTabs(): vscode.Tab[] {
   return vscode.window.tabGroups.all
     .flatMap((group) => group.tabs)
-    .filter((tab) => tab.input instanceof vscode.TabInputWebview && tab.input.viewType.endsWith("sustain.architecture"));
+    .filter((tab) => tab.input instanceof vscode.TabInputWebview && tab.input.viewType.endsWith("aisus.architecture"));
 }
 
 /** The architecture panel's tab once it carries `label` (tab state reaches the extension host asynchronously). */
@@ -62,7 +62,7 @@ suite("FR-VIEW-01/04 open commands and panel", () => {
   let root: string;
 
   suiteSetup(async () => {
-    hook = (await vscode.extensions.getExtension("sustain.sustain")!.activate()) as TestHook;
+    hook = (await vscode.extensions.getExtension("aisus.aisus")!.activate()) as TestHook;
   });
 
   setup(() => {
@@ -79,7 +79,7 @@ suite("FR-VIEW-01/04 open commands and panel", () => {
   test("without candidates: info with Generate, which runs Generate Architecture", async () => {
     ui.answers.info.push("Generate");
     ui.answers.inputBox.push(undefined);
-    await vscode.commands.executeCommand("sustain.openArchitecture");
+    await vscode.commands.executeCommand("aisus.openArchitecture");
     assert.equal(ui.infos[0]!.message, "No architecture diagram yet.");
     assert.deepEqual(ui.infos[0]!.rest, ["Generate"]);
     assert.deepEqual(ui.inputBoxes, [{ prompt: "Focus (optional)" }], "Generate Architecture ran");
@@ -89,7 +89,7 @@ suite("FR-VIEW-01/04 open commands and panel", () => {
   test("opens the newest candidate in the active column when no editor is open", async () => {
     write(root, `.archify/${OLD}/candidate.json`, diagram("Old"));
     const newest = write(root, `.archify/${NEW}/candidate.json`, diagram("New"));
-    await vscode.commands.executeCommand("sustain.openArchitecture");
+    await vscode.commands.executeCommand("aisus.openArchitecture");
     assert.deepEqual(hook.panelState(), { file: newest, open: true });
     const tab = await panelTab("Architecture: New");
     assert.equal(tab.group.viewColumn, vscode.ViewColumn.One);
@@ -98,9 +98,9 @@ suite("FR-VIEW-01/04 open commands and panel", () => {
 
   test("re-running reveals and reloads the same single panel", async () => {
     const file = write(root, `.archify/${NEW}/candidate.json`, diagram("New"));
-    await vscode.commands.executeCommand("sustain.openArchitecture");
+    await vscode.commands.executeCommand("aisus.openArchitecture");
     writeFileSync(file, diagram("Renamed"));
-    await vscode.commands.executeCommand("sustain.openArchitecture");
+    await vscode.commands.executeCommand("aisus.openArchitecture");
     await panelTab("Architecture: Renamed");
     assert.equal(webviewTabs().length, 1);
   });
@@ -109,7 +109,7 @@ suite("FR-VIEW-01/04 open commands and panel", () => {
     write(root, `.archify/${NEW}/candidate.json`, diagram("New"));
     const code = write(root, "src/web.ts", "export {};\n");
     await vscode.window.showTextDocument(vscode.Uri.file(code), { viewColumn: vscode.ViewColumn.One });
-    await vscode.commands.executeCommand("sustain.openArchitecture");
+    await vscode.commands.executeCommand("aisus.openArchitecture");
     assert.equal((await panelTab("Architecture: New")).group.viewColumn, vscode.ViewColumn.Two);
   });
 
@@ -117,7 +117,7 @@ suite("FR-VIEW-01/04 open commands and panel", () => {
     const older = write(root, `.archify/${OLD}/candidate.json`, diagram("Old"));
     write(root, `.archify/${NEW}/candidate.json`, diagram("New"));
     ui.answers.quickPick.push(OLD);
-    await vscode.commands.executeCommand("sustain.openArchitectureFile");
+    await vscode.commands.executeCommand("aisus.openArchitectureFile");
     assert.deepEqual(
       ui.quickPicks[0]!.map((item) => [item.label, item.description]),
       [
@@ -134,7 +134,7 @@ suite("FR-VIEW-01/04 open commands and panel", () => {
     const browsed = write(root, "docs/system.json", diagram("Browsed"));
     ui.answers.quickPick.push("Browse…");
     ui.answers.openDialog.push(browsed);
-    await vscode.commands.executeCommand("sustain.openArchitectureFile");
+    await vscode.commands.executeCommand("aisus.openArchitectureFile");
     assert.deepEqual(ui.openDialogs[0]?.filters, { JSON: ["json"] });
     assert.equal(hook.panelState().file, browsed);
     await panelTab("Architecture: Browsed");
@@ -142,7 +142,7 @@ suite("FR-VIEW-01/04 open commands and panel", () => {
 
   test("an unreadable diagram shows the error and an empty-state panel", async () => {
     write(root, `.archify/${NEW}/candidate.json`, "{ not json");
-    await vscode.commands.executeCommand("sustain.openArchitecture");
+    await vscode.commands.executeCommand("aisus.openArchitecture");
     assert.equal(ui.errors.length, 1);
     assert.match(ui.errors[0]!.message, new RegExp(`^Can't show \`\\.archify/${NEW}/candidate\\.json\`: invalid JSON`));
     assert.equal(hook.panelState().open, true);
@@ -151,13 +151,13 @@ suite("FR-VIEW-01/04 open commands and panel", () => {
 
   test("a document without components is refused with the reason", async () => {
     write(root, `.archify/${NEW}/candidate.json`, JSON.stringify({ meta: { title: "Empty" }, components: [] }));
-    await vscode.commands.executeCommand("sustain.openArchitecture");
+    await vscode.commands.executeCommand("aisus.openArchitecture");
     assert.equal(ui.errors[0]?.message, `Can't show \`.archify/${NEW}/candidate.json\`: it has no components`);
   });
 
   test("closing the panel clears the panel state", async () => {
     write(root, `.archify/${NEW}/candidate.json`, diagram("New"));
-    await vscode.commands.executeCommand("sustain.openArchitecture");
+    await vscode.commands.executeCommand("aisus.openArchitecture");
     assert.equal(hook.panelState().open, true);
     await vscode.commands.executeCommand("workbench.action.closeAllEditors");
     assert.deepEqual(hook.panelState(), { file: undefined, open: false });

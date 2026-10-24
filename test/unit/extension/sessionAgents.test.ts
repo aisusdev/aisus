@@ -20,7 +20,7 @@ test("LRN-01 Claude Code, Codex and Devin on PATH are offered in that order", ()
 });
 
 test("LRN-01 each agent's terminal gets the skill prompt alone, after -- for Devin", () => {
-  expect(sessionArgs("claude", " add a helper ")).toEqual(["/sustain-bugfix add a helper"]);
-  expect(sessionArgs("codex", "add a helper")).toEqual(["$sustain-bugfix add a helper"]);
-  expect(sessionArgs("devin", "add a helper")).toEqual(["--", "/sustain-bugfix add a helper"]);
+  expect(sessionArgs("claude", " add a helper ")).toEqual(["/aisus-bugfix add a helper"]);
+  expect(sessionArgs("codex", "add a helper")).toEqual(["$aisus-bugfix add a helper"]);
+  expect(sessionArgs("devin", "add a helper")).toEqual(["--", "/aisus-bugfix add a helper"]);
 });

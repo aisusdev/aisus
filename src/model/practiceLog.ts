@@ -1,4 +1,4 @@
-// SKL-03: the practice log. Bug hunts from `.sustain/`, explain-backs from workspace state and the
+// SKL-03: the practice log. Bug hunts from `.aisus/`, explain-backs from workspace state and the
 // tours the user finished, newest first with their dates. Nothing in it leaves the machine.
 // Browser-safe.
 import type { LeaderboardEntry } from "./leaderboard";

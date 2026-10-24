@@ -54,7 +54,7 @@ test("CST-01 without git, a walk measures every file, skipping the same folders,
   for (const [rel, content] of Object.entries(FILES)) put(root, rel, content);
   put(root, "src/untracked.ts", lines(100));
   put(root, ".git/config", lines(30));
-  for (const dir of ["vendor/x", "build", "target", "out", ".sustain/run"]) put(root, `${dir}/file.ts`, lines(30));
+  for (const dir of ["vendor/x", "build", "target", "out", ".aisus/run"]) put(root, `${dir}/file.ts`, lines(30));
   symlinkSync(join(root, "src/app.ts"), join(root, "src/link.ts"));
   const size = repoSize(root, envWithoutGit());
   expect(size.listing).toBe("walk");

@@ -33,13 +33,13 @@ test("PRC-05 a pull request from a fork is never updated, whatever else holds", 
 });
 
 test("PRC-05 the agent runs the sidebar's headless argv for the refresh, in a fresh home, with only PATH, its home and its key", () => {
-  const home = "/tmp/sustain-refresh-x";
+  const home = "/tmp/aisus-refresh-x";
   const env = { PATH: "/usr/bin", ANTHROPIC_API_KEY: "sk-ant", OPENAI_API_KEY: "sk-openai", GITHUB_TOKEN: "ghs_secret" };
-  const skill = join(home, ".claude/skills/sustain-refresh/scripts");
+  const skill = join(home, ".claude/skills/aisus-refresh/scripts");
   expect(refreshCommand("claude", "architecture-shop-20261019-120000", ["src/api/handler.ts", "src/billing"], home, env)).toEqual({
     args: [
       "-p",
-      "/sustain-refresh --from architecture-shop-20261019-120000 --paths src/api/handler.ts src/billing",
+      "/aisus-refresh --from architecture-shop-20261019-120000 --paths src/api/handler.ts src/billing",
       "--output-format",
       "stream-json",
       "--verbose",
@@ -57,7 +57,7 @@ test("PRC-05 the agent runs the sidebar's headless argv for the refresh, in a fr
     env: { PATH: "/usr/bin", HOME: home, LANG: "C.UTF-8", CLAUDE_CONFIG_DIR: join(home, ".claude"), ANTHROPIC_API_KEY: "sk-ant" },
   });
   expect(refreshCommand("codex", "architecture-shop-20261019-120000", ["src/billing"], home, env)).toEqual({
-    args: ["exec", "--json", "--sandbox", "workspace-write", "$sustain-refresh --from architecture-shop-20261019-120000 --paths src/billing"],
+    args: ["exec", "--json", "--sandbox", "workspace-write", "$aisus-refresh --from architecture-shop-20261019-120000 --paths src/billing"],
     env: { PATH: "/usr/bin", HOME: home, LANG: "C.UTF-8", CODEX_HOME: join(home, ".codex"), OPENAI_API_KEY: "sk-openai", CODEX_API_KEY: "sk-openai" },
   });
 });

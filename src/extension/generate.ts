@@ -18,14 +18,14 @@ import type { Runs } from "./runs";
 import { configuredScope } from "./scope";
 import { skillBase } from "./skillFiles";
 
-const LAST_AGENT_KEY = "sustain.lastAgent";
-const DATA_NOTE_KEY = "sustain.dataNoteShown";
+const LAST_AGENT_KEY = "aisus.lastAgent";
+const DATA_NOTE_KEY = "aisus.dataNoteShown";
 
-export const DATA_NOTE = "Your agent reads this folder and sends what it reads to its own provider. Sustain sends nothing.";
+export const DATA_NOTE = "Your agent reads this folder and sends what it reads to its own provider. aisus sends nothing.";
 
-/** `sustain.runMode`: stream into the sidebar (the default) or run in a terminal. */
+/** `aisus.runMode`: stream into the sidebar (the default) or run in a terminal. */
 export function configuredRunMode(): RunMode {
-  return vscode.workspace.getConfiguration("sustain").get<RunMode>("runMode", "sidebar") === "terminal" ? "terminal" : "sidebar";
+  return vscode.workspace.getConfiguration("aisus").get<RunMode>("runMode", "sidebar") === "terminal" ? "terminal" : "sidebar";
 }
 
 /** `cli`'s executable: on absolute PATH entries (SAF-04), or for Devin also where it installs (RCH-04). */
@@ -61,7 +61,7 @@ export interface LaunchNote {
   /** A repair means the skill on disk was changed (SAF-01), so the palette asks with a warning. */
   kind: "estimate" | "install" | "repair" | "data" | "terminal";
   text: string;
-  /** An estimate above `sustain.confirmAboveTokens`, which needs a second click (CST-03). */
+  /** An estimate above `aisus.confirmAboveTokens`, which needs a second click (CST-03). */
   confirm?: boolean;
 }
 
@@ -74,18 +74,18 @@ export interface LaunchTask {
 
 /** A Generate with `focus`. */
 export function generateTask(focus: string): LaunchTask {
-  return { skill: "sustain-architecture", args: focus.trim(), title: focus.trim() };
+  return { skill: "aisus-architecture", args: focus.trim(), title: focus.trim() };
 }
 
 /**
  * What a run of `skill` with `cli` will spend and also do: the estimate (CST-03), installing or
  * repairing the skill, and the first-run data note (SET-03).
  */
-export function launchNotes(context: vscode.ExtensionContext, root: string, cli: ComposerCli, mode: RunMode, headless: boolean, skillName: SkillName = "sustain-architecture"): LaunchNote[] {
+export function launchNotes(context: vscode.ExtensionContext, root: string, cli: ComposerCli, mode: RunMode, headless: boolean, skillName: SkillName = "aisus-architecture"): LaunchNote[] {
   const notes: LaunchNote[] = [];
   const estimate = cli === "devin" ? null : launchEstimate(root, cli, estimateKind(skillName));
   if (estimate !== null) notes.push({ kind: "estimate", text: estimate.text, confirm: estimate.confirm });
-  if (cli === "devin") notes.push({ kind: "estimate", text: "Devin runs in its own terminal and reports no tokens to Sustain, so there is no estimate for it." });
+  if (cli === "devin") notes.push({ kind: "estimate", text: "Devin runs in its own terminal and reports no tokens to aisus, so there is no estimate for it." });
   const status = skillStatus(context.extensionUri, root, cli, skillName);
   const skill = skillNote(status, skillName);
   if (skill !== null) notes.push({ kind: status.differing === null ? "install" : "repair", text: skill });
@@ -130,16 +130,16 @@ export async function launchTask(context: vscode.ExtensionContext, runs: Runs, r
   const request = { root, focus: task.title, agent: { cli: agent.cli, label: agent.label }, task, estimate: agent.cli === "devin" ? null : launchEstimate(root, agent.cli, estimateKind(task.skill)) };
   if (mode === "sidebar" && agent.cli !== "devin" && canRunHeadless(binary)) {
     const skillDir = join(skillBase(configuredScope(), root), agent.cli === "claude" ? ".claude" : ".agents", "skills", task.skill);
-    const args = headlessArgs(agent.cli, prompt, { skillDir, scripts: SKILL_SCRIPTS[task.skill], subagents: task.skill === "sustain-audit" });
+    const args = headlessArgs(agent.cli, prompt, { skillDir, scripts: SKILL_SCRIPTS[task.skill], subagents: task.skill === "aisus-audit" });
     runs.startHeadless(request, binary, args, agent.cli === "claude" ? claudeParser() : codexParser());
     return;
   }
-  const terminal = vscode.window.createTerminal({ name: `Sustain: ${agent.label}`, cwd: root, shellPath: binary, shellArgs: agent.cli === "devin" ? devinPromptArgs(prompt) : agentLaunchArgs(prompt) });
+  const terminal = vscode.window.createTerminal({ name: `aisus: ${agent.label}`, cwd: root, shellPath: binary, shellArgs: agent.cli === "devin" ? devinPromptArgs(prompt) : agentLaunchArgs(prompt) });
   terminal.show();
   runs.startTerminal(request, terminal);
 }
 
-/** `Sustain: Generate Architecture`: the focus, then the agent and notes as {@link confirmAndLaunch} asks. */
+/** `aisus: Generate Architecture`: the focus, then the agent and notes as {@link confirmAndLaunch} asks. */
 export async function generateArchitectureCommand(context: vscode.ExtensionContext, runs: Runs): Promise<void> {
   const folder = await pickRepoRoot();
   if (!folder) return;
@@ -173,7 +173,7 @@ export async function confirmAndLaunch(context: vscode.ExtensionContext, runs: R
   const notes = launchNotes(context, root, agent.cli, mode, found.find((entry) => entry.cli === agent.cli)?.headless ?? true, task.skill);
   // The estimate alone asks only above the threshold (CST-03); every other note always asks (SET-03).
   if (notes.some((note) => note.kind !== "estimate" || note.confirm === true)) {
-    const verb = task.skill === "sustain-refresh" ? "Refresh" : task.skill === "sustain-audit" ? "Audit" : task.skill === "sustain-tour" ? "Create Tour" : "Generate";
+    const verb = task.skill === "aisus-refresh" ? "Refresh" : task.skill === "aisus-audit" ? "Audit" : task.skill === "aisus-tour" ? "Create Tour" : "Generate";
     const detail = notes.map((note) => note.text).join("\n\n");
     // A repair is a warning; every other note asks as information.
     const choice = notes.some((note) => note.kind === "repair")

@@ -11,7 +11,7 @@ import { ARCHIFY_DIR, CANDIDATE_FILE, createRunFolder, DRAFT_FILE, parseRunFolde
 import { newRunRecord, writeRunRecord } from "../model/runRecord";
 
 /** The skill version, filled in by the build. */
-const SKILL_VERSION = process.env.SUSTAIN_VERSION ?? "unknown";
+const SKILL_VERSION = process.env.AISUS_VERSION ?? "unknown";
 
 const USAGE = "repo-facts.mjs: usage: node repo-facts.mjs [--focus <text>] [--parent <run>]\n";
 

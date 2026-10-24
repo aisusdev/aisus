@@ -36,12 +36,12 @@ const SCRIPT_ENTRIES = {
 };
 
 /**
- * VWR-02: ELK's worker code, which the viewers embed as the string `__SUSTAIN_LAYOUT_WORKER__` and
+ * VWR-02: ELK's worker code, which the viewers embed as the string `__AISUS_LAYOUT_WORKER__` and
  * start from a Blob URL. The viewers themselves keep only ELK's small API.
  * @returns {Promise<Record<string, string>>} the `define` that embeds it
  */
 export async function layoutWorkerDefine() {
-  return { __SUSTAIN_LAYOUT_WORKER__: JSON.stringify(readFileSync(join(root, "node_modules/elkjs/lib/elk-worker.min.js"), "utf8")) };
+  return { __AISUS_LAYOUT_WORKER__: JSON.stringify(readFileSync(join(root, "node_modules/elkjs/lib/elk-worker.min.js"), "utf8")) };
 }
 
 /**
@@ -99,8 +99,8 @@ export async function buildScripts(outdir, names = Object.keys(SCRIPT_ENTRIES)) 
     format: "esm",
     target: "node18",
     define: {
-      "process.env.SUSTAIN_VERSION": JSON.stringify(JSON.parse(readFileSync(join(root, "package.json"), "utf8")).version),
-      ...(page ? { "process.env.SUSTAIN_PAGE_SCRIPT": JSON.stringify(page.script), "process.env.SUSTAIN_PAGE_STYLE": JSON.stringify(page.style) } : {}),
+      "process.env.AISUS_VERSION": JSON.stringify(JSON.parse(readFileSync(join(root, "package.json"), "utf8")).version),
+      ...(page ? { "process.env.AISUS_PAGE_SCRIPT": JSON.stringify(page.script), "process.env.AISUS_PAGE_STYLE": JSON.stringify(page.style) } : {}),
     },
   });
 }
@@ -158,27 +158,27 @@ export async function buildSkillsAndCli(out) {
   const results = [];
   // Static skill files (SKILL.md, agents/, references/) ship as-is.
   cpSync(join(root, "skills"), join(out, "skills"), { recursive: true });
-  results.push(await buildScripts(join(out, "skills/sustain-architecture/scripts"), ["repo-facts", "validate", "render-html"]));
-  results.push(await buildScripts(join(out, "skills/sustain-bugfix/scripts"), ["session", "session-hook"]));
+  results.push(await buildScripts(join(out, "skills/aisus-architecture/scripts"), ["repo-facts", "validate", "render-html"]));
+  results.push(await buildScripts(join(out, "skills/aisus-bugfix/scripts"), ["session", "session-hook"]));
   // The refresh skill reads the same format reference as the architecture skill (FRS-05).
-  cpSync(join(root, "skills/sustain-architecture/references"), join(out, "skills/sustain-refresh/references"), { recursive: true });
-  results.push(await buildScripts(join(out, "skills/sustain-refresh/scripts"), ["refresh-facts", "validate", "render-html"]));
-  results.push(await buildScripts(join(out, "skills/sustain-audit/scripts"), ["audit-record"]));
-  results.push(await buildScripts(join(out, "skills/sustain-tour/scripts"), ["tour-record"]));
+  cpSync(join(root, "skills/aisus-architecture/references"), join(out, "skills/aisus-refresh/references"), { recursive: true });
+  results.push(await buildScripts(join(out, "skills/aisus-refresh/scripts"), ["refresh-facts", "validate", "render-html"]));
+  results.push(await buildScripts(join(out, "skills/aisus-audit/scripts"), ["audit-record"]));
+  results.push(await buildScripts(join(out, "skills/aisus-tour/scripts"), ["tour-record"]));
   writeSkillHashes(out);
   const page = await buildPage();
   results.push(
     await esbuild.build({
       ...common,
-      entryPoints: [join(root, "src/cli/sustain.ts")],
-      outfile: join(out, "cli/sustain.mjs"),
+      entryPoints: [join(root, "src/cli/aisus.ts")],
+      outfile: join(out, "cli/aisus.mjs"),
       platform: "node",
       format: "esm",
       target: "node18",
       define: {
-        "process.env.SUSTAIN_VERSION": JSON.stringify(JSON.parse(readFileSync(join(root, "package.json"), "utf8")).version),
-        "process.env.SUSTAIN_PAGE_SCRIPT": JSON.stringify(page.script),
-        "process.env.SUSTAIN_PAGE_STYLE": JSON.stringify(page.style),
+        "process.env.AISUS_VERSION": JSON.stringify(JSON.parse(readFileSync(join(root, "package.json"), "utf8")).version),
+        "process.env.AISUS_PAGE_SCRIPT": JSON.stringify(page.script),
+        "process.env.AISUS_PAGE_STYLE": JSON.stringify(page.style),
       },
     }),
   );
@@ -197,8 +197,8 @@ function syncCommittedSkills(out) {
     rmSync(join(root, "skills", name, "scripts"), { recursive: true, force: true });
     cpSync(built, join(root, "skills", name, "scripts"), { recursive: true });
   }
-  rmSync(join(root, "skills/sustain-refresh/references"), { recursive: true, force: true });
-  cpSync(join(root, "skills/sustain-architecture/references"), join(root, "skills/sustain-refresh/references"), { recursive: true });
+  rmSync(join(root, "skills/aisus-refresh/references"), { recursive: true, force: true });
+  cpSync(join(root, "skills/aisus-architecture/references"), join(root, "skills/aisus-refresh/references"), { recursive: true });
 }
 
 async function buildDist() {

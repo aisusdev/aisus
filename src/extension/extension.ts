@@ -17,7 +17,7 @@ import { flagBoxCommand } from "./feedback";
 import { createTourCommand, playTourCommand } from "./tour";
 import { drillDownCommand } from "./drill";
 import { copyPromptForCommand } from "./copyPrompt";
-import { removeSustainCommand } from "./removeSustain";
+import { removeAisusCommand } from "./removeAisus";
 import { countUsage, UsageLogService } from "./usageLog";
 import type { UsageEvent, UsageLog } from "../model/usageLog";
 import { registerPreviews } from "./previewWrite";
@@ -100,7 +100,7 @@ export function activate(context: vscode.ExtensionContext): TestHook {
   const status = new StatusItem(runs);
   const counts = ArchitecturePanel.onDidCountChanges((changed) => (status.changed = changed));
   const toured = ArchitecturePanel.onTourFinished((tour) => void practice.recordTour(tour));
-  const running = runs.onDidChange(() => void vscode.commands.executeCommand("setContext", "sustain.running", runs.current?.status === "running"));
+  const running = runs.onDidChange(() => void vscode.commands.executeCommand("setContext", "aisus.running", runs.current?.status === "running"));
   context.subscriptions.push(
     registerPreviews(),
     runs,
@@ -119,48 +119,48 @@ export function activate(context: vscode.ExtensionContext): TestHook {
     status,
     running,
     vscode.window.registerWebviewViewProvider(HOME_VIEW, home),
-    vscode.commands.registerCommand("sustain.installSkills", () => installSkillsCommand(extensionUri)),
-    vscode.commands.registerCommand("sustain.generateArchitecture", counted("generate", () => generateArchitectureCommand(context, runs))),
-    vscode.commands.registerCommand("sustain.openArchitecture", () => openArchitectureCommand(extensionUri)),
-    vscode.commands.registerCommand("sustain.openArchitectureFile", () => openArchitectureFileCommand(extensionUri)),
-    vscode.commands.registerCommand("sustain.startLearning", counted("learn", () => startLearningSessionCommand(extensionUri))),
-    vscode.commands.registerCommand("sustain.checkSetup", async () => {
+    vscode.commands.registerCommand("aisus.installSkills", () => installSkillsCommand(extensionUri)),
+    vscode.commands.registerCommand("aisus.generateArchitecture", counted("generate", () => generateArchitectureCommand(context, runs))),
+    vscode.commands.registerCommand("aisus.openArchitecture", () => openArchitectureCommand(extensionUri)),
+    vscode.commands.registerCommand("aisus.openArchitectureFile", () => openArchitectureFileCommand(extensionUri)),
+    vscode.commands.registerCommand("aisus.startLearning", counted("learn", () => startLearningSessionCommand(extensionUri))),
+    vscode.commands.registerCommand("aisus.checkSetup", async () => {
       await vscode.commands.executeCommand(`${HOME_VIEW}.focus`);
       await home.checkSetup();
     }),
-    vscode.commands.registerCommand("sustain.refreshHome", () => home.send()),
-    vscode.commands.registerCommand("sustain.cancelRun", () => runs.cancel()),
-    vscode.commands.registerCommand("sustain.showInMap", (uri?: vscode.Uri) => showInMapCommand(extensionUri, uri)),
-    vscode.commands.registerCommand("sustain.showFileInMap", (uri?: vscode.Uri) => showInMapCommand(extensionUri, uri)),
-    vscode.commands.registerCommand("sustain.mapFolder", (uri?: vscode.Uri) => mapFolderCommand(context, runs, uri)),
-    vscode.commands.registerCommand("sustain.openBoxCode", openBoxCodeCommand),
-    vscode.commands.registerCommand("sustain.showChanges", counted("showChanges", () => showChangesCommand(extensionUri))),
-    vscode.commands.registerCommand("sustain.refreshArchitecture", counted("refresh", () => refreshArchitectureCommand(context, runs))),
-    vscode.commands.registerCommand("sustain.auditMap", counted("audit", () => auditMapCommand(context, runs))),
-    vscode.commands.registerCommand("sustain.forbidArrow", (arrow?: { from?: unknown; to?: unknown }) => forbidArrowCommand(rules, arrow)),
-    vscode.commands.registerCommand("sustain.onlyAllowImportsFrom", (box?: { componentId?: unknown }) => onlyAllowFromCommand(rules, box)),
-    vscode.commands.registerCommand("sustain.routeThrough", (box?: { componentId?: unknown }) => routeThroughCommand(rules, box)),
-    vscode.commands.registerCommand("sustain.suggestRules", () => suggestRulesCommand(rules, home.root())),
-    vscode.commands.registerCommand("sustain.writeAgentNotes", () => writeAgentNotesCommand()),
-    vscode.commands.registerCommand("sustain.compareMaps", () => compareMapsCommand()),
-    vscode.commands.registerCommand("sustain.flagBox", (box?: { componentId?: unknown }) => flagBoxCommand(context, runs, box)),
-    vscode.commands.registerCommand("sustain.hideChecks", () => ArchitecturePanel.setChecksShown(false)),
-    vscode.commands.registerCommand("sustain.showHotspots", () => ArchitecturePanel.setHotspotsShown(true)),
-    vscode.commands.registerCommand("sustain.hideHotspots", () => ArchitecturePanel.setHotspotsShown(false)),
-    vscode.commands.registerCommand("sustain.showChecks", () => ArchitecturePanel.setChecksShown(true)),
-    vscode.commands.registerCommand("sustain.exportPage", counted("exportPage", () => exportPageCommand(extensionUri))),
-    vscode.commands.registerCommand("sustain.saveImage", () => saveImageCommand()),
-    vscode.commands.registerCommand("sustain.reviewChanges", counted("review", () => review.command(home.root()))),
-    vscode.commands.registerCommand("sustain.refreshBox", (box?: { componentId?: unknown }) => refreshBoxCommand(context, runs, box)),
-    vscode.commands.registerCommand("sustain.checkUnderstanding", counted("checkUnderstanding", (box?: { componentId?: unknown }) => practice.command(home.root(), box))),
-    vscode.commands.registerCommand("sustain.playTour", counted("tour", () => playTourCommand(context, runs))),
-    vscode.commands.registerCommand("sustain.find", counted("find", () => ArchitecturePanel.current?.find())),
-    vscode.commands.registerCommand("sustain.drillDown", counted("drillDown", (box?: { componentId?: unknown }) => drillDownCommand(context, runs, box))),
-    vscode.commands.registerCommand("sustain.copyPromptFor", counted("copyPrompt", () => copyPromptForCommand(extensionUri))),
-    vscode.commands.registerCommand("sustain.removeSustain", () => removeSustainCommand()),
-    vscode.commands.registerCommand("sustain.exportUsageLog", () => usage.exportLog()),
-    vscode.commands.registerCommand("sustain.clearUsageLog", () => usage.clear()),
-    vscode.commands.registerCommand("sustain.createTour", counted("createTour", () => createTourCommand(context, runs))),
+    vscode.commands.registerCommand("aisus.refreshHome", () => home.send()),
+    vscode.commands.registerCommand("aisus.cancelRun", () => runs.cancel()),
+    vscode.commands.registerCommand("aisus.showInMap", (uri?: vscode.Uri) => showInMapCommand(extensionUri, uri)),
+    vscode.commands.registerCommand("aisus.showFileInMap", (uri?: vscode.Uri) => showInMapCommand(extensionUri, uri)),
+    vscode.commands.registerCommand("aisus.mapFolder", (uri?: vscode.Uri) => mapFolderCommand(context, runs, uri)),
+    vscode.commands.registerCommand("aisus.openBoxCode", openBoxCodeCommand),
+    vscode.commands.registerCommand("aisus.showChanges", counted("showChanges", () => showChangesCommand(extensionUri))),
+    vscode.commands.registerCommand("aisus.refreshArchitecture", counted("refresh", () => refreshArchitectureCommand(context, runs))),
+    vscode.commands.registerCommand("aisus.auditMap", counted("audit", () => auditMapCommand(context, runs))),
+    vscode.commands.registerCommand("aisus.forbidArrow", (arrow?: { from?: unknown; to?: unknown }) => forbidArrowCommand(rules, arrow)),
+    vscode.commands.registerCommand("aisus.onlyAllowImportsFrom", (box?: { componentId?: unknown }) => onlyAllowFromCommand(rules, box)),
+    vscode.commands.registerCommand("aisus.routeThrough", (box?: { componentId?: unknown }) => routeThroughCommand(rules, box)),
+    vscode.commands.registerCommand("aisus.suggestRules", () => suggestRulesCommand(rules, home.root())),
+    vscode.commands.registerCommand("aisus.writeAgentNotes", () => writeAgentNotesCommand()),
+    vscode.commands.registerCommand("aisus.compareMaps", () => compareMapsCommand()),
+    vscode.commands.registerCommand("aisus.flagBox", (box?: { componentId?: unknown }) => flagBoxCommand(context, runs, box)),
+    vscode.commands.registerCommand("aisus.hideChecks", () => ArchitecturePanel.setChecksShown(false)),
+    vscode.commands.registerCommand("aisus.showHotspots", () => ArchitecturePanel.setHotspotsShown(true)),
+    vscode.commands.registerCommand("aisus.hideHotspots", () => ArchitecturePanel.setHotspotsShown(false)),
+    vscode.commands.registerCommand("aisus.showChecks", () => ArchitecturePanel.setChecksShown(true)),
+    vscode.commands.registerCommand("aisus.exportPage", counted("exportPage", () => exportPageCommand(extensionUri))),
+    vscode.commands.registerCommand("aisus.saveImage", () => saveImageCommand()),
+    vscode.commands.registerCommand("aisus.reviewChanges", counted("review", () => review.command(home.root()))),
+    vscode.commands.registerCommand("aisus.refreshBox", (box?: { componentId?: unknown }) => refreshBoxCommand(context, runs, box)),
+    vscode.commands.registerCommand("aisus.checkUnderstanding", counted("checkUnderstanding", (box?: { componentId?: unknown }) => practice.command(home.root(), box))),
+    vscode.commands.registerCommand("aisus.playTour", counted("tour", () => playTourCommand(context, runs))),
+    vscode.commands.registerCommand("aisus.find", counted("find", () => ArchitecturePanel.current?.find())),
+    vscode.commands.registerCommand("aisus.drillDown", counted("drillDown", (box?: { componentId?: unknown }) => drillDownCommand(context, runs, box))),
+    vscode.commands.registerCommand("aisus.copyPromptFor", counted("copyPrompt", () => copyPromptForCommand(extensionUri))),
+    vscode.commands.registerCommand("aisus.removeAisus", () => removeAisusCommand()),
+    vscode.commands.registerCommand("aisus.exportUsageLog", () => usage.exportLog()),
+    vscode.commands.registerCommand("aisus.clearUsageLog", () => usage.clear()),
+    vscode.commands.registerCommand("aisus.createTour", counted("createTour", () => createTourCommand(context, runs))),
   );
   return {
     panelState: () => ({ file: ArchitecturePanel.current?.file, open: ArchitecturePanel.current !== undefined }),

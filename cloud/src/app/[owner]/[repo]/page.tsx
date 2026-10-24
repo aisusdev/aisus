@@ -27,7 +27,7 @@ export default async function MapPage({ params, searchParams }: { params: Promis
         <h1>
           {owner}/{name}
         </h1>
-        <p className="muted">No map from {space.repo.defaultBranch} yet. Upload one with the Sustain Action or `sustain.mjs publish`.</p>
+        <p className="muted">No map from {space.repo.defaultBranch} yet. Upload one with the aisus Action or `aisus.mjs publish`.</p>
       </main>
     );
   }

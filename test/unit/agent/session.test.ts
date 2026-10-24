@@ -60,37 +60,37 @@ function plan(root: string, steps: unknown[] = [{ title: "Add sumBelow", files: 
 
 /** The bare run folder name from a command's `run` field. */
 function runName(out: SessionReport): string {
-  return (out["run"] as string).replace(/^\.sustain\//, "");
+  return (out["run"] as string).replace(/^\.aisus\//, "");
 }
 
 function sessionJson(root: string, run: string): Record<string, unknown> {
-  return JSON.parse(readFileSync(join(root, ".sustain", run, "session.json"), "utf8"));
+  return JSON.parse(readFileSync(join(root, ".aisus", run, "session.json"), "utf8"));
 }
 
 function events(root: string, run: string): Record<string, unknown>[] {
-  return readFileSync(join(root, ".sustain", run, "events.jsonl"), "utf8")
+  return readFileSync(join(root, ".aisus", run, "events.jsonl"), "utf8")
     .trim()
     .split("\n")
     .map((line) => JSON.parse(line));
 }
 
 function manifestBugs(root: string, run: string): ManifestBug[] {
-  return (JSON.parse(readFileSync(join(root, ".sustain", run, "manifest.json"), "utf8")) as { bugs: ManifestBug[] }).bugs;
+  return (JSON.parse(readFileSync(join(root, ".aisus", run, "manifest.json"), "utf8")) as { bugs: ManifestBug[] }).bugs;
 }
 
 describe("init", () => {
-  test("creates the .sustain run, the three state files and the active lock", () => {
+  test("creates the .aisus run, the three state files and the active lock", () => {
     const root = fixture();
     const out = init(root);
     const run = runName(out);
     expect(run).toMatch(RUN_NAME);
     expect(RUN_NAME.exec(run)![1]).toBe("demo");
-    expect(out["sessionFile"]).toBe(`.sustain/${run}/session.json`);
+    expect(out["sessionFile"]).toBe(`.aisus/${run}/session.json`);
     const session = sessionJson(root, run);
     expect(session).toMatchObject({ version: 1, mode: "bugfix", phase: "clarify", stepIndex: 0, steps: [], bugs: 0, found: 0, fixed: 0, score: 0 });
     expect(manifestBugs(root, run)).toEqual([]);
     expect(events(root, run)).toEqual([expect.objectContaining({ type: "init", mode: "bugfix" })]);
-    expect(readFileSync(join(root, ".sustain/active"), "utf8")).toBe(`${run}\n`);
+    expect(readFileSync(join(root, ".aisus/active"), "utf8")).toBe(`${run}\n`);
     expect(out["git"]).toBeNull();
     expect(out["warnings"]).toBeUndefined();
   });
@@ -105,7 +105,7 @@ describe("init", () => {
 
   test("releases a stale lock: missing run folder or a done session", () => {
     const root = fixture();
-    put(root, ".sustain/active", "bugfix-ghost-20260101-000000\n");
+    put(root, ".aisus/active", "bugfix-ghost-20260101-000000\n");
     const out = init(root);
     expect(out["warnings"]).toEqual([expect.stringContaining("stale lock")]);
 
@@ -113,7 +113,7 @@ describe("init", () => {
     const run = runName(out);
     const session = sessionJson(root, run);
     session["phase"] = "done";
-    writeFileSync(join(root, ".sustain", run, "session.json"), JSON.stringify(session));
+    writeFileSync(join(root, ".aisus", run, "session.json"), JSON.stringify(session));
     const second = init(root, "second");
     expect(second["warnings"]).toEqual([expect.stringContaining("stale lock")]);
   });
@@ -124,7 +124,7 @@ describe("init", () => {
     expect(out["warnings"]).toBeUndefined();
     expect(out["git"]).toMatchObject({ dirtyCount: 0 });
 
-    // In a dirty repo the warning fires — and the session's own .sustain files do not
+    // In a dirty repo the warning fires — and the session's own .aisus files do not
     // count as the user's uncommitted work (facts are collected before they exist).
     const dirty = gitRepo({ "src/demo.ts": SUM_BELOW });
     writeFileSync(join(dirty, "src/demo.ts"), `// touched\n${SUM_BELOW}`);
@@ -257,14 +257,14 @@ describe("inject", () => {
     ["a deny-listed file", ".env"],
     ["a file outside the root", "../outside.ts"],
     ["a non-JS/TS file", "README.md"],
-    ["a file under .sustain itself", null],
+    ["a file under .aisus itself", null],
   ])("refuses %s", (_name, file) => {
     const root = fixture();
     put(root, ".env", "SECRET=1\n");
     put(root, "README.md", "# readme\n");
     const run = runName(init(root));
     plan(root);
-    const target = file ?? `.sustain/${run}/session.json`;
+    const target = file ?? `.aisus/${run}/session.json`;
     const inject = runScript("session", ["inject", "--file", target, "--line", "1", "--kind", "off-by-one"], { cwd: root });
     expect(inject.status).toBe(1);
     expect(inject.json()["status"]).toBe("error");
@@ -397,7 +397,7 @@ describe("verify", () => {
     expect(failed.json()).toMatchObject({ status: "check-failed", exitCode: 3, reportedBy: "agent" });
     const ok = runScript("session", ["verify", "--check-exit", "0"], { cwd: root });
     expect(ok.status).toBe(0);
-    const run = readFileSync(join(root, ".sustain/active"), "utf8").trim();
+    const run = readFileSync(join(root, ".aisus/active"), "utf8").trim();
     expect(events(root, run).find((event) => event["type"] === "verified")).toMatchObject({ step: 0, checkExit: 0, reportedBy: "agent" });
   });
 
@@ -442,7 +442,7 @@ describe("complete and the full loop", () => {
     const bugs = manifestBugs(root, run);
     expect(bugs[0]!["pristineHunk"]).toBeUndefined();
     expect(bugs[0]!["buggyHunk"]).toBe("  const data = fetchData();");
-    expect(existsSync(join(root, ".sustain/active"))).toBe(false);
+    expect(existsSync(join(root, ".aisus/active"))).toBe(false);
     expect(runScript("session", ["status"], { cwd: root }).json()).toEqual({ status: "none" });
   });
 
@@ -503,10 +503,10 @@ describe("pause and resume", () => {
     expect(resumed.json()).toMatchObject({ status: "bad-phase", phase: "implementing" });
 
     // done cannot pause.
-    const heldRun = readFileSync(join(root, ".sustain/active"), "utf8").trim();
+    const heldRun = readFileSync(join(root, ".aisus/active"), "utf8").trim();
     const session = sessionJson(root, heldRun);
     session["phase"] = "done";
-    writeFileSync(join(root, ".sustain", heldRun, "session.json"), JSON.stringify(session));
+    writeFileSync(join(root, ".aisus", heldRun, "session.json"), JSON.stringify(session));
     const paused = runScript("session", ["pause"], { cwd: root });
     expect(paused.status).toBe(1);
     expect(paused.json()["status"]).toBe("bad-phase");
@@ -621,7 +621,7 @@ describe("abandon", () => {
     expect(readFileSync(join(root, "src/api.ts"), "utf8")).toBe(LOADER);
     expect(readFileSync(join(root, "src/demo.ts"), "utf8")).toBe(SUM_BELOW);
 
-    expect(existsSync(join(root, ".sustain/active"))).toBe(false);
+    expect(existsSync(join(root, ".aisus/active"))).toBe(false);
     expect(runScript("session", ["status"], { cwd: root }).json()).toEqual({ status: "none" });
     const ledger = events(root, run);
     expect(ledger.at(-1)).toMatchObject({ type: "abandoned", score: 10 });
@@ -643,14 +643,14 @@ describe("abandon", () => {
     const done = runScript("session", ["abandon"], { cwd: root });
     expect(done.status).toBe(0);
     expect(done.json()).toMatchObject({ status: "abandoned", restored: ["bug-1"] });
-    expect(existsSync(join(root, ".sustain/active"))).toBe(false);
+    expect(existsSync(join(root, ".aisus/active"))).toBe(false);
   });
 });
 
 describe("stale sessions", () => {
   function ageSession(root: string, msAgo: number): void {
-    const run = readFileSync(join(root, ".sustain/active"), "utf8").trim();
-    const path = join(root, ".sustain", run, "session.json");
+    const run = readFileSync(join(root, ".aisus/active"), "utf8").trim();
+    const path = join(root, ".aisus", run, "session.json");
     const session = JSON.parse(readFileSync(path, "utf8"));
     session["updatedAt"] = new Date(Date.now() - msAgo).toISOString();
     writeFileSync(path, JSON.stringify(session));

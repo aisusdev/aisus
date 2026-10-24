@@ -1,5 +1,5 @@
 // RCH-03, PRC-01's exit codes and CLD-09: every core CLI command against temporary repositories,
-// run as the built dist/cli/sustain.mjs beside its skills; publish against a fake cloud.
+// run as the built dist/cli/aisus.mjs beside its skills; publish against a fake cloud.
 import { spawn, spawnSync } from "node:child_process";
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { createServer } from "node:http";
@@ -9,7 +9,7 @@ import { describe, expect, test } from "vitest";
 import { TEST_DIST } from "./support/buildScripts";
 import { git, gitRepo, put, runScript, tempDir } from "./support/temp";
 
-const CLI = join(TEST_DIST, "cli/sustain.mjs");
+const CLI = join(TEST_DIST, "cli/aisus.mjs");
 const HANDLER = ["export function handle(req) {", "  const body = parse(req);", "  return save(body);", "}", ""].join("\n");
 
 function cli(args: string[], options: { cwd: string; env?: NodeJS.ProcessEnv }): { status: number | null; stdout: string; json: () => any } {
@@ -44,24 +44,24 @@ describe("RCH-03 install and verify-skills", () => {
     const root = tempDir();
     const installed = cli(["install", "--scope", "project", "--root", root], { cwd: root });
     expect(installed.status).toBe(0);
-    expect(installed.json()).toEqual({ status: "installed", base: root, skills: ["sustain-architecture", "sustain-audit", "sustain-bugfix", "sustain-refresh", "sustain-tour"] });
-    expect(existsSync(join(root, ".claude/skills/sustain-refresh/SKILL.md"))).toBe(true);
+    expect(installed.json()).toEqual({ status: "installed", base: root, skills: ["aisus-architecture", "aisus-audit", "aisus-bugfix", "aisus-refresh", "aisus-tour"] });
+    expect(existsSync(join(root, ".claude/skills/aisus-refresh/SKILL.md"))).toBe(true);
 
     const intact = cli(["verify-skills", "--scope", "project"], { cwd: root });
     expect([intact.status, intact.json().status]).toEqual([0, "intact"]);
-    writeFileSync(join(root, ".agents/skills/sustain-architecture/SKILL.md"), "changed");
+    writeFileSync(join(root, ".agents/skills/aisus-architecture/SKILL.md"), "changed");
     const changed = cli(["verify-skills", "--scope", "project"], { cwd: root });
     expect(changed.status).toBe(1);
-    expect(changed.json().skills["sustain-architecture"]).toEqual({ intact: false, differing: 1, otherCopies: [] });
+    expect(changed.json().skills["aisus-architecture"]).toEqual({ intact: false, differing: 1, otherCopies: [] });
   });
 
   test("install defaults to the user's home, and missing skills do not verify", () => {
     const root = tempDir();
     const home = tempDir();
     const env = { ...process.env, HOME: home, USERPROFILE: home };
-    expect(cli(["verify-skills"], { cwd: root, env }).json().skills["sustain-architecture"]).toEqual({ intact: false, differing: null, otherCopies: [] });
+    expect(cli(["verify-skills"], { cwd: root, env }).json().skills["aisus-architecture"]).toEqual({ intact: false, differing: null, otherCopies: [] });
     expect(cli(["install"], { cwd: root, env }).json().base).toBe(home);
-    expect(existsSync(join(home, ".agents/skills/sustain-architecture/scripts/render-html.mjs"))).toBe(true);
+    expect(existsSync(join(home, ".agents/skills/aisus-architecture/scripts/render-html.mjs"))).toBe(true);
     expect(cli(["verify-skills"], { cwd: root, env }).status).toBe(0);
   });
 });
@@ -120,7 +120,7 @@ describe("PRC-01 RCH-03 check and exit codes", () => {
     const fail = cli(["check", "--base", "main", "--head", "HEAD", "--fail-on", "stale,new-box"], { cwd: root });
     expect([fail.status, fail.json().result]).toEqual([1, "fail"]);
     const markdown = cli(["check", "--base", "main", "--format", "markdown"], { cwd: root });
-    expect(markdown.stdout.startsWith("### Sustain check: pass")).toBe(true);
+    expect(markdown.stdout.startsWith("### aisus check: pass")).toBe(true);
   });
 
   test.each([
@@ -144,7 +144,7 @@ describe("PRC-01 RCH-03 check and exit codes", () => {
 });
 
 describe("CLD-09 publish", () => {
-  /** A fake Sustain Cloud that records each upload and answers with `status`. */
+  /** A fake aisus cloud that records each upload and answers with `status`. */
   async function fakeCloud(status = 201): Promise<{ url: string; received: { auth: string | undefined; body: any }[]; close: () => Promise<void> }> {
     const received: { auth: string | undefined; body: any }[] = [];
     const server = createServer((request, response) => {
@@ -177,11 +177,11 @@ describe("CLD-09 publish", () => {
     return mapped;
   }
 
-  test("publish sends the map with its sidecars and metadata, signed with SUSTAIN_TOKEN", async () => {
+  test("publish sends the map with its sidecars and metadata, signed with AISUS_TOKEN", async () => {
     const { root, run } = published();
     const cloud = await fakeCloud();
     try {
-      const result = await cliAsync(["publish", "--url", cloud.url], { cwd: root, env: { ...process.env, SUSTAIN_TOKEN: "sus_test" } });
+      const result = await cliAsync(["publish", "--url", cloud.url], { cwd: root, env: { ...process.env, AISUS_TOKEN: "sus_test" } });
       expect([result.status, result.json().status]).toEqual([0, "published"]);
       expect(cloud.received).toHaveLength(1);
       const { auth, body } = cloud.received[0]!;
@@ -198,7 +198,7 @@ describe("CLD-09 publish", () => {
     const { root } = published();
     const cloud = await fakeCloud();
     try {
-      const result = await cliAsync(["publish", "--url", cloud.url, "--dry-run"], { cwd: root, env: { ...process.env, SUSTAIN_TOKEN: "sus_test" } });
+      const result = await cliAsync(["publish", "--url", cloud.url, "--dry-run"], { cwd: root, env: { ...process.env, AISUS_TOKEN: "sus_test" } });
       expect(result.status).toBe(0);
       expect(result.json()).toMatchObject({ status: "dry-run", url: cloud.url, payload: { repo: "acme/shop", kind: "map" } });
       expect(cloud.received).toEqual([]);
@@ -215,7 +215,7 @@ describe("CLD-09 publish", () => {
     writeFileSync(file, JSON.stringify(doc));
     const cloud = await fakeCloud();
     try {
-      const result = await cliAsync(["publish", "--url", cloud.url], { cwd: root, env: { ...process.env, SUSTAIN_TOKEN: "sus_test" } });
+      const result = await cliAsync(["publish", "--url", cloud.url], { cwd: root, env: { ...process.env, AISUS_TOKEN: "sus_test" } });
       expect(result.status).toBe(1);
       expect(result.json().issues[0]).toMatchObject({ code: "SecretLike", pointer: "/map/components/0/label" });
       expect(cloud.received).toEqual([]);
@@ -228,13 +228,13 @@ describe("CLD-09 publish", () => {
     const { root } = published();
     const cloud = await fakeCloud(422);
     try {
-      expect((await cliAsync(["publish", "--url", cloud.url], { cwd: root, env: { ...process.env, SUSTAIN_TOKEN: "sus_test" } })).status).toBe(1);
+      expect((await cliAsync(["publish", "--url", cloud.url], { cwd: root, env: { ...process.env, AISUS_TOKEN: "sus_test" } })).status).toBe(1);
     } finally {
       await cloud.close();
     }
-    const env = { ...process.env, SUSTAIN_TOKEN: undefined, SUSTAIN_CLOUD_URL: undefined };
+    const env = { ...process.env, AISUS_TOKEN: undefined, AISUS_CLOUD_URL: undefined };
     expect((await cliAsync(["publish", "--url", "http://127.0.0.1:9"], { cwd: root, env })).status).toBe(2);
-    expect((await cliAsync(["publish"], { cwd: root, env: { ...env, SUSTAIN_TOKEN: "sus_test" } })).status).toBe(2);
+    expect((await cliAsync(["publish"], { cwd: root, env: { ...env, AISUS_TOKEN: "sus_test" } })).status).toBe(2);
     git(root, "remote", "set-url", "origin", "https://gitlab.com/acme/shop.git");
     expect((await cliAsync(["publish", "--dry-run"], { cwd: root })).json().message).toContain("github.com origin");
   });

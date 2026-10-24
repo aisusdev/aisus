@@ -78,11 +78,11 @@ describe("PRC-04 the Action", () => {
     expect(first).toMatchObject({ exitCode: 0, result: "pass" });
     expect(github.calls).toEqual(["list 42", "create 42"]);
     const body = github.comments[1]!.body;
-    expect(body.startsWith(`${COMMENT_MARKER}\n### Sustain check: pass`)).toBe(true);
+    expect(body.startsWith(`${COMMENT_MARKER}\n### aisus check: pass`)).toBe(true);
     expect(body).toContain("**Touched boxes**");
     expect(body).toContain("**New box candidates**\n\n- `src/payments/`: 3 files, 3 lines. Suggested box: payments");
     expect(body).toContain("```mermaid\nflowchart LR");
-    expect(log).toEqual(["Sustain check: pass"]);
+    expect(log).toEqual(["aisus check: pass"]);
 
     await runAction({ env: env(), root, event: EVENT, client: github, log: () => undefined });
     expect(github.calls.slice(2)).toEqual(["list 42", "update 8"]);
@@ -114,7 +114,7 @@ describe("PRC-04 the Action", () => {
   });
 
   test("the committed bundle is what the build makes now", async () => {
-    const dir = mkdtempSync(join(tmpdir(), "sustain-action-"));
+    const dir = mkdtempSync(join(tmpdir(), "aisus-action-"));
     try {
       await buildAction(join(dir, "index.js"));
       expect(readFileSync(join(dir, "index.js"), "utf8")).toBe(readFileSync(join(repoRoot, "action/dist/index.js"), "utf8"));
@@ -148,12 +148,12 @@ describe("CLD-09 the Action's upload", () => {
       fetcher,
     });
     expect(calls.map((call) => [call.url, call.auth])).toEqual([
-      ["https://actions.test/token?run=1&audience=sustain-cloud", "Bearer request-token"],
+      ["https://actions.test/token?run=1&audience=aisus-cloud", "Bearer request-token"],
       ["https://cloud.test/api/v1/uploads", "Bearer oidc-jwt"],
     ]);
     expect(calls[1]!.body).toMatchObject({ repo: "acme/shop", branch: "feature", kind: "check", meta: { pull: 42, defaultBranch: "main" }, check: { result: "pass" } });
     expect(calls[1]!.body.map.meta.title).toBe("Shop");
-    expect(result.comment).toContain("[See it on the map in Sustain Cloud](https://cloud.test/acme/shop/pull/42)");
+    expect(result.comment).toContain("[See it on the map in aisus cloud](https://cloud.test/acme/shop/pull/42)");
   });
 
   test("without upload nothing is sent; without the id-token permission the upload is skipped and said so", async () => {

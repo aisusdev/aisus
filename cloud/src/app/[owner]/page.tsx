@@ -67,7 +67,7 @@ export default async function DashboardPage({ params }: { params: Promise<{ owne
     <main className="page page--wide">
       <h1>{owner}</h1>
       {rows.length === 0 ? (
-        <p className="muted">No repository of {owner} that you can see has a map in Sustain Cloud yet.</p>
+        <p className="muted">No repository of {owner} that you can see has a map in aisus cloud yet.</p>
       ) : (
         <table className="dashboard">
           <thead>

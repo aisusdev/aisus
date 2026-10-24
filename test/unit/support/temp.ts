@@ -13,7 +13,7 @@ afterEach(() => {
 });
 
 /** A fresh real-path temp folder, removed after the current test. */
-export function tempDir(prefix = "sustain-"): string {
+export function tempDir(prefix = "aisus-"): string {
   const dir = realpathSync(mkdtempSync(join(tmpdir(), prefix)));
   created.push(dir);
   return dir;
@@ -40,7 +40,7 @@ export function git(cwd: string, ...args: string[]): string {
 
 /** A committed repo containing `files`. */
 export function gitRepo(files: Record<string, string>): string {
-  const root = tempDir("sustain-git-");
+  const root = tempDir("aisus-git-");
   git(root, "init", "-q");
   for (const [rel, content] of Object.entries(files)) put(root, rel, content);
   git(root, "add", ".");
@@ -91,8 +91,8 @@ interface RunOptions {
   env?: NodeJS.ProcessEnv;
 }
 
-/** The node that runs the built scripts. CI sets `SUSTAIN_SCRIPT_NODE` to a Node 18 binary to test the floor. */
-const SCRIPT_NODE = process.env["SUSTAIN_SCRIPT_NODE"] ?? process.execPath;
+/** The node that runs the built scripts. CI sets `AISUS_SCRIPT_NODE` to a Node 18 binary to test the floor. */
+const SCRIPT_NODE = process.env["AISUS_SCRIPT_NODE"] ?? process.execPath;
 
 /** Runs a built skill script with `node`, as the agent does. */
 export function runScript(script: "validate", args: string[], options: RunOptions): ScriptRun<ValidateReport>;
@@ -147,5 +147,5 @@ export function runHook(payload: Record<string, unknown>, options: RunOptions): 
 
 /** An environment whose PATH holds no `git` (only an empty folder). */
 export function envWithoutGit(): NodeJS.ProcessEnv {
-  return { ...process.env, PATH: tempDir("sustain-nogit-") };
+  return { ...process.env, PATH: tempDir("aisus-nogit-") };
 }

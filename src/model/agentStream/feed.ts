@@ -49,7 +49,7 @@ export function clip(text: string, max = 120): string {
   return flat.length <= max ? flat : `${flat.slice(0, max - 1)}…`;
 }
 
-/** The feed item for a shell command, with Sustain's own scripts named by what they do. */
+/** The feed item for a shell command, with aisus's own scripts named by what they do. */
 export function commandItem(command: string): FeedItem {
   if (/validate\.mjs/.test(command)) return { kind: "validate", text: "Validating the draft" };
   if (/repo-facts\.mjs/.test(command)) return { kind: "command", text: "Creating the run folder" };

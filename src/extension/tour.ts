@@ -19,7 +19,7 @@ export function tourTask(candidate: string): LaunchTask {
   } catch {
     // An unreadable map is named by its folder.
   }
-  return { skill: "sustain-tour", args: run, title: `Tour of ${title}` };
+  return { skill: "aisus-tour", args: run, title: `Tour of ${title}` };
 }
 
 /** Runs the tour skill on `file`, or on the map the panel shows. */

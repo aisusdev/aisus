@@ -1,4 +1,4 @@
-// SAF-01: the skill an agent will load must match the copy Sustain ships.
+// SAF-01: the skill an agent will load must match the copy aisus ships.
 import { createHash } from "node:crypto";
 import { lstatSync, readdirSync, readFileSync, realpathSync } from "node:fs";
 import { join } from "node:path";

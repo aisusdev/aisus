@@ -9,20 +9,20 @@ import { refreshArgs } from "../../src/model/refresh";
 
 /** Where each agent's bench key comes from, and the variable the agent reads it from. */
 export const BENCH_KEYS: Record<EstimateAgent, { from: string; to: string }> = {
-  claude: { from: "SUSTAIN_BENCH_ANTHROPIC_API_KEY", to: "ANTHROPIC_API_KEY" },
-  codex: { from: "SUSTAIN_BENCH_OPENAI_API_KEY", to: "CODEX_API_KEY" },
+  claude: { from: "AISUS_BENCH_ANTHROPIC_API_KEY", to: "ANTHROPIC_API_KEY" },
+  codex: { from: "AISUS_BENCH_OPENAI_API_KEY", to: "CODEX_API_KEY" },
 };
 
 /** The skill a kind runs, or `null` for the question kinds. */
 export function benchSkill(kind: BenchKind): SkillName | null {
   if (kind === "audit") throw new Error("audit runs need ACC-05's audit pass, which is not built yet.");
-  return kind === "full" ? "sustain-architecture" : kind === "refresh" ? "sustain-refresh" : null;
+  return kind === "full" ? "aisus-architecture" : kind === "refresh" ? "aisus-refresh" : null;
 }
 
 /** The prompt of a run: the skill for full and refresh; a question without the map (baseline) or with it (assisted). */
 export function benchPrompt(agent: EstimateAgent, kind: BenchKind, options: { base?: string; map?: string; question?: string }): string {
-  if (kind === "full") return skillPrompt(agent, "sustain-architecture", "");
-  if (kind === "refresh") return skillPrompt(agent, "sustain-refresh", refreshArgs(options.base!, []));
+  if (kind === "full") return skillPrompt(agent, "aisus-architecture", "");
+  if (kind === "refresh") return skillPrompt(agent, "aisus-refresh", refreshArgs(options.base!, []));
   if (kind === "assisted") return askPrompt(options.map!, options.question!);
   return [
     "Answer a question about this repository from its code.",

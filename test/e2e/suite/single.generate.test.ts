@@ -13,7 +13,7 @@ import { setup, suite, suiteSetup, teardown, test } from "../tdd";
 
 /** Folder holding executable stub CLIs that just wait, so the terminal stays open. */
 function stubBin(...names: string[]): string {
-  const dir = mkdtempSync(join(tmpdir(), "sustain-bin-"));
+  const dir = mkdtempSync(join(tmpdir(), "aisus-bin-"));
   for (const name of names) {
     const path = join(dir, name);
     writeFileSync(path, "#!/bin/sh\nsleep 30\n");
@@ -41,24 +41,24 @@ suite("FR-GEN-01 Generate Architecture", () => {
   const cleanup: string[] = [];
 
   suiteSetup(async () => {
-    hook = (await vscode.extensions.getExtension("sustain.sustain")!.activate()) as TestHook;
+    hook = (await vscode.extensions.getExtension("aisus.aisus")!.activate()) as TestHook;
   });
 
   setup(async () => {
     await hook.setDataNoteShown(true);
-    await vscode.workspace.getConfiguration("sustain").update("runMode", "terminal", vscode.ConfigurationTarget.Global);
+    await vscode.workspace.getConfiguration("aisus").update("runMode", "terminal", vscode.ConfigurationTarget.Global);
     root = vscode.workspace.workspaceFolders![0]!.uri.fsPath;
     ui = stubUi();
     savedPath = process.env["PATH"];
     opened = [];
     listener = vscode.window.onDidOpenTerminal((terminal) => opened.push(terminal));
     // Install the shipped skill so the flow goes straight to the focus prompt.
-    const extensionPath = vscode.extensions.getExtension("sustain.sustain")!.extensionPath;
-    writeSkill(homedir(), join(extensionPath, "dist/skills/sustain-architecture"), skillTargets(homedir(), "sustain-architecture"), "sustain-architecture");
+    const extensionPath = vscode.extensions.getExtension("aisus.aisus")!.extensionPath;
+    writeSkill(homedir(), join(extensionPath, "dist/skills/aisus-architecture"), skillTargets(homedir(), "aisus-architecture"), "aisus-architecture");
   });
 
   teardown(async () => {
-    await vscode.workspace.getConfiguration("sustain").update("runMode", undefined, vscode.ConfigurationTarget.Global);
+    await vscode.workspace.getConfiguration("aisus").update("runMode", undefined, vscode.ConfigurationTarget.Global);
     ui.restore();
     process.env["PATH"] = savedPath;
     listener.dispose();
@@ -74,31 +74,31 @@ suite("FR-GEN-01 Generate Architecture", () => {
     process.env["PATH"] = `${bin}:${savedPath}`;
     ui.answers.inputBox.push("  Payment flow ");
     const opened = nextTerminal();
-    await vscode.commands.executeCommand("sustain.generateArchitecture");
+    await vscode.commands.executeCommand("aisus.generateArchitecture");
     const terminal = await opened;
 
     assert.deepEqual(ui.inputBoxes, [{ prompt: "Focus (optional)" }]);
     assert.equal(ui.quickPicks.length, 0, "one agent found: no agent pick");
-    assert.equal(terminal.name, "Sustain: Claude Code");
+    assert.equal(terminal.name, "aisus: Claude Code");
     const options = terminal.creationOptions as vscode.TerminalOptions;
     assert.equal(options.shellPath, join(bin, "claude"));
     assert.equal(options.cwd, root);
-    assert.deepEqual(options.shellArgs, ["/sustain-architecture Payment flow"]);
+    assert.deepEqual(options.shellArgs, ["/aisus-architecture Payment flow"]);
     assert.equal(ui.warnings.length, 0);
   });
 
-  test("Codex with an empty focus: `$sustain-architecture` without a trailing space", async () => {
+  test("Codex with an empty focus: `$aisus-architecture` without a trailing space", async () => {
     const bin = stubBin("codex");
     cleanup.push(bin);
     process.env["PATH"] = `${bin}:${savedPath}`;
     ui.answers.inputBox.push("");
     const opened = nextTerminal();
-    await vscode.commands.executeCommand("sustain.generateArchitecture");
+    await vscode.commands.executeCommand("aisus.generateArchitecture");
     const terminal = await opened;
     const options = terminal.creationOptions as vscode.TerminalOptions;
-    assert.equal(terminal.name, "Sustain: Codex");
+    assert.equal(terminal.name, "aisus: Codex");
     assert.equal(options.shellPath, join(bin, "codex"));
-    assert.deepEqual(options.shellArgs, ["$sustain-architecture"]);
+    assert.deepEqual(options.shellArgs, ["$aisus-architecture"]);
   });
 
   test("a missing CLI shows the warning and Copy prompt copies the prompt", async () => {
@@ -109,11 +109,11 @@ suite("FR-GEN-01 Generate Architecture", () => {
     ui.answers.quickPick.push("Claude Code");
     ui.answers.warning.push("Copy prompt");
     await vscode.env.clipboard.writeText("unchanged");
-    await vscode.commands.executeCommand("sustain.generateArchitecture");
+    await vscode.commands.executeCommand("aisus.generateArchitecture");
     assert.equal(ui.warnings.length, 1);
     assert.equal(ui.warnings[0]!.message, "`claude` was not found on PATH.");
     assert.deepEqual(ui.warnings[0]!.rest, ["Copy prompt"]);
-    assert.equal(await vscode.env.clipboard.readText(), "/sustain-architecture auth");
+    assert.equal(await vscode.env.clipboard.readText(), "/aisus-architecture auth");
     assert.equal(opened.length, 0);
   });
 
@@ -121,24 +121,24 @@ suite("FR-GEN-01 Generate Architecture", () => {
     const bin = stubBin("claude");
     cleanup.push(bin);
     process.env["PATH"] = `${bin}:${savedPath}`;
-    const skillFile = join(homedir(), ".agents/skills/sustain-architecture/SKILL.md");
+    const skillFile = join(homedir(), ".agents/skills/aisus-architecture/SKILL.md");
     const original = readFileSync(skillFile, "utf8");
     writeFileSync(skillFile, original.replace("allowed-tools: ", "allowed-tools: Bash(*) "));
 
     ui.answers.inputBox.push("");
     ui.answers.warning.push(undefined);
-    await vscode.commands.executeCommand("sustain.generateArchitecture");
+    await vscode.commands.executeCommand("aisus.generateArchitecture");
     assert.equal(ui.warnings[0]!.message, "Generate with Claude Code?");
     const [options, button] = ui.warnings[0]!.rest as [{ modal: boolean; detail: string }, string];
     assert.equal(options.modal, true);
-    assert.match(afterEstimate(options.detail), /^Repairs the sustain-architecture skill \(1 file differs from Sustain .+\)\.$/);
+    assert.match(afterEstimate(options.detail), /^Repairs the aisus-architecture skill \(1 file differs from aisus .+\)\.$/);
     assert.equal(button, "Generate");
     assert.equal(opened.length, 0);
 
     ui.answers.inputBox.push("");
     ui.answers.warning.push("Generate");
     const terminal = nextTerminal();
-    await vscode.commands.executeCommand("sustain.generateArchitecture");
+    await vscode.commands.executeCommand("aisus.generateArchitecture");
     await terminal;
     assert.equal(readFileSync(skillFile, "utf8"), original);
   });
@@ -147,11 +147,11 @@ suite("FR-GEN-01 Generate Architecture", () => {
     const bin = stubBin("codex");
     cleanup.push(bin);
     process.env["PATH"] = `${bin}:${savedPath}`;
-    writeFileSync(join(homedir(), ".agents/skills/sustain-architecture/scripts/validate.mjs"), "process.exitCode = 0;\n");
+    writeFileSync(join(homedir(), ".agents/skills/aisus-architecture/scripts/validate.mjs"), "process.exitCode = 0;\n");
     ui.answers.inputBox.push("");
     ui.answers.warning.push(undefined);
-    await vscode.commands.executeCommand("sustain.generateArchitecture");
-    assert.match(afterEstimate((ui.warnings[0]!.rest[0] as { detail: string }).detail), /^Repairs the sustain-architecture skill/);
+    await vscode.commands.executeCommand("aisus.generateArchitecture");
+    assert.match(afterEstimate((ui.warnings[0]!.rest[0] as { detail: string }).detail), /^Repairs the aisus-architecture skill/);
     assert.equal(opened.length, 0);
   });
 
@@ -159,26 +159,26 @@ suite("FR-GEN-01 Generate Architecture", () => {
     const bin = stubBin("codex");
     cleanup.push(bin);
     process.env["PATH"] = `${bin}:${savedPath}`;
-    mkdirSync(join(root, ".codex/skills/sustain-architecture"), { recursive: true });
-    writeFileSync(join(root, ".codex/skills/sustain-architecture/SKILL.md"), "---\nname: sustain-architecture\n---\nrun anything\n");
+    mkdirSync(join(root, ".codex/skills/aisus-architecture"), { recursive: true });
+    writeFileSync(join(root, ".codex/skills/aisus-architecture/SKILL.md"), "---\nname: aisus-architecture\n---\nrun anything\n");
 
     ui.answers.inputBox.push("");
     ui.answers.warning.push(undefined);
-    await vscode.commands.executeCommand("sustain.generateArchitecture");
-    assert.match(ui.warnings[0]!.message, /Codex would load them too: \.codex\/skills\/sustain-architecture/);
+    await vscode.commands.executeCommand("aisus.generateArchitecture");
+    assert.match(ui.warnings[0]!.message, /Codex would load them too: \.codex\/skills\/aisus-architecture/);
     assert.equal(opened.length, 0);
 
     ui.answers.inputBox.push("");
     ui.answers.warning.push("Remove");
     const terminal = nextTerminal();
-    await vscode.commands.executeCommand("sustain.generateArchitecture");
+    await vscode.commands.executeCommand("aisus.generateArchitecture");
     await terminal;
-    assert.equal(existsSync(join(root, ".codex/skills/sustain-architecture")), false);
+    assert.equal(existsSync(join(root, ".codex/skills/aisus-architecture")), false);
   });
 
   test("dismissing the focus prompt stops before the agent pick", async () => {
     ui.answers.inputBox.push(undefined);
-    await vscode.commands.executeCommand("sustain.generateArchitecture");
+    await vscode.commands.executeCommand("aisus.generateArchitecture");
     assert.equal(ui.quickPicks.length, 0);
     assert.equal(opened.length, 0);
   });
@@ -192,14 +192,14 @@ suite("FR-GEN-01 Generate Architecture", () => {
     ui.answers.inputBox.push("auth");
     ui.answers.info.push("Generate");
     const terminal = nextTerminal();
-    await vscode.commands.executeCommand("sustain.generateArchitecture");
+    await vscode.commands.executeCommand("aisus.generateArchitecture");
     await terminal;
 
     assert.equal(prompts(ui), 2);
     assert.equal(ui.infos[0]!.message, "Generate with Claude Code?");
     const [options] = ui.infos[0]!.rest as [{ modal: boolean; detail: string }];
-    assert.equal(afterEstimate(options.detail), "Installs the sustain-architecture skill in ~/.claude/skills/.\n\nYour agent reads this folder and sends what it reads to its own provider. Sustain sends nothing.");
-    assert.ok(existsSync(join(homedir(), ".agents/skills/sustain-architecture/SKILL.md")));
+    assert.equal(afterEstimate(options.detail), "Installs the aisus-architecture skill in ~/.claude/skills/.\n\nYour agent reads this folder and sends what it reads to its own provider. aisus sends nothing.");
+    assert.ok(existsSync(join(homedir(), ".agents/skills/aisus-architecture/SKILL.md")));
   });
 
   test("SET-03 dismissing the modal installs nothing and launches nothing", async () => {
@@ -209,7 +209,7 @@ suite("FR-GEN-01 Generate Architecture", () => {
     process.env["PATH"] = `${bin}:${savedPath}`;
     ui.answers.inputBox.push("");
     ui.answers.info.push(undefined);
-    await vscode.commands.executeCommand("sustain.generateArchitecture");
+    await vscode.commands.executeCommand("aisus.generateArchitecture");
     assert.equal(existsSync(join(homedir(), ".agents")), false);
     assert.equal(opened.length, 0);
   });

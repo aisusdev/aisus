@@ -9,11 +9,11 @@ const [claude, codex] = AGENTS as [(typeof AGENTS)[number], (typeof AGENTS)[numb
 
 describe("FR-GEN-01 prompt", () => {
   test.each([
-    [claude, "Payment flow", "/sustain-architecture Payment flow"],
-    [claude, "", "/sustain-architecture"],
-    [claude, "   ", "/sustain-architecture"],
-    [codex, " auth service ", "$sustain-architecture auth service"],
-    [codex, "", "$sustain-architecture"],
+    [claude, "Payment flow", "/aisus-architecture Payment flow"],
+    [claude, "", "/aisus-architecture"],
+    [claude, "   ", "/aisus-architecture"],
+    [codex, " auth service ", "$aisus-architecture auth service"],
+    [codex, "", "$aisus-architecture"],
   ])("%o with focus %j → %j", (agent, focus, expected) => {
     expect(agentPrompt(agent, focus)).toBe(expected);
   });

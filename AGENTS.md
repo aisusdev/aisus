@@ -1,6 +1,6 @@
-# Sustain
+# aisus
 
-Sustain is a VS Code extension with agent skills. A coding agent maps a repository into a diagram whose boxes open the code they cite. Bug-hunt learning sessions are an experimental second track.
+aisus is a VS Code extension with agent skills. A coding agent maps a repository into a diagram whose boxes open the code they cite. Bug-hunt learning sessions are an experimental second track.
 
 ## Current work
 

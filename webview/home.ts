@@ -1,4 +1,4 @@
-// The Sustain sidebar's DOM (UI-01): header, composer, run card, maps, setup and learning
+// The aisus sidebar's DOM (UI-01): header, composer, run card, maps, setup and learning
 // session. Built from the HomeState the host sends; every string goes in as text. The composer's
 // text box persists across states, so typing survives updates.
 import { mapStatus, relativeAge, runFigures, tokenCount } from "../src/model/home";
@@ -30,7 +30,7 @@ function section(title: string, className: string): HTMLElement {
 }
 
 const STATUS_LABEL: Record<RunCard["status"], string> = { running: "Running", done: "Done", failed: "Failed", cancelled: "Cancelled" };
-/** The Generate button once a run above `sustain.confirmAboveTokens` needs a second click (CST-03). */
+/** The Generate button once a run above `aisus.confirmAboveTokens` needs a second click (CST-03). */
 const SECOND_CLICK = "Click again to generate";
 
 /** SKL-01: the explain-back's scopes and what their buttons say. */
@@ -86,7 +86,7 @@ export function createHome(container: HTMLElement, post: Post, now: () => Date =
     post({ type: "generate", focus: focus.value, ...(confirm ? { confirmed: true } : {}) });
   });
   const notes = el("div", "composer__notes");
-  // RCH-04: the same prompt, for an agent Sustain does not launch.
+  // RCH-04: the same prompt, for an agent aisus does not launch.
   const copyPrompt = button("Copy prompt for…", "link composer__copy", () => post({ type: "copyPromptFor", focus: focus.value }));
   composer.append(focus, controls, generate, copyPrompt, notes);
   focus.addEventListener("keydown", (event) => {

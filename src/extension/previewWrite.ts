@@ -2,11 +2,11 @@
 import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import * as vscode from "vscode";
-import { CONFIG_FILE, readConfig, type SustainConfig } from "../model/config";
+import { CONFIG_FILE, readConfig, type AisusConfig } from "../model/config";
 import { assertWritable } from "../model/confine";
 import { onAction } from "./notify";
 
-export const PREVIEW_SCHEME = "sustain-preview";
+export const PREVIEW_SCHEME = "aisus-preview";
 
 const texts = new Map<string, string>();
 
@@ -45,7 +45,7 @@ function openConfig(path: string): Thenable<unknown> {
 }
 
 /** `root`'s config with its text, `{}` without a file, or why it cannot be changed (shown to the user). */
-export function configFile(root: string): { ok: true; path: string; text: string; config: SustainConfig } | { ok: false } {
+export function configFile(root: string): { ok: true; path: string; text: string; config: AisusConfig } | { ok: false } {
   const path = join(root, CONFIG_FILE);
   let text = "";
   try {
@@ -66,6 +66,6 @@ export function configFile(root: string): { ok: true; path: string; text: string
 }
 
 /** A config as the file holds it. */
-export function configText(config: SustainConfig): string {
+export function configText(config: AisusConfig): string {
   return `${JSON.stringify(config, null, 2)}\n`;
 }

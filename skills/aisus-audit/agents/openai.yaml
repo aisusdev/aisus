@@ -1,0 +1,5 @@
+interface:
+  display_name: "aisus Audit"
+  short_description: "Check an aisus architecture diagram against its cited code"
+policy:
+  allow_implicit_invocation: false

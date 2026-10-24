@@ -34,7 +34,7 @@ suite("FRS-03 freshness on the map", () => {
   let root: string;
 
   suiteSetup(async () => {
-    hook = (await vscode.extensions.getExtension("sustain.sustain")!.activate()) as TestHook;
+    hook = (await vscode.extensions.getExtension("aisus.aisus")!.activate()) as TestHook;
   });
 
   setup(() => {
@@ -60,20 +60,20 @@ suite("FRS-03 freshness on the map", () => {
   });
 
   test("FRS-03 editing a cited block badges its box within 3 s and the counts follow", async () => {
-    await vscode.commands.executeCommand("sustain.openArchitecture");
+    await vscode.commands.executeCommand("aisus.openArchitecture");
     await within(3000, () => hook.panelFreshness()?.boxes["api"] === "fresh", "the map to load fresh");
     write(root, "src/a.ts", SOURCE.replace("save(body)", "store(body)"));
     await within(3000, () => hook.panelFreshness()?.boxes["api"] === "edited", "box api to be badged changed");
     assert.equal(hook.panelFreshness()?.boxes["docs"], "fresh");
-    await within(1000, () => hook.statusText() === "Sustain: 1 changed", "the status bar count");
-    await vscode.commands.executeCommand("workbench.view.extension.sustain");
+    await within(1000, () => hook.statusText() === "aisus: 1 changed", "the status bar count");
+    await vscode.commands.executeCommand("workbench.view.extension.aisus");
     await within(3000, () => hook.homeState().visible, "the sidebar to show");
     assert.equal(hook.homeState().state?.maps[0]?.changed, 1);
   });
 
   test("FRS-03 a moved block opens at its new lines", async () => {
     write(root, "src/a.ts", `// one\n// two\n${SOURCE}`);
-    await vscode.commands.executeCommand("sustain.openArchitecture");
+    await vscode.commands.executeCommand("aisus.openArchitecture");
     await within(3000, () => hook.panelFreshness()?.boxes["api"] === "moved", "box api to be moved");
     await hook.postFromWebview({ type: "openSource", componentId: "api", index: 0 });
     await within(3000, () => vscode.window.activeTextEditor?.document.uri.fsPath === join(root, "src/a.ts"), "src/a.ts to open");

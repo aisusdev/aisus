@@ -1,4 +1,4 @@
-// UI-01: the Sustain sidebar, a webview view in its own Activity Bar container. It renders the
+// UI-01: the aisus sidebar, a webview view in its own Activity Bar container. It renders the
 // HomeState it is sent and posts what the user did; this class does the work.
 import { randomBytes } from "node:crypto";
 import { rmSync } from "node:fs";
@@ -38,8 +38,8 @@ import { hotspotDays, hotspotsFor } from "./hotspots";
 import { SessionPanel } from "./sessionPanel";
 import { readSessionSnapshot } from "./sessionFiles";
 
-export const HOME_VIEW = "sustain.home";
-const ROOT_KEY = "sustain.homeRoot";
+export const HOME_VIEW = "aisus.home";
+const ROOT_KEY = "aisus.homeRoot";
 
 /** SET-05: the sidebar actions the usage log counts, by message type. */
 const SIDEBAR_USAGE: Partial<Record<HomeWebviewMessage["type"], UsageEvent>> = {
@@ -77,7 +77,7 @@ export class HomeView implements vscode.WebviewViewProvider, vscode.Disposable {
     this.disposables.push(
       vscode.workspace.onDidChangeWorkspaceFolders(() => this.send()),
       vscode.workspace.onDidChangeConfiguration((event) => {
-        if (event.affectsConfiguration("sustain")) this.send();
+        if (event.affectsConfiguration("aisus")) this.send();
       }),
     );
   }
@@ -100,7 +100,7 @@ export class HomeView implements vscode.WebviewViewProvider, vscode.Disposable {
       nonce: randomBytes(16).toString("base64"),
       scriptUri: view.webview.asWebviewUri(vscode.Uri.joinPath(dist, "sidebar.js")).toString(),
       styleUri: view.webview.asWebviewUri(vscode.Uri.joinPath(dist, "sidebar.css")).toString(),
-      title: "Sustain",
+      title: "aisus",
     });
     view.webview.onDidReceiveMessage((message: HomeWebviewMessage) => void this.handleMessage(message), undefined, this.disposables);
     view.onDidChangeVisibility(() => {
@@ -164,7 +164,7 @@ export class HomeView implements vscode.WebviewViewProvider, vscode.Disposable {
     if (map === null) return;
     ArchitecturePanel.show(this.context.extensionUri, root, join(root, ARCHIFY_DIR, map, CANDIDATE_FILE));
     if (item === "hotspot") ArchitecturePanel.setHotspotsShown(true);
-    if (item === "uncovered") await vscode.commands.executeCommand("sustain.showChanges");
+    if (item === "uncovered") await vscode.commands.executeCommand("aisus.showChanges");
   }
 
   /** ARC-05: the Health section for `root`'s main map, measured at most every few seconds. */
@@ -226,7 +226,7 @@ export class HomeView implements vscode.WebviewViewProvider, vscode.Disposable {
     let skillsIntact: boolean;
     try {
       const agent = chosenAgent(this.context, foundAgents()) ?? "claude";
-      skillsIntact = skillStatus(this.context.extensionUri, root, agent, "sustain-architecture").differing === 0;
+      skillsIntact = skillStatus(this.context.extensionUri, root, agent, "aisus-architecture").differing === 0;
     } catch {
       skillsIntact = false;
     }
@@ -259,7 +259,7 @@ export class HomeView implements vscode.WebviewViewProvider, vscode.Disposable {
         this.send();
         return;
       case "setRunMode":
-        await vscode.workspace.getConfiguration("sustain").update("runMode", message.runMode, vscode.ConfigurationTarget.Global);
+        await vscode.workspace.getConfiguration("aisus").update("runMode", message.runMode, vscode.ConfigurationTarget.Global);
         this.send();
         return;
       case "generate": {
@@ -332,7 +332,7 @@ export class HomeView implements vscode.WebviewViewProvider, vscode.Disposable {
         if (root !== null) SessionPanel.show(this.context.extensionUri, root);
         return;
       case "startLearning":
-        await vscode.commands.executeCommand("sustain.startLearning");
+        await vscode.commands.executeCommand("aisus.startLearning");
         return;
       case "ask":
         if (root !== null) await this.ask.ask(root, message.question, message.confirmed === true);

@@ -43,22 +43,22 @@ suite("PRC-02 Review changes", () => {
   const terminals: vscode.Terminal[] = [];
 
   suiteSetup(async () => {
-    hook = (await vscode.extensions.getExtension("sustain.sustain")!.activate()) as TestHook;
+    hook = (await vscode.extensions.getExtension("aisus.aisus")!.activate()) as TestHook;
   });
 
   setup(async () => {
     root = vscode.workspace.workspaceFolders![0]!.uri.fsPath;
     ui = stubUi();
     savedPath = process.env["PATH"];
-    const bin = mkdtempSync(join(tmpdir(), "sustain-bin-"));
+    const bin = mkdtempSync(join(tmpdir(), "aisus-bin-"));
     cleanup.push(bin);
     writeFileSync(join(bin, "claude"), "#!/bin/sh\nsleep 30\n");
     chmodSync(join(bin, "claude"), 0o755);
     process.env["PATH"] = `${bin}:${savedPath}`;
-    const extensionPath = vscode.extensions.getExtension("sustain.sustain")!.extensionPath;
-    for (const name of ["sustain-architecture", "sustain-refresh"]) writeSkill(homedir(), join(extensionPath, "dist/skills", name), skillTargets(homedir(), name), name);
+    const extensionPath = vscode.extensions.getExtension("aisus.aisus")!.extensionPath;
+    for (const name of ["aisus-architecture", "aisus-refresh"]) writeSkill(homedir(), join(extensionPath, "dist/skills", name), skillTargets(homedir(), name), name);
     await hook.setDataNoteShown(true);
-    await vscode.workspace.getConfiguration("sustain").update("runMode", "terminal", vscode.ConfigurationTarget.Global);
+    await vscode.workspace.getConfiguration("aisus").update("runMode", "terminal", vscode.ConfigurationTarget.Global);
 
     write(root, "src/api/handler.ts", "export const handle = () => save();\n");
     write(root, `.archify/${RUN}/candidate.json`, JSON.stringify({ meta: { title: "Shop" }, components: [{ id: "api", type: "backend", label: "API", sources: [{ path: "src/api/handler.ts", line: 1 }] }] }));
@@ -76,15 +76,15 @@ suite("PRC-02 Review changes", () => {
     process.env["PATH"] = savedPath;
     for (const terminal of terminals.splice(0)) terminal.dispose();
     await vscode.commands.executeCommand("workbench.action.closeAllEditors");
-    await vscode.workspace.getConfiguration("sustain").update("runMode", undefined, vscode.ConfigurationTarget.Global);
+    await vscode.workspace.getConfiguration("aisus").update("runMode", undefined, vscode.ConfigurationTarget.Global);
     for (const dir of cleanup.splice(0)) rmSync(dir, { recursive: true, force: true });
-    for (const path of [".archify", "src", ".git", "sustain.config.json"]) rmSync(join(root, path), { recursive: true, force: true });
+    for (const path of [".archify", "src", ".git", "aisus.config.json"]) rmSync(join(root, path), { recursive: true, force: true });
     for (const dir of [".agents", ".claude"]) rmSync(join(homedir(), dir), { recursive: true, force: true });
   });
 
   async function reviewBranch(): Promise<void> {
     ui.answers.quickPick.push("This branch");
-    await vscode.commands.executeCommand("sustain.reviewChanges");
+    await vscode.commands.executeCommand("aisus.reviewChanges");
     await until(() => hook.reviewReport() !== null, "the review");
   }
 
@@ -104,17 +104,17 @@ suite("PRC-02 Review changes", () => {
     await hook.postFromHome({ type: "addToMap", dir: "src/payments" });
     const terminal = await opened;
     terminals.push(terminal);
-    assert.deepEqual((terminal.creationOptions as vscode.TerminalOptions).shellArgs, [`/sustain-refresh --from ${RUN} --paths src/payments`]);
+    assert.deepEqual((terminal.creationOptions as vscode.TerminalOptions).shellArgs, [`/aisus-refresh --from ${RUN} --paths src/payments`]);
   });
 
   test("PRC-02 Ignore shows the change, writes the config and drops the candidate", async () => {
     await reviewBranch();
     ui.answers.warning.push("Ignore");
     await hook.postFromHome({ type: "ignoreCandidate", dir: "src/payments" });
-    assert.equal(ui.warnings[0]?.message, "Ignore src/payments/ in sustain.config.json?");
-    assert.deepEqual(JSON.parse(readFileSync(join(root, "sustain.config.json"), "utf8")), { ignore: ["src/payments/**"] });
+    assert.equal(ui.warnings[0]?.message, "Ignore src/payments/ in aisus.config.json?");
+    assert.deepEqual(JSON.parse(readFileSync(join(root, "aisus.config.json"), "utf8")), { ignore: ["src/payments/**"] });
     assert.deepEqual(hook.reviewReport()!.candidates, []);
-    assert.ok(vscode.window.tabGroups.all.flatMap((group) => group.tabs).some((tab) => tab.label.startsWith("sustain.config.json: ignore src/payments/")), "the diff was shown");
+    assert.ok(vscode.window.tabGroups.all.flatMap((group) => group.tabs).some((tab) => tab.label.startsWith("aisus.config.json: ignore src/payments/")), "the diff was shown");
   });
   test("PRC-03 a branch with a newer map compares it with the base map, and updates it for its candidates", async () => {
     const BRANCH = "architecture-branch-20261019-090000";
@@ -148,6 +148,6 @@ suite("PRC-02 Review changes", () => {
     await hook.postFromHome({ type: "updateBranchMap" });
     const terminal = await opened;
     terminals.push(terminal);
-    assert.deepEqual((terminal.creationOptions as vscode.TerminalOptions).shellArgs, [`/sustain-refresh --from ${BRANCH} --paths src/billing`]);
+    assert.deepEqual((terminal.creationOptions as vscode.TerminalOptions).shellArgs, [`/aisus-refresh --from ${BRANCH} --paths src/billing`]);
   });
 });

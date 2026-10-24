@@ -5,7 +5,7 @@ import { currentUser } from "../auth";
 import { STATS_HOOK, STATS_PATH, statsWebsite } from "../lib/stats";
 import "./globals.css";
 
-export const metadata = { title: "Sustain Cloud", description: "Architecture maps of your repositories. Maps, not code." };
+export const metadata = { title: "aisus cloud", description: "Architecture maps of your repositories. Maps, not code." };
 
 export default async function RootLayout({ children }: { children: ReactNode }) {
   const user = await currentUser();
@@ -15,7 +15,7 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
       <body>
         <header className="site-header">
           <a className="brand" href="/">
-            Sustain Cloud
+            aisus cloud
           </a>
           <nav>
             <a href="/docs">Docs</a>
@@ -36,7 +36,7 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
         {website && (
           <>
             <script dangerouslySetInnerHTML={{ __html: STATS_HOOK }} />
-            <script defer src={`${STATS_PATH}/script.js`} data-website-id={website} data-before-send="sustainStats" data-exclude-search="true" data-do-not-track="true" />
+            <script defer src={`${STATS_PATH}/script.js`} data-website-id={website} data-before-send="aisusStats" data-exclude-search="true" data-do-not-track="true" />
           </>
         )}
       </body>

@@ -8,11 +8,11 @@ import { TEST_DIST } from "../support/buildScripts";
 import { repoRoot } from "../support/sourceScan";
 
 const SCRIPTS: Record<string, string[]> = {
-  "sustain-architecture": ["render-html.mjs", "repo-facts.mjs", "validate.mjs"],
-  "sustain-audit": ["audit-record.mjs"],
-  "sustain-bugfix": ["session-hook.mjs", "session.mjs"],
-  "sustain-refresh": ["refresh-facts.mjs", "render-html.mjs", "validate.mjs"],
-  "sustain-tour": ["tour-record.mjs"],
+  "aisus-architecture": ["render-html.mjs", "repo-facts.mjs", "validate.mjs"],
+  "aisus-audit": ["audit-record.mjs"],
+  "aisus-bugfix": ["session-hook.mjs", "session.mjs"],
+  "aisus-refresh": ["refresh-facts.mjs", "render-html.mjs", "validate.mjs"],
+  "aisus-tour": ["tour-record.mjs"],
 };
 
 test.each(Object.entries(SCRIPTS))("RCH-02 ACC-05 SKL-02 %s's committed scripts are what the build makes now", (name, scripts) => {
@@ -25,5 +25,5 @@ test.each(Object.entries(SCRIPTS))("RCH-02 ACC-05 SKL-02 %s's committed scripts 
 
 test("RCH-02 the refresh skill's references are the architecture skill's", () => {
   const reference = (name: string): string => readFileSync(join(repoRoot, "skills", name, "references/archify-format.md"), "utf8");
-  expect(reference("sustain-refresh")).toBe(reference("sustain-architecture"));
+  expect(reference("aisus-refresh")).toBe(reference("aisus-architecture"));
 });

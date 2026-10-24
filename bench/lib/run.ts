@@ -91,7 +91,7 @@ export async function benchRun(request: RunRequest): Promise<BenchRecord> {
   const base = kind === "refresh" || kind === "assisted" ? latestAccepted(request.results, entry.id, agent) : undefined;
   if ((kind === "refresh" || kind === "assisted") && base === undefined) throw new Error(`${kind} runs need an accepted full run of ${entry.id} by ${agent}; run --kind full first.`);
   const revision = runRevision(entry, kind);
-  const scratch = mkdtempSync(join(tmpdir(), "sustain-bench-"));
+  const scratch = mkdtempSync(join(tmpdir(), "aisus-bench-"));
   const work = join(scratch, "repo");
   const home = join(scratch, "home");
   try {

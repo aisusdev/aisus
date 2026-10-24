@@ -1,10 +1,10 @@
-// SET-05: the opt-in usage log (`sustain.usageLog`, off by default). While it is on, each listed
+// SET-05: the opt-in usage log (`aisus.usageLog`, off by default). While it is on, each listed
 // action adds one to its count for the day, in VS Code's storage on this machine. Export Usage Log
 // saves the log through a save dialog, and Clear Usage Log deletes it.
 import * as vscode from "vscode";
 import { emptyUsageLog, recordUsage, usageExport, type UsageEvent, type UsageLog } from "../model/usageLog";
 
-const LOG_KEY = "sustain.usageLog";
+const LOG_KEY = "aisus.usageLog";
 
 let current: UsageLogService | undefined;
 
@@ -19,7 +19,7 @@ export class UsageLogService {
   }
 
   get enabled(): boolean {
-    return vscode.workspace.getConfiguration("sustain").get<boolean>("usageLog", false) === true;
+    return vscode.workspace.getConfiguration("aisus").get<boolean>("usageLog", false) === true;
   }
 
   read(): UsageLog {
@@ -34,7 +34,7 @@ export class UsageLogService {
 
   /** Export Usage Log: the log as JSON, where the save dialog says. */
   async exportLog(): Promise<void> {
-    const target = await vscode.window.showSaveDialog({ defaultUri: vscode.Uri.file("sustain-usage.json"), filters: { JSON: ["json"] }, saveLabel: "Export" });
+    const target = await vscode.window.showSaveDialog({ defaultUri: vscode.Uri.file("aisus-usage.json"), filters: { JSON: ["json"] }, saveLabel: "Export" });
     if (target === undefined) return;
     await vscode.workspace.fs.writeFile(target, new TextEncoder().encode(usageExport(this.read())));
     void vscode.window.showInformationMessage("Saved the usage log.");

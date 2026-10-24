@@ -5,7 +5,7 @@ import { describe, expect, test } from "vitest";
 import { parseFrontMatter } from "../../../scripts/check-docs.mjs";
 import { repoRoot } from "../support/sourceScan";
 
-const skillDir = join(repoRoot, "skills/sustain-architecture");
+const skillDir = join(repoRoot, "skills/aisus-architecture");
 const read = (rel: string): string => readFileSync(join(skillDir, rel), "utf8");
 
 /** Two-level YAML mapping with quoted or bare scalars, as used by `agents/openai.yaml`. */
@@ -32,9 +32,9 @@ describe("FR-SKL-01 skill frontmatter", () => {
   test("SAF-02 SET-01 RCH-04 SKILL.md declares the manual-only skill with its pre-approved tools", () => {
     const parsed = parseFrontMatter(read("SKILL.md"));
     expect(parsed?.fields).toEqual({
-      name: "sustain-architecture",
+      name: "aisus-architecture",
       description:
-        "Generate an Archify architecture diagram of this repository for the Sustain VS Code viewer. Invoke manually with an optional focus.",
+        "Generate an Archify architecture diagram of this repository for the aisus VS Code viewer. Invoke manually with an optional focus.",
       triggers: "[user]",
       "disable-model-invocation": "true",
       "allowed-tools":
@@ -44,7 +44,7 @@ describe("FR-SKL-01 skill frontmatter", () => {
 
   test("agents/openai.yaml names the skill and forbids implicit invocation", () => {
     expect(parseNestedYaml(read("agents/openai.yaml"))).toEqual({
-      interface: { display_name: "Sustain Architecture", short_description: "Generate an architecture diagram for Sustain" },
+      interface: { display_name: "aisus Architecture", short_description: "Generate an architecture diagram for aisus" },
       policy: { allow_implicit_invocation: false },
     });
   });
@@ -67,7 +67,7 @@ describe("FR-SKL-03 format reference", () => {
 });
 
 describe("SET-01 install anywhere", () => {
-  test.each(["sustain-architecture", "sustain-bugfix", "sustain-refresh", "sustain-tour"])("SKL-02 %s finds its scripts through its own folder, never a repository path", (name) => {
+  test.each(["aisus-architecture", "aisus-bugfix", "aisus-refresh", "aisus-tour"])("SKL-02 %s finds its scripts through its own folder, never a repository path", (name) => {
     const text = readFileSync(join(repoRoot, "skills", name, "SKILL.md"), "utf8");
     expect(text).not.toContain(".agents/skills/");
     expect(text).not.toContain(".claude/skills/");
@@ -76,19 +76,19 @@ describe("SET-01 install anywhere", () => {
 });
 
 describe("FRS-05 refresh skill", () => {
-  const refreshDir = join(repoRoot, "skills/sustain-refresh");
+  const refreshDir = join(repoRoot, "skills/aisus-refresh");
 
   test("RCH-04 SKILL.md declares the manual-only skill with its two scripts", () => {
     expect(parseFrontMatter(readFileSync(join(refreshDir, "SKILL.md"), "utf8"))?.fields).toEqual({
-      name: "sustain-refresh",
-      description: "Bring an existing Sustain architecture diagram up to date with the code. Invoke manually with --from <run folder> and optional --paths <glob>.",
+      name: "aisus-refresh",
+      description: "Bring an existing aisus architecture diagram up to date with the code. Invoke manually with --from <run folder> and optional --paths <glob>.",
       triggers: "[user]",
       "disable-model-invocation": "true",
       "allowed-tools":
         "Read Grep Glob Bash(node ${CLAUDE_SKILL_DIR}/scripts/refresh-facts.mjs *) Bash(node ${CLAUDE_SKILL_DIR}/scripts/validate.mjs *) Bash(node ${CLAUDE_SKILL_DIR}/scripts/render-html.mjs *)",
     });
     expect(parseNestedYaml(readFileSync(join(refreshDir, "agents/openai.yaml"), "utf8"))).toEqual({
-      interface: { display_name: "Sustain Refresh", short_description: "Bring a Sustain architecture diagram up to date" },
+      interface: { display_name: "aisus Refresh", short_description: "Bring an aisus architecture diagram up to date" },
       policy: { allow_implicit_invocation: false },
     });
   });
@@ -100,7 +100,7 @@ describe("FRS-05 refresh skill", () => {
 });
 
 describe("CST-03 cost before every run", () => {
-  test.each(["sustain-architecture", "sustain-refresh"])("%s tells the user its estimate in step 2", (name) => {
+  test.each(["aisus-architecture", "aisus-refresh"])("%s tells the user its estimate in step 2", (name) => {
     const text = readFileSync(join(repoRoot, "skills", name, "SKILL.md"), "utf8");
     const step2 = text.slice(text.indexOf("## 2."), text.indexOf("## 3."));
     expect(step2).toContain("Before you go on, tell the user the estimate in one line. Use `estimate.claude.text` if you are Claude Code, and `estimate.codex.text` otherwise.");
@@ -125,7 +125,7 @@ describe("ACC-01 behaviour over names", () => {
     expect(reference).toContain("`DeclarationOnly`");
   });
 
-  test.each(["sustain-architecture", "sustain-refresh"])("%s reviews the evidence once, outside the repair count", (name) => {
+  test.each(["aisus-architecture", "aisus-refresh"])("%s reviews the evidence once, outside the repair count", (name) => {
     const text = readFileSync(join(repoRoot, "skills", name, "SKILL.md"), "utf8");
     expect(text).toContain("## 7. Review the evidence once");
     expect(text).toContain("in the same run folder and validate it again");
@@ -134,6 +134,6 @@ describe("ACC-01 behaviour over names", () => {
   });
 });
 
-test.each(["sustain-architecture", "sustain-audit", "sustain-bugfix", "sustain-refresh", "sustain-tour"])("RCH-04 %s is started by the user, with triggers: [user]", (name) => {
+test.each(["aisus-architecture", "aisus-audit", "aisus-bugfix", "aisus-refresh", "aisus-tour"])("RCH-04 %s is started by the user, with triggers: [user]", (name) => {
   expect(parseFrontMatter(readFileSync(join(repoRoot, "skills", name, "SKILL.md"), "utf8"))?.fields["triggers"]).toBe("[user]");
 });

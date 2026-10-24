@@ -34,5 +34,5 @@ try {
 const session = await login(process.env.ADMIN_PASSWORD);
 const listed = await call("/websites?pageSize=100", session.token);
 const found = (listed.data ?? listed).find((site) => site.domain === process.env.SITE);
-const site = found ?? (await call("/websites", session.token, { name: "Sustain", domain: process.env.SITE }));
+const site = found ?? (await call("/websites", session.token, { name: "aisus", domain: process.env.SITE }));
 console.log(site.id);

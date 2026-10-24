@@ -1,4 +1,4 @@
-// ARC-01: an import that breaks a rule in sustain.config.json shows in the Problems panel at its
+// ARC-01: an import that breaks a rule in aisus.config.json shows in the Problems panel at its
 // line, and the diagnostic goes when the import is fixed. ARC-02: a rule written from the map shows
 // its diff and is saved only on a yes.
 import * as assert from "node:assert/strict";
@@ -25,7 +25,7 @@ suite("ARC-01 architecture rules", () => {
   let ui: UiStubs;
 
   suiteSetup(async () => {
-    await vscode.extensions.getExtension("sustain.sustain")!.activate();
+    await vscode.extensions.getExtension("aisus.aisus")!.activate();
   });
 
   setup(() => {
@@ -44,13 +44,13 @@ suite("ARC-01 architecture rules", () => {
         ],
       }),
     );
-    write(root, "sustain.config.json", JSON.stringify({ map: RUN, rules: [{ id: "api-not-store", kind: "forbid", from: "api", to: "store", reason: "The API reads through the repository layer." }] }));
+    write(root, "aisus.config.json", JSON.stringify({ map: RUN, rules: [{ id: "api-not-store", kind: "forbid", from: "api", to: "store", reason: "The API reads through the repository layer." }] }));
   });
 
   teardown(async () => {
     ui.restore();
     await vscode.commands.executeCommand("workbench.action.closeAllEditors");
-    for (const rel of [".archify", "src", "sustain.config.json"]) rmSync(join(root, rel), { recursive: true, force: true });
+    for (const rel of [".archify", "src", "aisus.config.json"]) rmSync(join(root, rel), { recursive: true, force: true });
   });
 
   /** Replaces the handler's text and saves it. */
@@ -68,7 +68,7 @@ suite("ARC-01 architecture rules", () => {
     const [diagnostic] = vscode.languages.getDiagnostics(handler);
     assert.equal(diagnostic!.range.start.line, 1);
     assert.equal(diagnostic!.severity, vscode.DiagnosticSeverity.Warning);
-    assert.equal(diagnostic!.source, "Sustain");
+    assert.equal(diagnostic!.source, "aisus");
     assert.equal(diagnostic!.message, "api-not-store: imports src/store/db.ts. The API reads through the repository layer.");
 
     await save("export const handle = 1;\n");
@@ -80,10 +80,10 @@ suite("ARC-02 rules from the map", () => {
   let root: string;
   let hook: TestHook;
   let ui: UiStubs;
-  const config = (): { rules: { id: string; kind: string; from: string[]; to: string[]; reason: string }[] } => JSON.parse(readFileSync(join(root, "sustain.config.json"), "utf8"));
+  const config = (): { rules: { id: string; kind: string; from: string[]; to: string[]; reason: string }[] } => JSON.parse(readFileSync(join(root, "aisus.config.json"), "utf8"));
 
   suiteSetup(async () => {
-    hook = (await vscode.extensions.getExtension("sustain.sustain")!.activate()) as TestHook;
+    hook = (await vscode.extensions.getExtension("aisus.aisus")!.activate()) as TestHook;
   });
 
   setup(() => {
@@ -103,34 +103,34 @@ suite("ARC-02 rules from the map", () => {
         connections: [{ from: "api", to: "store" }],
       }),
     );
-    write(root, "sustain.config.json", JSON.stringify({ map: RUN }));
+    write(root, "aisus.config.json", JSON.stringify({ map: RUN }));
   });
 
   teardown(async () => {
     ui.restore();
     await vscode.commands.executeCommand("workbench.action.closeAllEditors");
-    for (const rel of [".archify", "src", "sustain.config.json"]) rmSync(join(root, rel), { recursive: true, force: true });
+    for (const rel of [".archify", "src", "aisus.config.json"]) rmSync(join(root, rel), { recursive: true, force: true });
   });
 
   test("ARC-02 Forbid This Dependency shows the config's diff, saves the rule on Add, and saves nothing on a no", async () => {
-    await vscode.commands.executeCommand("sustain.openArchitecture");
+    await vscode.commands.executeCommand("aisus.openArchitecture");
     await until(() => hook.panelState().open, "the map");
 
     ui.answers.inputBox.push(undefined);
-    await vscode.commands.executeCommand("sustain.forbidArrow", { from: "api", to: "store" });
+    await vscode.commands.executeCommand("aisus.forbidArrow", { from: "api", to: "store" });
     ui.answers.inputBox.push("The API reads through the repository.");
     ui.answers.warning.push(undefined);
-    await vscode.commands.executeCommand("sustain.forbidArrow", { from: "api", to: "store" });
+    await vscode.commands.executeCommand("aisus.forbidArrow", { from: "api", to: "store" });
     assert.deepEqual(config(), { map: RUN });
 
     ui.answers.inputBox.push("The API reads through the repository.");
     ui.answers.warning.push("Add");
-    await vscode.commands.executeCommand("sustain.forbidArrow", { from: "api", to: "store" });
+    await vscode.commands.executeCommand("aisus.forbidArrow", { from: "api", to: "store" });
     assert.equal(ui.inputBoxes[0]?.value, "API should not import Store.");
     const ask = ui.warnings.at(-1)!;
-    assert.equal(ask.message, "Add this rule to sustain.config.json?");
+    assert.equal(ask.message, "Add this rule to aisus.config.json?");
     assert.deepEqual(ask.rest, [{ modal: true, detail: "forbid-api-store: The API reads through the repository." }, "Add"]);
-    const tab = vscode.window.tabGroups.all.flatMap((group) => group.tabs).find((entry) => entry.label.startsWith("sustain.config.json: forbid API to Store"));
+    const tab = vscode.window.tabGroups.all.flatMap((group) => group.tabs).find((entry) => entry.label.startsWith("aisus.config.json: forbid API to Store"));
     assert.ok(tab, "the diff opened");
     assert.deepEqual(config().rules, [{ id: "forbid-api-store", kind: "forbid", from: ["api"], to: ["store"], reason: "The API reads through the repository." }]);
   });

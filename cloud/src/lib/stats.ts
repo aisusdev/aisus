@@ -15,4 +15,4 @@ export function statsWebsite(env: Readonly<Record<string, string | undefined>> =
  * Umami's `data-before-send` hook. A share link's token is a secret, so `/s/<token>` is counted as
  * `/s/link`, in the page and in the referrer alike.
  */
-export const STATS_HOOK = `window.sustainStats=function(type,payload){var hide=function(url){return typeof url==="string"?url.replace(/\\/s\\/[^/?#]+/,"/s/link"):url};payload.url=hide(payload.url);payload.referrer=hide(payload.referrer);return payload};`;
+export const STATS_HOOK = `window.aisusStats=function(type,payload){var hide=function(url){return typeof url==="string"?url.replace(/\\/s\\/[^/?#]+/,"/s/link"):url};payload.url=hide(payload.url);payload.referrer=hide(payload.referrer);return payload};`;

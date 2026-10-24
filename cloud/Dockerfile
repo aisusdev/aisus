@@ -1,5 +1,5 @@
-# Sustain Cloud's image (CLD-10). Build it from the repository's root, since the cloud shares the
-# model with the extension: docker build -f cloud/Dockerfile -t sustain-cloud .
+# aisus cloud's image (CLD-10). Build it from the repository's root, since the cloud shares the
+# model with the extension: docker build -f cloud/Dockerfile -t aisus-cloud .
 # Configuration comes from the environment only. The database lives in /data, and billing stays off
 # without Stripe keys.
 FROM node:22-bookworm-slim AS build
@@ -12,7 +12,7 @@ RUN npm run -w cloud build && npm prune --omit=dev
 
 FROM node:22-bookworm-slim
 WORKDIR /app
-ENV NODE_ENV=production NEXT_TELEMETRY_DISABLED=1 SUSTAIN_DB=/data
+ENV NODE_ENV=production NEXT_TELEMETRY_DISABLED=1 AISUS_DB=/data
 COPY --from=build /app/package.json /app/package-lock.json ./
 COPY --from=build /app/node_modules ./node_modules
 COPY --from=build /app/cloud ./cloud

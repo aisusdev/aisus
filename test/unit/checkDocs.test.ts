@@ -46,7 +46,7 @@ function write(path: string, content: string): void {
 }
 
 beforeEach(() => {
-  docs = mkdtempSync(join(tmpdir(), "sustain-docs-"));
+  docs = mkdtempSync(join(tmpdir(), "aisus-docs-"));
   write("adr/template.md", "template\n");
   write("adr/0001-first.md", adr("First"));
   write("adr/0002-second.md", adr("Second"));

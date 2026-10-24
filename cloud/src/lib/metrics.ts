@@ -26,23 +26,23 @@ export async function metricsText(db: Database, now = new Date()): Promise<strin
   const [links] = await db.select({ n: count() }).from(shareLinks).where(sql`${gt(shareLinks.expiresAt, now)} and ${isNull(shareLinks.revokedAt)}`);
   const plans = await db.select({ key: accountPlans.plan, n: count(), seats: sql<number>`coalesce(sum(${accountPlans.seats}), 0)` }).from(accountPlans).where(ne(accountPlans.plan, "free")).groupBy(accountPlans.plan);
   return [
-    gauge("sustain_accounts", "People who have signed in.", [["", Number(accounts?.n ?? 0)]]),
-    gauge("sustain_repositories", "Repositories the cloud knows, by visibility.", [
+    gauge("aisus_accounts", "People who have signed in.", [["", Number(accounts?.n ?? 0)]]),
+    gauge("aisus_repositories", "Repositories the cloud knows, by visibility.", [
       ['{visibility="private"}', valueOf(repos, true)],
       ['{visibility="public"}', valueOf(repos, false)],
     ]),
-    gauge("sustain_uploads", "Stored uploads, by kind.", [
+    gauge("aisus_uploads", "Stored uploads, by kind.", [
       ['{kind="map"}', valueOf(kinds, "map")],
       ['{kind="check"}', valueOf(kinds, "check")],
     ]),
-    gauge("sustain_uploads_last_day", "Uploads in the last 24 hours.", [["", Number(lastDay?.n ?? 0)]]),
-    gauge("sustain_upload_tokens", "Upload tokens that exist.", [["", Number(uploadTokens?.n ?? 0)]]),
-    gauge("sustain_share_links", "Share links that are neither expired nor revoked.", [["", Number(links?.n ?? 0)]]),
-    gauge("sustain_paid_accounts", "Accounts on a paid plan, by plan.", [
+    gauge("aisus_uploads_last_day", "Uploads in the last 24 hours.", [["", Number(lastDay?.n ?? 0)]]),
+    gauge("aisus_upload_tokens", "Upload tokens that exist.", [["", Number(uploadTokens?.n ?? 0)]]),
+    gauge("aisus_share_links", "Share links that are neither expired nor revoked.", [["", Number(links?.n ?? 0)]]),
+    gauge("aisus_paid_accounts", "Accounts on a paid plan, by plan.", [
       ['{plan="team"}', valueOf(plans, "team")],
       ['{plan="enterprise"}', valueOf(plans, "enterprise")],
     ]),
-    gauge("sustain_paid_seats", "Seats across the paid accounts.", [["", plans.reduce((sum, row) => sum + Number(row.seats), 0)]]),
+    gauge("aisus_paid_seats", "Seats across the paid accounts.", [["", plans.reduce((sum, row) => sum + Number(row.seats), 0)]]),
   ].join("");
 }
 

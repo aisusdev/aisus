@@ -1,5 +1,5 @@
-// `Sustain: Install Agent Skills` (FR-INS-01, ADR 0006): copies both skills into
-// `.agents/skills/` of the user's home or the repository (`sustain.skillScope`, spec v0.3
+// `aisus: Install Agent Skills` (FR-INS-01, ADR 0006): copies both skills into
+// `.agents/skills/` of the user's home or the repository (`aisus.skillScope`, spec v0.3
 // SET-01). Hooks and git excludes belong to the session launch (SAF-06).
 import * as vscode from "vscode";
 import { pickRepoRoot } from "./folders";
@@ -9,7 +9,7 @@ import { SKILL_NAMES, skillBase, skillInstalled, skillTargets, writeSkill } from
 
 /**
  * The session-side assets, merged when a learning session launches in `agent`: that agent's
- * managed hooks block and Sustain's git excludes (LRN-01). A corrupt hooks file throws, and the
+ * managed hooks block and aisus's git excludes (LRN-01). A corrupt hooks file throws, and the
  * caller reports it rather than overwriting.
  */
 export function ensureSessionAssets(root: string, agent: SessionAgent = "devin"): void {
@@ -24,7 +24,7 @@ export function installLabel(base: string, root: string): string {
 }
 
 /**
- * Installs the built skills for `root` per `sustain.skillScope`, asking before replacing an
+ * Installs the built skills for `root` per `aisus.skillScope`, asking before replacing an
  * existing install. Cancel changes nothing.
  */
 export async function installSkill(extensionUri: vscode.Uri, root: string): Promise<"installed" | "cancelled"> {
@@ -40,7 +40,7 @@ export async function installSkill(extensionUri: vscode.Uri, root: string): Prom
     const source = vscode.Uri.joinPath(extensionUri, "dist", "skills", name).fsPath;
     kinds.add(writeSkill(base, source, skillTargets(base, name), name));
   }
-  void vscode.window.showInformationMessage(`Installed the Sustain skills in ${installLabel(base, root)} (${[...kinds].join("/")} for .claude).`);
+  void vscode.window.showInformationMessage(`Installed the aisus skills in ${installLabel(base, root)} (${[...kinds].join("/")} for .claude).`);
   return "installed";
 }
 

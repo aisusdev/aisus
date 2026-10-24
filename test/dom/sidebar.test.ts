@@ -47,7 +47,7 @@ function state(fields: Partial<HomeState> = {}): HomeState {
 }
 
 function map(fields: Partial<MapItem>): MapItem {
-  return { runFolder: "architecture-x-20261016-120000", file: "/r/.archify/architecture-x-20261016-120000/candidate.json", title: "Sustain", focus: "", agent: "Claude Code", createdAt: "2026-10-16T12:00:00Z", boxes: 16, changed: null, ...fields };
+  return { runFolder: "architecture-x-20261016-120000", file: "/r/.archify/architecture-x-20261016-120000/candidate.json", title: "aisus", focus: "", agent: "Claude Code", createdAt: "2026-10-16T12:00:00Z", boxes: 16, changed: null, ...fields };
 }
 
 function run(fields: Partial<RunCard>): RunCard {
@@ -82,9 +82,9 @@ function click(label: string): void {
 
 describe("UI-01 sidebar states", () => {
   test("empty: no map yet, the composer and its notes, and Generate posts the typed focus", () => {
-    home.render(state({ composer: { ...state().composer, notes: ["Installs the sustain-architecture skill in ~/.claude/skills/."] } }));
+    home.render(state({ composer: { ...state().composer, notes: ["Installs the aisus-architecture skill in ~/.claude/skills/."] } }));
     expect(text(".header__status")).toEqual(["No map yet"]);
-    expect(text(".composer__note")).toEqual(["Installs the sustain-architecture skill in ~/.claude/skills/."]);
+    expect(text(".composer__note")).toEqual(["Installs the aisus-architecture skill in ~/.claude/skills/."]);
     expect(container.querySelector(".maps")).toBeNull();
     container.querySelector<HTMLTextAreaElement>(".composer__focus")!.value = "payment flow";
     click("Generate");
@@ -101,7 +101,7 @@ describe("UI-01 sidebar states", () => {
   test("maps: newest first with focus, agent, age and boxes; Open, Refresh and Delete post the file", () => {
     home.render(state({ maps: [map({ focus: "payments" }), map({ title: null, runFolder: "architecture-old-20261001-090000", file: "/r/old.json", agent: null, boxes: 1, createdAt: "2026-10-01T09:00:00Z" })] }));
     expect(text(".header__status")).toEqual(["Map from 2 days ago · 16 boxes"]);
-    expect(text(".map__title")).toEqual(["Sustain", "architecture-old-20261001-090000"]);
+    expect(text(".map__title")).toEqual(["aisus", "architecture-old-20261001-090000"]);
     expect(text(".map__meta")).toEqual(["payments · Claude Code · 2 days ago · 16 boxes", "17 days ago · 1 box"]);
     click("Delete");
     container.querySelector<HTMLButtonElement>(".map__title")!.click();
@@ -136,12 +136,12 @@ describe("UI-01 sidebar states", () => {
     const failing: Check[] = [
       ...OK_CHECKS,
       { id: "codex", ok: false, detail: "codex was not found", fix: { kind: "copy", label: "Copy install command", text: "npm install -g @openai/codex" } },
-      { id: "skills", ok: false, detail: "Sustain's skills are missing or changed", fix: { kind: "install-skills", label: "Install skills" } },
+      { id: "skills", ok: false, detail: "aisus's skills are missing or changed", fix: { kind: "install-skills", label: "Install skills" } },
     ];
     home.render(state({ setup: failing }));
     expect(container.querySelector<HTMLDetailsElement>(".setup")!.open).toBe(true);
     expect(text(".setup > summary")).toEqual(["Setup · needs attention"]);
-    expect(text(".check--fail .check__detail")).toEqual(["codex was not found", "Sustain's skills are missing or changed"]);
+    expect(text(".check--fail .check__detail")).toEqual(["codex was not found", "aisus's skills are missing or changed"]);
     click("Install skills");
     expect(posted).toEqual([{ type: "fix", check: "skills" }]);
   });

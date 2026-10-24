@@ -1,4 +1,4 @@
-# Sustain Cloud on one machine (CLD-10): docker compose -f cloud/docker-compose.yml up --build
+# aisus cloud on one machine (CLD-10): docker compose -f cloud/docker-compose.yml up --build
 # Every setting comes from the environment; copy the variables below into a .env file beside this
 # one. Billing stays off without the Stripe keys, which gives every account every feature.
 services:
@@ -17,7 +17,7 @@ services:
       STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET:-}
       STRIPE_TEAM_PRICE: ${STRIPE_TEAM_PRICE:-}
     volumes:
-      - sustain-data:/data
+      - aisus-data:/data
     restart: unless-stopped
 volumes:
-  sustain-data:
+  aisus-data:

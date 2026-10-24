@@ -5,7 +5,7 @@ import * as vscode from "vscode";
 import { hashTree, type SkillHashes } from "../../../src/model/integrity";
 import { suite, test } from "../tdd";
 
-const EXTENSION_ID = "sustain.sustain";
+const EXTENSION_ID = "aisus.aisus";
 
 suite("smoke", () => {
   test("the extension is installed and activates", async () => {
@@ -18,14 +18,14 @@ suite("smoke", () => {
   test("the built bundle ships the skill files", () => {
     const extension = vscode.extensions.getExtension(EXTENSION_ID);
     assert.ok(extension);
-    const example = join(extension.extensionPath, "dist/skills/sustain-architecture/references/example.json");
+    const example = join(extension.extensionPath, "dist/skills/aisus-architecture/references/example.json");
     assert.ok(existsSync(example), `missing ${example}`);
   });
 
   test("SAF-01 the shipped skill hashes match the shipped skill files", () => {
     const extension = vscode.extensions.getExtension(EXTENSION_ID)!;
     const shipped = JSON.parse(readFileSync(join(extension.extensionPath, "dist/skill-hashes.json"), "utf8")) as SkillHashes;
-    for (const name of ["sustain-architecture", "sustain-bugfix"]) {
+    for (const name of ["aisus-architecture", "aisus-bugfix"]) {
       assert.deepEqual(hashTree(join(extension.extensionPath, "dist/skills", name)), shipped.skills[name], name);
     }
   });

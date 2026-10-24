@@ -54,7 +54,7 @@ export function renderPage(data: PageData, assets: PageAssets): string {
     `<style>${assets.style}</style>`,
     "</head>",
     "<body>",
-    `<script type="application/json" id="sustain-data">${escapeJson(JSON.stringify(data))}</script>`,
+    `<script type="application/json" id="aisus-data">${escapeJson(JSON.stringify(data))}</script>`,
     `<script>${assets.script}</script>`,
     "</body>",
     "</html>",

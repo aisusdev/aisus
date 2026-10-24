@@ -7,13 +7,13 @@ export interface Release {
   assets: { name: string; browser_download_url: string }[];
 }
 
-const DEFAULT_REPO = "xplus2g4/sustain";
+const DEFAULT_REPO = "kerktaiheng/aisus";
 /** How long one answer from GitHub is reused. */
 const CACHE_MS = 5 * 60_000;
 
-/** The repository whose releases carry the extension, from `SUSTAIN_RELEASES_REPO`. */
+/** The repository whose releases carry the extension, from `AISUS_RELEASES_REPO`. */
 export function releasesRepo(env: Readonly<Record<string, string | undefined>> = process.env): string {
-  const repo = env["SUSTAIN_RELEASES_REPO"]?.trim() ?? "";
+  const repo = env["AISUS_RELEASES_REPO"]?.trim() ?? "";
   return /^[\w.-]+\/[\w.-]+$/.test(repo) ? repo : DEFAULT_REPO;
 }
 

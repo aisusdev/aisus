@@ -1,4 +1,4 @@
-// Watches `<folder>/.sustain/{active,*/session.json}` in every workspace folder and reloads
+// Watches `<folder>/.aisus/{active,*/session.json}` in every workspace folder and reloads
 // the session panel (ADR 0034). Reuses the ChangeBatch debounce of the diagram watcher;
 // no notifications — a learning session writes session.json every turn. When the lock goes,
 // the session's hook entries go with it (spec v0.3 SAF-06).
@@ -31,7 +31,7 @@ export class SessionWatcher implements vscode.Disposable {
 
   private watch(folders: readonly vscode.WorkspaceFolder[]): void {
     for (const folder of folders) {
-      const watchers = [".sustain/active", ".sustain/*/session.json"].map((pattern) => {
+      const watchers = [".aisus/active", ".aisus/*/session.json"].map((pattern) => {
         const watcher = vscode.workspace.createFileSystemWatcher(new vscode.RelativePattern(folder, pattern));
         watcher.onDidCreate((uri) => this.batch.add(uri.fsPath, true));
         watcher.onDidChange((uri) => this.batch.add(uri.fsPath, false));

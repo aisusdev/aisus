@@ -85,8 +85,8 @@ export async function runPreflight(input: PreflightInput): Promise<Check[]> {
 
   checks.push(
     input.skillsIntact
-      ? { id: "skills", ok: true, detail: "Sustain's skills are installed and unchanged" }
-      : { id: "skills", ok: false, detail: "Sustain's skills are missing or changed", fix: { kind: "install-skills", label: "Install skills" } },
+      ? { id: "skills", ok: true, detail: "aisus's skills are installed and unchanged" }
+      : { id: "skills", ok: false, detail: "aisus's skills are missing or changed", fix: { kind: "install-skills", label: "Install skills" } },
   );
 
   checks.push(

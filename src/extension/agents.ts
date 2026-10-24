@@ -1,4 +1,4 @@
-// Agent launch details for `Sustain: Generate Architecture` (FR-GEN-01). No `vscode` import,
+// Agent launch details for `aisus: Generate Architecture` (FR-GEN-01). No `vscode` import,
 // so the prompt format is unit-tested in Node. The PATH lookup lives in `src/model/which.ts`.
 import type { ComposerCli } from "../model/messages";
 export { findOnPath } from "../model/which";
@@ -9,14 +9,14 @@ export interface Agent {
   /** Executable looked up on PATH, or where Devin installs. */
   cli: ComposerCli;
   /** Skill invocation prefix. */
-  invoke: "/sustain-architecture" | "$sustain-architecture";
+  invoke: "/aisus-architecture" | "$aisus-architecture";
 }
 
 export const AGENTS: readonly Agent[] = [
-  { label: "Claude Code", cli: "claude", invoke: "/sustain-architecture" },
-  { label: "Codex", cli: "codex", invoke: "$sustain-architecture" },
+  { label: "Claude Code", cli: "claude", invoke: "/aisus-architecture" },
+  { label: "Codex", cli: "codex", invoke: "$aisus-architecture" },
   // RCH-04: Devin runs in a terminal only.
-  { label: "Devin", cli: "devin", invoke: "/sustain-architecture" },
+  { label: "Devin", cli: "devin", invoke: "/aisus-architecture" },
 ];
 
 /** The terminal's argument vector: the prompt alone, never a permission flag (SAF-04). */
@@ -25,14 +25,14 @@ export function agentLaunchArgs(prompt: string): string[] {
 }
 
 /** The skills a run launches (FR-GEN-01, FRS-05). */
-export type SkillName = "sustain-architecture" | "sustain-refresh" | "sustain-audit" | "sustain-tour";
+export type SkillName = "aisus-architecture" | "aisus-refresh" | "aisus-audit" | "aisus-tour";
 
 /** The scripts each skill runs, which its Bash rules name exactly. */
 export const SKILL_SCRIPTS: Readonly<Record<SkillName, readonly string[]>> = {
-  "sustain-architecture": ["repo-facts.mjs", "validate.mjs", "render-html.mjs"],
-  "sustain-refresh": ["refresh-facts.mjs", "validate.mjs", "render-html.mjs"],
-  "sustain-audit": ["audit-record.mjs"],
-  "sustain-tour": ["tour-record.mjs"],
+  "aisus-architecture": ["repo-facts.mjs", "validate.mjs", "render-html.mjs"],
+  "aisus-refresh": ["refresh-facts.mjs", "validate.mjs", "render-html.mjs"],
+  "aisus-audit": ["audit-record.mjs"],
+  "aisus-tour": ["tour-record.mjs"],
 };
 
 export interface HeadlessOptions {
@@ -62,16 +62,16 @@ export function headlessArgs(cli: "claude" | "codex", prompt: string, options: H
         "Grep",
         "Glob",
         ...(options.subagents ? ["Task"] : []),
-        ...(options.scripts ?? SKILL_SCRIPTS["sustain-architecture"]).map((script) => `Bash(node ${options.skillDir}/scripts/${script} *)`),
+        ...(options.scripts ?? SKILL_SCRIPTS["aisus-architecture"]).map((script) => `Bash(node ${options.skillDir}/scripts/${script} *)`),
         "Edit(./.archify/**)",
       ];
   const resume = options.resume === undefined ? [] : ["--resume", options.resume];
   return ["-p", prompt, "--output-format", "stream-json", "--verbose", "--permission-mode", "dontAsk", ...resume, "--allowedTools", ...tools];
 }
 
-/** `/sustain-architecture <focus>` or `$sustain-architecture <focus>`; no trailing space for an empty focus. */
+/** `/aisus-architecture <focus>` or `$aisus-architecture <focus>`; no trailing space for an empty focus. */
 export function agentPrompt(agent: Agent, focus: string): string {
-  return skillPrompt(agent.cli, "sustain-architecture", focus);
+  return skillPrompt(agent.cli, "aisus-architecture", focus);
 }
 
 /** `/<skill> <args>` for Claude Code and Devin, or `$<skill> <args>` for Codex; no trailing space without arguments. */
@@ -81,7 +81,7 @@ export function skillPrompt(cli: ComposerCli, skill: SkillName, args: string): s
   return trimmed === "" ? invoke : `${invoke} ${trimmed}`;
 }
 
-/** RCH-04: agents Sustain does not launch, whose prompt it copies instead. */
+/** RCH-04: agents aisus does not launch, whose prompt it copies instead. */
 export const PROMPT_TARGETS = [
   { id: "copilot", label: "GitHub Copilot agent mode" },
   { id: "cursor", label: "Cursor's agent" },

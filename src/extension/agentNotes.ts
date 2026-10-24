@@ -1,4 +1,4 @@
-// ARC-04: `Sustain: Write Architecture Notes for Agents`. Merges the notes block into AGENTS.md, and
+// ARC-04: `aisus: Write Architecture Notes for Agents`. Merges the notes block into AGENTS.md, and
 // into CLAUDE.md when it does not import AGENTS.md, each after its diff and a yes.
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
@@ -49,7 +49,7 @@ export async function writeAgentNotesCommand(): Promise<void> {
       after,
       title: `${name}: architecture notes`,
       confirm: async () =>
-        (await vscode.window.showWarningMessage(`Write the architecture notes into ${name}?`, { modal: true, detail: "Sustain changes only the block between its markers. Your own text stays as it is." }, "Write")) === "Write",
+        (await vscode.window.showWarningMessage(`Write the architecture notes into ${name}?`, { modal: true, detail: "aisus changes only the block between its markers. Your own text stays as it is." }, "Write")) === "Write",
     });
     if (!written) return;
   }

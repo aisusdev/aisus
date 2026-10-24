@@ -86,7 +86,7 @@ export function violationArrows(violations: readonly Violation[], components: re
 }
 
 export class RulesService implements vscode.Disposable {
-  private readonly diagnostics = vscode.languages.createDiagnosticCollection("sustain-rules");
+  private readonly diagnostics = vscode.languages.createDiagnosticCollection("aisus-rules");
   private readonly results = new Map<string, RulesResult>();
   private readonly pending = new Set<string>();
   private timer: NodeJS.Timeout | undefined;
@@ -100,11 +100,11 @@ export class RulesService implements vscode.Disposable {
     this.disposables.push(
       vscode.workspace.onDidSaveTextDocument((document) => this.saved(document.uri)),
       vscode.workspace.onDidChangeConfiguration((event) => {
-        if (event.affectsConfiguration("sustain.rules.severity")) for (const root of this.results.keys()) this.publish(root);
+        if (event.affectsConfiguration("aisus.rules.severity")) for (const root of this.results.keys()) this.publish(root);
       }),
       vscode.workspace.onDidChangeWorkspaceFolders(() => this.checkAll()),
     );
-    for (const pattern of [`sustain.config.json`, `${ARCHIFY_DIR}/*/${CANDIDATE_FILE}`]) {
+    for (const pattern of [`aisus.config.json`, `${ARCHIFY_DIR}/*/${CANDIDATE_FILE}`]) {
       const watcher = vscode.workspace.createFileSystemWatcher(`**/${pattern}`);
       for (const event of [watcher.onDidCreate, watcher.onDidChange, watcher.onDidDelete]) event((uri) => this.saved(uri));
       this.disposables.push(watcher);
@@ -140,7 +140,7 @@ export class RulesService implements vscode.Disposable {
     const folder = vscode.workspace.getWorkspaceFolder(uri);
     if (folder === undefined || uri.scheme !== "file") return;
     const rel = relative(folder.uri.fsPath, uri.fsPath).split(sep).join("/");
-    if (importLanguage(rel) === null && !rel.endsWith("sustain.config.json") && !rel.endsWith(CANDIDATE_FILE)) return;
+    if (importLanguage(rel) === null && !rel.endsWith("aisus.config.json") && !rel.endsWith(CANDIDATE_FILE)) return;
     this.pending.add(folder.uri.fsPath);
     clearTimeout(this.timer);
     this.timer = setTimeout(() => {
@@ -151,7 +151,7 @@ export class RulesService implements vscode.Disposable {
   }
 
   private publish(root: string): void {
-    const severity = SEVERITY[vscode.workspace.getConfiguration("sustain").get<string>("rules.severity", "warning")] ?? vscode.DiagnosticSeverity.Warning;
+    const severity = SEVERITY[vscode.workspace.getConfiguration("aisus").get<string>("rules.severity", "warning")] ?? vscode.DiagnosticSeverity.Warning;
     // Clear this folder's old entries, then set its current ones.
     this.diagnostics.forEach((uri) => {
       if (vscode.workspace.getWorkspaceFolder(uri)?.uri.fsPath === root) this.diagnostics.delete(uri);
@@ -160,7 +160,7 @@ export class RulesService implements vscode.Disposable {
     for (const violation of this.results.get(root)?.violations ?? []) {
       const line = Math.max(0, violation.line - 1);
       const diagnostic = new vscode.Diagnostic(new vscode.Range(line, 0, line, Number.MAX_SAFE_INTEGER), `${violation.rule}: imports ${violation.imported}. ${violation.reason}`, severity);
-      diagnostic.source = "Sustain";
+      diagnostic.source = "aisus";
       diagnostic.code = violation.rule;
       byFile.set(violation.file, [...(byFile.get(violation.file) ?? []), diagnostic]);
     }

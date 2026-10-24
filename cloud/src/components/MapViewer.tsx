@@ -8,8 +8,8 @@ export function MapViewer({ data }: { data: PageData }) {
   return (
     <>
       <link rel="stylesheet" href="/viewer.css" />
-      <div id="sustain-viewer" className="map-shell" />
-      <script type="application/json" id="sustain-data" dangerouslySetInnerHTML={{ __html: escapeJson(JSON.stringify(data)) }} />
+      <div id="aisus-viewer" className="map-shell" />
+      <script type="application/json" id="aisus-data" dangerouslySetInnerHTML={{ __html: escapeJson(JSON.stringify(data)) }} />
       <Script src="/viewer.js" strategy="afterInteractive" />
     </>
   );

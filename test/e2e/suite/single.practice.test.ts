@@ -12,7 +12,7 @@ import { setup, suite, suiteSetup, teardown, test } from "../tdd";
 import { until } from "../until";
 
 function extensionPath(): string {
-  return vscode.extensions.getExtension("sustain.sustain")!.extensionPath;
+  return vscode.extensions.getExtension("aisus.aisus")!.extensionPath;
 }
 
 function git(root: string, ...args: string[]): void {
@@ -28,14 +28,14 @@ suite("SKL-01 Explain-back", () => {
   let scratch: string;
 
   suiteSetup(async () => {
-    hook = (await vscode.extensions.getExtension("sustain.sustain")!.activate()) as TestHook;
+    hook = (await vscode.extensions.getExtension("aisus.aisus")!.activate()) as TestHook;
   });
 
   setup(async () => {
     root = vscode.workspace.workspaceFolders![0]!.uri.fsPath;
     ui = stubUi();
     savedPath = process.env["PATH"];
-    scratch = mkdtempSync(join(tmpdir(), "sustain-practice-"));
+    scratch = mkdtempSync(join(tmpdir(), "aisus-practice-"));
     const stub = join(extensionPath(), "test/fixtures/streams/stub-agent.mjs");
     writeFileSync(join(scratch, "claude"), `#!/bin/sh\nELECTRON_RUN_AS_NODE=1 exec "${process.execPath}" "${stub}" "$@"\n`);
     chmodSync(join(scratch, "claude"), 0o755);
@@ -46,7 +46,7 @@ suite("SKL-01 Explain-back", () => {
     git(root, "add", "src");
     git(root, "commit", "-qm", "pay");
     writeFileSync(join(root, "src/pay.ts"), "export function pay(amount: number) {\n  return amount * 2;\n}\n");
-    await vscode.commands.executeCommand("workbench.view.extension.sustain");
+    await vscode.commands.executeCommand("workbench.view.extension.aisus");
     await until(() => hook.homeState().visible, "the sidebar to show");
     await hook.postFromHome({ type: "practiceClear" });
   });
@@ -54,7 +54,7 @@ suite("SKL-01 Explain-back", () => {
   teardown(async () => {
     ui.restore();
     process.env["PATH"] = savedPath;
-    for (const name of ["SUSTAIN_STUB_STREAM", "SUSTAIN_STUB_ARGS"]) delete process.env[name];
+    for (const name of ["AISUS_STUB_STREAM", "AISUS_STUB_ARGS"]) delete process.env[name];
     await vscode.commands.executeCommand("workbench.action.closeAllEditors");
     await hook.postFromHome({ type: "practiceClear" });
     for (const path of ["src", ".git"]) rmSync(join(root, path), { recursive: true, force: true });
@@ -63,7 +63,7 @@ suite("SKL-01 Explain-back", () => {
 
   test("SKL-01 the agent's questions reach the sidebar without their keys, and an answer comes back graded with a link that opens the code", async () => {
     const args = join(scratch, "args.json");
-    Object.assign(process.env, { SUSTAIN_STUB_STREAM: join(extensionPath(), "test/fixtures/streams/claude-practice-questions.jsonl"), SUSTAIN_STUB_ARGS: args });
+    Object.assign(process.env, { AISUS_STUB_STREAM: join(extensionPath(), "test/fixtures/streams/claude-practice-questions.jsonl"), AISUS_STUB_ARGS: args });
     await hook.postFromHome({ type: "practiceStart", scope: "uncommitted" });
     const asked = JSON.parse(readFileSync(args, "utf8")) as string[];
     assert.match(asked[1]!, /^Check that the user understands the uncommitted changes\. The code is here:\n- src\/pay\.ts, line 2\n/);
@@ -76,7 +76,7 @@ suite("SKL-01 Explain-back", () => {
     );
     assert.equal(JSON.stringify(hook.homeState().state).includes("KEY-"), false, "no expected answer reaches the sidebar");
 
-    Object.assign(process.env, { SUSTAIN_STUB_STREAM: join(extensionPath(), "test/fixtures/streams/claude-practice-grade.jsonl") });
+    Object.assign(process.env, { AISUS_STUB_STREAM: join(extensionPath(), "test/fixtures/streams/claude-practice-grade.jsonl") });
     await hook.postFromHome({ type: "practiceAnswer", index: 0, answer: "It doubles the amount." });
     const graded = JSON.parse(readFileSync(args, "utf8")) as string[];
     assert.match(graded[1]!, /Expected answer: KEY-ONE: the amount is in cents and the fee doubles it\.\n/);

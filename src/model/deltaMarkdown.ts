@@ -4,8 +4,8 @@
 import type { Candidate, DeltaReport, NewArrow } from "./delta";
 import type { Violation } from "./rules";
 
-/** The marker that identifies Sustain's pull request comment. */
-export const COMMENT_MARKER = "<!-- sustain-check -->";
+/** The marker that identifies aisus's pull request comment. */
+export const COMMENT_MARKER = "<!-- aisus-check -->";
 
 /** Text safe in markdown: HTML characters as entities, markdown characters escaped. */
 export function escapeMarkdown(text: string): string {
@@ -66,7 +66,7 @@ export interface MarkdownMeta {
 
 /** Markdown of the report; each list shows at most `maxItems`, then how many more there are. */
 export function deltaMarkdown(report: DeltaReport, meta: MarkdownMeta, maxItems = Number.POSITIVE_INFINITY): string {
-  const lines = [`### Sustain check: ${meta.result}`, "", `**${deltaSummary(report)}**`, "", `Map ${path(meta.map)}, compared from ${path(meta.mergeBase.slice(0, 7))}.`];
+  const lines = [`### aisus check: ${meta.result}`, "", `**${deltaSummary(report)}**`, "", `Map ${path(meta.map)}, compared from ${path(meta.mergeBase.slice(0, 7))}.`];
   const section = (title: string, items: string[]): void => {
     if (items.length === 0) return;
     const more = items.length > maxItems ? [`- and ${items.length - maxItems} more`] : [];

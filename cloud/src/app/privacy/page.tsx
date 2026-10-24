@@ -8,22 +8,22 @@ export default function PrivacyPage() {
       <h1>Privacy</h1>
       <h2>Maps, not code</h2>
       <p>
-        Sustain Cloud stores architecture maps, never your code. It accepts only Archify maps, their sidecars (run records, fingerprints and evidence, which hold hashes,
+        aisus cloud stores architecture maps, never your code. It accepts only Archify maps, their sidecars (run records, fingerprints and evidence, which hold hashes,
         not content, and tours, which hold the explanations and questions committed with the map), pull request check results and metadata: the repository, commit,
         branch, focus, agent and token counts. Every other field is refused, and so is anything that looks like a secret.
       </p>
-      <p>Your coding agent runs on your machine or your CI runner. Sustain never calls a language model and never reads your repository.</p>
+      <p>Your coding agent runs on your machine or your CI runner. aisus never calls a language model and never reads your repository.</p>
       <h2>What is collected about you</h2>
       <p>Your GitHub login, name and the organizations you belong to, so the cloud can apply your GitHub permissions. There are no third-party scripts.</p>
       {statsWebsite() === null ? (
         <p>There are no analytics.</p>
       ) : (
         <p>
-          Visits are counted by Umami, which runs on Sustain Cloud&apos;s own server. It sets no cookies, counts nothing when your browser asks not to be tracked, and
+          Visits are counted by Umami, which runs on aisus cloud&apos;s own server. It sets no cookies, counts nothing when your browser asks not to be tracked, and
           leaves out search parameters and the tokens of share links.
         </p>
       )}
-      <p>When an account subscribes to Team, Stripe takes the payment. Sustain Cloud keeps only the account&apos;s plan, its Stripe customer and subscription ids, and its seat count.</p>
+      <p>When an account subscribes to Team, Stripe takes the payment. aisus cloud keeps only the account&apos;s plan, its Stripe customer and subscription ids, and its seat count.</p>
       <h2>Deleting data</h2>
       <p>Owners can delete a map, a repository&apos;s data, or their whole account from Settings. Deletion is immediate and covers uploads, checks and tokens.</p>
       <h2>The upload schema</h2>

@@ -1,8 +1,8 @@
 {
-  "name": "@sustain/cloud",
+  "name": "@aisus/cloud",
   "version": "0.1.0",
   "private": true,
-  "description": "Sustain Cloud: architecture maps for teams, never code.",
+  "description": "aisus cloud: architecture maps for teams, never code.",
   "scripts": {
     "viewer": "node ../esbuild.mjs --cloud",
     "predev": "node ../esbuild.mjs --cloud",

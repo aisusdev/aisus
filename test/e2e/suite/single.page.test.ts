@@ -16,7 +16,7 @@ suite("RCH-01 Export Page", () => {
   let root: string;
 
   suiteSetup(async () => {
-    hook = (await vscode.extensions.getExtension("sustain.sustain")!.activate()) as TestHook;
+    hook = (await vscode.extensions.getExtension("aisus.aisus")!.activate()) as TestHook;
   });
 
   setup(() => {
@@ -36,12 +36,12 @@ suite("RCH-01 Export Page", () => {
   });
 
   test("RCH-01 the map's Export Page writes meta.output with the map and the viewer", async () => {
-    await vscode.commands.executeCommand("sustain.openArchitecture");
+    await vscode.commands.executeCommand("aisus.openArchitecture");
     await until(() => hook.panelState().open, "the map");
-    await vscode.commands.executeCommand("sustain.exportPage");
+    await vscode.commands.executeCommand("aisus.exportPage");
     const html = readFileSync(join(root, ".archify", RUN, "shop.html"), "utf8");
     assert.match(html, /<title>Shop<\/title>/);
-    assert.match(html, /<script type="application\/json" id="sustain-data">/);
+    assert.match(html, /<script type="application\/json" id="aisus-data">/);
     assert.equal(html.match(/<script>/g)?.length, 1);
     assert.equal(ui.infos[0]?.message, `Wrote the diagram page: .archify/${RUN}/shop.html`);
   });

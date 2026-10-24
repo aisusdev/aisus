@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 #
 # Sets up Stripe for the Team plan with the key in ~/.config/aisus/secrets.env, in test mode until
-# that key is a live one: a "Sustain Team" product with a monthly per-seat price, the webhook the
+# that key is a live one: an "aisus Team" product with a monthly per-seat price, the webhook the
 # cloud listens on, and a Customer Portal for plan changes and cancelling. It records the price and
 # the webhook's signing secret in secrets.env; deploy.sh then hands them to the cloud. Running it
 # again reuses the price, and replaces the webhook when its secret is not on record.
@@ -33,13 +33,13 @@ field() { node -e "let s='';process.stdin.on('data',d=>s+=d).on('end',()=>{const
 
 price=$(stripe GET "/v1/prices?lookup_keys[]=aisus_team_monthly&expand[]=data.product" | field ".data[0]?.id")
 if [[ -z $price ]]; then
-  product=$(stripe POST /v1/products -d name="Sustain Team" -d description="Every private repository, all history, pull request pages, the dashboard and share links." | field ".id")
+  product=$(stripe POST /v1/products -d name="aisus Team" -d description="Every private repository, all history, pull request pages, the dashboard and share links." | field ".id")
   price=$(stripe POST /v1/prices -d product="$product" -d currency=usd -d unit_amount="$cents" -d "recurring[interval]=month" -d lookup_key=aisus_team_monthly | field ".id")
 fi
 product=$(stripe GET "/v1/prices/$price" | field ".product")
 amount=$(stripe GET "/v1/prices/$price" | field ".unit_amount")
 remember STRIPE_TEAM_PRICE "$price"
-remember SUSTAIN_TEAM_PRICE_TEXT "\$$((amount / 100)) per seat a month"
+remember AISUS_TEAM_PRICE_TEXT "\$$((amount / 100)) per seat a month"
 
 url="https://$domain/api/stripe/webhook"
 existing=$(stripe GET "/v1/webhook_endpoints?limit=100" | field ".data.find(e=>e.url==='$url')?.id")
@@ -55,10 +55,10 @@ fi
 
 if [[ -z "$(stripe GET "/v1/billing_portal/configurations?limit=1" | field ".data[0]?.id")" ]]; then
   stripe POST /v1/billing_portal/configurations \
-    -d "business_profile[headline]=Sustain Cloud billing" \
+    -d "business_profile[headline]=aisus cloud billing" \
     -d "features[invoice_history][enabled]=true" -d "features[payment_method_update][enabled]=true" \
     -d "features[subscription_cancel][enabled]=true" \
     -d "features[subscription_update][enabled]=true" -d "features[subscription_update][default_allowed_updates][]=quantity" \
     -d "features[subscription_update][products][0][product]=$product" -d "features[subscription_update][products][0][prices][]=$price" >/dev/null
 fi
-echo "Stripe is ready: price $price ($(setting SUSTAIN_TEAM_PRICE_TEXT)), webhook $url. Run deploy/deploy.sh to hand it to the cloud."
+echo "Stripe is ready: price $price ($(setting AISUS_TEAM_PRICE_TEXT)), webhook $url. Run deploy/deploy.sh to hand it to the cloud."

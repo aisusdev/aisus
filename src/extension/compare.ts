@@ -1,4 +1,4 @@
-// FRS-07: `Sustain: Compare With…` in the map's title bar. Picks another map of the folder and draws
+// FRS-07: `aisus: Compare With…` in the map's title bar. Picks another map of the folder and draws
 // what changed since it on the shown map.
 import { readFileSync } from "node:fs";
 import { basename, dirname } from "node:path";

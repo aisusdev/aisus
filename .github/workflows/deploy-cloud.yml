@@ -1,7 +1,7 @@
 name: Deploy cloud
 
-# Sustain Cloud deploys from main to the owner's host once the repository variable SUSTAIN_DEPLOY is
-# "true" and the secret SUSTAIN_DEPLOY_HOOK holds the host's deploy hook. The app applies its
+# aisus cloud deploys from main to the owner's host once the repository variable AISUS_DEPLOY is
+# "true" and the secret AISUS_DEPLOY_HOOK holds the host's deploy hook. The app applies its
 # database migrations when it starts, before it serves requests.
 on:
   push:
@@ -9,7 +9,7 @@ on:
 
 jobs:
   deploy:
-    if: vars.SUSTAIN_DEPLOY == 'true'
+    if: vars.AISUS_DEPLOY == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
@@ -21,5 +21,5 @@ jobs:
       - run: npm run -w cloud build
       - name: Deploy
         env:
-          DEPLOY_HOOK: ${{ secrets.SUSTAIN_DEPLOY_HOOK }}
+          DEPLOY_HOOK: ${{ secrets.AISUS_DEPLOY_HOOK }}
         run: curl -fsS -X POST "$DEPLOY_HOOK"

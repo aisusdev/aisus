@@ -99,7 +99,7 @@ export function verifySkills(args: CliArgs): CommandResult {
   const base = skillBase(scope, args.root, args.env["HOME"] ?? args.env["USERPROFILE"] ?? homedir());
   const skills: Record<string, { intact: boolean; differing: number | null; otherCopies: string[] }> = {};
   for (const [name, expected] of Object.entries(hashes.skills)) {
-    if (agent === "devin" && name !== "sustain-bugfix") continue;
+    if (agent === "devin" && name !== "aisus-bugfix") continue;
     const check = checkSkill(base, args.root, agent, name, expected);
     const differing = check.diff === null ? null : diffSize(check.diff);
     skills[name] = { intact: differing === 0 && check.differingCopies.length === 0, differing, otherCopies: check.differingCopies };
@@ -199,7 +199,7 @@ function sidecar(dir: string, name: string): unknown {
 }
 
 /**
- * CLD-09: uploads a map and its sidecars to Sustain Cloud, signed with SUSTAIN_TOKEN. The upload is
+ * CLD-09: uploads a map and its sidecars to aisus cloud, signed with AISUS_TOKEN. The upload is
  * checked (schema, secret scan) before anything is sent; `--dry-run` prints it and sends nothing.
  */
 export async function publish(args: CliArgs): Promise<CommandResult> {
@@ -225,11 +225,11 @@ export async function publish(args: CliArgs): Promise<CommandResult> {
   if (issues.length > 0) {
     return { exitCode: 1, json: { status: "refused", message: "The upload would be refused, so nothing was sent.", issues }, markdown: list("Not sent", issues.map((issue) => `${escapeMarkdown(issue.pointer)}: ${escapeMarkdown(issue.message)}`)) };
   }
-  const cloud = one(args, "--url") ?? args.env["SUSTAIN_CLOUD_URL"];
+  const cloud = one(args, "--url") ?? args.env["AISUS_CLOUD_URL"];
   if (args.options.has("--dry-run")) return { exitCode: 0, json: { status: "dry-run", url: cloud ?? null, payload }, markdown: `Would send to ${cloud ?? "(no --url)"}:\n\n\`\`\`json\n${JSON.stringify(payload, null, 2)}\n\`\`\`\n` };
-  const token = args.env["SUSTAIN_TOKEN"];
-  if (!cloud) return usage("publish needs --url or SUSTAIN_CLOUD_URL.");
-  if (!token) return usage("publish needs an upload token in SUSTAIN_TOKEN, from the repository's settings in Sustain Cloud.");
+  const token = args.env["AISUS_TOKEN"];
+  if (!cloud) return usage("publish needs --url or AISUS_CLOUD_URL.");
+  if (!token) return usage("publish needs an upload token in AISUS_TOKEN, from the repository's settings in aisus cloud.");
   let result;
   try {
     result = await postUpload(cloud, token, payload);

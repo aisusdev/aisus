@@ -13,16 +13,16 @@ function source(): string {
 }
 
 describe("FR-INS-01 skill files", () => {
-  const NAME = "sustain-architecture";
+  const NAME = "aisus-architecture";
 
   test("copies into .agents and links .claude relatively", () => {
     const root = tempDir();
     const targets = skillTargets(root, NAME);
     expect(skillInstalled(targets)).toBe(false);
     expect(writeSkill(root, source(), targets, NAME)).toBe("symlink");
-    expect(readFileSync(join(root, ".agents/skills/sustain-architecture/scripts/validate.mjs"), "utf8")).toBe("// v\n");
+    expect(readFileSync(join(root, ".agents/skills/aisus-architecture/scripts/validate.mjs"), "utf8")).toBe("// v\n");
     expect(lstatSync(targets.claudeLink).isSymbolicLink()).toBe(true);
-    expect(readlinkSync(targets.claudeLink)).toBe("../../.agents/skills/sustain-architecture");
+    expect(readlinkSync(targets.claudeLink)).toBe("../../.agents/skills/aisus-architecture");
     expect(readFileSync(join(targets.claudeLink, "SKILL.md"), "utf8")).toBe("new skill\n");
     expect(skillInstalled(targets)).toBe(true);
   });
@@ -41,7 +41,7 @@ describe("FR-INS-01 skill files", () => {
   test("replaces an existing install and removes a stale link without following it", () => {
     const root = tempDir();
     const targets = skillTargets(root, NAME);
-    put(root, ".agents/skills/sustain-architecture/old.txt", "old");
+    put(root, ".agents/skills/aisus-architecture/old.txt", "old");
     const elsewhere = tempDir();
     put(elsewhere, "keep.txt", "keep");
     put(root, ".claude/skills/.keep", "");
@@ -50,7 +50,7 @@ describe("FR-INS-01 skill files", () => {
 
     writeSkill(root, source(), targets, NAME);
     expect(existsSync(join(targets.agentsDir, "old.txt"))).toBe(false);
-    expect(readlinkSync(targets.claudeLink)).toBe("../../.agents/skills/sustain-architecture");
+    expect(readlinkSync(targets.claudeLink)).toBe("../../.agents/skills/aisus-architecture");
     expect(readFileSync(join(elsewhere, "keep.txt"), "utf8")).toBe("keep");
   });
 
@@ -66,7 +66,7 @@ describe("FR-INS-01 skill files", () => {
     const root = tempDir();
     const targets = skillTargets(root, NAME);
     put(root, ".claude/skills/.keep", "");
-    symlinkSync("../../.agents/skills/sustain-architecture", targets.claudeLink);
+    symlinkSync("../../.agents/skills/aisus-architecture", targets.claudeLink);
     expect(skillInstalled(targets)).toBe(true);
   });
 });

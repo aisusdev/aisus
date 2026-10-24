@@ -9,7 +9,7 @@ import { useHost } from "./bridge";
 import { standaloneHost } from "./hosts/standalone";
 import { startViewer } from "./viewer";
 
-const TARGET_KEY = "sustain.openTarget";
+const TARGET_KEY = "aisus.openTarget";
 
 function stored(): string | null {
   try {
@@ -27,7 +27,7 @@ function store(target: OpenTarget): void {
   }
 }
 
-const data = JSON.parse(document.getElementById("sustain-data")?.textContent ?? "{}") as PageData;
+const data = JSON.parse(document.getElementById("aisus-data")?.textContent ?? "{}") as PageData;
 const context: LinkContext = { root: data.root ?? null, project: data.project ?? null, repository: data.repository ?? null };
 const targets = availableTargets(context);
 let target: OpenTarget = targets.find((entry) => entry === stored()) ?? targets[0]!;
@@ -86,7 +86,7 @@ useHost(
     messages: [{ type: "load", doc: data.doc, file: data.title }, ...(data.messages ?? [])],
   }),
 );
-// A page with a #sustain-viewer element, such as a cloud page, gets the viewer there.
-const mount = document.getElementById("sustain-viewer") ?? document.body;
+// A page with a #aisus-viewer element, such as a cloud page, gets the viewer there.
+const mount = document.getElementById("aisus-viewer") ?? document.body;
 startViewer(mount);
 mount.append(bar);

@@ -1,4 +1,4 @@
-// SET-05: with sustain.usageLog on, counted actions add to the day's counts; Export Usage Log saves
+// SET-05: with aisus.usageLog on, counted actions add to the day's counts; Export Usage Log saves
 // the log through a save dialog, and Clear Usage Log deletes it. With the setting off, nothing is kept.
 import * as assert from "node:assert/strict";
 import { mkdtempSync, readFileSync, rmSync } from "node:fs";
@@ -17,38 +17,38 @@ suite("SET-05 Opt-in usage log", () => {
   const today = (): Record<string, number> => hook.usageLog().days[new Date().toISOString().slice(0, 10)] ?? {};
 
   suiteSetup(async () => {
-    hook = (await vscode.extensions.getExtension("sustain.sustain")!.activate()) as TestHook;
+    hook = (await vscode.extensions.getExtension("aisus.aisus")!.activate()) as TestHook;
   });
 
   setup(async () => {
     ui = stubUi();
-    scratch = mkdtempSync(join(tmpdir(), "sustain-usage-"));
+    scratch = mkdtempSync(join(tmpdir(), "aisus-usage-"));
     savedSaveDialog = vscode.window.showSaveDialog;
     (vscode.window as { showSaveDialog: unknown }).showSaveDialog = async () => vscode.Uri.file(join(scratch, "usage.json"));
-    await vscode.commands.executeCommand("sustain.clearUsageLog");
+    await vscode.commands.executeCommand("aisus.clearUsageLog");
   });
 
   teardown(async () => {
     ui.restore();
     (vscode.window as { showSaveDialog: unknown }).showSaveDialog = savedSaveDialog;
-    await vscode.workspace.getConfiguration("sustain").update("usageLog", undefined, vscode.ConfigurationTarget.Global);
+    await vscode.workspace.getConfiguration("aisus").update("usageLog", undefined, vscode.ConfigurationTarget.Global);
     rmSync(scratch, { recursive: true, force: true });
   });
 
   test("SET-05 with the log on, actions are counted by day, Export saves them and Clear deletes them", async () => {
-    await vscode.workspace.getConfiguration("sustain").update("usageLog", true, vscode.ConfigurationTarget.Global);
-    await vscode.commands.executeCommand("sustain.find");
-    await vscode.commands.executeCommand("sustain.find");
+    await vscode.workspace.getConfiguration("aisus").update("usageLog", true, vscode.ConfigurationTarget.Global);
+    await vscode.commands.executeCommand("aisus.find");
+    await vscode.commands.executeCommand("aisus.find");
     await hook.postFromHome({ type: "review" });
     assert.deepEqual(today(), { find: 2, review: 1 });
-    await vscode.commands.executeCommand("sustain.exportUsageLog");
+    await vscode.commands.executeCommand("aisus.exportUsageLog");
     assert.deepEqual(JSON.parse(readFileSync(join(scratch, "usage.json"), "utf8")), hook.usageLog());
-    await vscode.commands.executeCommand("sustain.clearUsageLog");
+    await vscode.commands.executeCommand("aisus.clearUsageLog");
     assert.deepEqual(hook.usageLog(), { schema: 1, days: {} });
   });
 
   test("SET-05 with the log off, nothing is counted", async () => {
-    await vscode.commands.executeCommand("sustain.find");
+    await vscode.commands.executeCommand("aisus.find");
     assert.deepEqual(hook.usageLog(), { schema: 1, days: {} });
   });
 });

@@ -1,0 +1,5 @@
+interface:
+  display_name: "aisus Architecture"
+  short_description: "Generate an architecture diagram for aisus"
+policy:
+  allow_implicit_invocation: false

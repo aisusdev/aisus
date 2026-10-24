@@ -1,8 +1,8 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://sustain.dev/schemas/upload.schema.json",
-  "title": "Sustain Cloud upload",
-  "description": "What Sustain Cloud accepts: an Archify map with its sidecars, or a check result, and metadata. Never code.",
+  "$id": "https://aisus.dev/schemas/upload.schema.json",
+  "title": "aisus cloud upload",
+  "description": "What aisus cloud accepts: an Archify map with its sidecars, or a check result, and metadata. Never code.",
   "type": "object",
   "additionalProperties": false,
   "required": ["repo", "commit", "branch", "kind", "meta"],

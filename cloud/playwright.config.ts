@@ -1,7 +1,7 @@
 // [web]: Playwright against the built cloud app, with GitHub replaced by test/web/mockGithub.mjs and
 // a fresh PGlite folder per run. A second instance of the app has billing on, against Stripe replaced
 // by test/web/mockStripe.mjs (CLD-07). When Playwright's own Chromium is not installed, the newest
-// cached headless shell is used, or SUSTAIN_CHROMIUM when set.
+// cached headless shell is used, or AISUS_CHROMIUM when set.
 import { chromium, defineConfig } from "@playwright/test";
 import { existsSync, mkdtempSync, readdirSync } from "node:fs";
 import { homedir, tmpdir } from "node:os";
@@ -14,7 +14,7 @@ const STRIPE = 3212;
 const WEBHOOK_SECRET = "whsec_web";
 
 function browserPath(): string | undefined {
-  if (process.env["SUSTAIN_CHROMIUM"]) return process.env["SUSTAIN_CHROMIUM"];
+  if (process.env["AISUS_CHROMIUM"]) return process.env["AISUS_CHROMIUM"];
   if (existsSync(chromium.executablePath())) return undefined;
   const cache = join(homedir(), ".cache/ms-playwright");
   const shells = existsSync(cache) ? readdirSync(cache).filter((name) => name.startsWith("chromium_headless_shell-")).sort() : [];
@@ -32,14 +32,14 @@ function app(port: number, extra: Record<string, string>) {
     timeout: 120_000,
     reuseExistingServer: false,
     env: {
-      SUSTAIN_DB: mkdtempSync(join(tmpdir(), "sustain-web-db-")),
+      AISUS_DB: mkdtempSync(join(tmpdir(), "aisus-web-db-")),
       NEXTAUTH_URL: `http://127.0.0.1:${port}`,
       NEXTAUTH_SECRET: "web-test-secret-web-test-secret",
       GITHUB_CLIENT_ID: "web-client",
       GITHUB_CLIENT_SECRET: "web-secret",
       GITHUB_OAUTH_URL: `http://127.0.0.1:${GITHUB}`,
       GITHUB_API_URL: `http://127.0.0.1:${GITHUB}`,
-      SUSTAIN_OIDC_JWKS_URL: `http://127.0.0.1:${GITHUB}/.well-known/jwks`,
+      AISUS_OIDC_JWKS_URL: `http://127.0.0.1:${GITHUB}/.well-known/jwks`,
       NEXT_TELEMETRY_DISABLED: "1",
       ...extra,
     },
@@ -61,6 +61,6 @@ export default defineConfig({
     { command: `node test/web/mockGithub.mjs ${GITHUB}`, url: `http://127.0.0.1:${GITHUB}/.well-known/jwks`, reuseExistingServer: false },
     { command: `node test/web/mockStripe.mjs ${STRIPE} ${WEBHOOK_SECRET}`, url: `http://127.0.0.1:${STRIPE}/health`, reuseExistingServer: false },
     app(APP, {}),
-    app(BILLED_APP, { STRIPE_SECRET_KEY: "sk_test_web", STRIPE_WEBHOOK_SECRET: WEBHOOK_SECRET, STRIPE_TEAM_PRICE: "price_team_web", STRIPE_API_URL: `http://127.0.0.1:${STRIPE}`, SUSTAIN_TEAM_PRICE_TEXT: "$8 per seat a month" }),
+    app(BILLED_APP, { STRIPE_SECRET_KEY: "sk_test_web", STRIPE_WEBHOOK_SECRET: WEBHOOK_SECRET, STRIPE_TEAM_PRICE: "price_team_web", STRIPE_API_URL: `http://127.0.0.1:${STRIPE}`, AISUS_TEAM_PRICE_TEXT: "$8 per seat a month" }),
   ],
 });

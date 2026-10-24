@@ -1,6 +1,6 @@
-// `Sustain: Start Learning Session` (ADRs 0029–0036): folder + mode + task + agent, ensures the
+// `aisus: Start Learning Session` (ADRs 0029–0036): folder + mode + task + agent, ensures the
 // skill and that agent's hooks are in place, then launches Claude Code, Codex or Devin with
-// `/sustain-bugfix <task>` (`$sustain-bugfix` in Codex) in a terminal — the same
+// `/aisus-bugfix <task>` (`$aisus-bugfix` in Codex) in a terminal — the same
 // shellPath/shellArgs shape as `generateArchitectureCommand` (ADR 0020, spec v0.3 LRN-01).
 import { existsSync } from "node:fs";
 import { join } from "node:path";
@@ -27,8 +27,8 @@ export async function startLearningSessionCommand(extensionUri: vscode.Uri): Pro
   if (!folder) return;
   const root = folder.uri.fsPath;
 
-  if (!existsSync(join(skillBase(configuredScope(), root), ...agentsSkillDir("sustain-bugfix").split("/"), "SKILL.md"))) {
-    const choice = await vscode.window.showInformationMessage("Install the Sustain skills first?", "Install", "Cancel");
+  if (!existsSync(join(skillBase(configuredScope(), root), ...agentsSkillDir("aisus-bugfix").split("/"), "SKILL.md"))) {
+    const choice = await vscode.window.showInformationMessage("Install the aisus skills first?", "Install", "Cancel");
     if (choice !== "Install") return;
     if ((await installSkill(extensionUri, root)) === "cancelled") return;
   }
@@ -54,7 +54,7 @@ export async function startLearningSessionCommand(extensionUri: vscode.Uri): Pro
   const launcher =
     found.length === 1 ? found[0]! : (await vscode.window.showQuickPick(found.map((entry) => ({ label: entry.label, launcher: entry })), { placeHolder: "Which agent runs the session?" }))?.launcher;
   if (launcher === undefined) return;
-  if (!(await ensureSkillIntact(extensionUri, root, launcher.agent, "sustain-bugfix"))) return;
+  if (!(await ensureSkillIntact(extensionUri, root, launcher.agent, "aisus-bugfix"))) return;
 
   try {
     ensureSessionAssets(root, launcher.agent);
@@ -67,8 +67,8 @@ export async function startLearningSessionCommand(extensionUri: vscode.Uri): Pro
     if (choice !== "Start Anyway") return;
   }
 
-  const terminal = vscode.window.createTerminal({ name: `Sustain: ${mode.mode.label}`, cwd: root, shellPath: launcher.binary, shellArgs: sessionArgs(launcher.agent, task) });
+  const terminal = vscode.window.createTerminal({ name: `aisus: ${mode.mode.label}`, cwd: root, shellPath: launcher.binary, shellArgs: sessionArgs(launcher.agent, task) });
   terminal.show();
   SessionPanel.show(extensionUri, root);
-  if (launcher.agent === "codex") void vscode.window.showInformationMessage("Codex runs Sustain's hook only once you trust it. Type /hooks in Codex to review and trust it.");
+  if (launcher.agent === "codex") void vscode.window.showInformationMessage("Codex runs aisus's hook only once you trust it. Type /hooks in Codex to review and trust it.");
 }

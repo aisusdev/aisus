@@ -11,9 +11,9 @@ test("RCH-05 package.json carries the store metadata and a PNG icon", () => {
   expect(pkg).toMatchObject({
     icon: "media/icon.png",
     preview: true,
-    repository: { type: "git", url: "https://github.com/xplus2g4/sustain.git" },
-    homepage: "https://github.com/xplus2g4/sustain#readme",
-    bugs: { url: "https://github.com/xplus2g4/sustain/issues" },
+    repository: { type: "git", url: "https://github.com/kerktaiheng/aisus.git" },
+    homepage: "https://github.com/kerktaiheng/aisus#readme",
+    bugs: { url: "https://github.com/kerktaiheng/aisus/issues" },
     categories: ["Visualization", "AI", "Education"],
   });
   expect(pkg["keywords"]).toContain("architecture");
@@ -35,17 +35,17 @@ test("RCH-05 a v* tag runs the gates and releases the files, and a hyphenated ta
   const runs = [...release.matchAll(/- run: (.+)/g)].map((match) => match[1]);
   expect(runs).toEqual(["npm ci", "npm run check", "npm run package", "npm run build:release", "npm run action", "git diff --exit-code action/dist skills"]);
   expect(release).toContain("PRERELEASE: ${{ contains(github.ref_name, '-') }}");
-  for (const file of ["sustain-*.vsix", "sustain-skills.zip", "sustain-action.js", "sustain.mjs", "SHA256SUMS"]) expect(release).toContain(file);
+  for (const file of ["aisus-*.vsix", "aisus-skills.zip", "aisus-action.js", "aisus.mjs", "SHA256SUMS"]) expect(release).toContain(file);
   const publishing = release.slice(release.indexOf("- name: GitHub release"));
   expect(publishing.match(/if: env\.PRERELEASE == 'false'/g)).toHaveLength(4);
   expect(publishing).toContain("if: env.PRERELEASE == 'false' && env.OVSX_PAT != '' && env.LICENSED == 'true'");
   expect(publishing).toContain("npx --yes ovsx@1.3.0 publish");
-  expect(publishing).toContain("vsce publish --packagePath release/files/sustain-*.vsix --azure-credential");
+  expect(publishing).toContain("vsce publish --packagePath release/files/aisus-*.vsix --azure-credential");
 });
 
 test("RCH-05 the cloud deploys from main once the owner turns it on", () => {
   const deploy = readFileSync(join(repoRoot, ".github/workflows/deploy-cloud.yml"), "utf8");
   expect(deploy).toContain("branches: [main]");
-  expect(deploy).toContain("if: vars.SUSTAIN_DEPLOY == 'true'");
+  expect(deploy).toContain("if: vars.AISUS_DEPLOY == 'true'");
   expect([...deploy.matchAll(/- run: (.+)/g)].map((match) => match[1])).toEqual(["npm ci", "npm run -w cloud test", "npm run -w cloud build"]);
 });

@@ -10,7 +10,7 @@ import { readDiagram } from "../model/tolerant";
 import { isJsonObject, type Repository } from "../model/types";
 
 /** The page script and stylesheet, filled in by the build. */
-const ASSETS = { script: process.env.SUSTAIN_PAGE_SCRIPT ?? "", style: process.env.SUSTAIN_PAGE_STYLE ?? "" };
+const ASSETS = { script: process.env.AISUS_PAGE_SCRIPT ?? "", style: process.env.AISUS_PAGE_STYLE ?? "" };
 
 function fail(message: string): number {
   process.stderr.write(`render-html.mjs: ${message}\n`);

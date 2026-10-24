@@ -1,7 +1,7 @@
 // ARC-02: rules written from the map. Each builder returns a rule for one menu action; `withRules`
 // adds rules to a config with unique ids; `suggestRules` proposes `forbid` both ways for every
 // pair of boxes whose code shares no import today. Browser-safe.
-import type { SustainConfig } from "./config";
+import type { AisusConfig } from "./config";
 import { Ownership } from "./ownership";
 import { PATH_PREFIX, readRules, type Rule } from "./rules";
 
@@ -24,7 +24,7 @@ export function throughRule(box: string, via: string, reason: string): Rule {
 }
 
 /** `config` with `rules` added after its own, each id made unique with a numeric suffix. */
-export function withRules(config: SustainConfig, rules: readonly Rule[]): SustainConfig {
+export function withRules(config: AisusConfig, rules: readonly Rule[]): AisusConfig {
   const existing = Array.isArray(config.rules) ? config.rules : [];
   const ids = new Set(readRules(existing).rules.map((rule) => rule.id));
   const added = rules.map((rule) => {

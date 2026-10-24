@@ -1,4 +1,4 @@
-// Devin CLI detection for `Sustain: Start Learning Session` (ADR 0036). No `vscode`
+// Devin CLI detection for `aisus: Start Learning Session` (ADR 0036). No `vscode`
 // import, so the lookup order is unit-tested in Node.
 import { existsSync } from "node:fs";
 import { homedir } from "node:os";

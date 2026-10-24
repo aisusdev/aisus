@@ -22,9 +22,9 @@ import { ArchitecturePanel } from "./panel";
 import { startHeadless, type HeadlessRun } from "./runner";
 import { readSessionSnapshot } from "./sessionFiles";
 
-const STATE_KEY = "sustain.practice";
+const STATE_KEY = "aisus.practice";
 /** SKL-03: the tours finished in this workspace. */
-const TOURS_KEY = "sustain.practiceTours";
+const TOURS_KEY = "aisus.practiceTours";
 /** Checks, and finished tours, kept per workspace. */
 export const PRACTICE_LIMIT = 50;
 
@@ -225,7 +225,7 @@ export class Practice implements vscode.Disposable {
     await this.save();
   }
 
-  /** `Sustain: Check My Understanding` from the palette, or from a box's menu with `box`. */
+  /** `aisus: Check My Understanding` from the palette, or from a box's menu with `box`. */
   async command(root: string | null, box?: { componentId?: unknown }): Promise<void> {
     const panel = ArchitecturePanel.current;
     const boxId = typeof box?.componentId === "string" ? box.componentId : undefined;
@@ -247,7 +247,7 @@ export class Practice implements vscode.Disposable {
       const choice = await vscode.window.showInformationMessage("Check your understanding?", { modal: true, detail: text }, "Start");
       if (choice !== "Start") return;
     }
-    await vscode.commands.executeCommand("sustain.home.focus");
+    await vscode.commands.executeCommand("aisus.home.focus");
     await this.start(folder, scope, confirm, boxId);
   }
 

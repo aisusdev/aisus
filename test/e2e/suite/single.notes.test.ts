@@ -20,7 +20,7 @@ suite("ARC-04 architecture notes for agents", () => {
   let ui: UiStubs;
 
   suiteSetup(async () => {
-    await vscode.extensions.getExtension("sustain.sustain")!.activate();
+    await vscode.extensions.getExtension("aisus.aisus")!.activate();
   });
 
   setup(() => {
@@ -38,7 +38,7 @@ suite("ARC-04 architecture notes for agents", () => {
         connections: [{ from: "api", to: "store", label: "saves" }],
       }),
     );
-    write(root, "sustain.config.json", JSON.stringify({ map: RUN, rules: [{ id: "store-alone", kind: "isolated", from: "store", to: "api", reason: "Only the API saves." }] }));
+    write(root, "aisus.config.json", JSON.stringify({ map: RUN, rules: [{ id: "store-alone", kind: "isolated", from: "store", to: "api", reason: "Only the API saves." }] }));
     write(root, "AGENTS.md", "# Agents\n\nRun the tests before you push.\n");
     write(root, "CLAUDE.md", "# Claude\n\nKeep answers short.\n");
   });
@@ -46,12 +46,12 @@ suite("ARC-04 architecture notes for agents", () => {
   teardown(async () => {
     ui.restore();
     await vscode.commands.executeCommand("workbench.action.closeAllEditors");
-    for (const rel of [".archify", "sustain.config.json", "AGENTS.md", "CLAUDE.md"]) rmSync(join(root, rel), { recursive: true, force: true });
+    for (const rel of [".archify", "aisus.config.json", "AGENTS.md", "CLAUDE.md"]) rmSync(join(root, rel), { recursive: true, force: true });
   });
 
   test("ARC-04 the block goes into AGENTS.md and CLAUDE.md after their diffs, with the people's text kept, and once only", async () => {
     ui.answers.warning.push("Write", "Write");
-    await vscode.commands.executeCommand("sustain.writeAgentNotes");
+    await vscode.commands.executeCommand("aisus.writeAgentNotes");
     assert.deepEqual(ui.warnings.map((call) => call.message), ["Write the architecture notes into AGENTS.md?", "Write the architecture notes into CLAUDE.md?"]);
     for (const [name, own] of [["AGENTS.md", "# Agents\n\nRun the tests before you push.\n"], ["CLAUDE.md", "# Claude\n\nKeep answers short.\n"]] as const) {
       const text = readFileSync(join(root, name), "utf8");
@@ -62,7 +62,7 @@ suite("ARC-04 architecture notes for agents", () => {
       assert.ok(text.includes("- Only API may import Store. Only the API saves."), name);
     }
 
-    await vscode.commands.executeCommand("sustain.writeAgentNotes");
+    await vscode.commands.executeCommand("aisus.writeAgentNotes");
     assert.equal(ui.warnings.length, 2, "nothing more to ask");
     assert.ok(ui.infos.some((call) => call.message === "The architecture notes for agents are up to date."));
   });
@@ -70,14 +70,14 @@ suite("ARC-04 architecture notes for agents", () => {
   test("ARC-04 a CLAUDE.md that imports AGENTS.md is left alone, and a no writes nothing", async () => {
     write(root, "CLAUDE.md", "@AGENTS.md\n");
     ui.answers.warning.push("Write");
-    await vscode.commands.executeCommand("sustain.writeAgentNotes");
+    await vscode.commands.executeCommand("aisus.writeAgentNotes");
     assert.deepEqual(ui.warnings.map((call) => call.message), ["Write the architecture notes into AGENTS.md?"]);
     assert.ok(readFileSync(join(root, "AGENTS.md"), "utf8").includes(NOTES_START));
     assert.equal(readFileSync(join(root, "CLAUDE.md"), "utf8"), "@AGENTS.md\n");
 
     write(root, "AGENTS.md", "# Agents\n");
     ui.answers.warning.push(undefined);
-    await vscode.commands.executeCommand("sustain.writeAgentNotes");
+    await vscode.commands.executeCommand("aisus.writeAgentNotes");
     assert.equal(readFileSync(join(root, "AGENTS.md"), "utf8"), "# Agents\n");
   });
 });

@@ -1,9 +1,9 @@
-// CLD-09: the only code in src/ that sends anything over the network. It uploads to Sustain Cloud
-// when the user runs `sustain.mjs publish` or sets the Action's `upload`, and asks GitHub Actions
+// CLD-09: the only code in src/ that sends anything over the network. It uploads to aisus cloud
+// when the user runs `aisus.mjs publish` or sets the Action's `upload`, and asks GitHub Actions
 // for an OIDC token for that upload. Nothing else in src/ may use the network (spec §3).
 
-/** The audience Sustain Cloud expects in an Actions OIDC token. */
-export const CLOUD_AUDIENCE = "sustain-cloud";
+/** The audience aisus cloud expects in an Actions OIDC token. */
+export const CLOUD_AUDIENCE = "aisus-cloud";
 
 export type UploadResult = { ok: true; status: number; body: unknown } | { ok: false; status: number; body: unknown; message: string };
 
@@ -17,11 +17,11 @@ export async function postUpload(cloud: string, bearer: string, payload: unknown
   const body: unknown = await response.json().catch(() => null);
   if (response.ok) return { ok: true, status: response.status, body };
   const message = (body as { message?: unknown } | null)?.message;
-  return { ok: false, status: response.status, body, message: typeof message === "string" ? message : `Sustain Cloud answered ${response.status}` };
+  return { ok: false, status: response.status, body, message: typeof message === "string" ? message : `aisus cloud answered ${response.status}` };
 }
 
 /**
- * An OIDC token for Sustain Cloud from the running GitHub Actions job. The job needs
+ * An OIDC token for aisus cloud from the running GitHub Actions job. The job needs
  * `permissions: id-token: write`, which provides the two ACTIONS_ID_TOKEN_REQUEST_* variables.
  */
 export async function actionsOidcToken(env: NodeJS.ProcessEnv, fetcher: typeof fetch = fetch): Promise<string> {

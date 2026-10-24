@@ -73,7 +73,7 @@ describe("PRC-01 categories", () => {
     put(root, "lib/skip.ts", "export {};\n");
     put(root, "README.md", "# docs\n");
     put(root, "src/api/new.ts", "export {};\n");
-    writeFileSync(join(root, "sustain.config.json"), JSON.stringify({ ignore: ["lib/skip.ts"] }));
+    writeFileSync(join(root, "aisus.config.json"), JSON.stringify({ ignore: ["lib/skip.ts"] }));
     commit(root, "spread");
     // src/api/new.ts belongs to api, whose cited file sits in the same folder.
     expect(check(root).uncovered).toEqual(["lib/util.ts"]);
@@ -130,7 +130,7 @@ describe("PRC-01 the map, ownership and config", () => {
     expect(mainMap(root)).toBe(run);
     const other = focused.runFolder.replace(".archify/", "");
     expect(runCheck({ root, base: "main", map: other })).toMatchObject({ ok: true, report: { map: other } });
-    writeFileSync(join(root, "sustain.config.json"), JSON.stringify({ map: other }));
+    writeFileSync(join(root, "aisus.config.json"), JSON.stringify({ map: other }));
     expect(runCheck({ root, base: "main" })).toMatchObject({ ok: true, report: { map: other } });
   });
 
@@ -138,9 +138,9 @@ describe("PRC-01 the map, ownership and config", () => {
     const root = gitRepo({ "a.ts": "1\n" });
     expect(runCheck({ root, base: "main" })).toMatchObject({ ok: false, reason: expect.stringContaining("No map") });
     const { root: mapped } = mappedRepo();
-    writeFileSync(join(mapped, "sustain.config.json"), JSON.stringify({ unknown: 1 }));
-    expect(runCheck({ root: mapped, base: "main" })).toMatchObject({ ok: false, reason: 'sustain.config.json: unknown key "unknown"' });
-    rmSync(join(mapped, "sustain.config.json"));
+    writeFileSync(join(mapped, "aisus.config.json"), JSON.stringify({ unknown: 1 }));
+    expect(runCheck({ root: mapped, base: "main" })).toMatchObject({ ok: false, reason: 'aisus.config.json: unknown key "unknown"' });
+    rmSync(join(mapped, "aisus.config.json"));
     expect(runCheck({ root: mapped, base: "--output=x" })).toMatchObject({ ok: false });
   });
 

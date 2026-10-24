@@ -24,9 +24,9 @@ export function sessionAgents(env: NodeJS.ProcessEnv, exists: (path: string) => 
   return found;
 }
 
-/** The skill invocation for `task`: `$sustain-bugfix` in Codex, `/sustain-bugfix` elsewhere. */
+/** The skill invocation for `task`: `$aisus-bugfix` in Codex, `/aisus-bugfix` elsewhere. */
 export function sessionPrompt(agent: SessionAgent, task: string): string {
-  return `${agent === "codex" ? "$" : "/"}sustain-bugfix ${task.trim()}`;
+  return `${agent === "codex" ? "$" : "/"}aisus-bugfix ${task.trim()}`;
 }
 
 /** The terminal's argument vector: the prompt alone, after `--` for Devin, and never a permission flag (SAF-04). */

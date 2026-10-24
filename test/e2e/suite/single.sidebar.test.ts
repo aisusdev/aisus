@@ -13,10 +13,10 @@ import { ESTIMATE, prompts, stubUi, type UiStubs } from "../stubs";
 import { setup, suite, suiteSetup, teardown, test } from "../tdd";
 import { until } from "../until";
 
-const STUB_ENV = ["SUSTAIN_STUB", "SUSTAIN_STUB_STREAM", "SUSTAIN_STUB_CANDIDATE", "SUSTAIN_STUB_DELAY", "SUSTAIN_STUB_ARGS", "SUSTAIN_STUB_PIDS"];
+const STUB_ENV = ["AISUS_STUB", "AISUS_STUB_STREAM", "AISUS_STUB_CANDIDATE", "AISUS_STUB_DELAY", "AISUS_STUB_ARGS", "AISUS_STUB_PIDS"];
 
 function extensionPath(): string {
-  return vscode.extensions.getExtension("sustain.sustain")!.extensionPath;
+  return vscode.extensions.getExtension("aisus.aisus")!.extensionPath;
 }
 
 function stream(name: string): string {
@@ -41,7 +41,7 @@ function nextTerminal(): Promise<vscode.Terminal> {
   return promise;
 }
 
-suite("UI-01 Sustain sidebar", () => {
+suite("UI-01 aisus sidebar", () => {
   let hook: TestHook;
   let ui: UiStubs;
   let root: string;
@@ -51,7 +51,7 @@ suite("UI-01 Sustain sidebar", () => {
 
   /** A folder holding `names`, each a script that runs the stub agent, or `body` when given. */
   function agents(names: string[], body?: string): string {
-    const dir = mkdtempSync(join(tmpdir(), "sustain-agents-"));
+    const dir = mkdtempSync(join(tmpdir(), "aisus-agents-"));
     cleanup.push(dir);
     const stub = join(extensionPath(), "test/fixtures/streams/stub-agent.mjs");
     for (const name of names) {
@@ -64,13 +64,13 @@ suite("UI-01 Sustain sidebar", () => {
   }
 
   function scratch(name: string): string {
-    const dir = mkdtempSync(join(tmpdir(), "sustain-scratch-"));
+    const dir = mkdtempSync(join(tmpdir(), "aisus-scratch-"));
     cleanup.push(dir);
     return join(dir, name);
   }
 
   async function reveal(): Promise<void> {
-    await vscode.commands.executeCommand("workbench.view.extension.sustain");
+    await vscode.commands.executeCommand("workbench.view.extension.aisus");
     await until(() => hook.homeState().visible, "the sidebar to show");
   }
 
@@ -80,11 +80,11 @@ suite("UI-01 Sustain sidebar", () => {
   }
 
   function installSkill(): void {
-    writeSkill(homedir(), join(extensionPath(), "dist/skills/sustain-architecture"), skillTargets(homedir(), "sustain-architecture"), "sustain-architecture");
+    writeSkill(homedir(), join(extensionPath(), "dist/skills/aisus-architecture"), skillTargets(homedir(), "aisus-architecture"), "aisus-architecture");
   }
 
   suiteSetup(async () => {
-    hook = (await vscode.extensions.getExtension("sustain.sustain")!.activate()) as TestHook;
+    hook = (await vscode.extensions.getExtension("aisus.aisus")!.activate()) as TestHook;
   });
 
   setup(async () => {
@@ -92,8 +92,8 @@ suite("UI-01 Sustain sidebar", () => {
     ui = stubUi();
     savedPath = process.env["PATH"];
     await hook.setDataNoteShown(true);
-    await vscode.workspace.getConfiguration("sustain").update("runMode", undefined, vscode.ConfigurationTarget.Global);
-    await vscode.workspace.getConfiguration("sustain").update("confirmAboveTokens", undefined, vscode.ConfigurationTarget.Global);
+    await vscode.workspace.getConfiguration("aisus").update("runMode", undefined, vscode.ConfigurationTarget.Global);
+    await vscode.workspace.getConfiguration("aisus").update("confirmAboveTokens", undefined, vscode.ConfigurationTarget.Global);
     installSkill();
   });
 
@@ -107,7 +107,7 @@ suite("UI-01 Sustain sidebar", () => {
     for (const name of STUB_ENV) delete process.env[name];
     for (const terminal of terminals.splice(0)) terminal.dispose();
     await vscode.commands.executeCommand("workbench.action.closeAllEditors");
-    await vscode.workspace.getConfiguration("sustain").update("runMode", undefined, vscode.ConfigurationTarget.Global);
+    await vscode.workspace.getConfiguration("aisus").update("runMode", undefined, vscode.ConfigurationTarget.Global);
     for (const dir of cleanup.splice(0)) rmSync(dir, { recursive: true, force: true });
     rmSync(join(root, ".archify"), { recursive: true, force: true });
     for (const dir of [".agents", ".claude"]) rmSync(join(homedir(), dir), { recursive: true, force: true });
@@ -126,33 +126,33 @@ suite("UI-01 Sustain sidebar", () => {
     await hook.setDataNoteShown(false);
     agents(["claude"]);
     const args = scratch("args.json");
-    Object.assign(process.env, { SUSTAIN_STUB_STREAM: stream("claude-generate.jsonl"), SUSTAIN_STUB_ARGS: args });
+    Object.assign(process.env, { AISUS_STUB_STREAM: stream("claude-generate.jsonl"), AISUS_STUB_ARGS: args });
     await reveal();
     const [estimate, ...notes] = hook.homeState().state?.composer.notes ?? [];
     assert.match(estimate ?? "", ESTIMATE);
     assert.deepEqual(notes, [
-      "Installs the sustain-architecture skill in ~/.claude/skills/.",
-      "Your agent reads this folder and sends what it reads to its own provider. Sustain sends nothing.",
+      "Installs the aisus-architecture skill in ~/.claude/skills/.",
+      "Your agent reads this folder and sends what it reads to its own provider. aisus sends nothing.",
     ]);
 
     await hook.postFromHome({ type: "generate", focus: "payment flow" });
     await settled();
     const argv = JSON.parse(readFileSync(args, "utf8")) as string[];
-    assert.deepEqual(argv.slice(0, 2), ["-p", "/sustain-architecture payment flow"]);
+    assert.deepEqual(argv.slice(0, 2), ["-p", "/aisus-architecture payment flow"]);
     assert.deepEqual(argv.slice(argv.indexOf("--permission-mode"), argv.indexOf("--permission-mode") + 2), ["--permission-mode", "dontAsk"]);
     assert.equal(prompts(ui), 0, "no prompt besides the click");
-    assert.ok(existsSync(join(homedir(), ".claude/skills/sustain-architecture/SKILL.md")));
+    assert.ok(existsSync(join(homedir(), ".claude/skills/aisus-architecture/SKILL.md")));
     assert.deepEqual(hook.homeState().state?.composer.notes, [estimate]);
     assert.equal(hook.runCard()?.estimate, estimate);
   });
 
-  test("CST-03 above sustain.confirmAboveTokens the sidebar needs a second click and the palette asks in a modal", async () => {
+  test("CST-03 above aisus.confirmAboveTokens the sidebar needs a second click and the palette asks in a modal", async () => {
     installSkill();
     await hook.setDataNoteShown(true);
     agents(["claude"]);
     const args = scratch("args.json");
-    Object.assign(process.env, { SUSTAIN_STUB_STREAM: stream("claude-generate.jsonl"), SUSTAIN_STUB_ARGS: args });
-    await vscode.workspace.getConfiguration("sustain").update("confirmAboveTokens", 1, vscode.ConfigurationTarget.Global);
+    Object.assign(process.env, { AISUS_STUB_STREAM: stream("claude-generate.jsonl"), AISUS_STUB_ARGS: args });
+    await vscode.workspace.getConfiguration("aisus").update("confirmAboveTokens", 1, vscode.ConfigurationTarget.Global);
     await reveal();
     assert.equal(hook.homeState().state?.composer.confirm, true);
 
@@ -160,11 +160,11 @@ suite("UI-01 Sustain sidebar", () => {
     assert.equal(existsSync(args), false, "one click launches nothing");
     await hook.postFromHome({ type: "generate", focus: "second click", confirmed: true });
     await settled();
-    assert.deepEqual((JSON.parse(readFileSync(args, "utf8")) as string[]).slice(0, 2), ["-p", "/sustain-architecture second click"]);
+    assert.deepEqual((JSON.parse(readFileSync(args, "utf8")) as string[]).slice(0, 2), ["-p", "/aisus-architecture second click"]);
 
     ui.answers.inputBox.push("palette");
     ui.answers.info.push(undefined);
-    await vscode.commands.executeCommand("sustain.generateArchitecture");
+    await vscode.commands.executeCommand("aisus.generateArchitecture");
     const modal = ui.infos.find((call) => (call.rest[0] as { modal?: boolean } | undefined)?.modal === true);
     assert.equal(modal?.message, "Generate with Claude Code?");
     assert.match((modal?.rest[0] as { detail: string }).detail, ESTIMATE);
@@ -173,10 +173,10 @@ suite("UI-01 Sustain sidebar", () => {
   test("UI-02 a replayed stream shows feed, tokens and acceptance, records the run and opens the map", async () => {
     agents(["claude"]);
     const candidate = join(extensionPath(), "fixtures/archify/examples/rag-pipeline.architecture.json");
-    Object.assign(process.env, { SUSTAIN_STUB_STREAM: stream("claude-generate.jsonl"), SUSTAIN_STUB_CANDIDATE: candidate, SUSTAIN_STUB_DELAY: "200" });
+    Object.assign(process.env, { AISUS_STUB_STREAM: stream("claude-generate.jsonl"), AISUS_STUB_CANDIDATE: candidate, AISUS_STUB_DELAY: "200" });
     await reveal();
     await hook.postFromHome({ type: "generate", focus: "rag" });
-    await until(() => hook.statusText().startsWith("Sustain: generating"), "the status bar to show the run");
+    await until(() => hook.statusText().startsWith("aisus: generating"), "the status bar to show the run");
 
     const card = await settled();
     assert.equal(card.status, "done");
@@ -194,7 +194,7 @@ suite("UI-01 Sustain sidebar", () => {
 
     const file = join(root, ".archify", card.runFolder!, "candidate.json");
     await until(() => hook.panelState().file === file, "the map to open");
-    assert.equal(hook.statusText(), "$(type-hierarchy-sub) Sustain");
+    assert.equal(hook.statusText(), "$(type-hierarchy-sub) aisus");
     assert.equal(ui.infos.filter((call) => call.message.startsWith("New architecture diagram")).length, 0, "the run opens its own map");
     assert.equal(hook.homeState().state?.maps[0]?.agent, "Claude Code");
   });
@@ -202,7 +202,7 @@ suite("UI-01 Sustain sidebar", () => {
   test("UI-02 Cancel kills the agent and the processes it started", async () => {
     agents(["claude"]);
     const pids = scratch("pids.json");
-    Object.assign(process.env, { SUSTAIN_STUB: "hang", SUSTAIN_STUB_PIDS: pids });
+    Object.assign(process.env, { AISUS_STUB: "hang", AISUS_STUB_PIDS: pids });
     await reveal();
     await hook.postFromHome({ type: "generate", focus: "" });
     await until(() => existsSync(pids), "the stub to start");
@@ -215,7 +215,7 @@ suite("UI-01 Sustain sidebar", () => {
 
   test("UI-02 a denial offers terminal mode, which relaunches the same request in a terminal", async () => {
     const bin = agents(["claude"]);
-    process.env["SUSTAIN_STUB_STREAM"] = stream("claude-denied.jsonl");
+    process.env["AISUS_STUB_STREAM"] = stream("claude-denied.jsonl");
     await reveal();
     await hook.postFromHome({ type: "generate", focus: "tests" });
     const card = await settled();
@@ -227,7 +227,7 @@ suite("UI-01 Sustain sidebar", () => {
     terminals.push(terminal);
     const options = terminal.creationOptions as vscode.TerminalOptions;
     assert.equal(options.shellPath, join(bin, "claude"));
-    assert.deepEqual(options.shellArgs, ["/sustain-architecture tests"]);
+    assert.deepEqual(options.shellArgs, ["/aisus-architecture tests"]);
     assert.equal(hook.runCard()?.mode, "terminal");
   });
 
@@ -259,7 +259,7 @@ suite("UI-01 Sustain sidebar", () => {
     assert.ok(node, "node is on the test PATH");
     const bin = agents(["claude"]);
     process.env["PATH"] = `${bin}:${dirname(node)}`;
-    await vscode.commands.executeCommand("sustain.checkSetup");
+    await vscode.commands.executeCommand("aisus.checkSetup");
     await until(() => hook.homeState().state?.setup != null, "the setup checks");
     const checks = hook.homeState().state!.setup!;
     const byId = Object.fromEntries(checks.map((check) => [check.id, check]));
@@ -278,8 +278,8 @@ suite("UI-01 Sustain sidebar", () => {
     await reveal();
     await vscode.commands.executeCommand("workbench.action.closeSidebar");
     await until(() => !hook.homeState().visible, "the sidebar to close");
-    assert.equal(hook.statusText(), "$(type-hierarchy-sub) Sustain");
-    await vscode.commands.executeCommand("sustain.home.focus");
+    assert.equal(hook.statusText(), "$(type-hierarchy-sub) aisus");
+    await vscode.commands.executeCommand("aisus.home.focus");
     await until(() => hook.homeState().visible, "the sidebar to show");
   });
 
@@ -308,7 +308,7 @@ suite("UI-01 Sustain sidebar", () => {
     cleanup.push(join(root, "src"), join(root, ".env"));
     agents(["claude"]);
     const args = scratch("args.json");
-    Object.assign(process.env, { SUSTAIN_STUB_STREAM: stream("claude-ask.jsonl"), SUSTAIN_STUB_ARGS: args });
+    Object.assign(process.env, { AISUS_STUB_STREAM: stream("claude-ask.jsonl"), AISUS_STUB_ARGS: args });
     await reveal();
     await hook.postFromHome({ type: "clearAsk" });
 

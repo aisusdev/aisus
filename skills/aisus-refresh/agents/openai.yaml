@@ -1,0 +1,5 @@
+interface:
+  display_name: "aisus Refresh"
+  short_description: "Bring an aisus architecture diagram up to date"
+policy:
+  allow_implicit_invocation: false

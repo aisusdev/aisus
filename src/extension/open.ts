@@ -1,4 +1,4 @@
-// `Sustain: Open Architecture` and `Sustain: Open Architecture File…` (FR-VIEW-01, FR-VIEW-02).
+// `aisus: Open Architecture` and `aisus: Open Architecture File…` (FR-VIEW-01, FR-VIEW-02).
 import { readFileSync } from "node:fs";
 import * as vscode from "vscode";
 import { listCandidates, repoRootFor } from "../model/discovery";
@@ -16,7 +16,7 @@ export async function openArchitectureCommand(extensionUri: vscode.Uri): Promise
     return;
   }
   const action = await vscode.window.showInformationMessage("No architecture diagram yet.", "Generate");
-  if (action === "Generate") await vscode.commands.executeCommand("sustain.generateArchitecture");
+  if (action === "Generate") await vscode.commands.executeCommand("aisus.generateArchitecture");
 }
 
 /** `meta.title` of a candidate for the QuickPick, if it can be read. */

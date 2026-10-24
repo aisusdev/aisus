@@ -1,5 +1,5 @@
 // RCH-04: "Copy prompt for…" GitHub Copilot agent mode, Cursor's agent, Gemini CLI, OpenCode and
-// Devin Desktop, which Sustain does not launch. The prompt runs the architecture skill installed for
+// Devin Desktop, which aisus does not launch. The prompt runs the architecture skill installed for
 // the folder, so the skills are installed first when they are missing.
 import { join } from "node:path";
 import * as vscode from "vscode";
@@ -17,9 +17,9 @@ export async function copyPromptCommand(extensionUri: vscode.Uri, root: string, 
   );
   if (!picked) return;
   const base = skillBase(configuredScope(), root);
-  if (!skillInstalled(skillTargets(base, "sustain-architecture")) && (await installSkill(extensionUri, root)) === "cancelled") return;
-  const skillDir = join(base, ".agents", "skills", "sustain-architecture").split("\\").join("/");
-  await vscode.env.clipboard.writeText(copiedPrompt(picked.target.id, "sustain-architecture", focus, skillDir));
+  if (!skillInstalled(skillTargets(base, "aisus-architecture")) && (await installSkill(extensionUri, root)) === "cancelled") return;
+  const skillDir = join(base, ".agents", "skills", "aisus-architecture").split("\\").join("/");
+  await vscode.env.clipboard.writeText(copiedPrompt(picked.target.id, "aisus-architecture", focus, skillDir));
   void vscode.window.showInformationMessage(`Copied the prompt for ${picked.target.label}. Paste it into its chat.`);
 }
 

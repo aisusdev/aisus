@@ -28,20 +28,20 @@ suite("VWR-05 Drill down", () => {
   const terminals: vscode.Terminal[] = [];
 
   suiteSetup(async () => {
-    hook = (await vscode.extensions.getExtension("sustain.sustain")!.activate()) as TestHook;
+    hook = (await vscode.extensions.getExtension("aisus.aisus")!.activate()) as TestHook;
   });
 
   setup(async () => {
     root = vscode.workspace.workspaceFolders![0]!.uri.fsPath;
     ui = stubUi();
-    bin = mkdtempSync(join(tmpdir(), "sustain-bin-"));
+    bin = mkdtempSync(join(tmpdir(), "aisus-bin-"));
     writeFileSync(join(bin, "claude"), "#!/bin/sh\nsleep 30\n");
     chmodSync(join(bin, "claude"), 0o755);
     savedPath = process.env["PATH"];
     process.env["PATH"] = `${bin}:${savedPath}`;
-    writeSkill(homedir(), join(vscode.extensions.getExtension("sustain.sustain")!.extensionPath, "dist/skills/sustain-architecture"), skillTargets(homedir(), "sustain-architecture"), "sustain-architecture");
+    writeSkill(homedir(), join(vscode.extensions.getExtension("aisus.aisus")!.extensionPath, "dist/skills/aisus-architecture"), skillTargets(homedir(), "aisus-architecture"), "aisus-architecture");
     await hook.setDataNoteShown(true);
-    await vscode.workspace.getConfiguration("sustain").update("runMode", "terminal", vscode.ConfigurationTarget.Global);
+    await vscode.workspace.getConfiguration("aisus").update("runMode", "terminal", vscode.ConfigurationTarget.Global);
     write(root, "src/api.ts", "export const api = () => 1;\n");
     const map = (components: object[]): string => JSON.stringify({ meta: { title: "Shop" }, components });
     write(root, `.archify/${OVERVIEW}/candidate.json`, map([{ id: "api", type: "backend", label: "Orders API", sources: [{ path: "src/api.ts", line: 1 }] }]));
@@ -54,7 +54,7 @@ suite("VWR-05 Drill down", () => {
     process.env["PATH"] = savedPath;
     for (const terminal of terminals.splice(0)) terminal.dispose();
     await vscode.commands.executeCommand("workbench.action.closeAllEditors");
-    await vscode.workspace.getConfiguration("sustain").update("runMode", undefined, vscode.ConfigurationTarget.Global);
+    await vscode.workspace.getConfiguration("aisus").update("runMode", undefined, vscode.ConfigurationTarget.Global);
     for (const path of [".archify", "src"]) rmSync(join(root, path), { recursive: true, force: true });
     rmSync(bin, { recursive: true, force: true });
     for (const dir of [".agents", ".claude"]) rmSync(join(homedir(), dir), { recursive: true, force: true });
@@ -69,10 +69,10 @@ suite("VWR-05 Drill down", () => {
         resolve(terminal);
       });
     });
-    await vscode.commands.executeCommand("sustain.drillDown", { componentId: "api" });
+    await vscode.commands.executeCommand("aisus.drillDown", { componentId: "api" });
     const terminal = await opened;
     terminals.push(terminal);
-    assert.deepEqual((terminal.creationOptions as vscode.TerminalOptions).shellArgs, [`/sustain-architecture Orders API --parent ${OVERVIEW}`]);
+    assert.deepEqual((terminal.creationOptions as vscode.TerminalOptions).shellArgs, [`/aisus-architecture Orders API --parent ${OVERVIEW}`]);
   });
 
   test("VWR-05 a drill-down map offers Back to overview, which opens the map it came from", async () => {

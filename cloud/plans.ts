@@ -1,4 +1,4 @@
-// CLD-07: Sustain Cloud's plans and what each allows. The server enforces them; prices and Stripe's
+// CLD-07: aisus cloud's plans and what each allows. The server enforces them; prices and Stripe's
 // ids come from the environment. Without Stripe keys billing is off, and every account is Enterprise.
 
 export type PlanId = "free" | "team" | "enterprise";
@@ -38,7 +38,7 @@ export function billingConfig(env: NodeJS.ProcessEnv = process.env): BillingConf
   const webhookSecret = env["STRIPE_WEBHOOK_SECRET"];
   const teamPrice = env["STRIPE_TEAM_PRICE"];
   if (!secretKey || !webhookSecret || !teamPrice) return null;
-  return { secretKey, webhookSecret, teamPrice, teamPriceText: env["SUSTAIN_TEAM_PRICE_TEXT"] || null, apiUrl: (env["STRIPE_API_URL"] || "https://api.stripe.com").replace(/\/+$/, "") };
+  return { secretKey, webhookSecret, teamPrice, teamPriceText: env["AISUS_TEAM_PRICE_TEXT"] || null, apiUrl: (env["STRIPE_API_URL"] || "https://api.stripe.com").replace(/\/+$/, "") };
 }
 
 /** The plan in force: the stored one while billing is on, Free when none is stored, and Enterprise when billing is off. */

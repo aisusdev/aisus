@@ -47,8 +47,8 @@ export async function main(argv: readonly string[], env: NodeJS.ProcessEnv, writ
   const runs = Array.from({ length: options.runs }, (_, index) => questions.map((question, q) => ({ question, run: runName(now, entry.id, options.agent, options.kind, index) + (question === undefined ? "" : `-q${q + 1}`) }))).flat();
 
   if (options.dryRun) {
-    const work = join(tmpdir(), "sustain-bench-<run>", "repo");
-    const home = join(tmpdir(), "sustain-bench-<run>", "home");
+    const work = join(tmpdir(), "aisus-bench-<run>", "repo");
+    const home = join(tmpdir(), "aisus-bench-<run>", "home");
     const skill = benchSkill(options.kind);
     const revision = runRevision(entry, options.kind);
     const homeEnv = agentHomePreview(home, options.agent);

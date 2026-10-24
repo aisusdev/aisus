@@ -1,16 +1,16 @@
 {
-  "name": "sustain",
-  "displayName": "Sustain",
+  "name": "aisus",
+  "displayName": "aisus",
   "description": "View a repository's architecture as an Archify diagram and open the code behind each node.",
   "icon": "media/icon.png",
   "preview": true,
   "repository": {
     "type": "git",
-    "url": "https://github.com/xplus2g4/sustain.git"
+    "url": "https://github.com/kerktaiheng/aisus.git"
   },
-  "homepage": "https://github.com/xplus2g4/sustain#readme",
+  "homepage": "https://github.com/kerktaiheng/aisus#readme",
   "bugs": {
-    "url": "https://github.com/xplus2g4/sustain/issues"
+    "url": "https://github.com/kerktaiheng/aisus/issues"
   },
   "keywords": [
     "architecture",
@@ -27,7 +27,7 @@
     "Education"
   ],
   "version": "0.2.0",
-  "publisher": "sustain",
+  "publisher": "aisus",
   "private": true,
   "engines": {
     "vscode": "^1.126.0",
@@ -37,7 +37,7 @@
   "capabilities": {
     "untrustedWorkspaces": {
       "supported": false,
-      "description": "Sustain launches coding agents and runs git in the opened folder."
+      "description": "aisus launches coding agents and runs git in the opened folder."
     }
   },
   "activationEvents": [
@@ -45,9 +45,9 @@
   ],
   "contributes": {
     "configuration": {
-      "title": "Sustain",
+      "title": "aisus",
       "properties": {
-        "sustain.skillScope": {
+        "aisus.skillScope": {
           "type": "string",
           "enum": [
             "user",
@@ -58,28 +58,28 @@
             "Install the skills in the repository (.claude/skills, .agents/skills)."
           ],
           "default": "user",
-          "description": "Where Sustain installs its agent skills."
+          "description": "Where aisus installs its agent skills."
         },
-        "sustain.runMode": {
+        "aisus.runMode": {
           "type": "string",
           "enum": [
             "sidebar",
             "terminal"
           ],
           "enumDescriptions": [
-            "Run the agent headless and stream its progress into the Sustain sidebar.",
+            "Run the agent headless and stream its progress into the aisus sidebar.",
             "Run the agent in a terminal, as you would yourself."
           ],
           "default": "sidebar",
           "description": "Where Generate runs the agent."
         },
-        "sustain.confirmAboveTokens": {
+        "aisus.confirmAboveTokens": {
           "type": "number",
           "default": 300000,
           "minimum": 0,
           "description": "Runs whose estimate reaches above this many tokens need a second click before they start."
         },
-        "sustain.rules.severity": {
+        "aisus.rules.severity": {
           "type": "string",
           "enum": [
             "error",
@@ -87,467 +87,467 @@
             "information"
           ],
           "default": "warning",
-          "description": "How the Problems panel shows an import that breaks an architecture rule in sustain.config.json."
+          "description": "How the Problems panel shows an import that breaks an architecture rule in aisus.config.json."
         },
-        "sustain.hotspots.days": {
+        "aisus.hotspots.days": {
           "type": "number",
           "default": 90,
           "minimum": 1,
           "description": "How many days of git history the map's Hotspots count."
         },
-        "sustain.usageLog": {
+        "aisus.usageLog": {
           "type": "boolean",
           "default": false,
-          "description": "Keep daily counts of which Sustain actions you use, on this machine only. The log holds no paths, labels, repository names or anything you typed. Export or clear it from the Sustain sidebar's menu."
+          "description": "Keep daily counts of which aisus actions you use, on this machine only. The log holds no paths, labels, repository names or anything you typed. Export or clear it from the aisus sidebar's menu."
         }
       }
     },
     "commands": [
       {
-        "command": "sustain.installSkills",
+        "command": "aisus.installSkills",
         "title": "Install Agent Skills",
-        "category": "Sustain"
+        "category": "aisus"
       },
       {
-        "command": "sustain.generateArchitecture",
+        "command": "aisus.generateArchitecture",
         "title": "Generate Architecture",
-        "category": "Sustain"
+        "category": "aisus"
       },
       {
-        "command": "sustain.copyPromptFor",
+        "command": "aisus.copyPromptFor",
         "title": "Copy Prompt for…",
-        "category": "Sustain"
+        "category": "aisus"
       },
       {
-        "command": "sustain.openArchitecture",
+        "command": "aisus.openArchitecture",
         "title": "Open Architecture",
-        "category": "Sustain"
+        "category": "aisus"
       },
       {
-        "command": "sustain.openArchitectureFile",
+        "command": "aisus.openArchitectureFile",
         "title": "Open Architecture File…",
-        "category": "Sustain"
+        "category": "aisus"
       },
       {
-        "command": "sustain.startLearning",
+        "command": "aisus.startLearning",
         "title": "Start Learning Session",
-        "category": "Sustain"
+        "category": "aisus"
       },
       {
-        "command": "sustain.checkSetup",
+        "command": "aisus.checkSetup",
         "title": "Check Setup",
-        "category": "Sustain",
+        "category": "aisus",
         "icon": "$(checklist)"
       },
       {
-        "command": "sustain.refreshHome",
+        "command": "aisus.refreshHome",
         "title": "Refresh",
-        "category": "Sustain",
+        "category": "aisus",
         "icon": "$(refresh)"
       },
       {
-        "command": "sustain.cancelRun",
+        "command": "aisus.cancelRun",
         "title": "Cancel Run",
-        "category": "Sustain",
+        "category": "aisus",
         "icon": "$(debug-stop)"
       },
       {
-        "command": "sustain.showInMap",
+        "command": "aisus.showInMap",
         "title": "Show in Map",
-        "category": "Sustain",
+        "category": "aisus",
         "icon": {
-          "light": "media/sustain-light.svg",
-          "dark": "media/sustain-dark.svg"
+          "light": "media/aisus-light.svg",
+          "dark": "media/aisus-dark.svg"
         }
       },
       {
-        "command": "sustain.showFileInMap",
+        "command": "aisus.showFileInMap",
         "title": "Show in Architecture Map",
-        "category": "Sustain"
+        "category": "aisus"
       },
       {
-        "command": "sustain.mapFolder",
-        "title": "Map This Folder with Sustain",
-        "category": "Sustain"
+        "command": "aisus.mapFolder",
+        "title": "Map This Folder with aisus",
+        "category": "aisus"
       },
       {
-        "command": "sustain.openBoxCode",
+        "command": "aisus.openBoxCode",
         "title": "Open Code",
-        "category": "Sustain"
+        "category": "aisus"
       },
       {
-        "command": "sustain.showChanges",
+        "command": "aisus.showChanges",
         "title": "Show Changes on Diagram",
-        "category": "Sustain",
+        "category": "aisus",
         "icon": "$(git-compare)"
       },
       {
-        "command": "sustain.refreshArchitecture",
+        "command": "aisus.refreshArchitecture",
         "title": "Refresh Architecture",
-        "category": "Sustain",
+        "category": "aisus",
         "icon": "$(refresh)"
       },
       {
-        "command": "sustain.refreshBox",
+        "command": "aisus.refreshBox",
         "title": "Refresh This Box",
-        "category": "Sustain"
+        "category": "aisus"
       },
       {
-        "command": "sustain.flagBox",
+        "command": "aisus.flagBox",
         "title": "This Box Is Wrong…",
-        "category": "Sustain"
+        "category": "aisus"
       },
       {
-        "command": "sustain.checkUnderstanding",
+        "command": "aisus.checkUnderstanding",
         "title": "Check My Understanding",
-        "category": "Sustain"
+        "category": "aisus"
       },
       {
-        "command": "sustain.drillDown",
+        "command": "aisus.drillDown",
         "title": "Map This Box in Detail",
-        "category": "Sustain"
+        "category": "aisus"
       },
       {
-        "command": "sustain.find",
+        "command": "aisus.find",
         "title": "Find in Map",
-        "category": "Sustain",
+        "category": "aisus",
         "icon": "$(search)"
       },
       {
-        "command": "sustain.playTour",
+        "command": "aisus.playTour",
         "title": "Tour",
-        "category": "Sustain",
+        "category": "aisus",
         "icon": "$(milestone)"
       },
       {
-        "command": "sustain.createTour",
+        "command": "aisus.createTour",
         "title": "Create Tour",
-        "category": "Sustain"
+        "category": "aisus"
       },
       {
-        "command": "sustain.forbidArrow",
+        "command": "aisus.forbidArrow",
         "title": "Forbid This Dependency",
-        "category": "Sustain"
+        "category": "aisus"
       },
       {
-        "command": "sustain.onlyAllowImportsFrom",
+        "command": "aisus.onlyAllowImportsFrom",
         "title": "Only Allow Imports From…",
-        "category": "Sustain"
+        "category": "aisus"
       },
       {
-        "command": "sustain.routeThrough",
+        "command": "aisus.routeThrough",
         "title": "Route Dependencies Through…",
-        "category": "Sustain"
+        "category": "aisus"
       },
       {
-        "command": "sustain.suggestRules",
+        "command": "aisus.suggestRules",
         "title": "Suggest Rules",
-        "category": "Sustain"
+        "category": "aisus"
       },
       {
-        "command": "sustain.writeAgentNotes",
+        "command": "aisus.writeAgentNotes",
         "title": "Write Architecture Notes for Agents",
-        "category": "Sustain"
+        "category": "aisus"
       },
       {
-        "command": "sustain.compareMaps",
+        "command": "aisus.compareMaps",
         "title": "Compare With…",
-        "category": "Sustain"
+        "category": "aisus"
       },
       {
-        "command": "sustain.exportPage",
+        "command": "aisus.exportPage",
         "title": "Export Page",
-        "category": "Sustain",
+        "category": "aisus",
         "icon": "$(globe)"
       },
       {
-        "command": "sustain.saveImage",
+        "command": "aisus.saveImage",
         "title": "Save Image",
-        "category": "Sustain",
+        "category": "aisus",
         "icon": "$(device-camera)"
       },
       {
-        "command": "sustain.auditMap",
+        "command": "aisus.auditMap",
         "title": "Audit Map",
-        "category": "Sustain",
+        "category": "aisus",
         "icon": "$(checklist)"
       },
       {
-        "command": "sustain.hideChecks",
+        "command": "aisus.hideChecks",
         "title": "Hide Checks",
-        "category": "Sustain",
+        "category": "aisus",
         "icon": "$(eye)"
       },
       {
-        "command": "sustain.showChecks",
+        "command": "aisus.showChecks",
         "title": "Show Checks",
-        "category": "Sustain",
+        "category": "aisus",
         "icon": "$(eye-closed)"
       },
       {
-        "command": "sustain.showHotspots",
+        "command": "aisus.showHotspots",
         "title": "Show Hotspots",
-        "category": "Sustain",
+        "category": "aisus",
         "icon": "$(flame)"
       },
       {
-        "command": "sustain.hideHotspots",
+        "command": "aisus.hideHotspots",
         "title": "Hide Hotspots",
-        "category": "Sustain",
+        "category": "aisus",
         "icon": "$(circle-slash)"
       },
       {
-        "command": "sustain.reviewChanges",
+        "command": "aisus.reviewChanges",
         "title": "Review Changes",
-        "category": "Sustain"
+        "category": "aisus"
       },
       {
-        "command": "sustain.removeSustain",
-        "title": "Remove Sustain from This Folder",
-        "category": "Sustain"
+        "command": "aisus.removeAisus",
+        "title": "Remove aisus from This Folder",
+        "category": "aisus"
       },
       {
-        "command": "sustain.exportUsageLog",
+        "command": "aisus.exportUsageLog",
         "title": "Export Usage Log",
-        "category": "Sustain"
+        "category": "aisus"
       },
       {
-        "command": "sustain.clearUsageLog",
+        "command": "aisus.clearUsageLog",
         "title": "Clear Usage Log",
-        "category": "Sustain"
+        "category": "aisus"
       }
     ],
     "viewsContainers": {
       "activitybar": [
         {
-          "id": "sustain",
-          "title": "Sustain",
-          "icon": "media/sustain.svg"
+          "id": "aisus",
+          "title": "aisus",
+          "icon": "media/aisus.svg"
         }
       ]
     },
     "views": {
-      "sustain": [
+      "aisus": [
         {
           "type": "webview",
-          "id": "sustain.home",
-          "name": "Sustain"
+          "id": "aisus.home",
+          "name": "aisus"
         }
       ]
     },
     "menus": {
       "view/title": [
         {
-          "command": "sustain.refreshHome",
-          "when": "view == sustain.home",
+          "command": "aisus.refreshHome",
+          "when": "view == aisus.home",
           "group": "navigation@1"
         },
         {
-          "command": "sustain.checkSetup",
-          "when": "view == sustain.home",
+          "command": "aisus.checkSetup",
+          "when": "view == aisus.home",
           "group": "navigation@2"
         },
         {
-          "command": "sustain.cancelRun",
-          "when": "view == sustain.home && sustain.running",
+          "command": "aisus.cancelRun",
+          "when": "view == aisus.home && aisus.running",
           "group": "navigation@0"
         },
         {
-          "command": "sustain.openArchitectureFile",
-          "when": "view == sustain.home",
+          "command": "aisus.openArchitectureFile",
+          "when": "view == aisus.home",
           "group": "more@1"
         },
         {
-          "command": "sustain.installSkills",
-          "when": "view == sustain.home",
+          "command": "aisus.installSkills",
+          "when": "view == aisus.home",
           "group": "more@2"
         },
         {
-          "command": "sustain.removeSustain",
-          "when": "view == sustain.home",
-          "group": "z_sustain@9"
+          "command": "aisus.removeAisus",
+          "when": "view == aisus.home",
+          "group": "z_aisus@9"
         },
         {
-          "command": "sustain.exportUsageLog",
-          "when": "view == sustain.home && config.sustain.usageLog",
-          "group": "z_sustain@7"
+          "command": "aisus.exportUsageLog",
+          "when": "view == aisus.home && config.aisus.usageLog",
+          "group": "z_aisus@7"
         },
         {
-          "command": "sustain.clearUsageLog",
-          "when": "view == sustain.home && config.sustain.usageLog",
-          "group": "z_sustain@8"
+          "command": "aisus.clearUsageLog",
+          "when": "view == aisus.home && config.aisus.usageLog",
+          "group": "z_aisus@8"
         }
       ],
       "commandPalette": [
         {
-          "command": "sustain.cancelRun",
-          "when": "sustain.running"
+          "command": "aisus.cancelRun",
+          "when": "aisus.running"
         },
         {
-          "command": "sustain.showFileInMap",
+          "command": "aisus.showFileInMap",
           "when": "false"
         },
         {
-          "command": "sustain.mapFolder",
+          "command": "aisus.mapFolder",
           "when": "false"
         },
         {
-          "command": "sustain.openBoxCode",
+          "command": "aisus.openBoxCode",
           "when": "false"
         },
         {
-          "command": "sustain.refreshBox",
+          "command": "aisus.refreshBox",
           "when": "false"
         },
         {
-          "command": "sustain.flagBox",
+          "command": "aisus.flagBox",
           "when": "false"
         },
         {
-          "command": "sustain.forbidArrow",
+          "command": "aisus.forbidArrow",
           "when": "false"
         },
         {
-          "command": "sustain.onlyAllowImportsFrom",
+          "command": "aisus.onlyAllowImportsFrom",
           "when": "false"
         },
         {
-          "command": "sustain.routeThrough",
+          "command": "aisus.routeThrough",
           "when": "false"
         },
         {
-          "command": "sustain.drillDown",
+          "command": "aisus.drillDown",
           "when": "false"
         }
       ],
       "editor/title": [
         {
-          "command": "sustain.showInMap",
+          "command": "aisus.showInMap",
           "when": "resourceScheme == file",
           "group": "navigation@100"
         },
         {
-          "command": "sustain.showChanges",
-          "when": "activeWebviewPanelId == 'sustain.architecture'",
+          "command": "aisus.showChanges",
+          "when": "activeWebviewPanelId == 'aisus.architecture'",
           "group": "navigation@2"
         },
         {
-          "command": "sustain.refreshArchitecture",
-          "when": "activeWebviewPanelId == 'sustain.architecture'",
+          "command": "aisus.refreshArchitecture",
+          "when": "activeWebviewPanelId == 'aisus.architecture'",
           "group": "navigation@1"
         },
         {
-          "command": "sustain.exportPage",
-          "when": "activeWebviewPanelId == 'sustain.architecture'",
+          "command": "aisus.exportPage",
+          "when": "activeWebviewPanelId == 'aisus.architecture'",
           "group": "navigation@3"
         },
         {
-          "command": "sustain.auditMap",
-          "when": "activeWebviewPanelId == 'sustain.architecture'",
+          "command": "aisus.auditMap",
+          "when": "activeWebviewPanelId == 'aisus.architecture'",
           "group": "navigation@4"
         },
         {
-          "command": "sustain.hideChecks",
-          "when": "activeWebviewPanelId == 'sustain.architecture' && !sustain.checksHidden",
+          "command": "aisus.hideChecks",
+          "when": "activeWebviewPanelId == 'aisus.architecture' && !aisus.checksHidden",
           "group": "navigation@5"
         },
         {
-          "command": "sustain.showChecks",
-          "when": "activeWebviewPanelId == 'sustain.architecture' && sustain.checksHidden",
+          "command": "aisus.showChecks",
+          "when": "activeWebviewPanelId == 'aisus.architecture' && aisus.checksHidden",
           "group": "navigation@5"
         },
         {
-          "command": "sustain.showHotspots",
-          "when": "activeWebviewPanelId == 'sustain.architecture' && !sustain.hotspotsShown",
+          "command": "aisus.showHotspots",
+          "when": "activeWebviewPanelId == 'aisus.architecture' && !aisus.hotspotsShown",
           "group": "navigation@6"
         },
         {
-          "command": "sustain.hideHotspots",
-          "when": "activeWebviewPanelId == 'sustain.architecture' && sustain.hotspotsShown",
+          "command": "aisus.hideHotspots",
+          "when": "activeWebviewPanelId == 'aisus.architecture' && aisus.hotspotsShown",
           "group": "navigation@6"
         },
         {
-          "command": "sustain.find",
-          "when": "activeWebviewPanelId == 'sustain.architecture'",
+          "command": "aisus.find",
+          "when": "activeWebviewPanelId == 'aisus.architecture'",
           "group": "navigation@0"
         },
         {
-          "command": "sustain.playTour",
-          "when": "activeWebviewPanelId == 'sustain.architecture'",
+          "command": "aisus.playTour",
+          "when": "activeWebviewPanelId == 'aisus.architecture'",
           "group": "navigation@7"
         },
         {
-          "command": "sustain.writeAgentNotes",
-          "when": "activeWebviewPanelId == 'sustain.architecture'",
-          "group": "z_sustain@1"
+          "command": "aisus.writeAgentNotes",
+          "when": "activeWebviewPanelId == 'aisus.architecture'",
+          "group": "z_aisus@1"
         },
         {
-          "command": "sustain.createTour",
-          "when": "activeWebviewPanelId == 'sustain.architecture'",
-          "group": "z_sustain@2"
+          "command": "aisus.createTour",
+          "when": "activeWebviewPanelId == 'aisus.architecture'",
+          "group": "z_aisus@2"
         },
         {
-          "command": "sustain.compareMaps",
-          "when": "activeWebviewPanelId == 'sustain.architecture'",
-          "group": "z_sustain@0"
+          "command": "aisus.compareMaps",
+          "when": "activeWebviewPanelId == 'aisus.architecture'",
+          "group": "z_aisus@0"
         },
         {
-          "command": "sustain.saveImage",
-          "when": "activeWebviewPanelId == 'sustain.architecture'",
-          "group": "z_sustain@3"
+          "command": "aisus.saveImage",
+          "when": "activeWebviewPanelId == 'aisus.architecture'",
+          "group": "z_aisus@3"
         }
       ],
       "explorer/context": [
         {
-          "command": "sustain.mapFolder",
+          "command": "aisus.mapFolder",
           "when": "explorerResourceIsFolder",
-          "group": "sustain@1"
+          "group": "aisus@1"
         },
         {
-          "command": "sustain.showFileInMap",
+          "command": "aisus.showFileInMap",
           "when": "!explorerResourceIsFolder",
-          "group": "sustain@2"
+          "group": "aisus@2"
         }
       ],
       "webview/context": [
         {
-          "command": "sustain.openBoxCode",
-          "when": "webviewId == 'sustain.architecture' && webviewSection == 'box'",
+          "command": "aisus.openBoxCode",
+          "when": "webviewId == 'aisus.architecture' && webviewSection == 'box'",
           "group": "navigation@1"
         },
         {
-          "command": "sustain.refreshBox",
-          "when": "webviewId == 'sustain.architecture' && webviewSection == 'box'",
+          "command": "aisus.refreshBox",
+          "when": "webviewId == 'aisus.architecture' && webviewSection == 'box'",
           "group": "navigation@2"
         },
         {
-          "command": "sustain.flagBox",
-          "when": "webviewId == 'sustain.architecture' && webviewSection == 'box'",
+          "command": "aisus.flagBox",
+          "when": "webviewId == 'aisus.architecture' && webviewSection == 'box'",
           "group": "navigation@3"
         },
         {
-          "command": "sustain.checkUnderstanding",
-          "when": "webviewId == 'sustain.architecture' && webviewSection == 'box'",
+          "command": "aisus.checkUnderstanding",
+          "when": "webviewId == 'aisus.architecture' && webviewSection == 'box'",
           "group": "navigation@4"
         },
         {
-          "command": "sustain.drillDown",
-          "when": "webviewId == 'sustain.architecture' && webviewSection == 'box'",
+          "command": "aisus.drillDown",
+          "when": "webviewId == 'aisus.architecture' && webviewSection == 'box'",
           "group": "navigation@5"
         },
         {
-          "command": "sustain.onlyAllowImportsFrom",
-          "when": "webviewId == 'sustain.architecture' && webviewSection == 'box'",
+          "command": "aisus.onlyAllowImportsFrom",
+          "when": "webviewId == 'aisus.architecture' && webviewSection == 'box'",
           "group": "rules@1"
         },
         {
-          "command": "sustain.routeThrough",
-          "when": "webviewId == 'sustain.architecture' && webviewSection == 'box'",
+          "command": "aisus.routeThrough",
+          "when": "webviewId == 'aisus.architecture' && webviewSection == 'box'",
           "group": "rules@2"
         },
         {
-          "command": "sustain.forbidArrow",
-          "when": "webviewId == 'sustain.architecture' && webviewSection == 'arrow'",
+          "command": "aisus.forbidArrow",
+          "when": "webviewId == 'aisus.architecture' && webviewSection == 'arrow'",
           "group": "rules@1"
         }
       ]

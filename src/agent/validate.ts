@@ -1,4 +1,4 @@
-// `node .agents/skills/sustain-architecture/scripts/validate.mjs <repo>/.archify/<run>/draft.json`
+// `node .agents/skills/aisus-architecture/scripts/validate.mjs <repo>/.archify/<run>/draft.json`
 // (FR-VAL-01..06). Contract and exit codes: ADR 0017. Bundled to a dependency-free ESM file.
 import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
@@ -38,7 +38,7 @@ function listErrors(errors: Issue[]): Report["errors"] {
 }
 
 /** The skill version, filled in by the build. */
-const SKILL_VERSION = process.env.SUSTAIN_VERSION ?? "unknown";
+const SKILL_VERSION = process.env.AISUS_VERSION ?? "unknown";
 
 /** Merges `patch` into the run's run.json, creating it for runs that predate run records (CST-04). */
 function record(location: DraftLocation, patch: Partial<RunRecord>): void {

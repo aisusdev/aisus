@@ -4,7 +4,7 @@
 import { existsSync, readdirSync, readFileSync, rmSync, symlinkSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, test } from "vitest";
-import { ensureGitExclude, EXCLUDE_LINES, mergeAgentHooks, mergeHooks, mergeSessionHooks, removeHooks, removeHooksWhenIdle, SUSTAIN_HOOK_MARKER, sustainHooks } from "../../../src/extension/hooksFiles";
+import { ensureGitExclude, EXCLUDE_LINES, mergeAgentHooks, mergeHooks, mergeSessionHooks, removeHooks, removeHooksWhenIdle, AISUS_HOOK_MARKER, aisusHooks } from "../../../src/extension/hooksFiles";
 import { put, tempDir } from "../support/temp";
 
 const HOOKS = ".devin/hooks.v1.json";
@@ -13,14 +13,14 @@ function readHooks(root: string): Record<string, unknown> {
   return JSON.parse(readFileSync(join(root, HOOKS), "utf8"));
 }
 
-function sustainHookCommands(root: string): string[] {
+function aisusHookCommands(root: string): string[] {
   const file = readHooks(root);
   const commands: string[] = [];
   for (const groups of Object.values(file)) {
     if (!Array.isArray(groups)) continue;
     for (const group of groups) {
       for (const hook of (group as { hooks?: { command?: string }[] }).hooks ?? []) {
-        if (hook.command?.includes(SUSTAIN_HOOK_MARKER)) commands.push(hook.command);
+        if (hook.command?.includes(AISUS_HOOK_MARKER)) commands.push(hook.command);
       }
     }
   }
@@ -28,12 +28,12 @@ function sustainHookCommands(root: string): string[] {
 }
 
 describe("mergeHooks", () => {
-  test("creates the file with only the Sustain block when none exists", () => {
+  test("creates the file with only the aisus block when none exists", () => {
     const root = tempDir();
     expect(mergeHooks(root)).toBe(true);
     const file = readHooks(root);
     expect(Object.keys(file).sort()).toEqual(["PostCompaction", "PreToolUse", "SessionStart", "UserPromptSubmit"]);
-    expect(sustainHookCommands(root)).toHaveLength(4);
+    expect(aisusHookCommands(root)).toHaveLength(4);
     // The blocklist matcher covers the mutation + subagent tools.
     const pre = file["PreToolUse"] as { matcher?: string }[];
     expect(pre[0]!["matcher"]).toContain("edit");
@@ -69,37 +69,37 @@ describe("mergeHooks", () => {
     expect(readFileSync(join(root, HOOKS), "utf8")).toBe(before);
   });
 
-  test("rewrites only Sustain's entries when hand-edited", () => {
+  test("rewrites only aisus's entries when hand-edited", () => {
     const root = tempDir();
     put(root, HOOKS, `${JSON.stringify({
       PreToolUse: [
-        // A stale Sustain entry (old command path) plus the user's own hook in one group.
+        // A stale aisus entry (old command path) plus the user's own hook in one group.
         {
           matcher: "^(edit)$",
           hooks: [
-            { type: "command", command: "node .agents/skills/sustain-bugfix/scripts/old-hook.mjs" },
+            { type: "command", command: "node .agents/skills/aisus-bugfix/scripts/old-hook.mjs" },
             { type: "command", command: "./scripts/user-check.sh" },
           ],
         },
       ],
-      UserPromptSubmit: [{ matcher: "", hooks: [{ type: "command", command: "node .agents/skills/sustain-bugfix/scripts/session-hook.mjs" }] }],
+      UserPromptSubmit: [{ matcher: "", hooks: [{ type: "command", command: "node .agents/skills/aisus-bugfix/scripts/session-hook.mjs" }] }],
     })}\n`);
     expect(mergeHooks(root)).toBe(true);
     const file = readHooks(root);
-    // The stale sustain command is gone from PreToolUse; the user's hook stayed in its group.
+    // The stale aisus command is gone from PreToolUse; the user's hook stayed in its group.
     const pre = file["PreToolUse"] as { hooks: { command: string }[] }[];
     const commands = pre.flatMap((group) => group.hooks.map((hook) => hook.command));
     expect(commands).toContain("./scripts/user-check.sh");
     expect(commands.some((command) => command.includes("old-hook.mjs"))).toBe(false);
-    // Exactly one Sustain block per event — the stale UserPromptSubmit entry was replaced.
-    expect(sustainHookCommands(root)).toHaveLength(4);
+    // Exactly one aisus block per event — the stale UserPromptSubmit entry was replaced.
+    expect(aisusHookCommands(root)).toHaveLength(4);
   });
 
   test("an empty file merges like a missing one", () => {
     const root = tempDir();
     put(root, HOOKS, "  \n");
     expect(mergeHooks(root)).toBe(true);
-    expect(sustainHookCommands(root)).toHaveLength(4);
+    expect(aisusHookCommands(root)).toHaveLength(4);
   });
 
   test.each([
@@ -129,7 +129,7 @@ describe("removeHooks", () => {
     const file = readHooks(root);
     expect(file["Stop"]).toHaveLength(1);
     expect(Object.keys(file)).toEqual(["Stop"]);
-    // Second removal is a no-op on a file without Sustain entries.
+    // Second removal is a no-op on a file without aisus entries.
     expect(removeHooks(root)).toBe("none");
   });
 
@@ -163,21 +163,21 @@ describe("SAF-06 ensureGitExclude", () => {
 });
 
 describe("SAF-06 removeHooksWhenIdle", () => {
-  test("keeps Sustain's hooks while a session holds the lock and removes them once it is gone", () => {
+  test("keeps aisus's hooks while a session holds the lock and removes them once it is gone", () => {
     const root = tempDir();
-    put(root, ".sustain/active", "bugfix-demo-20261018-120000\n");
+    put(root, ".aisus/active", "bugfix-demo-20261018-120000\n");
     mergeHooks(root);
     expect(removeHooksWhenIdle(root)).toBe("none");
     expect(existsSync(join(root, HOOKS))).toBe(true);
-    rmSync(join(root, ".sustain/active"));
+    rmSync(join(root, ".aisus/active"));
     expect(removeHooksWhenIdle(root)).toBe("deleted");
     expect(existsSync(join(root, HOOKS))).toBe(false);
   });
 });
 
-describe("sustainHooks", () => {
+describe("aisusHooks", () => {
   test("covers the enforcement blocklist and the context events", () => {
-    const hooks = sustainHooks();
+    const hooks = aisusHooks();
     expect(Object.keys(hooks).sort()).toEqual(["PostCompaction", "PreToolUse", "SessionStart", "UserPromptSubmit"]);
     expect(JSON.stringify(hooks)).toContain("session-hook.mjs");
   });
@@ -187,7 +187,7 @@ describe("LRN-01 Claude Code and Codex hooks", () => {
   const CLAUDE = ".claude/settings.local.json";
   const CODEX = ".codex/hooks.json";
   const read = (root: string, file: string): Record<string, any> => JSON.parse(readFileSync(join(root, file), "utf8"));
-  const command = (root: string): string => `node "${join(root, ".agents/skills/sustain-bugfix/scripts/session-hook.mjs")}"`;
+  const command = (root: string): string => `node "${join(root, ".agents/skills/aisus-bugfix/scripts/session-hook.mjs")}"`;
 
   test("a Claude Code session merges PreToolUse for Edit, Write, NotebookEdit and Agent into its local settings, keeping the user's, once", () => {
     const root = tempDir();
@@ -205,20 +205,20 @@ describe("LRN-01 Claude Code and Codex hooks", () => {
     expect(existsSync(join(root, HOOKS))).toBe(false);
   });
 
-  test("a Codex session writes .codex/hooks.json matching apply_patch and leaves one Sustain entry in all three files", () => {
+  test("a Codex session writes .codex/hooks.json matching apply_patch and leaves one aisus entry in all three files", () => {
     const root = tempDir();
     mergeSessionHooks(root, "devin");
     mergeSessionHooks(root, "claude", "/home/u");
     mergeSessionHooks(root, "codex", "/home/u");
-    expect(read(root, CODEX)).toEqual({ hooks: { PreToolUse: [{ matcher: "apply_patch", hooks: [{ type: "command", command: 'node "/home/u/.agents/skills/sustain-bugfix/scripts/session-hook.mjs"', timeout: 5 }] }] } });
+    expect(read(root, CODEX)).toEqual({ hooks: { PreToolUse: [{ matcher: "apply_patch", hooks: [{ type: "command", command: 'node "/home/u/.agents/skills/aisus-bugfix/scripts/session-hook.mjs"', timeout: 5 }] }] } });
     expect(existsSync(join(root, CLAUDE))).toBe(false);
     expect(existsSync(join(root, HOOKS))).toBe(false);
     mergeSessionHooks(root, "devin");
     expect(existsSync(join(root, CODEX))).toBe(false);
-    expect(sustainHookCommands(root)).toHaveLength(4);
+    expect(aisusHookCommands(root)).toHaveLength(4);
   });
 
-  test("when the session ends, Sustain's entries go from every file, and a file left empty is deleted", () => {
+  test("when the session ends, aisus's entries go from every file, and a file left empty is deleted", () => {
     const root = tempDir();
     put(root, CODEX, `${JSON.stringify({ description: "team hooks", hooks: { Stop: [{ hooks: [{ type: "command", command: "./notify.sh" }] }] } })}\n`);
     mergeSessionHooks(root, "codex");

@@ -3,7 +3,7 @@ global:
   scrape_interval: 30s
 
 scrape_configs:
-  - job_name: sustain
+  - job_name: aisus
     metrics_path: /api/metrics
     authorization:
       type: Bearer

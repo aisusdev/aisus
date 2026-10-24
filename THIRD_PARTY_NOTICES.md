@@ -1,6 +1,6 @@
 # Third-party notices
 
-Sustain: VS Code viewer for Archify architecture diagrams.
+aisus: VS Code viewer for Archify architecture diagrams.
 Unofficial; not affiliated with Archify. Includes material derived from Archify (MIT).
 
 ## Archify
@@ -13,9 +13,9 @@ Unofficial; not affiliated with Archify. Includes material derived from Archify 
     (copied from `archify/schemas/`);
   - `fixtures/archify/**` (architecture JSON copied from `archify/examples/`, `examples/`,
     `docs/cases/`, `archify/test/fixtures/`, plus one Archify-skill run candidate);
-  - `skills/sustain-architecture/references/example.json` (the Archify-skill run candidate,
+  - `skills/aisus-architecture/references/example.json` (the Archify-skill run candidate,
     `fixtures/archify/skill-run/archify-runtime.architecture.json`);
-  - `skills/sustain-architecture/references/archify-format.md` (authoring guidance condensed
+  - `skills/aisus-architecture/references/archify-format.md` (authoring guidance condensed
     from `archify/SKILL.md` and `archify/references/`).
 
 ```text

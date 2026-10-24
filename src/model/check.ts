@@ -1,10 +1,10 @@
-// PRC-01: `sustain.mjs check`, which compares a diff with the map at zero tokens. This gathers
+// PRC-01: `aisus.mjs check`, which compares a diff with the map at zero tokens. This gathers
 // the map, the config, the diff from the merge-base, the code at the head and the changed files'
 // imports on both sides (PRC-06); delta.ts decides.
 import { readdirSync, readFileSync, statSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { parseDiff, REVISION_PATTERN, type FileChange } from "./changes";
-import { CONFIG_FILE, readConfig, type FailOn, type SustainConfig } from "./config";
+import { CONFIG_FILE, readConfig, type FailOn, type AisusConfig } from "./config";
 import { deltaReport, isSourceFile, verdict, type DeltaReport } from "./delta";
 import { listCandidates } from "./discovery";
 import { importLanguage, importResolver } from "./evidence/graph";
@@ -40,7 +40,7 @@ export interface CheckReport extends DeltaReport {
 export type CheckOutcome = { ok: true; report: CheckReport; diagram: ViewDiagram } | { ok: false; reason: string };
 
 /** The repository's config, `{}` without a file. */
-export function loadConfig(root: string): { ok: true; config: SustainConfig } | { ok: false; reason: string } {
+export function loadConfig(root: string): { ok: true; config: AisusConfig } | { ok: false; reason: string } {
   let text: string;
   try {
     text = readFileSync(join(root, CONFIG_FILE), "utf8");

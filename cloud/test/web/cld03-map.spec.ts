@@ -7,9 +7,9 @@ test("CLD-03 the main map draws, opens GitHub at its commit, and lists its histo
   await upload(request, "acme/shop", { branch: "main", kind: "map", map: MAP, meta: { defaultBranch: "main" } });
   await upload(request, "acme/shop", { ...check(1), branch: "main", meta: {} });
   await signInAsDev(page, "/acme/shop");
-  await expect(page.locator("#sustain-viewer .node").first()).toBeVisible();
-  expect(await page.locator("#sustain-viewer .node").count()).toBe((MAP["components"] as unknown[]).length);
-  await expect(page.locator("#sustain-viewer .node--edited")).toHaveCount(1);
+  await expect(page.locator("#aisus-viewer .node").first()).toBeVisible();
+  expect(await page.locator("#aisus-viewer .node").count()).toBe((MAP["components"] as unknown[]).length);
+  await expect(page.locator("#aisus-viewer .node--edited")).toHaveCount(1);
   await expect(page.locator(".freshness")).toContainText("1 of 12 boxes changed since this map");
   await expect(page.locator(".history li")).toHaveCount(1);
   await expect(page.locator(".open select")).toHaveValue("github");
@@ -21,7 +21,7 @@ test("CLD-03 the main map draws, opens GitHub at its commit, and lists its histo
       return null;
     };
   });
-  const box = page.locator("#sustain-viewer .node").first();
+  const box = page.locator("#aisus-viewer .node").first();
   for (const type of ["pointerdown", "pointerup"]) await box.dispatchEvent(type, { button: 0, pointerId: 1, clientX: 10, clientY: 10 });
   await expect(page.locator("body")).toHaveAttribute("data-opened", `https://github.com/acme/shop/blob/${COMMIT}/src/api.ts#L3-L9`);
 });
@@ -35,7 +35,7 @@ test("CLD-03 an owner makes a public repository's maps public, and then anyone c
 
   const visitor = await (await browser.newContext({ baseURL: "http://127.0.0.1:3210" })).newPage();
   await visitor.goto("/acme/open-map");
-  await expect(visitor.locator("#sustain-viewer .node").first()).toBeVisible();
+  await expect(visitor.locator("#aisus-viewer .node").first()).toBeVisible();
   await visitor.goto("/gallery");
   await expect(visitor.locator(".gallery")).toContainText("acme/open-map");
   await visitor.goto("/acme/shop");

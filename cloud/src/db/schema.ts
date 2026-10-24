@@ -1,4 +1,4 @@
-// Sustain Cloud's tables (CLD-01, CLD-02, CLD-06, CLD-07, CLD-11, CLD-13). Maps and checks are stored as validated JSON;
+// aisus cloud's tables (CLD-01, CLD-02, CLD-06, CLD-07, CLD-11, CLD-13). Maps and checks are stored as validated JSON;
 // nothing here ever holds code. Deleting a user or repository removes everything under it.
 import { bigint, boolean, index, integer, jsonb, pgTable, primaryKey, serial, text, timestamp, unique } from "drizzle-orm/pg-core";
 

@@ -1,4 +1,4 @@
-// Sustain Cloud's Next.js configuration. The app imports the shared model from ../src, so the
+// aisus cloud's Next.js configuration. The app imports the shared model from ../src, so the
 // build's root is the repository.
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";

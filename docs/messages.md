@@ -1,6 +1,6 @@
 # Messages
 
-Every notification Sustain shows in VS Code is listed here by ID, with its kind, its text and the actions it offers. Errors and warnings offer exactly one action. VS Code adds Cancel to a modal question, and Cancel is not counted. A name in braces stands for what the message fills in. The reasons in practice-blocked are the ones the sidebar's Practice section shows. `test/unit/messages.test.ts` scans the source and fails when this table and the code differ.
+Every notification aisus shows in VS Code is listed here by ID, with its kind, its text and the actions it offers. Errors and warnings offer exactly one action. VS Code adds Cancel to a modal question, and Cancel is not counted. A name in braces stands for what the message fills in. The reasons in practice-blocked are the ones the sidebar's Practice section shows. `test/unit/messages.test.ts` scans the source and fails when this table and the code differ.
 
 | ID | Kind | Text | Action |
 |---|---|---|---|
@@ -20,10 +20,10 @@ Every notification Sustain shows in VS Code is listed here by ID, with its kind,
 | confirm-run-repair | warning | {verb} with {agent}? | {verb} |
 | run-record-failed | warning | Could not record the run in run.json: {reason} | Open run.json |
 | overwrite-skills | warning | Overwrite the existing {names} skill{s}? | Overwrite |
-| skills-installed | info | Installed the Sustain skills in {place} ({kinds} for .claude). | — |
-| skill-differs | warning | The {skill} skill differs from the one in Sustain {version} ({what}). Reinstall it before running? | Reinstall |
-| skill-copies-differ | warning | Other copies of {skill} differ from Sustain's: {copies}. Claude Code loads the one in {loaded}. | Remove Copies |
-| skill-copies-loaded | warning | Other copies of {skill} differ from Sustain's, and {agent} would load them too: {copies}. Remove them before running? | Remove |
+| skills-installed | info | Installed the aisus skills in {place} ({kinds} for .claude). | — |
+| skill-differs | warning | The {skill} skill differs from the one in aisus {version} ({what}). Reinstall it before running? | Reinstall |
+| skill-copies-differ | warning | Other copies of {skill} differ from aisus's: {copies}. Claude Code loads the one in {loaded}. | Remove Copies |
+| skill-copies-loaded | warning | Other copies of {skill} differ from aisus's, and {agent} would load them too: {copies}. Remove them before running? | Remove |
 | prompt-copied | info | Copied the prompt for {agent}. Paste it into its chat. | — |
 | export-page-no-map | info | Open a map first. Export Page writes the shown map as a web page. | — |
 | export-page-failed | error | Could not write the diagram page: {reason} | Try Again |
@@ -58,16 +58,16 @@ Every notification Sustain shows in VS Code is listed here by ID, with its kind,
 | no-tour | info | This map has no tour yet. | Create Tour |
 | practice-blocked | info | Check My Understanding cannot start. {reason} | — |
 | practice-confirm | info | Check your understanding? | Start |
-| install-skills-first | info | Install the Sustain skills first? | Install; Cancel |
+| install-skills-first | info | Install the aisus skills first? | Install; Cancel |
 | no-agent | warning | No Claude Code, Codex or Devin was found on PATH or where Devin installs. | Copy prompt |
 | hooks-merge-failed | warning | The {agent} hooks could not be merged — hunt edits won't be blocked: {reason} | Start Anyway |
-| codex-trust-hook | info | Codex runs Sustain's hook only once you trust it. Type /hooks in Codex to review and trust it. | — |
+| codex-trust-hook | info | Codex runs aisus's hook only once you trust it. Type /hooks in Codex to review and trust it. | — |
 | hooks-removal-failed | warning | The learning session ended, but its Devin hooks could not be removed: {reason} | Try Again |
 | setup-fix-copied | info | Copied: {text} | — |
-| remove-sustain | warning | Remove Sustain from {folder}? | Remove |
-| remove-failed | error | Sustain could not remove everything from {folder}: {reason} | Remove Again |
+| remove-aisus | warning | Remove aisus from {folder}? | Remove |
+| remove-failed | error | aisus could not remove everything from {folder}: {reason} | Remove Again |
 | remove-data | warning | Also delete {entries}? | Delete |
-| remove-home-skills | info | Also remove the Sustain skills from your home folder? Other folders that use them lose them. | Remove from Home |
-| removed | info | Removed Sustain from {folder}. | — |
+| remove-home-skills | info | Also remove the aisus skills from your home folder? Other folders that use them lose them. | Remove from Home |
+| removed | info | Removed aisus from {folder}. | — |
 | usage-log-saved | info | Saved the usage log. | — |
 | usage-log-cleared | info | Cleared the usage log. | — |

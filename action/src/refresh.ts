@@ -62,8 +62,8 @@ export function refreshDecision(input: {
 
 /** The agent's argument vector and its whole environment: the sidebar's headless launch in `home`, with only the key. */
 export function refreshCommand(agent: RefreshAgent, map: string, paths: readonly string[], home: string, env: NodeJS.ProcessEnv): { args: string[]; env: Record<string, string> } {
-  const skillDir = join(home, agent === "claude" ? ".claude" : ".agents", "skills", "sustain-refresh");
-  const args = headlessArgs(agent, skillPrompt(agent, "sustain-refresh", refreshArgs(map, paths)), { skillDir, scripts: SKILL_SCRIPTS["sustain-refresh"] });
+  const skillDir = join(home, agent === "claude" ? ".claude" : ".agents", "skills", "aisus-refresh");
+  const args = headlessArgs(agent, skillPrompt(agent, "aisus-refresh", refreshArgs(map, paths)), { skillDir, scripts: SKILL_SCRIPTS["aisus-refresh"] });
   const key = env[REFRESH_KEYS[agent]] ?? "";
   const keys: Record<string, string> = agent === "claude" ? { ANTHROPIC_API_KEY: key } : { OPENAI_API_KEY: key, CODEX_API_KEY: key };
   return { args, env: { PATH: env["PATH"] ?? "", HOME: home, LANG: "C.UTF-8", ...agentHomePreview(home, agent), ...keys } };
@@ -82,9 +82,9 @@ function git(root: string, args: string[]): string | null {
 export function runRefresh(input: { root: string; map: string; agent: RefreshAgent; paths: readonly string[]; headRef: string; skillSource: string; env: NodeJS.ProcessEnv }): RefreshOutcome {
   const binary = findOnPath(input.agent, input.env);
   if (binary === undefined) return { ok: false, reason: `refresh: ${input.agent} needs the ${input.agent} CLI on PATH; install it in an earlier step.` };
-  const home = mkdtempSync(join(tmpdir(), "sustain-refresh-"));
+  const home = mkdtempSync(join(tmpdir(), "aisus-refresh-"));
   try {
-    agentHome(home, input.agent, { name: "sustain-refresh", source: input.skillSource });
+    agentHome(home, input.agent, { name: "aisus-refresh", source: input.skillSource });
     const { args, env } = refreshCommand(input.agent, input.map, input.paths, home, input.env);
     const before = runFolderNames(input.root);
     const result = spawnSync(binary, args, { cwd: input.root, env, shell: false, encoding: "utf8", maxBuffer: 256 * 1024 * 1024, timeout: REFRESH_TIMEOUT_MS });
@@ -99,7 +99,7 @@ export function runRefresh(input: { root: string; map: string; agent: RefreshAge
     const folder = `${ARCHIFY_DIR}/${made.runFolder}`;
     const committed =
       git(input.root, ["add", "-f", "--", folder]) !== null &&
-      git(input.root, ["-c", "user.name=Sustain", "-c", "user.email=sustain@users.noreply.github.com", "-c", "commit.gpgsign=false", "commit", "-q", "-m", `Update the architecture map for this pull request\n\n${summary}.`, "--", folder]) !== null &&
+      git(input.root, ["-c", "user.name=aisus", "-c", "user.email=aisus@users.noreply.github.com", "-c", "commit.gpgsign=false", "commit", "-q", "-m", `Update the architecture map for this pull request\n\n${summary}.`, "--", folder]) !== null &&
       git(input.root, ["push", "-q", "origin", `HEAD:refs/heads/${input.headRef}`]) !== null;
     if (!committed) return { ok: false, reason: `the new map ${made.runFolder} could not be committed and pushed to ${input.headRef}.` };
     return { ok: true, run: made.runFolder, summary, tokens };
@@ -111,5 +111,5 @@ export function runRefresh(input: { root: string; map: string; agent: RefreshAge
 /** The comment's lines about the update. */
 export function refreshLines(outcome: RefreshOutcome | { ok: false; reason: string }): string[] {
   if (!outcome.ok) return ["", "**Map update**", "", `The map was not updated. ${outcome.reason.charAt(0).toUpperCase()}${outcome.reason.slice(1)}`];
-  return ["", "**Map update**", "", `Sustain refreshed the map in \`${outcome.run}\` and pushed it to this branch. ${outcome.summary.charAt(0).toUpperCase()}${outcome.summary.slice(1)}. It used ${outcome.tokens.toLocaleString("en-US")} tokens.`];
+  return ["", "**Map update**", "", `aisus refreshed the map in \`${outcome.run}\` and pushed it to this branch. ${outcome.summary.charAt(0).toUpperCase()}${outcome.summary.slice(1)}. It used ${outcome.tokens.toLocaleString("en-US")} tokens.`];
 }

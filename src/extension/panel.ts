@@ -23,7 +23,7 @@ import { webviewHtml } from "./html";
 import { openSource, openSourceRef } from "./navigate";
 import { onAction } from "./notify";
 
-export const VIEW_TYPE = "sustain.architecture";
+export const VIEW_TYPE = "aisus.architecture";
 
 /** What the panel currently shows: a diagram, or an empty state with a message and maybe an action. */
 type Shown = { kind: "diagram"; doc: unknown; diagram: ViewDiagram } | { kind: "empty"; message: string; action?: "mapFolder" };
@@ -125,7 +125,7 @@ export class ArchitecturePanel {
   /** Shows or hides the hotspots on the map, for the title bar's toggle. */
   static setHotspotsShown(shown: boolean): void {
     ArchitecturePanel.hotspotsShown = shown;
-    void vscode.commands.executeCommand("setContext", "sustain.hotspotsShown", shown);
+    void vscode.commands.executeCommand("setContext", "aisus.hotspotsShown", shown);
     ArchitecturePanel.instance?.sendHotspots();
   }
 
@@ -142,7 +142,7 @@ export class ArchitecturePanel {
   /** Shows or hides the Checks on the map, for the title bar's toggle. */
   static setChecksShown(shown: boolean): void {
     ArchitecturePanel.checksShown = shown;
-    void vscode.commands.executeCommand("setContext", "sustain.checksHidden", !shown);
+    void vscode.commands.executeCommand("setContext", "aisus.checksHidden", !shown);
     ArchitecturePanel.instance?.sendUncertainty();
   }
 
@@ -492,7 +492,7 @@ export class ArchitecturePanel {
         return;
       }
       case "mapFolder":
-        await vscode.commands.executeCommand("sustain.mapFolder", vscode.Uri.file(this.root));
+        await vscode.commands.executeCommand("aisus.mapFolder", vscode.Uri.file(this.root));
         return;
       case "clearChanges":
         this.showChanges(null);
@@ -501,7 +501,7 @@ export class ArchitecturePanel {
         this.showCompare(null);
         return;
       case "refresh":
-        await vscode.commands.executeCommand("sustain.refreshArchitecture");
+        await vscode.commands.executeCommand("aisus.refreshArchitecture");
         return;
       case "openSource":
         await this.openBox(message.componentId, message.index);

@@ -39,24 +39,24 @@ async function main(): Promise<void> {
   const runs = VSCODE_VERSIONS.flatMap((version) => SCENARIOS.map((scenario) => ({ version, scenario })));
   for (const { version, scenario } of runs) {
     if (only && scenario.name !== only) continue;
-    const base = realpathSync(mkdtempSync(join(tmpdir(), `sustain-e2e-${scenario.name}-`)));
+    const base = realpathSync(mkdtempSync(join(tmpdir(), `aisus-e2e-${scenario.name}-`)));
     // VS Code puts its IPC socket in the user-data dir; macOS caps socket paths at 104 bytes,
     // which the per-user tmpdir (/var/folders/…) would exceed.
-    const userData = mkdtempSync(join(process.platform === "win32" ? tmpdir() : "/tmp", "sustain-ud-"));
+    const userData = mkdtempSync(join(process.platform === "win32" ? tmpdir() : "/tmp", "aisus-ud-"));
     const workspace = scenario.workspace(base);
-    // Sustain runs git itself. VS Code's git extension, left on, threw an uncaught EPIPE from
+    // aisus runs git itself. VS Code's git extension, left on, threw an uncaught EPIPE from
     // `git check-ignore` when a test's folder went away, and failed whichever test was running.
     mkdirSync(join(userData, "User"), { recursive: true });
     writeFileSync(join(userData, "User", "settings.json"), `${JSON.stringify({ "git.enabled": false })}\n`);
     // Skills install per user by default (SET-01), so each launch gets its own home folder.
-    const home = mkdtempSync(join(tmpdir(), "sustain-home-"));
+    const home = mkdtempSync(join(tmpdir(), "aisus-home-"));
     console.log(`\n=== e2e VS Code ${version}, scenario: ${scenario.name} ===`);
     try {
       await runTests({
         version,
         extensionDevelopmentPath,
         extensionTestsPath,
-        extensionTestsEnv: { SUSTAIN_E2E_SCENARIO: scenario.name, HOME: home, USERPROFILE: home },
+        extensionTestsEnv: { AISUS_E2E_SCENARIO: scenario.name, HOME: home, USERPROFILE: home },
         launchArgs: [
           ...(workspace ? [workspace] : []),
           `--user-data-dir=${userData}`,

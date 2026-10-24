@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://sustain.dev/schemas/tour-draft.schema.json",
-  "title": "Sustain tour draft (SKL-02)",
+  "$id": "https://aisus.dev/schemas/tour-draft.schema.json",
+  "title": "aisus tour draft (SKL-02)",
   "type": "object",
   "additionalProperties": false,
   "required": ["stops"],

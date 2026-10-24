@@ -42,7 +42,7 @@ suite("FR-NAV-01..03 navigation", () => {
   let root: string;
 
   suiteSetup(async () => {
-    hook = (await vscode.extensions.getExtension("sustain.sustain")!.activate()) as TestHook;
+    hook = (await vscode.extensions.getExtension("aisus.aisus")!.activate()) as TestHook;
   });
 
   setup(async () => {
@@ -67,7 +67,7 @@ suite("FR-NAV-01..03 navigation", () => {
     const subscription = vscode.window.tabGroups.onDidChangeTabs(() => {
       if (shown()) resolve();
     });
-    await vscode.commands.executeCommand("sustain.openArchitecture");
+    await vscode.commands.executeCommand("aisus.openArchitecture");
     if (shown()) resolve();
     await promise;
     subscription.dispose();

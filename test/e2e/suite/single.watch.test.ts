@@ -25,7 +25,7 @@ function diagram(title: string): string {
 function panelLabel(): string | undefined {
   return vscode.window.tabGroups.all
     .flatMap((group) => group.tabs)
-    .find((tab) => tab.input instanceof vscode.TabInputWebview && tab.input.viewType.endsWith("sustain.architecture"))?.label;
+    .find((tab) => tab.input instanceof vscode.TabInputWebview && tab.input.viewType.endsWith("aisus.architecture"))?.label;
 }
 
 suite("FR-WAT-01 watching candidates", () => {
@@ -34,7 +34,7 @@ suite("FR-WAT-01 watching candidates", () => {
   let root: string;
 
   suiteSetup(async () => {
-    hook = (await vscode.extensions.getExtension("sustain.sustain")!.activate()) as TestHook;
+    hook = (await vscode.extensions.getExtension("aisus.aisus")!.activate()) as TestHook;
   });
 
   setup(() => {
@@ -50,7 +50,7 @@ suite("FR-WAT-01 watching candidates", () => {
 
   test("a new newest candidate loads into the open panel", async () => {
     const old = write(root, `.archify/${OLD}/candidate.json`, diagram("Old"));
-    await vscode.commands.executeCommand("sustain.openArchitecture");
+    await vscode.commands.executeCommand("aisus.openArchitecture");
     assert.equal(hook.panelState().file, old);
     const newest = write(root, `.archify/${NEW}/candidate.json`, diagram("New"));
     await until(() => hook.panelState().file === newest, "the panel to switch to the new candidate");
@@ -60,7 +60,7 @@ suite("FR-WAT-01 watching candidates", () => {
 
   test("a change to the shown file reloads it", async () => {
     const file = write(root, `.archify/${OLD}/candidate.json`, diagram("Before"));
-    await vscode.commands.executeCommand("sustain.openArchitecture");
+    await vscode.commands.executeCommand("aisus.openArchitecture");
     await until(() => panelLabel() === "Architecture: Before", "the first title");
     writeFileSync(file, diagram("After"));
     await until(() => panelLabel() === "Architecture: After", "the reloaded title");
@@ -79,7 +79,7 @@ suite("FR-WAT-01 watching candidates", () => {
 
   test("an older candidate appearing does not replace the shown newest one", async () => {
     const newest = write(root, `.archify/${NEW}/candidate.json`, diagram("New"));
-    await vscode.commands.executeCommand("sustain.openArchitecture");
+    await vscode.commands.executeCommand("aisus.openArchitecture");
     write(root, `.archify/${OLD}/candidate.json`, diagram("Old"));
     write(root, `.archify/architecture-watch-20261011-130000/candidate.json`, diagram("Newer"));
     await until(() => hook.panelState().file !== newest, "the newer candidate to load");

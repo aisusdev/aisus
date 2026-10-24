@@ -31,7 +31,7 @@ suite("FRS-04 change overlay", () => {
   let root: string;
 
   suiteSetup(async () => {
-    hook = (await vscode.extensions.getExtension("sustain.sustain")!.activate()) as TestHook;
+    hook = (await vscode.extensions.getExtension("aisus.aisus")!.activate()) as TestHook;
   });
 
   setup(() => {
@@ -64,10 +64,10 @@ suite("FRS-04 change overlay", () => {
   test("FRS-04 uncommitted changes mark the touched box strong, its neighbour weak and list the new file", async () => {
     write(root, "src/a.ts", SOURCE.replace("parse(req)", "parseJson(req)"));
     write(root, "new.ts", "export {};\n");
-    await vscode.commands.executeCommand("sustain.openArchitecture");
+    await vscode.commands.executeCommand("aisus.openArchitecture");
     await until(() => hook.panelState().open, "the map");
     ui.answers.quickPick.push("Uncommitted changes");
-    await vscode.commands.executeCommand("sustain.showChanges");
+    await vscode.commands.executeCommand("aisus.showChanges");
     assert.deepEqual(
       ui.quickPicks[0]!.map((item) => item.label),
       ["Uncommitted changes", "This branch", "Commit range…"],
@@ -81,11 +81,11 @@ suite("FRS-04 change overlay", () => {
   test("FRS-04 a commit range compares two commits", async () => {
     write(root, "src/b.ts", "other notes\n");
     git(root, "commit", "-qam", "docs");
-    await vscode.commands.executeCommand("sustain.openArchitecture");
+    await vscode.commands.executeCommand("aisus.openArchitecture");
     await until(() => hook.panelState().open, "the map");
     ui.answers.quickPick.push("Commit range…");
     ui.answers.inputBox.push("HEAD~1..HEAD");
-    await vscode.commands.executeCommand("sustain.showChanges");
+    await vscode.commands.executeCommand("aisus.showChanges");
     assert.deepEqual(hook.panelChanges(), { scope: "Commit range", strong: ["docs"], weak: [], uncovered: [] });
   });
 
@@ -95,10 +95,10 @@ suite("FRS-04 change overlay", () => {
     chmodSync(hookScript, 0o755);
     git(root, "config", "core.fsmonitor", hookScript);
     write(root, "src/a.ts", `${SOURCE}// more\n`);
-    await vscode.commands.executeCommand("sustain.openArchitecture");
+    await vscode.commands.executeCommand("aisus.openArchitecture");
     await until(() => hook.panelState().open, "the map");
     ui.answers.quickPick.push("Uncommitted changes");
-    await vscode.commands.executeCommand("sustain.showChanges");
+    await vscode.commands.executeCommand("aisus.showChanges");
     assert.ok(hook.panelChanges() !== null);
     assert.equal(existsSync(marker), false);
   });

@@ -1,4 +1,4 @@
-// File operations behind `Sustain: Install Agent Skills` (FR-INS-01, ADR 0006; the
+// File operations behind `aisus: Install Agent Skills` (FR-INS-01, ADR 0006; the
 // learning-session install extends the same targets per ADR 0036). No `vscode` import,
 // so the symlink fallback is unit-tested in Node.
 import { cpSync, lstatSync, mkdirSync, rmSync, symlinkSync } from "node:fs";
@@ -6,8 +6,8 @@ import { homedir } from "node:os";
 import { dirname, join } from "node:path";
 import { assertWritable } from "../model/confine";
 
-/** The skills `Sustain: Install Agent Skills` ships: architecture + the learning session. */
-export const SKILL_NAMES: readonly string[] = ["sustain-architecture", "sustain-audit", "sustain-bugfix", "sustain-refresh", "sustain-tour"];
+/** The skills `aisus: Install Agent Skills` ships: architecture + the learning session. */
+export const SKILL_NAMES: readonly string[] = ["aisus-architecture", "aisus-audit", "aisus-bugfix", "aisus-refresh", "aisus-tour"];
 
 /** Repo-relative `.agents/skills/<name>`, `/`-separated (also used in messages). */
 export function agentsSkillDir(name: string): string {

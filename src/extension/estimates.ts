@@ -7,7 +7,7 @@ import type { SkillName } from "./agents";
 
 /** How long a folder's size is reused. */
 export const SIZE_TTL_MS = 60_000;
-/** `sustain.confirmAboveTokens` when unset. */
+/** `aisus.confirmAboveTokens` when unset. */
 export const DEFAULT_CONFIRM_ABOVE = 300_000;
 
 const sizes = new Map<string, { at: number; size: RepoSize }>();
@@ -28,13 +28,13 @@ export function forgetSizes(): void {
 
 /** Tokens above which a run needs a second click. */
 export function confirmAbove(): number {
-  const value = vscode.workspace.getConfiguration("sustain").get<number>("confirmAboveTokens", DEFAULT_CONFIRM_ABOVE);
+  const value = vscode.workspace.getConfiguration("aisus").get<number>("confirmAboveTokens", DEFAULT_CONFIRM_ABOVE);
   return typeof value === "number" && Number.isFinite(value) && value >= 0 ? value : DEFAULT_CONFIRM_ABOVE;
 }
 
 /** The estimate kind a skill's run spends; an audit reads cited ranges as a refresh does. */
 export function estimateKind(skill: SkillName): EstimateKind {
-  return skill === "sustain-architecture" ? "full" : "refresh";
+  return skill === "aisus-architecture" ? "full" : "refresh";
 }
 
 /** The estimate of a `kind` run by `agent` in `root`, or `null` when the folder cannot be measured. */

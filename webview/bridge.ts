@@ -27,7 +27,7 @@ export function onMessage(handler: (message: HostMessage) => void): void {
   host().listen(handler);
 }
 
-/** Sets the viewer's `--sustain-*` tokens on `element`. */
+/** Sets the viewer's `--aisus-*` tokens on `element`. */
 export function applyTokens(element: HTMLElement, tokens: Readonly<Record<string, string>>): void {
   for (const [name, value] of Object.entries(tokens)) element.style.setProperty(name, value);
 }

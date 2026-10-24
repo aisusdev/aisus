@@ -31,7 +31,7 @@ async function oidcToken(repo: string): Promise<string> {
   const name = repo.split("/")[1]!;
   const body = part({
     iss: "https://token.actions.githubusercontent.com",
-    aud: "sustain-cloud",
+    aud: "aisus-cloud",
     iat: now,
     exp: now + 300,
     repository: repo,

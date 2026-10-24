@@ -15,7 +15,7 @@ function stubDevin(dir: string, name = "devin"): string {
 
 describe("devinPromptArgs", () => {
   test("separates the prompt with --", () => {
-    expect(devinPromptArgs("/sustain-bugfix add a thing")).toEqual(["--", "/sustain-bugfix add a thing"]);
+    expect(devinPromptArgs("/aisus-bugfix add a thing")).toEqual(["--", "/aisus-bugfix add a thing"]);
   });
 });
 

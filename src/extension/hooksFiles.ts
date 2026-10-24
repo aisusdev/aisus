@@ -1,9 +1,9 @@
-// Merge/remove of the Sustain block in `<repo>/.devin/hooks.v1.json`, and in the `hooks` of
-// `.claude/settings.local.json` and `.codex/hooks.json` (spec v0.3 LRN-01), plus Sustain's lines in
+// Merge/remove of the aisus block in `<repo>/.devin/hooks.v1.json`, and in the `hooks` of
+// `.claude/settings.local.json` and `.codex/hooks.json` (spec v0.3 LRN-01), plus aisus's lines in
 // `.git/info/exclude` (ADR 0032; lifecycle per spec v0.3 SAF-06). No `vscode` import, so the merge is unit-tested in
 // Node — the cases that matter: a file that already holds user hooks, a hand-edited file,
 // an empty file, a corrupt file. Never a blind overwrite: only hook objects whose command
-// runs a `.agents/skills/sustain-*` script are touched, so user entries always survive.
+// runs a `.agents/skills/aisus-*` script are touched, so user entries always survive.
 import { existsSync, lstatSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { assertWritable } from "../model/confine";
@@ -17,16 +17,16 @@ export const AGENT_HUNT_MATCHERS = { claude: "Edit|Write|NotebookEdit|Agent", co
 
 /** The agents a learning session can run in. */
 export type SessionAgent = "claude" | "codex" | "devin";
-/** A hook object is Sustain's iff its `command` contains this marker (ADR 0040). */
-export const SUSTAIN_HOOK_MARKER = ".agents/skills/sustain-";
+/** A hook object is aisus's iff its `command` contains this marker (ADR 0040). */
+export const AISUS_HOOK_MARKER = ".agents/skills/aisus-";
 
 /**
  * The command that runs `session-hook.mjs`: from the repository for a project install, or by
- * absolute path from the per-user install at `base` (SET-01). Both contain {@link SUSTAIN_HOOK_MARKER}.
+ * absolute path from the per-user install at `base` (SET-01). Both contain {@link AISUS_HOOK_MARKER}.
  */
 export function sessionHookCommand(base?: string): string {
-  if (base === undefined) return 'node "$DEVIN_PROJECT_DIR/.agents/skills/sustain-bugfix/scripts/session-hook.mjs"';
-  return `node "${join(base, ".agents", "skills", "sustain-bugfix", "scripts", "session-hook.mjs").split("\\").join("/")}"`;
+  if (base === undefined) return 'node "$DEVIN_PROJECT_DIR/.agents/skills/aisus-bugfix/scripts/session-hook.mjs"';
+  return `node "${join(base, ".agents", "skills", "aisus-bugfix", "scripts", "session-hook.mjs").split("\\").join("/")}"`;
 }
 const HUNT_BLOCKLIST = "^(edit|write|apply_patch|notebook_edit|run_subagent)$";
 const HOOK_TIMEOUT = 5;
@@ -35,8 +35,8 @@ function promptHookGroup(command: string): Record<string, unknown> {
   return { matcher: "", hooks: [{ type: "command", command, timeout: HOOK_TIMEOUT }] };
 }
 
-/** The Sustain-managed block, running `command` (see {@link sessionHookCommand}). */
-export function sustainHooks(command: string = sessionHookCommand()): Record<string, unknown[]> {
+/** The aisus-managed block, running `command` (see {@link sessionHookCommand}). */
+export function aisusHooks(command: string = sessionHookCommand()): Record<string, unknown[]> {
   return {
     PreToolUse: [{ matcher: HUNT_BLOCKLIST, hooks: [{ type: "command", command, timeout: HOOK_TIMEOUT }] }],
     UserPromptSubmit: [promptHookGroup(command)],
@@ -49,12 +49,12 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
-function isSustainHook(value: unknown): boolean {
-  return isRecord(value) && typeof value["command"] === "string" && value["command"].includes(SUSTAIN_HOOK_MARKER);
+function isAisusHook(value: unknown): boolean {
+  return isRecord(value) && typeof value["command"] === "string" && value["command"].includes(AISUS_HOOK_MARKER);
 }
 
-/** `groups` minus every Sustain hook object; groups left hook-less are dropped. */
-function stripSustain(groups: unknown): unknown[] {
+/** `groups` minus every aisus hook object; groups left hook-less are dropped. */
+function stripAisus(groups: unknown): unknown[] {
   if (!Array.isArray(groups)) return [];
   const kept: unknown[] = [];
   for (const group of groups) {
@@ -62,7 +62,7 @@ function stripSustain(groups: unknown): unknown[] {
       kept.push(group); // not a hook group shape we know — leave the user's entry alone
       continue;
     }
-    const hooks = group["hooks"].filter((hook) => !isSustainHook(hook));
+    const hooks = group["hooks"].filter((hook) => !isAisusHook(hook));
     if (hooks.length > 0) kept.push({ ...group, hooks });
   }
   return kept;
@@ -83,7 +83,7 @@ function readHooksFile(path: string, name = ".devin/hooks.v1.json"): Record<stri
   return value;
 }
 
-/** `hooks` minus every Sustain hook object; events left without groups are dropped, and other values kept. */
+/** `hooks` minus every aisus hook object; events left without groups are dropped, and other values kept. */
 function strippedEvents(hooks: Record<string, unknown>): Record<string, unknown> {
   const kept: Record<string, unknown> = {};
   for (const [event, groups] of Object.entries(hooks)) {
@@ -91,7 +91,7 @@ function strippedEvents(hooks: Record<string, unknown>): Record<string, unknown>
       kept[event] = groups;
       continue;
     }
-    const left = stripSustain(groups);
+    const left = stripAisus(groups);
     if (left.length > 0) kept[event] = left;
   }
   return kept;
@@ -102,7 +102,7 @@ export function agentHooks(agent: "claude" | "codex", command: string): Record<s
   return { PreToolUse: [{ matcher: AGENT_HUNT_MATCHERS[agent], hooks: [{ type: "command", command, timeout: HOOK_TIMEOUT }] }] };
 }
 
-/** Writes `agent`'s Sustain block into the `hooks` of its file, keeping every other key and hook. Returns whether the file changed. */
+/** Writes `agent`'s aisus block into the `hooks` of its file, keeping every other key and hook. Returns whether the file changed. */
 export function mergeAgentHooks(root: string, agent: "claude" | "codex", command: string): boolean {
   const path = join(root, ...AGENT_HOOKS_FILES[agent].split("/"));
   const existing = readHooksFile(path, AGENT_HOOKS_FILES[agent]) ?? {};
@@ -116,7 +116,7 @@ export function mergeAgentHooks(root: string, agent: "claude" | "codex", command
   return true;
 }
 
-/** Removes Sustain's hook objects from `agent`'s file; deletes the file only when nothing else remains. */
+/** Removes aisus's hook objects from `agent`'s file; deletes the file only when nothing else remains. */
 export function removeAgentHooks(root: string, agent: "claude" | "codex"): HooksRemoval {
   const path = join(root, ...AGENT_HOOKS_FILES[agent].split("/"));
   const existing = readHooksFile(path, AGENT_HOOKS_FILES[agent]);
@@ -135,9 +135,9 @@ export function removeAgentHooks(root: string, agent: "claude" | "codex"): Hooks
 }
 
 /**
- * LRN-01: merges the hunt hooks of the agent a session launches in, and removes Sustain's entries
- * from the other agents' files, so each agent meets one Sustain entry. The Devin CLI also reads
- * `.claude/` hooks, and a Devin session leaves Sustain's Claude Code entry out. `base` is the
+ * LRN-01: merges the hunt hooks of the agent a session launches in, and removes aisus's entries
+ * from the other agents' files, so each agent meets one aisus entry. The Devin CLI also reads
+ * `.claude/` hooks, and a Devin session leaves aisus's Claude Code entry out. `base` is the
  * per-user install folder, or `undefined` for a project install.
  */
 export function mergeSessionHooks(root: string, agent: SessionAgent, base?: string): void {
@@ -150,7 +150,7 @@ export function mergeSessionHooks(root: string, agent: SessionAgent, base?: stri
 }
 
 /**
- * Writes the Sustain block into `root`'s hooks file, preserving everything else.
+ * Writes the aisus block into `root`'s hooks file, preserving everything else.
  * Idempotent: merging twice is a no-op. Throws on a corrupt or non-array event entry —
  * the caller warns and nothing is overwritten.
  */
@@ -163,10 +163,10 @@ export function mergeHooks(root: string, command: string = sessionHookCommand())
       merged[event] = groups; // not a hook-event key — foreign metadata, preserved as-is
       continue;
     }
-    const kept = stripSustain(groups);
+    const kept = stripAisus(groups);
     if (kept.length > 0) merged[event] = kept;
   }
-  for (const [event, groups] of Object.entries(sustainHooks(command))) {
+  for (const [event, groups] of Object.entries(aisusHooks(command))) {
     merged[event] = [...((merged[event] as unknown[] | undefined) ?? []), ...groups];
   }
   if (JSON.stringify(existing ?? {}) === JSON.stringify(merged)) return false;
@@ -176,10 +176,10 @@ export function mergeHooks(root: string, command: string = sessionHookCommand())
   return true;
 }
 
-/** What removing the Sustain block did: `none` (no file), `updated`, or `deleted` (emptied). */
+/** What removing the aisus block did: `none` (no file), `updated`, or `deleted` (emptied). */
 export type HooksRemoval = "none" | "updated" | "deleted";
 
-/** Removes every Sustain hook object; deletes the file only when nothing else remains. */
+/** Removes every aisus hook object; deletes the file only when nothing else remains. */
 export function removeHooks(root: string): HooksRemoval {
   const path = join(root, DEVIN_HOOKS_FILE);
   const existing = readHooksFile(path);
@@ -190,7 +190,7 @@ export function removeHooks(root: string): HooksRemoval {
       remaining[event] = groups; // foreign shape — not ours, keep
       continue;
     }
-    const kept = stripSustain(groups);
+    const kept = stripAisus(groups);
     if (kept.length > 0) remaining[event] = kept;
   }
   assertWritable(root, path);
@@ -204,18 +204,18 @@ export function removeHooks(root: string): HooksRemoval {
 }
 
 /**
- * Removes Sustain's hook entries from every agent's file when no learning session holds
- * `.sustain/active` (SAF-06, LRN-01). Called when the lock disappears and at activation.
+ * Removes aisus's hook entries from every agent's file when no learning session holds
+ * `.aisus/active` (SAF-06, LRN-01). Called when the lock disappears and at activation.
  * Returns what removing did to the Devin file.
  */
 export function removeHooksWhenIdle(root: string): HooksRemoval {
-  if (existsSync(join(root, ".sustain", "active"))) return "none";
+  if (existsSync(join(root, ".aisus", "active"))) return "none";
   for (const agent of ["claude", "codex"] as const) removeAgentHooks(root, agent);
   return removeHooks(root);
 }
 
-/** Lines Sustain keeps out of git through the repository's local exclude file (SAF-06). */
-export const EXCLUDE_LINES: readonly string[] = [".sustain/", ".archify/**/draft.json", ".archify/**/*.html"];
+/** Lines aisus keeps out of git through the repository's local exclude file (SAF-06). */
+export const EXCLUDE_LINES: readonly string[] = [".aisus/", ".archify/**/draft.json", ".archify/**/*.html"];
 
 /**
  * Appends any missing {@link EXCLUDE_LINES} to `.git/info/exclude`, which git reads and never

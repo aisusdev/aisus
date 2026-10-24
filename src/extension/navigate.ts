@@ -25,7 +25,7 @@ export async function openSource(root: string, component: ViewComponent, index: 
 
 /** A citation that no longer fits the code offers to refresh the map (SET-04). */
 function refreshMap(): Thenable<unknown> {
-  return vscode.commands.executeCommand("sustain.refreshArchitecture");
+  return vscode.commands.executeCommand("aisus.refreshArchitecture");
 }
 
 /** Opens `source` from `root` beside the panel's column, selecting and briefly highlighting the cited lines. */

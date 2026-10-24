@@ -11,9 +11,9 @@ import type { CorpusEntry } from "./corpus";
 /** Agent configuration a repository may carry, removed at any depth before a run. */
 export const AGENT_CONFIG = [".claude", ".codex", ".devin", ".agents", ".windsurf", "AGENTS.md", "CLAUDE.md"];
 
-/** Where clones are cached: `SUSTAIN_BENCH_CACHE`, or `~/.cache/sustain-bench`. */
+/** Where clones are cached: `AISUS_BENCH_CACHE`, or `~/.cache/aisus-bench`. */
 export function benchCache(env: NodeJS.ProcessEnv): string {
-  return env["SUSTAIN_BENCH_CACHE"] ? resolve(env["SUSTAIN_BENCH_CACHE"]) : join(homedir(), ".cache", "sustain-bench");
+  return env["AISUS_BENCH_CACHE"] ? resolve(env["AISUS_BENCH_CACHE"]) : join(homedir(), ".cache", "aisus-bench");
 }
 
 /** What a run clones: this repository for ".", else the entry's URL. */
@@ -29,7 +29,7 @@ export function mirrorPath(cache: string, entry: CorpusEntry): string {
 function git(cwd: string, args: string[]): string {
   const program = findOnPath("git", process.env);
   if (program === undefined) throw new Error("the bench needs git on PATH");
-  const result = spawnSync(program, ["-c", "core.fsmonitor=false", "-c", "user.name=Sustain bench", "-c", "user.email=bench@invalid", "-c", "commit.gpgsign=false", ...args], {
+  const result = spawnSync(program, ["-c", "core.fsmonitor=false", "-c", "user.name=aisus bench", "-c", "user.email=bench@invalid", "-c", "commit.gpgsign=false", ...args], {
     cwd,
     encoding: "utf8",
     env: { ...process.env, GIT_TERMINAL_PROMPT: "0" },

@@ -33,7 +33,7 @@ export default async function RepositorySettings({ params }: { params: Promise<{
         settings
       </h1>
       <h2>Upload tokens</h2>
-      <p className="muted">For `sustain.mjs publish` as SUSTAIN_TOKEN. The Action uploads with OIDC and needs none.</p>
+      <p className="muted">For `aisus.mjs publish` as AISUS_TOKEN. The Action uploads with OIDC and needs none.</p>
       <ul className="tokens">
         {tokens.map((token) => (
           <li key={token.id}>

@@ -1,5 +1,5 @@
 // FRS-06: Refresh from the map's title bar, its freshness header, the maps list and a box's menu,
-// and `Sustain: Refresh Architecture`. Each runs the refresh skill on the shown or chosen map,
+// and `aisus: Refresh Architecture`. Each runs the refresh skill on the shown or chosen map,
 // through the sidebar or a terminal as Generate does. Without a map, Refresh is Generate.
 import { readFileSync } from "node:fs";
 import { basename, dirname } from "node:path";
@@ -23,7 +23,7 @@ export function refreshTask(candidate: string, paths: readonly string[] = []): L
     // An unreadable map is named by its folder.
   }
   const scope = paths.length === 0 ? "" : ` · ${paths.length} file${paths.length === 1 ? "" : "s"}`;
-  return { skill: "sustain-refresh", args: refreshArgs(run, paths), title: `Refresh of ${title}${scope}` };
+  return { skill: "aisus-refresh", args: refreshArgs(run, paths), title: `Refresh of ${title}${scope}` };
 }
 
 /**

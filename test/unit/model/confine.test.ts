@@ -10,18 +10,18 @@ const DIR_LINK = process.platform === "win32" ? "junction" : "dir";
 describe("SAF-05 write confinement", () => {
   test("a new nested path and an existing file inside the root are writable", () => {
     const root = tempDir();
-    put(root, "sustain.config.json", "{}");
+    put(root, "aisus.config.json", "{}");
     expect(() => assertWritable(root, join(root, ".archify/run/candidate.json"))).not.toThrow();
-    expect(() => assertWritable(root, join(root, "sustain.config.json"))).not.toThrow();
+    expect(() => assertWritable(root, join(root, "aisus.config.json"))).not.toThrow();
   });
 
   test.each([
     [".git", ".git/info/exclude"],
     [".devin", ".devin/hooks.v1.json"],
-    [".claude", ".claude/skills/sustain-architecture/SKILL.md"],
-    [".agents/skills", ".agents/skills/sustain-architecture/SKILL.md"],
+    [".claude", ".claude/skills/aisus-architecture/SKILL.md"],
+    [".agents/skills", ".agents/skills/aisus-architecture/SKILL.md"],
     [".archify/architecture-x-20261018-120000", ".archify/architecture-x-20261018-120000/candidate.json"],
-    [".sustain/bugfix-x-20261018-120000", ".sustain/bugfix-x-20261018-120000/session.json"],
+    [".aisus/bugfix-x-20261018-120000", ".aisus/bugfix-x-20261018-120000/session.json"],
   ])("%s linked outside the root makes %s unwritable", (linked, target) => {
     const root = tempDir();
     const outside = tempDir();
@@ -30,11 +30,11 @@ describe("SAF-05 write confinement", () => {
     expect(() => assertWritable(root, join(root, target))).toThrow(/outside/);
   });
 
-  test("sustain.config.json linked to a file outside the root is unwritable", () => {
+  test("aisus.config.json linked to a file outside the root is unwritable", () => {
     const root = tempDir();
     const outside = put(tempDir(), "elsewhere.json", "{}");
-    symlinkSync(outside, join(root, "sustain.config.json"), "file");
-    expect(() => assertWritable(root, join(root, "sustain.config.json"))).toThrow(/link/);
+    symlinkSync(outside, join(root, "aisus.config.json"), "file");
+    expect(() => assertWritable(root, join(root, "aisus.config.json"))).toThrow(/link/);
   });
 
   test("a link that stays inside the root is still not written through", () => {

@@ -17,7 +17,7 @@ test("DOC-01 the README has a quick start per setup and the sections people look
       "### Skill only",
       "### Claude Code plugin",
       "### GitHub Action",
-      "### Sustain Cloud",
+      "### aisus cloud",
       "## Where to find it",
       "## Commit your map",
       "## What it costs",

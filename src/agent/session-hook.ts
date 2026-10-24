@@ -1,21 +1,21 @@
-// `node .agents/skills/sustain-bugfix/scripts/session-hook.mjs`, wired from
+// `node .agents/skills/aisus-bugfix/scripts/session-hook.mjs`, wired from
 // `.devin/hooks.v1.json` (ADR 0032), and from `.claude/settings.local.json` or
 // `.codex/hooks.json` (spec v0.3 LRN-01): the mechanical part of the bug-hunt contract.
 // The agent pipes one hook event as JSON on stdin (`hook_event_name`, `tool_name`,
 // `tool_input`, `cwd`). Devin sets DEVIN_PROJECT_DIR and Claude Code CLAUDE_PROJECT_DIR to
 // the repo root; without either, the repository is the nearest folder above the event's
-// `cwd` that holds `.sustain/active`.
+// `cwd` that holds `.aisus/active`.
 //
 // - PreToolUse: while `session.json` says `hunting`, exits 2 (with a `decision: block`
 //   object on stdout) for the file-editing and subagent tools, so "the user fixed it
 //   themselves" is enforced, not hoped for. Every other tool and phase passes silently.
 // - UserPromptSubmit / PostCompaction / SessionStart: prints `additionalContext` with the
 //   live session state, re-grounding the agent each turn and after compaction.
-// - No `.sustain/active`, no parseable event, or unreadable session state: inert (exit
+// - No `.aisus/active`, no parseable event, or unreadable session state: inert (exit
 //   0). A hook must never break a repo that has no learning session running.
 import { existsSync, readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
-import { ACTIVE_FILE, activeRun, loadSession, SUSTAIN_DIR, type SessionState } from "../model/session";
+import { ACTIVE_FILE, activeRun, loadSession, AISUS_DIR, type SessionState } from "../model/session";
 
 /**
  * Tools that mutate code or delegate work, blocked only while `phase === "hunting"`: Devin's,
@@ -29,12 +29,12 @@ function projectRoot(payload: Record<string, unknown>): string {
   if (named) return named;
   const start = typeof payload["cwd"] === "string" && payload["cwd"] !== "" ? payload["cwd"] : process.cwd();
   for (let dir = start; ; dir = dirname(dir)) {
-    if (existsSync(join(dir, SUSTAIN_DIR, ACTIVE_FILE))) return dir;
+    if (existsSync(join(dir, AISUS_DIR, ACTIVE_FILE))) return dir;
     if (dirname(dir) === dir) return start;
   }
 }
 
-const SESSION_MJS = ".agents/skills/sustain-bugfix/scripts/session.mjs";
+const SESSION_MJS = ".agents/skills/aisus-bugfix/scripts/session.mjs";
 
 /** The context line re-injected on every prompt and after compaction. */
 function contextLine(run: string, session: SessionState): string {
@@ -43,7 +43,7 @@ function contextLine(run: string, session: SessionState): string {
     session.steps.length === 0
       ? "no steps planned yet"
       : `step ${Math.min(session.stepIndex + 1, session.steps.length)}/${session.steps.length}${step ? ` "${step.title}"` : ""}`;
-  const base = `[sustain-bugfix] active session ${run}: phase=${session.phase}, ${here}, bugs ${session.found} found / ${session.fixed} fixed of ${session.bugs}, score ${session.score}.`;
+  const base = `[aisus-bugfix] active session ${run}: phase=${session.phase}, ${here}, bugs ${session.found} found / ${session.fixed} fixed of ${session.bugs}, score ${session.score}.`;
   switch (session.phase) {
     case "hunting":
       return `${base} The user is hunting the seeded bug themselves: do not edit files, do not spawn subagents, never reveal locations/lines/kinds or per-file counts. Judge their description, then run \`node ${SESSION_MJS} report --file <f>\`; when they say a fix is in, run \`node ${SESSION_MJS} verify\`.`;
@@ -61,7 +61,7 @@ function contextLine(run: string, session: SessionState): string {
 /** The block verdict for a hunting-phase edit attempt — stdout JSON plus exit 2. */
 function block(run: string, tool: string): number {
   const reason =
-    `Sustain bug-hunt is live (run ${run}): the user is finding and fixing the seeded bug themselves, ` +
+    `aisus bug-hunt is live (run ${run}): the user is finding and fixing the seeded bug themselves, ` +
     `so \`${tool}\` is denied while session.json phase is "hunting". Coach with session.mjs status/report/hint/verify instead.`;
   process.stdout.write(`${JSON.stringify({ decision: "block", reason })}\n`);
   process.stderr.write(`${reason}\n`);
@@ -81,7 +81,7 @@ function main(): number {
   if (run === null) return 0;
   let session: SessionState;
   try {
-    session = loadSession(join(root, SUSTAIN_DIR, run));
+    session = loadSession(join(root, AISUS_DIR, run));
   } catch {
     return 0; // corrupt or half-written state must not jam the user's agent
   }

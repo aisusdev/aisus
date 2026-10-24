@@ -1,4 +1,4 @@
-// SAF-01: before a launch, the skill the agent will load must match the copy Sustain ships.
+// SAF-01: before a launch, the skill the agent will load must match the copy aisus ships.
 import { lstatSync, readFileSync, rmSync } from "node:fs";
 import { join } from "node:path";
 import * as vscode from "vscode";
@@ -33,7 +33,7 @@ export interface SkillStatus {
 export function skillStatus(extensionUri: vscode.Uri, root: string, agent: AgentId, name: string): SkillStatus {
   const shipped = shippedHashes(extensionUri);
   const expected = shipped.skills[name];
-  if (expected === undefined) throw new Error(`Sustain ${shipped.version} ships no ${name} skill`);
+  if (expected === undefined) throw new Error(`aisus ${shipped.version} ships no ${name} skill`);
   const base = skillBase(configuredScope(), root);
   const check = checkSkill(base, root, agent, name, expected);
   return {
@@ -46,7 +46,7 @@ export function skillStatus(extensionUri: vscode.Uri, root: string, agent: Agent
 /** The sentence that states an install or repair before it happens (SET-03), or `null` when none is needed. */
 export function skillNote(status: SkillStatus, name: string): string | null {
   if (status.differing === null) return `Installs the ${name} skill in ${status.loadedFrom}.`;
-  if (status.differing > 0) return `Repairs the ${name} skill (${status.differing === 1 ? "1 file differs" : `${status.differing} files differ`} from Sustain ${status.version}).`;
+  if (status.differing > 0) return `Repairs the ${name} skill (${status.differing === 1 ? "1 file differs" : `${status.differing} files differ`} from aisus ${status.version}).`;
   return null;
 }
 
@@ -60,7 +60,7 @@ export function skillNote(status: SkillStatus, name: string): string | null {
 export async function ensureSkillIntact(extensionUri: vscode.Uri, root: string, agent: AgentId, name: string, ask = true): Promise<boolean> {
   const shipped = shippedHashes(extensionUri);
   const expected = shipped.skills[name];
-  if (expected === undefined) throw new Error(`Sustain ${shipped.version} ships no ${name} skill`);
+  if (expected === undefined) throw new Error(`aisus ${shipped.version} ships no ${name} skill`);
 
   const base = skillBase(configuredScope(), root);
   let check = checkSkill(base, root, agent, name, expected);
@@ -68,7 +68,7 @@ export async function ensureSkillIntact(extensionUri: vscode.Uri, root: string, 
     const what = check.diff === null ? "not installed" : `${diffSize(check.diff)} files`;
     if (ask) {
       const choice = await vscode.window.showWarningMessage(
-        `The ${name} skill differs from the one in Sustain ${shipped.version} (${what}). Reinstall it before running?`,
+        `The ${name} skill differs from the one in aisus ${shipped.version} (${what}). Reinstall it before running?`,
         { modal: true },
         "Reinstall",
       );
@@ -83,13 +83,13 @@ export async function ensureSkillIntact(extensionUri: vscode.Uri, root: string, 
   if (agent === "claude") {
     const loaded = base === root ? check.effective : `~/${check.effective}`;
     const differing = check.differingCopies;
-    onAction(vscode.window.showWarningMessage(`Other copies of ${name} differ from Sustain's: ${copies}. Claude Code loads the one in ${loaded}.`, "Remove Copies"), "Remove Copies", () => {
+    onAction(vscode.window.showWarningMessage(`Other copies of ${name} differ from aisus's: ${copies}. Claude Code loads the one in ${loaded}.`, "Remove Copies"), "Remove Copies", () => {
       for (const copy of differing) removeCopy(root, copy);
     });
     return true;
   }
   const choice = await vscode.window.showWarningMessage(
-    `Other copies of ${name} differ from Sustain's, and ${AGENT_LABELS[agent]} would load them too: ${copies}. Remove them before running?`,
+    `Other copies of ${name} differ from aisus's, and ${AGENT_LABELS[agent]} would load them too: ${copies}. Remove them before running?`,
     { modal: true },
     "Remove",
   );

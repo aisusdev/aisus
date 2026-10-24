@@ -32,7 +32,7 @@ describe("SET-02 setup check", () => {
       ["claude", true, "2.1.284 (Claude Code)"],
       ["codex", true, "codex-cli 0.48.0"],
       ["devin", true, "devin 1.4.0"],
-      ["skills", true, "Sustain's skills are installed and unchanged"],
+      ["skills", true, "aisus's skills are installed and unchanged"],
       ["git", true, "Git repository"],
     ]);
   });

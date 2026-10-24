@@ -1,4 +1,4 @@
-name: Sustain check
+name: aisus check
 description: Compares a pull request with the repository's architecture map and comments what it touches.
 inputs:
   fail-on:
@@ -6,7 +6,7 @@ inputs:
     required: false
     default: ""
   map:
-    description: "The run folder of the map to compare with. Defaults to sustain.config.json's map, then the newest map with an empty focus."
+    description: "The run folder of the map to compare with. Defaults to aisus.config.json's map, then the newest map with an empty focus."
     required: false
     default: ""
   comment:
@@ -14,11 +14,11 @@ inputs:
     required: false
     default: "true"
   upload:
-    description: "Whether to upload the check and its map to Sustain Cloud through OIDC (needs `permissions: id-token: write`). Nothing leaves the runner without it."
+    description: "Whether to upload the check and its map to aisus cloud through OIDC (needs `permissions: id-token: write`). Nothing leaves the runner without it."
     required: false
     default: "false"
   cloud-url:
-    description: "Sustain Cloud's address, for upload."
+    description: "aisus cloud's address, for upload."
     required: false
     default: ""
   refresh:

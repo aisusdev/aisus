@@ -19,7 +19,7 @@ function alive(pid: number): boolean {
 }
 
 test("UI-02 a replayed Claude Code stream fills the feed, tokens and cost, and ends done", async () => {
-  const env = { ...process.env, SUSTAIN_STUB_STREAM: join(repoRoot, "test/fixtures/streams/claude-generate.jsonl") };
+  const env = { ...process.env, AISUS_STUB_STREAM: join(repoRoot, "test/fixtures/streams/claude-generate.jsonl") };
   let changes = 0;
   const run = startHeadless(process.execPath, [stub], tempDir(), claudeParser(), () => changes++, env);
   const state = await run.done;
@@ -33,7 +33,7 @@ test("UI-02 a replayed Claude Code stream fills the feed, tokens and cost, and e
 
 test.skipIf(process.platform === "win32")("UI-02 cancel kills the agent and the processes it started", async () => {
   const pids = join(tempDir(), "pids.json");
-  const run = startHeadless(process.execPath, [stub], tempDir(), claudeParser(), () => undefined, { ...process.env, SUSTAIN_STUB: "hang", SUSTAIN_STUB_PIDS: pids });
+  const run = startHeadless(process.execPath, [stub], tempDir(), claudeParser(), () => undefined, { ...process.env, AISUS_STUB: "hang", AISUS_STUB_PIDS: pids });
   await vi.waitFor(() => expect(existsSync(pids)).toBe(true));
   const [agent, child] = JSON.parse(readFileSync(pids, "utf8")) as [number, number];
   run.cancel();

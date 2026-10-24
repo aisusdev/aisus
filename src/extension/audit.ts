@@ -1,4 +1,4 @@
-// ACC-05: `Sustain: Audit Map` and the map's title-bar button. Runs the audit skill on the shown map,
+// ACC-05: `aisus: Audit Map` and the map's title-bar button. Runs the audit skill on the shown map,
 // which checks each box against its cited code and records audit.json beside it.
 import { readFileSync } from "node:fs";
 import { basename, dirname } from "node:path";
@@ -19,7 +19,7 @@ export function auditTask(candidate: string): LaunchTask {
   } catch {
     // An unreadable map is named by its folder.
   }
-  return { skill: "sustain-audit", args: run, title: `Audit of ${title}` };
+  return { skill: "aisus-audit", args: run, title: `Audit of ${title}` };
 }
 
 /** Audits `file`, or the map the panel shows. Without either there is nothing to audit. */

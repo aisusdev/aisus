@@ -1,4 +1,4 @@
-// SAF-05: every Sustain write lands inside its root and never through a link.
+// SAF-05: every aisus write lands inside its root and never through a link.
 import { lstatSync, realpathSync } from "node:fs";
 import { dirname, isAbsolute, relative } from "node:path";
 
@@ -19,7 +19,7 @@ function lstatOrNull(path: string): ReturnType<typeof lstatSync> | null {
 
 /** Throws when `path` is a link. Writing to it would write wherever the link points. */
 export function assertNotLink(path: string): void {
-  if (lstatOrNull(path)?.isSymbolicLink()) throw new Error(`${path} is a link. Sustain does not write through links.`);
+  if (lstatOrNull(path)?.isSymbolicLink()) throw new Error(`${path} is a link. aisus does not write through links.`);
 }
 
 /**

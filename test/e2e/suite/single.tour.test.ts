@@ -31,7 +31,7 @@ suite("SKL-02 Guided tours", () => {
   const terminals: vscode.Terminal[] = [];
 
   suiteSetup(async () => {
-    hook = (await vscode.extensions.getExtension("sustain.sustain")!.activate()) as TestHook;
+    hook = (await vscode.extensions.getExtension("aisus.aisus")!.activate()) as TestHook;
   });
 
   setup(async () => {
@@ -59,7 +59,7 @@ suite("SKL-02 Guided tours", () => {
     savedPath = undefined;
     for (const terminal of terminals.splice(0)) terminal.dispose();
     await vscode.commands.executeCommand("workbench.action.closeAllEditors");
-    await vscode.workspace.getConfiguration("sustain").update("runMode", undefined, vscode.ConfigurationTarget.Global);
+    await vscode.workspace.getConfiguration("aisus").update("runMode", undefined, vscode.ConfigurationTarget.Global);
     for (const path of [".archify", "src"]) rmSync(join(root, path), { recursive: true, force: true });
     if (bin !== undefined) rmSync(bin, { recursive: true, force: true });
     for (const dir of [".agents", ".claude"]) rmSync(join(homedir(), dir), { recursive: true, force: true });
@@ -71,7 +71,7 @@ suite("SKL-02 Guided tours", () => {
     await hook.postFromHome({ type: "openMap", file: join(root, ".archify", RUN, "candidate.json") });
     await until(() => hook.panelTour()?.length === 4, "the panel to read the tour");
 
-    await vscode.commands.executeCommand("sustain.playTour");
+    await vscode.commands.executeCommand("aisus.playTour");
     await until(() => shownAt(join(root, "src/web.ts"))?.selection.start.line === 1, "the first stop's lines selected");
     assert.notEqual(shownAt(join(root, "src/web.ts"))!.viewColumn, vscode.ViewColumn.One, "the code opens beside the map");
 
@@ -80,14 +80,14 @@ suite("SKL-02 Guided tours", () => {
   });
 
   test("SKL-02 Create tour on a map without one launches the tour skill for its run folder", async () => {
-    bin = mkdtempSync(join(tmpdir(), "sustain-bin-"));
+    bin = mkdtempSync(join(tmpdir(), "aisus-bin-"));
     writeFileSync(join(bin, "claude"), "#!/bin/sh\nsleep 30\n");
     chmodSync(join(bin, "claude"), 0o755);
     savedPath = process.env["PATH"];
     process.env["PATH"] = `${bin}:${savedPath}`;
-    writeSkill(homedir(), join(vscode.extensions.getExtension("sustain.sustain")!.extensionPath, "dist/skills/sustain-tour"), skillTargets(homedir(), "sustain-tour"), "sustain-tour");
+    writeSkill(homedir(), join(vscode.extensions.getExtension("aisus.aisus")!.extensionPath, "dist/skills/aisus-tour"), skillTargets(homedir(), "aisus-tour"), "aisus-tour");
     await hook.setDataNoteShown(true);
-    await vscode.workspace.getConfiguration("sustain").update("runMode", "terminal", vscode.ConfigurationTarget.Global);
+    await vscode.workspace.getConfiguration("aisus").update("runMode", "terminal", vscode.ConfigurationTarget.Global);
     const opened = new Promise<vscode.Terminal>((resolve) => {
       const subscription = vscode.window.onDidOpenTerminal((terminal) => {
         subscription.dispose();
@@ -97,6 +97,6 @@ suite("SKL-02 Guided tours", () => {
     await hook.postFromHome({ type: "createTour", file: join(root, ".archify", RUN, "candidate.json") });
     const terminal = await opened;
     terminals.push(terminal);
-    assert.deepEqual((terminal.creationOptions as vscode.TerminalOptions).shellArgs, [`/sustain-tour ${RUN}`]);
+    assert.deepEqual((terminal.creationOptions as vscode.TerminalOptions).shellArgs, [`/aisus-tour ${RUN}`]);
   });
 });

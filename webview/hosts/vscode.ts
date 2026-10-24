@@ -5,36 +5,36 @@ import { applyTokens, type Host } from "../bridge";
 
 declare function acquireVsCodeApi(): { postMessage(message: WebviewMessage): void };
 
-/** Each `--sustain-*` token as the VS Code theme variable it follows. */
+/** Each `--aisus-*` token as the VS Code theme variable it follows. */
 export const VSCODE_TOKENS: Readonly<Record<string, string>> = {
-  "--sustain-background": "var(--vscode-editor-background)",
-  "--sustain-foreground": "var(--vscode-foreground)",
-  "--sustain-muted": "var(--vscode-descriptionForeground)",
-  "--sustain-accent": "var(--vscode-focusBorder)",
-  "--sustain-font-size": "var(--vscode-font-size)",
-  "--sustain-mono-font-family": "var(--vscode-editor-font-family)",
-  "--sustain-blue": "var(--vscode-charts-blue)",
-  "--sustain-green": "var(--vscode-charts-green)",
-  "--sustain-purple": "var(--vscode-charts-purple)",
-  "--sustain-yellow": "var(--vscode-charts-yellow)",
-  "--sustain-red": "var(--vscode-charts-red)",
-  "--sustain-orange": "var(--vscode-charts-orange)",
-  "--sustain-shadow": "var(--vscode-widget-shadow)",
-  "--sustain-border": "var(--vscode-panel-border)",
-  "--sustain-hover": "var(--vscode-toolbar-hoverBackground)",
-  "--sustain-active": "var(--vscode-toolbar-activeBackground, var(--vscode-toolbar-hoverBackground))",
-  "--sustain-widget-background": "var(--vscode-editorWidget-background)",
-  "--sustain-widget-border": "var(--vscode-editorWidget-border, var(--vscode-panel-border))",
-  "--sustain-tooltip-background": "var(--vscode-editorHoverWidget-background)",
-  "--sustain-tooltip-foreground": "var(--vscode-editorHoverWidget-foreground)",
-  "--sustain-tooltip-border": "var(--vscode-editorHoverWidget-border)",
-  "--sustain-link": "var(--vscode-textLink-foreground)",
-  "--sustain-link-active": "var(--vscode-textLink-activeForeground)",
-  "--sustain-toggle-background": "var(--vscode-inputOption-activeBackground, var(--vscode-toolbar-hoverBackground))",
-  "--sustain-toggle-foreground": "var(--vscode-inputOption-activeForeground, var(--vscode-foreground))",
-  "--sustain-button-background": "var(--vscode-button-background)",
-  "--sustain-button-foreground": "var(--vscode-button-foreground)",
-  "--sustain-button-hover": "var(--vscode-button-hoverBackground)",
+  "--aisus-background": "var(--vscode-editor-background)",
+  "--aisus-foreground": "var(--vscode-foreground)",
+  "--aisus-muted": "var(--vscode-descriptionForeground)",
+  "--aisus-accent": "var(--vscode-focusBorder)",
+  "--aisus-font-size": "var(--vscode-font-size)",
+  "--aisus-mono-font-family": "var(--vscode-editor-font-family)",
+  "--aisus-blue": "var(--vscode-charts-blue)",
+  "--aisus-green": "var(--vscode-charts-green)",
+  "--aisus-purple": "var(--vscode-charts-purple)",
+  "--aisus-yellow": "var(--vscode-charts-yellow)",
+  "--aisus-red": "var(--vscode-charts-red)",
+  "--aisus-orange": "var(--vscode-charts-orange)",
+  "--aisus-shadow": "var(--vscode-widget-shadow)",
+  "--aisus-border": "var(--vscode-panel-border)",
+  "--aisus-hover": "var(--vscode-toolbar-hoverBackground)",
+  "--aisus-active": "var(--vscode-toolbar-activeBackground, var(--vscode-toolbar-hoverBackground))",
+  "--aisus-widget-background": "var(--vscode-editorWidget-background)",
+  "--aisus-widget-border": "var(--vscode-editorWidget-border, var(--vscode-panel-border))",
+  "--aisus-tooltip-background": "var(--vscode-editorHoverWidget-background)",
+  "--aisus-tooltip-foreground": "var(--vscode-editorHoverWidget-foreground)",
+  "--aisus-tooltip-border": "var(--vscode-editorHoverWidget-border)",
+  "--aisus-link": "var(--vscode-textLink-foreground)",
+  "--aisus-link-active": "var(--vscode-textLink-activeForeground)",
+  "--aisus-toggle-background": "var(--vscode-inputOption-activeBackground, var(--vscode-toolbar-hoverBackground))",
+  "--aisus-toggle-foreground": "var(--vscode-inputOption-activeForeground, var(--vscode-foreground))",
+  "--aisus-button-background": "var(--vscode-button-background)",
+  "--aisus-button-foreground": "var(--vscode-button-foreground)",
+  "--aisus-button-hover": "var(--vscode-button-hoverBackground)",
 };
 
 export function vscodeHost(): Host {
@@ -42,7 +42,7 @@ export function vscodeHost(): Host {
   applyTokens(document.body, VSCODE_TOKENS);
   // Text is measured on a canvas, which needs the family itself rather than a variable.
   const family = getComputedStyle(document.body).getPropertyValue("--vscode-font-family").trim();
-  document.body.style.setProperty("--sustain-font-family", family || "sans-serif");
+  document.body.style.setProperty("--aisus-font-family", family || "sans-serif");
   return {
     post: (message) => api.postMessage(message),
     listen: (handler) => window.addEventListener("message", (event) => handler(event.data)),

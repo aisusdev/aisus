@@ -1,4 +1,4 @@
-// ARC-03: hotspots for a folder's maps, from git's log over `sustain.hotspots.days`. The log is
+// ARC-03: hotspots for a folder's maps, from git's log over `aisus.hotspots.days`. The log is
 // read at most once a minute per folder.
 import * as vscode from "vscode";
 import { changeLog, type LoggedCommit } from "../model/git";
@@ -9,9 +9,9 @@ export const HOTSPOT_TTL_MS = 60_000;
 
 const logs = new Map<string, { at: number; days: number; log: LoggedCommit[] }>();
 
-/** `sustain.hotspots.days`, 90 by default. */
+/** `aisus.hotspots.days`, 90 by default. */
 export function hotspotDays(): number {
-  const days = vscode.workspace.getConfiguration("sustain").get<number>("hotspots.days", 90);
+  const days = vscode.workspace.getConfiguration("aisus").get<number>("hotspots.days", 90);
   return Number.isInteger(days) && days >= 1 ? days : 90;
 }
 

@@ -16,7 +16,7 @@ import { stripAppOwned } from "../model/submission";
 import { isJsonObject } from "../model/types";
 
 /** The skill version, filled in by the build. */
-const SKILL_VERSION = process.env.SUSTAIN_VERSION ?? "unknown";
+const SKILL_VERSION = process.env.AISUS_VERSION ?? "unknown";
 
 /** Top-level folders that hold no source of their own. */
 const NOT_SOURCE = new Set(["node_modules", "dist", "out", "build", "coverage", "target", "vendor"]);

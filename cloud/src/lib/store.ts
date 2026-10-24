@@ -1,4 +1,4 @@
-// Sustain Cloud's queries: repositories, uploads, tokens, access and deletion.
+// aisus cloud's queries: repositories, uploads, tokens, access and deletion.
 import { and, desc, eq, gte, sql } from "drizzle-orm";
 import { alias } from "drizzle-orm/pg-core";
 import type { Plan } from "../../plans";

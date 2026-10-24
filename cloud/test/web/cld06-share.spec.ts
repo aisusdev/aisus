@@ -15,7 +15,7 @@ test("CLD-06 a share link opens a private map to anyone signed out, and stops on
 
   const stranger = await browser.newPage();
   await stranger.goto(url);
-  await expect(stranger.locator("#sustain-viewer .node").first()).toBeVisible();
+  await expect(stranger.locator("#aisus-viewer .node").first()).toBeVisible();
   await expect(stranger.locator(".shared-note")).toContainText("read-only");
   await expect(stranger.locator(".site-header .account")).not.toContainText("dev");
 

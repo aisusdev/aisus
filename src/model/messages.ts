@@ -92,9 +92,9 @@ export type WebviewMessage =
 
 /** What the session webview renders — public `session.json` fields plus the leaderboard. */
 export interface SessionView {
-  /** The shown run folder name (`.sustain/<run>`), or `null` when no session exists. */
+  /** The shown run folder name (`.aisus/<run>`), or `null` when no session exists. */
   run: string | null;
-  /** Whether `.sustain/active` names a live run — `false` means the shown run is history. */
+  /** Whether `.aisus/active` names a live run — `false` means the shown run is history. */
   live: boolean;
   mode: string;
   phase: string;
@@ -269,7 +269,7 @@ export interface HomeState {
     runMode: RunMode;
     /** What the next Generate click will also do (SET-03): the estimate (CST-03), installs, repairs, the data note. */
     notes: string[];
-    /** Whether Generate needs a second click, the estimate being above `sustain.confirmAboveTokens` (CST-03). */
+    /** Whether Generate needs a second click, the estimate being above `aisus.confirmAboveTokens` (CST-03). */
     confirm: boolean;
   };
   run: RunCard | null;
@@ -328,5 +328,5 @@ export type HomeWebviewMessage =
   | { type: "practiceCancel" }
   | { type: "practiceClear" }
   | { type: "createTour"; file: string }
-  /** RCH-04: copy the Generate prompt for an agent Sustain does not launch. */
+  /** RCH-04: copy the Generate prompt for an agent aisus does not launch. */
   | { type: "copyPromptFor"; focus: string };

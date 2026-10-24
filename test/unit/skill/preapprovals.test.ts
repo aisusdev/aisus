@@ -5,7 +5,7 @@ import { expect, test } from "vitest";
 import { parseFrontMatter } from "../../../scripts/check-docs.mjs";
 import { repoRoot } from "../support/sourceScan";
 
-const SKILLS = ["sustain-architecture", "sustain-audit", "sustain-bugfix", "sustain-refresh", "sustain-tour"];
+const SKILLS = ["aisus-architecture", "aisus-audit", "aisus-bugfix", "aisus-refresh", "aisus-tour"];
 
 /** Scripts whose every argument is data the script validates. */
 const DATA_ONLY_SCRIPTS = /^Bash\(node \S+\/scripts\/(repo-facts|refresh-facts|validate|render-html|session|audit-record|tour-record)\.mjs( \*)?\)$/;

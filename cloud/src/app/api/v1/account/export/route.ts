@@ -1,4 +1,4 @@
-// CLD-13: GET downloads everything Sustain Cloud holds for the signed-in user as one JSON file.
+// CLD-13: GET downloads everything aisus cloud holds for the signed-in user as one JSON file.
 import { exportData } from "../../../../../lib/exportData";
 import { refuse } from "../../../../../lib/requests";
 import { services } from "../../../../../lib/services";
@@ -11,6 +11,6 @@ export async function GET(): Promise<Response> {
   if (user === null) return refuse(401, "Sign in first.");
   const data = await exportData(await db(), user.userId, now());
   return new Response(`${JSON.stringify(data, null, 2)}\n`, {
-    headers: { "content-type": "application/json", "content-disposition": `attachment; filename="sustain-${user.login}.json"`, "cache-control": "no-store" },
+    headers: { "content-type": "application/json", "content-disposition": `attachment; filename="aisus-${user.login}.json"`, "cache-control": "no-store" },
   });
 }

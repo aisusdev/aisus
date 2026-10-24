@@ -1,4 +1,4 @@
-// Archify JSON v1 architecture diagrams: the subset Sustain reads (FR-MOD-01).
+// Archify JSON v1 architecture diagrams: the subset aisus reads (FR-MOD-01).
 //
 // Documents are handled as plain parsed JSON values typed with these interfaces. Nothing
 // re-serialises through a field list, so fields not modelled here (`cards`, `legend`,
@@ -115,7 +115,7 @@ export function pointerToken(token: string): string {
   return token.replace(/~/g, "~0").replace(/\//g, "~1");
 }
 
-/** The on-disk form Sustain writes: 2-space indented JSON with a trailing newline. */
+/** The on-disk form aisus writes: 2-space indented JSON with a trailing newline. */
 export function stringifyDocument(value: unknown): string {
   return `${JSON.stringify(value, null, 2)}\n`;
 }

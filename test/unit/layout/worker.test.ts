@@ -34,7 +34,7 @@ const diagrams: [string, ViewDiagram][] = archifyFixtures().map((fixture) => {
 });
 
 test("VWR-02 ELK's embedded worker code lays out every fixture exactly as ELK does in the thread", { timeout: 120_000 }, async () => {
-  const source = JSON.parse((await layoutWorkerDefine())["__SUSTAIN_LAYOUT_WORKER__"]!) as string;
+  const source = JSON.parse((await layoutWorkerDefine())["__AISUS_LAYOUT_WORKER__"]!) as string;
   expect(source).toBe(readFileSync(require.resolve("elkjs/lib/elk-worker.min.js"), "utf8"));
   const started: string[] = [];
   const run = workerRunner(source, (url) => {

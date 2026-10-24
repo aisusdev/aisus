@@ -1,4 +1,4 @@
-// The local leaderboard (ADR 0034): aggregates `.sustain/<run>/events.jsonl` plus the run's
+// The local leaderboard (ADR 0034): aggregates `.aisus/<run>/events.jsonl` plus the run's
 // public `session.json` into one ranked row per session. Pure functions — the extension
 // host reads the files; `manifest.json` is never touched (the webview trust boundary).
 import { parseRunName } from "./runFolder";
@@ -57,7 +57,7 @@ export function parseLedger(text: string): LedgerEvent[] {
 
 /**
  * Builds the row for one run. `session` is the parsed `session.json` when readable;
- * `events` the parsed ledger; `isActive` marks the run `.sustain/active` still names.
+ * `events` the parsed ledger; `isActive` marks the run `.aisus/active` still names.
  */
 export function leaderboardEntry(run: string, session: SessionState | null, events: LedgerEvent[], isActive: boolean): LeaderboardEntry {
   const last = events.at(-1);

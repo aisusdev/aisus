@@ -1,6 +1,6 @@
-# Sustain vision
+# aisus vision
 
-Why Sustain exists, who it is for, and how the team will judge it. This is context, not a contract: what gets built is [spec-v0.3.md](spec-v0.3.md).
+Why aisus exists, who it is for, and how the team will judge it. This is context, not a contract: what gets built is [spec-v0.3.md](spec-v0.3.md).
 
 ## Motto
 
@@ -8,7 +8,7 @@ Sustainable engineering for the developer.
 
 ## Strategy
 
-Deploy something ambitious, then trim and strengthen from real use. The spec's deploy track (D1–D6) ships the extension in the stores, the GitHub Action, and Sustain Cloud. The iterate track (I1–I7) is reordered from what users do.
+Deploy something ambitious, then trim and strengthen from real use. The spec's deploy track (D1–D6) ships the extension in the stores, the GitHub Action, and aisus cloud. The iterate track (I1–I7) is reordered from what users do.
 
 CS3216 measures impact by users. A live product with real users is the strongest answer to the mentor. Two things are not trimmed before launch: the security fixes, and secret scanning before anything is uploaded. Those are what we couldn't defend later.
 
@@ -22,15 +22,15 @@ After launch, evidence comes without any telemetry in the extension:
 
 ## Thesis
 
-Sustain helps competent developers understand code they did not write, with a map where every box opens the code that proves it, kept accurate and cheap to refresh. The code might be a brownfield codebase such as the CS2103 team project, a new job, or a large change written by an agent or a teammate.
+aisus helps competent developers understand code they did not write, with a map where every box opens the code that proves it, kept accurate and cheap to refresh. The code might be a brownfield codebase such as the CS2103 team project, a new job, or a large change written by an agent or a teammate.
 
-- **User.** A developer, student or professional, who reads the code they change. Two interviewees fit: B-T reads every line and C-K avoids autonomous agents. The open question is whether that care costs them time Sustain can save. Developers who don't read code are not the target.
+- **User.** A developer, student or professional, who reads the code they change. Two interviewees fit: B-T reads every line and C-K avoids autonomous agents. The open question is whether that care costs them time aisus can save. Developers who don't read code are not the target.
 - **Core.** The map plus click-into-code, the one feature both testers valued.
-- **Against asking the agent.** A chat answer disappears with the session, costs a full exploration every time and cites nothing checkable. Sustain's map lives in the repository, is checked against the working copy, costs nothing to check for staleness or to overlay on a diff, refreshes only what changed, and can be reused as agent context. The bench and the study test these claims.
+- **Against asking the agent.** A chat answer disappears with the session, costs a full exploration every time and cites nothing checkable. aisus's map lives in the repository, is checked against the working copy, costs nothing to check for staleness or to overlay on a diff, refreshes only what changed, and can be reused as agent context. The bench and the study test these claims.
 
 ## Three debts
 
-AI writes more of the code every month. That leaves three debts, and Sustain's features pay down each one.
+AI writes more of the code every month. That leaves three debts, and aisus's features pay down each one.
 
 | Debt | What it looks like | Features (spec) |
 |---|---|---|
@@ -42,7 +42,7 @@ Comprehension and the free PR check ship first (deploy track): comprehension is 
 
 How the main flows work:
 - **Cache and staleness.** Generating a map stores fingerprints (git blob ids and cited-range hashes) beside it. From then on, every open and every save re-checks each citation at zero tokens and marks it fresh, moved (still clickable), edited or missing. Refresh reuses the previous map as the draft and sends the agent only to edited or missing boxes and uncovered changes. Its cost scales with the change rather than the repository.
-- **Delta and PR checks.** `sustain check` compares a diff with the committed map, at zero tokens. It finds:
+- **Delta and PR checks.** `aisus check` compares a diff with the committed map, at zero tokens. It finds:
   - touched boxes;
   - stale boxes;
   - new box candidates: new directories, or unowned code that gained 200+ lines, or files that import each other more than any box;
@@ -80,13 +80,13 @@ Full analysis: [market report](https://claude.ai/artifact/NX2U54Q8QD2xHZEPfJHkMM
 - Nogic, which takes the same bring-your-own-agent approach;
 - CodeViz, a paid in-editor map.
 
-The open niche: a curated architecture, checked against the working copy, inside the editor, with no network calls from Sustain.
+The open niche: a curated architecture, checked against the working copy, inside the editor, with no network calls from aisus.
 
 ## Study
 
 Two rounds, both on the deployed product. Round 1 runs right after D6, with real installs. Round 2 runs after the first iterate cycle, to measure whether it helped.
 
-- **Design.** Counterbalanced within-subject: arms "agent alone" and "agent plus Sustain", two task sets on two comparable code areas, four orderings in rotation. Each round has 8–12 participants (at least 6) who have not worked on the study code, after a pilot with 2.
+- **Design.** Counterbalanced within-subject: arms "agent alone" and "agent plus aisus", two task sets on two comparable code areas, four orderings in rotation. Each round has 8–12 participants (at least 6) who have not worked on the study code, after a pilot with 2.
 - **Screening.** The pre-survey asks: "When an AI tool or a teammate writes code you will keep, what do you do before accepting it?" Results are reported for the reads-the-code group first.
 - **Materials.** Per task set:
   - a 10-minute orientation;
@@ -96,8 +96,8 @@ Two rounds, both on the deployed product. Round 1 runs right after D6, with real
 
   Also: pre-survey, post-survey ("would you use this when nobody asks you to?"), a day-7 follow-up, consent form and facilitator script. Diagrams are produced by the shipped skill, not hand-corrected.
 - **Success measures, fixed before round 1.**
-  - Primary: the median comprehension score with Sustain is at least the agent-alone score plus 1 of 5, with no rise in confident-and-wrong answers.
-  - Secondary: change-planning file recall up 20 points; time not worse by more than 10%; at least 40% use Sustain again within 7 days unprompted (self-report plus the opt-in usage export, SET-05).
+  - Primary: the median comprehension score with aisus is at least the agent-alone score plus 1 of 5, with no rise in confident-and-wrong answers.
+  - Secondary: change-planning file recall up 20 points; time not worse by more than 10%; at least 40% use aisus again within 7 days unprompted (self-report plus the opt-in usage export, SET-05).
   - If the primary measure fails, revisit the thesis before continuing.
 - **Interviews.** Ask about past behaviour, not opinions:
   - the last time you had to understand unfamiliar code: what you did, how long it took, what it cost;
@@ -138,13 +138,13 @@ Bench runs cost money, and each one needs a separate API key, never the implemen
 - **Launch.** D6 ships publicly. Announcements (Show HN, Reddit, course channels) follow once the first real users' bugs are fixed.
 - **After the gate.** Show HN, Reddit (r/ClaudeAI, r/codex, r/cursor, r/vscode), Console.dev, a note to the Archify maintainer, and CS2103 through its teaching team. Set first-four-weeks targets: installs, repositories with a committed diagram, issues opened.
 
-## Sustain Cloud: business plan
+## aisus cloud: business plan
 
 The extension stays free and local. The cloud is for teams, and it stores **maps, not code**: Archify maps, their sidecars, check results and metadata. The upload API rejects everything else (spec CLD-02), and the privacy page publishes the schema.
 
 - **Who pays.** Team leads and engineering managers who want the map, its freshness and the PR checks across many repositories. Developers use everything for free.
-- **Wedge.** The free GitHub Action (PRC-04) already comments on every pull request with zero tokens and no Sustain server. Turning on `upload` adds pull request pages, history, the dashboard and share links: the reason to pay.
-- **Where the code is read.** Agents and checks run on the customer's machines or CI runners, with their own keys. Sustain never sees code or pays for inference. Its margins stay software margins.
+- **Wedge.** The free GitHub Action (PRC-04) already comments on every pull request with zero tokens and no aisus server. Turning on `upload` adds pull request pages, history, the dashboard and share links: the reason to pay.
+- **Where the code is read.** Agents and checks run on the customer's machines or CI runners, with their own keys. aisus never sees code or pays for inference. Its margins stay software margins.
 - **No per-person metrics, ever.** The dashboard aggregates per repository. A developer tool that turns into a surveillance tool loses its users.
 - **When to build it.** Cloud v1 (map and PR pages, uploads, free during beta) ships in the deploy track (D5). Paid plans, the dashboard and self-hosting wait for the iterate track (I5). A sensible gate before charging: about 10 teams uploading every week.
 - **Running costs.** One web app and one Postgres database. No inference, no code storage.
@@ -166,7 +166,7 @@ For comparison: AppMap Team $15 per developer, CodeViz Teams $50 per seat, IcePa
 | Licence | Deferred. The packaging works without one; Open VSX publishing waits until there is one |
 | Public repository | Needed for `npx skills add`, CI and Open VSX |
 | Learning sessions | Keep experimental, or promote |
-| Store display name | Proposal: "Sustain: Code-Linked Architecture Maps" |
+| Store display name | Proposal: "aisus: Code-Linked Architecture Maps" |
 | Bench budget | Proposal: US$150 |
 | Study design and success measures | Sign off before round 1 |
 | After CS3216 | Maintainers, release cadence; the cloud plan above as the funding path |
@@ -180,7 +180,7 @@ For comparison: AppMap Team $15 per developer, CodeViz Teams $50 per seat, IcePa
 
 These motivate the spec's SAF features.
 
-- **Substituted skills.** Generate and Start Learning only check that `SKILL.md` exists. A repository can therefore ship its own `sustain-*` skill. Claude Code applies a project skill's pre-approvals even in untrusted folders.
+- **Substituted skills.** Generate and Start Learning only check that `SKILL.md` exists. A repository can therefore ship its own `aisus-*` skill. Claude Code applies a project skill's pre-approvals even in untrusted folders.
 - **Arbitrary commands through pre-approvals.** The bug-hunt skill pre-approves `Bash(node …/scripts/*)`. In Claude Code the `*` matches any arguments. `session.mjs verify --check-cmd "<anything>"` runs a shell command without a prompt.
 - **Edits that become execution.** The bug-hunt skill also pre-approves `Edit` and `Write` on any path. Injected text can rewrite a pre-approved script and then run it.
 - **Writes outside the repository.** `.gitignore` and hook merges, and skill copies, follow symlinks out of the repository.
@@ -201,7 +201,7 @@ These motivate the spec's SAF features.
 | The study is too small for statistics | Measures fixed in advance; two rounds; per-participant reporting |
 | Ethics review delays round 1 | Decide early |
 | The term ends before late milestones | The deploy track ships first; round 1 runs on the live product |
-| New box candidates are noisy | `ignore` globs in `sustain.config.json`; thresholds tuned on the corpus |
+| New box candidates are noisy | `ignore` globs in `aisus.config.json`; thresholds tuned on the corpus |
 | Wrong maps reach strangers at launch | ACC-01 ships in D3; the cloud and the extension label beta; "This box is wrong" (ACC-06) comes early in iterate |
 
 ## Owner tasks

@@ -7,7 +7,7 @@ export default async function SignInPage({ searchParams }: { searchParams: Promi
   return (
     <main className="page">
       <h1>Sign in</h1>
-      <p>Sustain Cloud uses your GitHub account and follows your GitHub permissions: read access to a repository lets you view its maps, write access to work with them, admin access to manage them.</p>
+      <p>aisus cloud uses your GitHub account and follows your GitHub permissions: read access to a repository lets you view its maps, write access to work with them, admin access to manage them.</p>
       <SignInButton callbackUrl={back} />
     </main>
   );

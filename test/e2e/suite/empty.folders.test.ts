@@ -17,7 +17,7 @@ suite("FR-WS-01 no folder open", () => {
     assert.equal(vscode.workspace.workspaceFolders, undefined);
   });
 
-  for (const command of ["sustain.installSkills", "sustain.generateArchitecture"]) {
+  for (const command of ["aisus.installSkills", "aisus.generateArchitecture"]) {
     test(`${command} shows "Open a folder first."`, async () => {
       await vscode.commands.executeCommand(command);
       assert.deepEqual(

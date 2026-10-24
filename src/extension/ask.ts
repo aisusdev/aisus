@@ -21,7 +21,7 @@ import { openSourceRef } from "./navigate";
 import { ArchitecturePanel } from "./panel";
 import { startHeadless, type HeadlessRun } from "./runner";
 
-const HISTORY_KEY = "sustain.askHistory";
+const HISTORY_KEY = "aisus.askHistory";
 /** Questions kept per workspace. */
 export const HISTORY_LIMIT = 20;
 

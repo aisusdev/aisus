@@ -1,9 +1,9 @@
 // CLD-02: GitHub Actions OIDC tokens. A token is accepted when GitHub signed it (RS256, a key
-// from GitHub's JWKS), it is for Sustain Cloud and unexpired, and it names the uploaded repository.
+// from GitHub's JWKS), it is for aisus cloud and unexpired, and it names the uploaded repository.
 import { createPublicKey, verify, type JsonWebKeyInput } from "node:crypto";
 
 export const OIDC_ISSUER = "https://token.actions.githubusercontent.com";
-export const OIDC_AUDIENCE = "sustain-cloud";
+export const OIDC_AUDIENCE = "aisus-cloud";
 
 /** The repository facts an Actions token carries. */
 export interface OidcClaims {
@@ -56,10 +56,10 @@ export function verifyOidc(token: string, repo: string, jwks: Jwks, now = Date.n
 
 let cached: { jwks: Jwks; at: number } | undefined;
 
-/** GitHub's signing keys, cached for an hour. SUSTAIN_OIDC_JWKS_URL points the [web] tests at a mock. */
+/** GitHub's signing keys, cached for an hour. AISUS_OIDC_JWKS_URL points the [web] tests at a mock. */
 export async function githubJwks(fetcher: typeof fetch = fetch): Promise<Jwks> {
   if (cached && Date.now() - cached.at < 3_600_000) return cached.jwks;
-  const response = await fetcher(process.env["SUSTAIN_OIDC_JWKS_URL"] ?? `${OIDC_ISSUER}/.well-known/jwks`);
+  const response = await fetcher(process.env["AISUS_OIDC_JWKS_URL"] ?? `${OIDC_ISSUER}/.well-known/jwks`);
   if (!response.ok) throw new Error(`GitHub JWKS: ${response.status}`);
   cached = { jwks: (await response.json()) as Jwks, at: Date.now() };
   return cached.jwks;

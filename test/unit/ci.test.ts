@@ -1,4 +1,4 @@
-// ENG-01 and PRC-04: the CI workflow runs the gates the spec names and the Sustain check.
+// ENG-01 and PRC-04: the CI workflow runs the gates the spec names and the aisus check.
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { expect, test } from "vitest";
@@ -25,7 +25,7 @@ test("the e2e, package and Node 18 script jobs run their commands", () => {
   expect(jobRuns("e2e")).toEqual(["npm ci", "xvfb-run -a npm run test:e2e"]);
   expect(jobRuns("package")).toEqual(["npm ci", "npm run package"]);
   expect(jobRuns("scripts-node18")).toEqual([
-    'echo "SUSTAIN_SCRIPT_NODE=$(command -v node)" >> "$GITHUB_ENV"',
+    'echo "AISUS_SCRIPT_NODE=$(command -v node)" >> "$GITHUB_ENV"',
     "npm ci",
     "npx vitest run --project unit test/unit/agent",
   ]);
@@ -33,7 +33,7 @@ test("the e2e, package and Node 18 script jobs run their commands", () => {
 
 test("PRC-04 the Action's committed bundle is rebuilt and compared, and the Action checks pull requests", () => {
   expect(jobRuns("action-dist")).toEqual(["npm ci", "npm run action", "git diff --exit-code action/dist"]);
-  const job = workflow.slice(workflow.indexOf("\n  sustain-check:\n"));
+  const job = workflow.slice(workflow.indexOf("\n  aisus-check:\n"));
   expect(job).toContain("if: github.event_name == 'pull_request'");
   expect(job).toContain("pull-requests: write");
   expect(job).toContain("fetch-depth: 0");

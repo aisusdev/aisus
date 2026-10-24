@@ -62,9 +62,9 @@ describe("UI-01 wording", () => {
 
 describe("UI-04 status bar", () => {
   test("idle, generating with the clock, and changed boxes", () => {
-    expect(statusText({ runningSince: null, changed: 0 }, NOW)).toBe("Sustain");
-    expect(statusText({ runningSince: "2026-10-18T11:58:28Z", changed: 3 }, NOW)).toBe("Sustain: generating 1:32");
-    expect(statusText({ runningSince: null, changed: 3 }, NOW)).toBe("Sustain: 3 changed");
+    expect(statusText({ runningSince: null, changed: 0 }, NOW)).toBe("aisus");
+    expect(statusText({ runningSince: "2026-10-18T11:58:28Z", changed: 3 }, NOW)).toBe("aisus: generating 1:32");
+    expect(statusText({ runningSince: null, changed: 3 }, NOW)).toBe("aisus: 3 changed");
   });
 });
 

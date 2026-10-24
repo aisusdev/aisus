@@ -1,6 +1,6 @@
 # Features
 
-What v0.3 built, by milestone, as of 2026-10-19 on `kerk` ([pull request #4](https://github.com/xplus2g4/sustain/pull/4)). [progress-v0.3.md](../docs/progress-v0.3.md) has each feature's tests and evidence, and [spec-v0.3.md](../docs/spec-v0.3.md) has the full requirements. [dogfood.md](dogfood.md) says how to try it.
+What v0.3 built, by milestone, as of 2026-10-19 on `kerk` (pull request #4 in the former team repository). [progress-v0.3.md](../docs/progress-v0.3.md) has each feature's tests and evidence, and [spec-v0.3.md](../docs/spec-v0.3.md) has the full requirements. [dogfood.md](dogfood.md) says how to try it.
 
 - ✅ 69 built and tested.
 - 🟡 13 built, and waiting on a CI result or a smoke run with a real agent. The Waiting section of progress lists the steps.
@@ -13,22 +13,22 @@ What v0.3 built, by milestone, as of 2026-10-19 on `kerk` ([pull request #4](htt
 | ENG-01 | Toolchain and CI | Node 26 pinned; checks, e2e and packaging on every push | 🟡 CI fails on macOS and Windows |
 | ENG-02 | Meaningful layout test | The performance test passes on slower machines and still catches regressions | ✅ |
 | ENG-04 | Third-party notices | Licence notices for every bundled package | ✅ |
-| SAF-01 | Skill integrity check | Sustain refuses to launch a skill a repository has tampered with or shadowed | ✅ |
+| SAF-01 | Skill integrity check | aisus refuses to launch a skill a repository has tampered with or shadowed | ✅ |
 | SAF-02 | Safe pre-approvals | No pre-approved agent command can run arbitrary programs or rewrite a script it later runs | ✅ |
 | SAF-03 | Repository content is data | Prompt-injection rules in the skills; secrets never reach a map or an upload; map text never executes | ✅ |
 | SAF-04 | Safe launch arguments | Agents launched by absolute path, never with permission-skipping flags | ✅ |
-| SAF-05 | Write confinement | Sustain never writes outside the repository through a link | ✅ |
+| SAF-05 | Write confinement | aisus never writes outside the repository through a link | ✅ |
 | SAF-06 | Hook lifecycle | Learning-session hooks exist only while a session runs; install doesn't edit `.gitignore` | ✅ |
-| SAF-07 | Git and workspace hardening | Git can't run repository-controlled programs; Sustain stays off in untrusted workspaces | ✅ |
+| SAF-07 | Git and workspace hardening | Git can't run repository-controlled programs; aisus stays off in untrusted workspaces | ✅ |
 
 ## D2 The product in VS Code
 
 | ID | Feature | What it does | Status |
 |---|---|---|---|
-| UI-01 | Sustain sidebar | A Sustain icon in the Activity Bar opens a home panel: composer, runs, maps, setup, sessions | ✅ |
+| UI-01 | aisus sidebar | An aisus icon in the Activity Bar opens a home panel: composer, runs, maps, setup, sessions | ✅ |
 | UI-02 | Runs streamed into the sidebar | Generate runs the agent headless and shows its live activity, tokens and cost; terminal mode stays | 🟡 waits for a smoke run |
 | UI-03 | Editor title buttons | "Show in Map" at the top right of every editor; map actions at the top right of the map | ✅ |
-| UI-04 | Status bar item | Sustain's state (idle, generating, changed boxes); click opens the sidebar | ✅ |
+| UI-04 | Status bar item | aisus's state (idle, generating, changed boxes); click opens the sidebar | ✅ |
 | UI-05 | Explorer and box menus | Right-click a folder to map it, a file to find it on the map, a box for its actions | ✅ |
 | UI-06 | Ask about the map | A sidebar chat: your agent answers using the map, with clickable `file:line` links | 🟡 waits for a smoke run |
 | SET-01 | Install anywhere | Skills install per user by default (nothing added to the repository) and work from any location | 🟡 waits for a smoke run |
@@ -59,7 +59,7 @@ What v0.3 built, by milestone, as of 2026-10-19 on `kerk` ([pull request #4](htt
 | PRC-02 | Review changes in the editor | A sidebar review of your branch, with ghost boxes for what the map is missing and one-click "Add to map" | ✅ |
 | PRC-04 | GitHub Action | A pull request comment with the delta report and a Mermaid diagram, plus a pass/fail check: free, zero tokens | 🟡 CI needs a committed map |
 
-## D5 Sustain Cloud v1
+## D5 aisus cloud v1
 
 | ID | Feature | What it does | Status |
 |---|---|---|---|
@@ -68,7 +68,7 @@ What v0.3 built, by milestone, as of 2026-10-19 on `kerk` ([pull request #4](htt
 | CLD-03 | Map pages | Every repository's map on the web, clickable into GitHub, with history | ✅ |
 | CLD-04 | Pull request pages | The delta report of every pull request on the web | ✅ |
 | CLD-08 | Public site | Landing page, docs, privacy, and a gallery of public maps | ✅ |
-| CLD-09 | Upload from the CLI and the Action | `sustain publish` and the Action's `upload: true` | ✅ |
+| CLD-09 | Upload from the CLI and the Action | `aisus publish` and the Action's `upload: true` | ✅ |
 | CLD-11 | Delete data | Owners delete a map, a repository's data or their account | ✅ |
 
 ## D6 Ship
@@ -77,7 +77,7 @@ What v0.3 built, by milestone, as of 2026-10-19 on `kerk` ([pull request #4](htt
 |---|---|---|---|
 | RCH-02 | Skills from GitHub and as a plugin | `npx skills add` and a Claude Code plugin install working skills | 🟡 waits for a smoke run |
 | RCH-05 | Packaging and release | Store-ready packages, a tagged release pipeline, and the cloud deployed | 🟡 waits for CI and a smoke run |
-| DOC-01 | README | Quick starts per setup, cost, what Sustain touches, how to remove it | ✅ |
+| DOC-01 | README | Quick starts per setup, cost, what aisus touches, how to remove it | ✅ |
 
 ## I1 Cost
 
@@ -146,7 +146,7 @@ What v0.3 built, by milestone, as of 2026-10-19 on `kerk` ([pull request #4](htt
 | RCH-04 | More agents | Devin in Generate; ready-to-paste prompts for Copilot, Cursor, Gemini CLI and OpenCode | 🟡 waits for a smoke run |
 | SET-04 | Messages that say what to do | Every message names what happened and offers one action | ✅ |
 | SET-05 | Opt-in usage log | Local counts of key actions, exportable; off by default | ✅ |
-| SAF-08 | Remove Sustain from a folder | One action removes everything Sustain added | ✅ |
+| SAF-08 | Remove aisus from a folder | One action removes everything aisus added | ✅ |
 | ENG-03 | Spec traceability check | Every feature has exactly one progress entry | ✅ |
 
 ## I7 IntelliJ plugin

@@ -1,6 +1,6 @@
-// PRC-04: the Sustain check on a pull request. It runs PRC-01 from origin/<base> to HEAD, posts or
-// updates one comment marked <!-- sustain-check --> and sets the job result from fail-on. Only with
-// `upload` does it send the check and its map to Sustain Cloud (CLD-09), and only with `refresh` does
+// PRC-04: the aisus check on a pull request. It runs PRC-01 from origin/<base> to HEAD, posts or
+// updates one comment marked <!-- aisus-check --> and sets the job result from fail-on. Only with
+// `upload` does it send the check and its map to aisus cloud (CLD-09), and only with `refresh` does
 // it run an agent to update the map (PRC-05).
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
@@ -53,7 +53,7 @@ function pullRequest(event: unknown): { number: number; baseRef: string; headRef
  * returns the pull request page's address, or why it did not upload.
  */
 async function uploadCheck(context: ActionContext, pull: NonNullable<ReturnType<typeof pullRequest>>, report: unknown, run: string): Promise<{ ok: true; page: string } | { ok: false; reason: string }> {
-  const cloud = input(context.env, "cloud-url") || context.env["SUSTAIN_CLOUD_URL"] || "";
+  const cloud = input(context.env, "cloud-url") || context.env["AISUS_CLOUD_URL"] || "";
   const repo = context.env["GITHUB_REPOSITORY"] ?? "";
   if (cloud === "") return { ok: false, reason: "upload needs the cloud-url input." };
   const head = collectGitFacts(context.root)?.head;
@@ -71,7 +71,7 @@ async function uploadCheck(context: ActionContext, pull: NonNullable<ReturnType<
 export async function runAction(context: ActionContext): Promise<ActionResult> {
   const pull = pullRequest(context.event);
   if (pull === null) {
-    context.log("Sustain check runs on pull_request events; this event has no pull request.");
+    context.log("aisus check runs on pull_request events; this event has no pull request.");
     return { exitCode: 1, result: "error", comment: null };
   }
   const failOn = input(context.env, "fail-on").split(",").map((entry) => entry.trim()).filter((entry) => entry !== "");
@@ -95,7 +95,7 @@ export async function runAction(context: ActionContext): Promise<ActionResult> {
   let update: string[] = [];
   const decision = refreshDecision({ refresh: input(context.env, "refresh"), env: context.env, event: context.event, report, components: diagram.components, head: collectGitFacts(context.root)?.head ?? null });
   if (decision.run) {
-    const outcome = runRefresh({ root: context.root, map: report.map, agent: decision.agent, paths: decision.paths, headRef: pull.headRef, skillSource: join(__dirname, "..", "..", "skills", "sustain-refresh"), env: context.env });
+    const outcome = runRefresh({ root: context.root, map: report.map, agent: decision.agent, paths: decision.paths, headRef: pull.headRef, skillSource: join(__dirname, "..", "..", "skills", "aisus-refresh"), env: context.env });
     update = refreshLines(outcome);
     context.log(outcome.ok ? `Map updated in ${outcome.run}.` : `Map not updated: ${outcome.reason}`);
   } else if (decision.reason !== null) {
@@ -103,7 +103,7 @@ export async function runAction(context: ActionContext): Promise<ActionResult> {
     context.log(`Map not updated: ${decision.reason}`);
   }
   const chart = deltaMermaid(report, diagram);
-  const link = page === null ? [] : ["", `[See it on the map in Sustain Cloud](${page})`];
+  const link = page === null ? [] : ["", `[See it on the map in aisus cloud](${page})`];
   const body = [COMMENT_MARKER, deltaMarkdown(report, report, COMMENT_ITEMS).trimEnd(), ...update, ...link, ...(chart === null ? [] : ["", chart])].join("\n");
 
   if (input(context.env, "comment") !== "false") {
@@ -111,6 +111,6 @@ export async function runAction(context: ActionContext): Promise<ActionResult> {
     if (existing) await context.client.updateComment(existing.id, body);
     else await context.client.createComment(pull.number, body);
   }
-  context.log(`Sustain check: ${report.result}${report.reasons.length > 0 ? ` (${report.reasons.join("; ")})` : ""}`);
+  context.log(`aisus check: ${report.result}${report.reasons.length > 0 ? ` (${report.reasons.join("; ")})` : ""}`);
   return { exitCode: report.result === "pass" ? 0 : 1, result: report.result, comment: body };
 }

@@ -1,0 +1,5 @@
+interface:
+  display_name: "aisus Bug Hunt"
+  short_description: "Run an aisus bug-hunt learning session"
+policy:
+  allow_implicit_invocation: false

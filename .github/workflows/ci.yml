@@ -52,7 +52,7 @@ jobs:
       - uses: actions/setup-node@v5
         with:
           node-version: 18
-      - run: echo "SUSTAIN_SCRIPT_NODE=$(command -v node)" >> "$GITHUB_ENV"
+      - run: echo "AISUS_SCRIPT_NODE=$(command -v node)" >> "$GITHUB_ENV"
       - uses: actions/setup-node@v5
         with:
           node-version-file: .nvmrc
@@ -70,7 +70,7 @@ jobs:
       - run: npm run action
       - run: git diff --exit-code action/dist
 
-  sustain-check:
+  aisus-check:
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     permissions:
@@ -100,9 +100,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
-      - run: docker build -f cloud/Dockerfile -t sustain-cloud .
-      - run: docker run -d --name sustain-cloud -p 3000:3000 -e NEXTAUTH_URL=http://127.0.0.1:3000 -e NEXTAUTH_SECRET=ci-secret-ci-secret-ci-secret -e GITHUB_CLIENT_ID=ci -e GITHUB_CLIENT_SECRET=ci sustain-cloud
-      - run: for attempt in $(seq 1 30); do curl -fsS http://127.0.0.1:3000/api/health && exit 0; sleep 2; done; docker logs sustain-cloud; exit 1
+      - run: docker build -f cloud/Dockerfile -t aisus-cloud .
+      - run: docker run -d --name aisus-cloud -p 3000:3000 -e NEXTAUTH_URL=http://127.0.0.1:3000 -e NEXTAUTH_SECRET=ci-secret-ci-secret-ci-secret -e GITHUB_CLIENT_ID=ci -e GITHUB_CLIENT_SECRET=ci aisus-cloud
+      - run: for attempt in $(seq 1 30); do curl -fsS http://127.0.0.1:3000/api/health && exit 0; sleep 2; done; docker logs aisus-cloud; exit 1
 
   skills-fresh:
     runs-on: ubuntu-latest

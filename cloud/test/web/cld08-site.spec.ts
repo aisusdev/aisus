@@ -9,10 +9,10 @@ test("CLD-08 landing, docs, privacy and gallery render without any third-party r
   await page.goto("/docs");
   await expect(page.locator(".markdown h2").first()).toBeVisible();
   await page.getByRole("link", { name: "Architecture" }).first().click();
-  await expect(page.locator(".markdown")).toContainText("Sustain architecture");
+  await expect(page.locator(".markdown")).toContainText("aisus architecture");
   await page.goto("/privacy");
   await expect(page.locator("main")).toContainText("Maps, not code");
-  await expect(page.locator("pre")).toContainText('"title": "Sustain Cloud upload"');
+  await expect(page.locator("pre")).toContainText('"title": "aisus cloud upload"');
   await page.goto("/gallery");
   await expect(page.locator("h1")).toHaveText("Gallery");
   expect([...hosts]).toEqual(["127.0.0.1:3210"]);

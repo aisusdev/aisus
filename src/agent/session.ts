@@ -1,4 +1,4 @@
-// `node .agents/skills/sustain-bugfix/scripts/session.mjs <command> …`, run with cwd = repo
+// `node .agents/skills/aisus-bugfix/scripts/session.mjs <command> …`, run with cwd = repo
 // root (ADRs 0030–0035). The deterministic referee for a learning session: phase
 // transitions, the bug manifest, fix verification and scoring live here, not in the
 // agent's memory. Contract (ADR 0017): one JSON object on stdout; exit 0 ok, 1 domain
@@ -31,7 +31,7 @@ import {
   SESSION_FILE,
   sessionIdleMs,
   SESSION_MODES,
-  SUSTAIN_DIR,
+  AISUS_DIR,
   type HintLevel,
   type LivePhase,
   type Manifest,
@@ -46,7 +46,7 @@ import { assertWritable } from "../model/confine";
 
 const USAGE =
   "usage: node session.mjs <command>\n" +
-  "  init --mode bugfix [--name <text>]     start a session, take the .sustain/active lock\n" +
+  "  init --mode bugfix [--name <text>]     start a session, take the .aisus/active lock\n" +
   "  plan --steps '<json>'                  record the plan: [{\"title\":…,\"files\":[…]}] or [\"…\"]\n" +
   "  inject --file <f> --line <n> --kind <k>  seed one bug (kinds: off-by-one, flipped-comparison, missing-await for JS/TS; off-by-one, flipped-comparison, and-or-swap, reference-equality for Java)\n" +
   "  status                                 the authoritative session snapshot\n" +
@@ -101,11 +101,11 @@ interface Active {
   manifest: Manifest;
 }
 
-/** The session under `.sustain/active`, or `null` when there is none or the run is gone. */
+/** The session under `.aisus/active`, or `null` when there is none or the run is gone. */
 function loadActive(): Active | null {
   const run = activeRun(root);
   if (run === null || !runExists(root, run)) return null;
-  const dir = join(root, SUSTAIN_DIR, run);
+  const dir = join(root, AISUS_DIR, run);
   const session = loadSession(dir);
   const manifest = loadManifest(dir);
   return { run, dir, session, manifest };
@@ -127,7 +127,7 @@ function ifPaused(session: SessionState): number | null {
 
 /**
  * Resolves `arg` to a regular file inside the repo root. Throws for missing files, paths
- * escaping the root, deny-listed paths and anything under `.sustain/`.
+ * escaping the root, deny-listed paths and anything under `.aisus/`.
  */
 function repoFile(arg: string): { abs: string; rel: string } {
   const abs = resolve(root, arg);
@@ -143,7 +143,7 @@ function repoFile(arg: string): { abs: string; rel: string } {
   }
   const rel = relative(rootReal, real).split(sep).join("/");
   if (rel === "") throw new Error(`${arg} is the repository root, not a file`);
-  if (rel.split("/")[0] === SUSTAIN_DIR || isDenied(rel)) throw new Error(`${rel} is off-limits for sessions`);
+  if (rel.split("/")[0] === AISUS_DIR || isDenied(rel)) throw new Error(`${rel} is off-limits for sessions`);
   if (!statSync(real).isFile()) throw new Error(`${rel} is not a file`);
   return { abs: real, rel };
 }
@@ -185,40 +185,40 @@ function cmdInit(args: string[]): number {
     let stale = !runExists(root, held);
     if (!stale) {
       try {
-        const heldSession = checkSession(JSON.parse(readFileSync(join(root, SUSTAIN_DIR, held, SESSION_FILE), "utf8")));
+        const heldSession = checkSession(JSON.parse(readFileSync(join(root, AISUS_DIR, held, SESSION_FILE), "utf8")));
         stale = heldSession.phase === "done" || isSessionStale(heldSession);
       } catch {
         stale = true;
       }
     }
     if (!stale) {
-      return report(1, { status: "active", run: `${SUSTAIN_DIR}/${held}`, message: `session ${held} is still active` });
+      return report(1, { status: "active", run: `${AISUS_DIR}/${held}`, message: `session ${held} is still active` });
     }
     warnings.push(`released the stale lock of ${held}`);
   }
 
-  // Collect git facts before `.sustain/` exists so the session's own files are not
+  // Collect git facts before `.aisus/` exists so the session's own files are not
   // counted as the user's uncommitted work in the dirty warning (ADR 0029).
   const git = collectGitFacts(root);
   const run = createRunFolder(root, slugify(opts["name"] ?? "", basename(root)), runTimestamp(new Date()), {
-    dir: SUSTAIN_DIR,
+    dir: AISUS_DIR,
     prefix: mode,
   });
-  const dir = join(root, SUSTAIN_DIR, run);
+  const dir = join(root, AISUS_DIR, run);
   const session = newSession(mode);
   saveSession(dir, session);
   saveManifest(dir, newManifest());
   appendEvent(dir, { type: "init", mode });
-  assertWritable(root, join(root, SUSTAIN_DIR, ACTIVE_FILE));
-  writeFileSync(join(root, SUSTAIN_DIR, ACTIVE_FILE), `${run}\n`);
+  assertWritable(root, join(root, AISUS_DIR, ACTIVE_FILE));
+  writeFileSync(join(root, AISUS_DIR, ACTIVE_FILE), `${run}\n`);
 
   if (git !== null && git.dirtyCount > 0) {
     warnings.push(`repository has ${git.dirtyCount} uncommitted change(s); bug restore works on recorded hunks, not git`);
   }
   return report(0, {
     status: "ok",
-    run: `${SUSTAIN_DIR}/${run}`,
-    sessionFile: `${SUSTAIN_DIR}/${run}/${SESSION_FILE}`,
+    run: `${AISUS_DIR}/${run}`,
+    sessionFile: `${AISUS_DIR}/${run}/${SESSION_FILE}`,
     mode,
     phase: session.phase,
     git: git && { head: git.head, origin: git.origin, dirtyCount: git.dirtyCount, dirty: git.dirty },
@@ -236,7 +236,7 @@ function cmdStatus(args: string[]): number {
   const step = session.steps[session.stepIndex];
   return report(0, {
     status: "ok",
-    run: `${SUSTAIN_DIR}/${active.run}`,
+    run: `${AISUS_DIR}/${active.run}`,
     mode: session.mode,
     phase: session.phase,
     ...(session.pausedFrom !== undefined ? { pausedFrom: session.pausedFrom } : {}),
@@ -505,8 +505,8 @@ function cmdComplete(args: string[]): number {
   appendEvent(active.dir, { type: "completed", score: session.score });
   dropPristineSnapshots(manifest);
   save(active);
-  unlinkSync(join(root, SUSTAIN_DIR, ACTIVE_FILE));
-  return report(0, { status: "completed", score: session.score, found: session.found, fixed: session.fixed, bugs: session.bugs, run: `${SUSTAIN_DIR}/${active.run}` });
+  unlinkSync(join(root, AISUS_DIR, ACTIVE_FILE));
+  return report(0, { status: "completed", score: session.score, found: session.found, fixed: session.fixed, bugs: session.bugs, run: `${AISUS_DIR}/${active.run}` });
 }
 
 // ------------------------------------------------------------------ pause / resume
@@ -636,8 +636,8 @@ function cmdAbandon(args: string[]): number {
   appendEvent(active.dir, { type: "abandoned", ...result, score: session.score });
   dropPristineSnapshots(manifest);
   save(active);
-  unlinkSync(join(root, SUSTAIN_DIR, ACTIVE_FILE));
-  return report(0, { status: "abandoned", score: session.score, ...result, run: `${SUSTAIN_DIR}/${active.run}` });
+  unlinkSync(join(root, AISUS_DIR, ACTIVE_FILE));
+  return report(0, { status: "abandoned", score: session.score, ...result, run: `${AISUS_DIR}/${active.run}` });
 }
 
 // ----------------------------------------------------------------------------- main

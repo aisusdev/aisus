@@ -54,9 +54,9 @@ describe("VWR-01 hosts", () => {
 
   test("each host defines every token the stylesheet uses", () => {
     const css = readFileSync(join(repoRoot, "webview/styles.css"), "utf8");
-    const used = [...new Set([...css.matchAll(/var\((--sustain-[\w-]+)/g)].map((match) => match[1]!))].sort();
+    const used = [...new Set([...css.matchAll(/var\((--aisus-[\w-]+)/g)].map((match) => match[1]!))].sort();
     expect(css).not.toContain("--vscode-");
-    const vscode = [...Object.keys(VSCODE_TOKENS), "--sustain-font-family"];
+    const vscode = [...Object.keys(VSCODE_TOKENS), "--aisus-font-family"];
     for (const tokens of [vscode, Object.keys(LIGHT), Object.keys(DARK)]) expect(used.filter((token) => !tokens.includes(token))).toEqual([]);
   });
 
@@ -64,7 +64,7 @@ describe("VWR-01 hosts", () => {
     vi.stubGlobal("matchMedia", (query: string) => ({ matches: query === "(prefers-color-scheme: dark)", addEventListener: () => undefined }));
     document.body.removeAttribute("style");
     standaloneHost({ post: () => undefined, messages: [] });
-    expect(document.body.style.getPropertyValue("--sustain-background")).toBe(DARK["--sustain-background"]);
+    expect(document.body.style.getPropertyValue("--aisus-background")).toBe(DARK["--aisus-background"]);
     vi.unstubAllGlobals();
   });
 });

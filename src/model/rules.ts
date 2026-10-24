@@ -1,4 +1,4 @@
-// ARC-01: architecture rules from `sustain.config.json`, checked against ACC-02's imports at zero
+// ARC-01: architecture rules from `aisus.config.json`, checked against ACC-02's imports at zero
 // tokens. A rule's ends are main-map box ids or `path:` globs. `forbid` refuses imports from `from` to
 // `to`; `only-via` lets imports reach `to` only from `via` (and from `to` itself); `isolated` lets
 // nothing import `from` except what `to` lists. Browser-safe.

@@ -62,26 +62,26 @@ export interface StatusInput {
 }
 
 export function statusText(input: StatusInput, now: Date): string {
-  if (input.runningSince !== null) return `Sustain: generating ${clock(now.getTime() - Date.parse(input.runningSince))}`;
-  if (input.changed > 0) return `Sustain: ${input.changed} changed`;
-  return "Sustain";
+  if (input.runningSince !== null) return `aisus: generating ${clock(now.getTime() - Date.parse(input.runningSince))}`;
+  if (input.changed > 0) return `aisus: ${input.changed} changed`;
+  return "aisus";
 }
 
 /** The commands the sidebar offers as buttons, keyed by the message the button posts (UI-01). */
 export const SIDEBAR_ACTIONS: Readonly<Record<string, string>> = {
-  generate: "sustain.generateArchitecture",
-  openMap: "sustain.openArchitecture",
-  refreshMap: "sustain.refreshArchitecture",
-  exportMap: "sustain.exportPage",
-  review: "sustain.reviewChanges",
-  startLearning: "sustain.startLearning",
-  checkSetup: "sustain.checkSetup",
-  cancelRun: "sustain.cancelRun",
-  fix: "sustain.installSkills",
-  suggestRules: "sustain.suggestRules",
-  practiceStart: "sustain.checkUnderstanding",
-  createTour: "sustain.createTour",
-  copyPromptFor: "sustain.copyPromptFor",
+  generate: "aisus.generateArchitecture",
+  openMap: "aisus.openArchitecture",
+  refreshMap: "aisus.refreshArchitecture",
+  exportMap: "aisus.exportPage",
+  review: "aisus.reviewChanges",
+  startLearning: "aisus.startLearning",
+  checkSetup: "aisus.checkSetup",
+  cancelRun: "aisus.cancelRun",
+  fix: "aisus.installSkills",
+  suggestRules: "aisus.suggestRules",
+  practiceStart: "aisus.checkUnderstanding",
+  createTour: "aisus.createTour",
+  copyPromptFor: "aisus.copyPromptFor",
 };
 
 /** The map's freshness header (FRS-03), or `null` when no box changed. */

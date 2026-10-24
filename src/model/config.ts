@@ -1,15 +1,15 @@
-// PRC-01: `sustain.config.json` at the repository root, committed with the code. Browser-safe;
+// PRC-01: `aisus.config.json` at the repository root, committed with the code. Browser-safe;
 // callers read the file.
 import { readRules } from "./rules";
 import { isJsonObject } from "./types";
 
-export const CONFIG_FILE = "sustain.config.json";
+export const CONFIG_FILE = "aisus.config.json";
 
 /** What `--fail-on` and `check.failOn` accept. */
 export const FAIL_ON = ["stale", "new-box", "new-arrow", "violation"] as const;
 export type FailOn = (typeof FAIL_ON)[number];
 
-export interface SustainConfig {
+export interface AisusConfig {
   /** The run folder of the map checks compare with. */
   map?: string;
   /** Globs of paths the delta report leaves out. */
@@ -19,7 +19,7 @@ export interface SustainConfig {
   rules?: unknown[];
 }
 
-export type ConfigResult = { ok: true; config: SustainConfig } | { ok: false; errors: string[] };
+export type ConfigResult = { ok: true; config: AisusConfig } | { ok: false; errors: string[] };
 
 function strings(value: unknown): value is string[] {
   return Array.isArray(value) && value.every((entry) => typeof entry === "string");
@@ -44,11 +44,11 @@ export function readConfig(value: unknown): ConfigResult {
       }
     }
   }
-  return errors.length === 0 ? { ok: true, config: value as SustainConfig } : { ok: false, errors };
+  return errors.length === 0 ? { ok: true, config: value as AisusConfig } : { ok: false, errors };
 }
 
 /** `config` with `dir` added to `ignore` as `dir/**`, for the Ignore action (PRC-02). */
-export function withIgnored(config: SustainConfig, dir: string): SustainConfig {
+export function withIgnored(config: AisusConfig, dir: string): AisusConfig {
   const glob = dir === "" ? "**" : `${dir}/**`;
   const ignore = config.ignore ?? [];
   return ignore.includes(glob) ? config : { ...config, ignore: [...ignore, glob] };

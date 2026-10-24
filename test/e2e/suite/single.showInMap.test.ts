@@ -40,7 +40,7 @@ suite("UI-03 Show in Map and UI-05 menus", () => {
   const terminals: vscode.Terminal[] = [];
 
   suiteSetup(async () => {
-    hook = (await vscode.extensions.getExtension("sustain.sustain")!.activate()) as TestHook;
+    hook = (await vscode.extensions.getExtension("aisus.aisus")!.activate()) as TestHook;
   });
 
   setup(async () => {
@@ -59,15 +59,15 @@ suite("UI-03 Show in Map and UI-05 menus", () => {
         ],
       }),
     );
-    const bin = mkdtempSync(join(tmpdir(), "sustain-bin-"));
+    const bin = mkdtempSync(join(tmpdir(), "aisus-bin-"));
     cleanup.push(bin);
     writeFileSync(join(bin, "claude"), "#!/bin/sh\nsleep 30\n");
     chmodSync(join(bin, "claude"), 0o755);
     process.env["PATH"] = `${bin}:${savedPath}`;
-    const extensionPath = vscode.extensions.getExtension("sustain.sustain")!.extensionPath;
-    writeSkill(homedir(), join(extensionPath, "dist/skills/sustain-architecture"), skillTargets(homedir(), "sustain-architecture"), "sustain-architecture");
+    const extensionPath = vscode.extensions.getExtension("aisus.aisus")!.extensionPath;
+    writeSkill(homedir(), join(extensionPath, "dist/skills/aisus-architecture"), skillTargets(homedir(), "aisus-architecture"), "aisus-architecture");
     await hook.setDataNoteShown(true);
-    await vscode.workspace.getConfiguration("sustain").update("runMode", "terminal", vscode.ConfigurationTarget.Global);
+    await vscode.workspace.getConfiguration("aisus").update("runMode", "terminal", vscode.ConfigurationTarget.Global);
   });
 
   teardown(async () => {
@@ -75,7 +75,7 @@ suite("UI-03 Show in Map and UI-05 menus", () => {
     process.env["PATH"] = savedPath;
     for (const terminal of terminals.splice(0)) terminal.dispose();
     await vscode.commands.executeCommand("workbench.action.closeAllEditors");
-    await vscode.workspace.getConfiguration("sustain").update("runMode", undefined, vscode.ConfigurationTarget.Global);
+    await vscode.workspace.getConfiguration("aisus").update("runMode", undefined, vscode.ConfigurationTarget.Global);
     for (const dir of cleanup.splice(0)) rmSync(dir, { recursive: true, force: true });
     for (const dir of [".archify", "src"]) rmSync(join(root, dir), { recursive: true, force: true });
     for (const dir of [".agents", ".claude"]) rmSync(join(homedir(), dir), { recursive: true, force: true });
@@ -83,7 +83,7 @@ suite("UI-03 Show in Map and UI-05 menus", () => {
 
   test("UI-03 Show in Map opens the map beside the editor, marks the citing box and keeps the editor active", async () => {
     await vscode.window.showTextDocument(vscode.Uri.file(fileA));
-    await vscode.commands.executeCommand("sustain.showInMap");
+    await vscode.commands.executeCommand("aisus.showInMap");
     await until(() => hook.panelHighlight()?.ids.join() === "a", "box a to be marked");
     assert.deepEqual(hook.panelHighlight(), { ids: ["a"], file: "src/a.ts", follow: false });
     assert.equal(hook.panelState().file, join(root, ".archify", RUN, "candidate.json"));
@@ -92,7 +92,7 @@ suite("UI-03 Show in Map and UI-05 menus", () => {
 
   test("UI-03 Follow editor moves the marks when another editor becomes active", async () => {
     await vscode.window.showTextDocument(vscode.Uri.file(fileA));
-    await vscode.commands.executeCommand("sustain.showInMap");
+    await vscode.commands.executeCommand("aisus.showInMap");
     await until(() => hook.panelHighlight()?.ids.join() === "a", "box a to be marked");
     await hook.postFromWebview({ type: "setFollow", on: true });
     await vscode.window.showTextDocument(vscode.Uri.file(fileB), { viewColumn: vscode.ViewColumn.One });
@@ -103,29 +103,29 @@ suite("UI-03 Show in Map and UI-05 menus", () => {
   test("UI-03 a folder without a map opens an empty map whose button maps the folder", async () => {
     rmSync(join(root, ".archify"), { recursive: true, force: true });
     await vscode.window.showTextDocument(vscode.Uri.file(fileA));
-    await vscode.commands.executeCommand("sustain.showInMap");
+    await vscode.commands.executeCommand("aisus.showInMap");
     await until(() => hook.panelState().open, "the map panel");
     assert.equal(hook.panelState().file, "");
     const opened = nextTerminal();
     await hook.postFromWebview({ type: "mapFolder" });
     const terminal = await opened;
     terminals.push(terminal);
-    assert.deepEqual((terminal.creationOptions as vscode.TerminalOptions).shellArgs, ["/sustain-architecture"]);
+    assert.deepEqual((terminal.creationOptions as vscode.TerminalOptions).shellArgs, ["/aisus-architecture"]);
   });
 
   test("UI-05 Map this folder launches Generate with the folder as the focus", async () => {
     const opened = nextTerminal();
-    await vscode.commands.executeCommand("sustain.mapFolder", vscode.Uri.file(join(root, "src")));
+    await vscode.commands.executeCommand("aisus.mapFolder", vscode.Uri.file(join(root, "src")));
     const terminal = await opened;
     terminals.push(terminal);
-    assert.deepEqual((terminal.creationOptions as vscode.TerminalOptions).shellArgs, ["/sustain-architecture src"]);
+    assert.deepEqual((terminal.creationOptions as vscode.TerminalOptions).shellArgs, ["/aisus-architecture src"]);
     assert.equal(prompts(ui), 0);
   });
 
   test("UI-05 Open code on a box opens its first source", async () => {
-    await vscode.commands.executeCommand("sustain.openArchitecture");
+    await vscode.commands.executeCommand("aisus.openArchitecture");
     await until(() => hook.panelState().open, "the map panel");
-    await vscode.commands.executeCommand("sustain.openBoxCode", { componentId: "b", webview: "sustain.architecture" });
+    await vscode.commands.executeCommand("aisus.openBoxCode", { componentId: "b", webview: "aisus.architecture" });
     await until(() => vscode.window.activeTextEditor?.document.uri.fsPath === fileB, "src/b.ts to open");
   });
 });

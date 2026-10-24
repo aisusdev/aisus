@@ -3,8 +3,8 @@
 // rules in plain language. Writing again replaces only the block. Browser-safe.
 import { PATH_PREFIX, type Rule } from "./rules";
 
-export const NOTES_START = "<!-- sustain:architecture:start -->";
-export const NOTES_END = "<!-- sustain:architecture:end -->";
+export const NOTES_START = "<!-- aisus:architecture:start -->";
+export const NOTES_END = "<!-- aisus:architecture:end -->";
 
 export interface NotesMap {
   run: string;
@@ -24,7 +24,7 @@ export function notesBlock(map: NotesMap, rules: readonly Rule[]): string {
     NOTES_START,
     "## Architecture",
     "",
-    `Sustain wrote this block from the map \`.archify/${map.run}\` and replaces it when the notes are written again. Change the map or \`sustain.config.json\`, not this block.`,
+    `aisus wrote this block from the map \`.archify/${map.run}\` and replaces it when the notes are written again. Change the map or \`aisus.config.json\`, not this block.`,
     "",
     "### Boxes",
     "",
@@ -39,7 +39,7 @@ export function notesBlock(map: NotesMap, rules: readonly Rule[]): string {
     for (const arrow of map.connections) lines.push(`- ${end(arrow.from)} uses ${end(arrow.to)}${arrow.label ? ` (${arrow.label})` : ""}.`);
   }
   if (rules.length > 0) {
-    lines.push("", "### Rules", "", "Keep to these when you change the code. `sustain check` and the editor report imports that break them.", "");
+    lines.push("", "### Rules", "", "Keep to these when you change the code. `aisus check` and the editor report imports that break them.", "");
     for (const rule of rules) {
       const sentence =
         rule.kind === "forbid"

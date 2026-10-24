@@ -8,7 +8,7 @@ import type { Runs } from "./runs";
 
 /** Generate focused on box `label` of the map in run folder `parent`. */
 export function drillTask(label: string, parent: string): LaunchTask {
-  return { skill: "sustain-architecture", args: `${label.trim()} --parent ${parent}`, title: `${label.trim()} in detail` };
+  return { skill: "aisus-architecture", args: `${label.trim()} --parent ${parent}`, title: `${label.trim()} in detail` };
 }
 
 /** Runs Generate on the box of the shown map that the box menu names. */

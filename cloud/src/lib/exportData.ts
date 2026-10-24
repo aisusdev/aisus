@@ -1,4 +1,4 @@
-// CLD-13: everything Sustain Cloud holds for a user, as one JSON document: their account, their
+// CLD-13: everything aisus cloud holds for a user, as one JSON document: their account, their
 // organizations, and each repository they own with its plan, tokens (never the secrets), share
 // links (never the links), and every upload.
 import { asc, eq } from "drizzle-orm";

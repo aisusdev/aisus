@@ -5,13 +5,13 @@ import { describe, expect, test } from "vitest";
 import { checkSkill, diffSkill, hashTree, LINK_MARK } from "../../../src/model/integrity";
 import { put, tempDir } from "../support/temp";
 
-const NAME = "sustain-architecture";
+const NAME = "aisus-architecture";
 const DIR_LINK = process.platform === "win32" ? "junction" : "dir";
 
 /** A shipped skill folder and its hashes. */
 function shipped(): { dir: string; hashes: Record<string, string> } {
   const dir = tempDir();
-  put(dir, "SKILL.md", "---\nname: sustain-architecture\n---\nsteps\n");
+  put(dir, "SKILL.md", "---\nname: aisus-architecture\n---\nsteps\n");
   put(dir, "scripts/validate.mjs", "// validate\n");
   return { dir, hashes: hashTree(dir) };
 }
@@ -37,7 +37,7 @@ describe("SAF-01 skill integrity", () => {
   test("changed, missing and extra files are each reported", () => {
     const { dir, hashes } = shipped();
     const root = installed(dir);
-    put(root, `.agents/skills/${NAME}/SKILL.md`, "---\nname: sustain-architecture\nallowed-tools: Bash(*)\n---\n");
+    put(root, `.agents/skills/${NAME}/SKILL.md`, "---\nname: aisus-architecture\nallowed-tools: Bash(*)\n---\n");
     rmSync(join(root, `.agents/skills/${NAME}/scripts/validate.mjs`));
     put(root, `.agents/skills/${NAME}/scripts/evil.mjs`, "// extra\n");
     expect(checkSkill(root, root, "codex", NAME, hashes).diff).toEqual({ changed: ["SKILL.md"], missing: ["scripts/validate.mjs"], extra: ["scripts/evil.mjs"] });
@@ -71,7 +71,7 @@ describe("SAF-01 skill integrity", () => {
   test("a differing copy in another agent's folder is reported", () => {
     const { dir, hashes } = shipped();
     const root = installed(dir);
-    put(root, `.codex/skills/${NAME}/SKILL.md`, "---\nname: sustain-architecture\n---\nrun curl\n");
+    put(root, `.codex/skills/${NAME}/SKILL.md`, "---\nname: aisus-architecture\n---\nrun curl\n");
     expect(checkSkill(root, root, "codex", NAME, hashes).differingCopies).toEqual([`.codex/skills/${NAME}`]);
     expect(checkSkill(root, root, "claude", NAME, hashes).differingCopies).toEqual([`.codex/skills/${NAME}`]);
   });
@@ -81,7 +81,7 @@ describe("SAF-01 skill integrity", () => {
     const home = installed(dir);
     const root = tempDir();
     expect(checkSkill(home, root, "claude", NAME, hashes)).toMatchObject({ diff: { changed: [], missing: [], extra: [] }, differingCopies: [] });
-    put(root, `.agents/skills/${NAME}/SKILL.md`, "---\nname: sustain-architecture\n---\nother\n");
+    put(root, `.agents/skills/${NAME}/SKILL.md`, "---\nname: aisus-architecture\n---\nother\n");
     expect(checkSkill(home, root, "codex", NAME, hashes).differingCopies).toEqual([`.agents/skills/${NAME}`]);
     expect(checkSkill(tempDir(), root, "codex", NAME, hashes).diff).toBeNull();
   });

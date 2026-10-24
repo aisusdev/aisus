@@ -271,7 +271,7 @@ export function startViewer(mount: HTMLElement = document.body): void {
       const index = Number(edge.getAttribute("data-index"));
       edge.classList.toggle("edge--ghost", index >= firstGhostArrow);
       edge.classList.toggle("edge--violation", index >= firstViolation && index < firstGhostArrow);
-      // Arrows Sustain adds are not the map's, so they have no arrow menu.
+      // Arrows aisus adds are not the map's, so they have no arrow menu.
       if (index >= firstViolation && edge.classList.contains("edge")) edge.setAttribute("data-vscode-context", JSON.stringify({ webviewSection: "ghost", preventDefaultContextMenuItems: true }));
     }
   }
@@ -408,7 +408,7 @@ export function startViewer(mount: HTMLElement = document.body): void {
       return;
     }
     if (!canvasContext) throw new Error("the webview has no 2D canvas context to measure text with");
-    const family = getComputedStyle(document.body).getPropertyValue("--sustain-font-family").trim() || "sans-serif";
+    const family = getComputedStyle(document.body).getPropertyValue("--aisus-font-family").trim() || "sans-serif";
     const measure: MeasureText = (text, sizePx, bold) => {
       canvasContext.font = `${bold ? "bold " : ""}${sizePx}px ${family}`;
       return { width: canvasContext.measureText(text).width, height: sizePx * LINE_HEIGHT };

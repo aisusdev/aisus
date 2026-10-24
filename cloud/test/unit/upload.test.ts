@@ -54,7 +54,7 @@ describe("CLD-02 validation", () => {
 });
 
 describe("CLD-02 OIDC", () => {
-  test("a token signed by the test key, for Sustain Cloud and this repository, is accepted and creates the repository", async () => {
+  test("a token signed by the test key, for aisus cloud and this repository, is accepted and creates the repository", async () => {
     const response = await post(mapUpload(), oidcToken(KEYS.key));
     expect(response.status).toBe(201);
     expect(await response.json()).toMatchObject({ status: "accepted", url: "/acme/shop" });

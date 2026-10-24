@@ -30,7 +30,7 @@ export interface RepoSize {
 }
 
 /** Folders neither listing measures. */
-export const SKIPPED_DIRS = [".git", "node_modules", "vendor", "dist", "build", "target", "out", ".sustain"];
+export const SKIPPED_DIRS = [".git", "node_modules", "vendor", "dist", "build", "target", "out", ".aisus"];
 /** Most files counted line by line; larger repositories are sampled (see {@link repoSize}). */
 export const COUNT_LIMIT = 2000;
 /** Larger files are generated or data, and are left out. */

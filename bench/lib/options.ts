@@ -29,7 +29,7 @@ export function parseOptions(argv: readonly string[], env: NodeJS.ProcessEnv): B
   const kind = values.get("--kind") as BenchKind | undefined;
   const repo = values.get("--repo");
   const runs = Number(values.get("--runs") ?? "1");
-  const cap = Number(values.get("--cap") ?? env["SUSTAIN_BENCH_CAP"] ?? DEFAULT_CAP_USD);
+  const cap = Number(values.get("--cap") ?? env["AISUS_BENCH_CAP"] ?? DEFAULT_CAP_USD);
   if (agent !== "claude" && agent !== "codex") return "--agent must be claude or codex";
   if (repo === undefined) return "--repo is required";
   if (kind === undefined || !BENCH_KINDS.includes(kind)) return `--kind must be one of ${BENCH_KINDS.join(", ")}`;

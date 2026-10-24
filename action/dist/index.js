@@ -7487,7 +7487,7 @@ var import_node_fs10 = require("node:fs");
 var import_node_path9 = require("node:path");
 
 // src/cloud/client.ts
-var CLOUD_AUDIENCE = "sustain-cloud";
+var CLOUD_AUDIENCE = "aisus-cloud";
 async function postUpload(cloud, bearer, payload, fetcher = fetch) {
   const response = await fetcher(`${cloud.replace(/\/+$/, "")}/api/v1/uploads`, {
     method: "POST",
@@ -7497,7 +7497,7 @@ async function postUpload(cloud, bearer, payload, fetcher = fetch) {
   const body = await response.json().catch(() => null);
   if (response.ok) return { ok: true, status: response.status, body };
   const message = body?.message;
-  return { ok: false, status: response.status, body, message: typeof message === "string" ? message : `Sustain Cloud answered ${response.status}` };
+  return { ok: false, status: response.status, body, message: typeof message === "string" ? message : `aisus cloud answered ${response.status}` };
 }
 async function actionsOidcToken(env, fetcher = fetch) {
   const url = env["ACTIONS_ID_TOKEN_REQUEST_URL"];
@@ -7766,7 +7766,7 @@ function pointerToken(token) {
 }
 
 // src/model/config.ts
-var CONFIG_FILE = "sustain.config.json";
+var CONFIG_FILE = "aisus.config.json";
 var FAIL_ON = ["stale", "new-box", "new-arrow", "violation"];
 function strings(value) {
   return Array.isArray(value) && value.every((entry) => typeof entry === "string");
@@ -8407,7 +8407,7 @@ function isDenied(path2) {
 }
 
 // src/model/repoSize.ts
-var SKIPPED_DIRS = [".git", "node_modules", "vendor", "dist", "build", "target", "out", ".sustain"];
+var SKIPPED_DIRS = [".git", "node_modules", "vendor", "dist", "build", "target", "out", ".aisus"];
 var MAX_FILE_BYTES = 1024 * 1024;
 var BINARY = new Set(
   "png jpg jpeg gif bmp ico webp tif tiff psd pdf zip gz tgz bz2 xz 7z rar jar war ear class o a so dylib dll exe bin wasm woff woff2 ttf otf eot mp3 mp4 m4a mov avi mkv webm wav flac ogg sqlite db pyc pyo vsix lockb".split(" ")
@@ -8826,7 +8826,7 @@ function runCheck(options) {
 }
 
 // src/model/deltaMarkdown.ts
-var COMMENT_MARKER = "<!-- sustain-check -->";
+var COMMENT_MARKER = "<!-- aisus-check -->";
 function escapeMarkdown(text3) {
   return text3.replace(/([\\`*_{}[\]()#+!~-])/g, "\\$1").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/\|/g, "&#124;").replace(/\r?\n/g, " ");
 }
@@ -8861,7 +8861,7 @@ function candidateLine(candidate) {
   return `- ${path(`${candidate.dir}/`)}: ${plural(candidate.files.length, "file")}, ${plural(candidate.lines, "line")}. Suggested box: ${escapeMarkdown(candidate.label)}`;
 }
 function deltaMarkdown(report, meta, maxItems = Number.POSITIVE_INFINITY) {
-  const lines = [`### Sustain check: ${meta.result}`, "", `**${deltaSummary(report)}**`, "", `Map ${path(meta.map)}, compared from ${path(meta.mergeBase.slice(0, 7))}.`];
+  const lines = [`### aisus check: ${meta.result}`, "", `**${deltaSummary(report)}**`, "", `Map ${path(meta.map)}, compared from ${path(meta.mergeBase.slice(0, 7))}.`];
   const section = (title, items) => {
     if (items.length === 0) return;
     const more = items.length > maxItems ? [`- and ${items.length - maxItems} more`] : [];
@@ -9296,9 +9296,9 @@ function validateArchitecture(value) {
 // src/model/schemas/upload.schema.json
 var upload_schema_default = {
   $schema: "https://json-schema.org/draft/2020-12/schema",
-  $id: "https://sustain.dev/schemas/upload.schema.json",
-  title: "Sustain Cloud upload",
-  description: "What Sustain Cloud accepts: an Archify map with its sidecars, or a check result, and metadata. Never code.",
+  $id: "https://aisus.dev/schemas/upload.schema.json",
+  title: "aisus cloud upload",
+  description: "What aisus cloud accepts: an Archify map with its sidecars, or a check result, and metadata. Never code.",
   type: "object",
   additionalProperties: false,
   required: ["repo", "commit", "branch", "kind", "meta"],
@@ -9669,10 +9669,10 @@ var import_node_path8 = require("node:path");
 
 // src/extension/agents.ts
 var SKILL_SCRIPTS = {
-  "sustain-architecture": ["repo-facts.mjs", "validate.mjs", "render-html.mjs"],
-  "sustain-refresh": ["refresh-facts.mjs", "validate.mjs", "render-html.mjs"],
-  "sustain-audit": ["audit-record.mjs"],
-  "sustain-tour": ["tour-record.mjs"]
+  "aisus-architecture": ["repo-facts.mjs", "validate.mjs", "render-html.mjs"],
+  "aisus-refresh": ["refresh-facts.mjs", "validate.mjs", "render-html.mjs"],
+  "aisus-audit": ["audit-record.mjs"],
+  "aisus-tour": ["tour-record.mjs"]
 };
 function headlessArgs(cli, prompt, options) {
   if (cli === "codex") return ["exec", "--json", "--sandbox", options.readOnly ? "read-only" : "workspace-write", prompt];
@@ -9681,7 +9681,7 @@ function headlessArgs(cli, prompt, options) {
     "Grep",
     "Glob",
     ...options.subagents ? ["Task"] : [],
-    ...(options.scripts ?? SKILL_SCRIPTS["sustain-architecture"]).map((script) => `Bash(node ${options.skillDir}/scripts/${script} *)`),
+    ...(options.scripts ?? SKILL_SCRIPTS["aisus-architecture"]).map((script) => `Bash(node ${options.skillDir}/scripts/${script} *)`),
     "Edit(./.archify/**)"
   ];
   const resume = options.resume === void 0 ? [] : ["--resume", options.resume];
@@ -10014,8 +10014,8 @@ function refreshDecision(input2) {
   return { run: true, agent, paths };
 }
 function refreshCommand(agent, map, paths, home, env) {
-  const skillDir = (0, import_node_path8.join)(home, agent === "claude" ? ".claude" : ".agents", "skills", "sustain-refresh");
-  const args = headlessArgs(agent, skillPrompt(agent, "sustain-refresh", refreshArgs(map, paths)), { skillDir, scripts: SKILL_SCRIPTS["sustain-refresh"] });
+  const skillDir = (0, import_node_path8.join)(home, agent === "claude" ? ".claude" : ".agents", "skills", "aisus-refresh");
+  const args = headlessArgs(agent, skillPrompt(agent, "aisus-refresh", refreshArgs(map, paths)), { skillDir, scripts: SKILL_SCRIPTS["aisus-refresh"] });
   const key = env[REFRESH_KEYS[agent]] ?? "";
   const keys = agent === "claude" ? { ANTHROPIC_API_KEY: key } : { OPENAI_API_KEY: key, CODEX_API_KEY: key };
   return { args, env: { PATH: env["PATH"] ?? "", HOME: home, LANG: "C.UTF-8", ...agentHomePreview(home, agent), ...keys } };
@@ -10029,9 +10029,9 @@ function git(root, args) {
 function runRefresh(input2) {
   const binary = findOnPath(input2.agent, input2.env);
   if (binary === void 0) return { ok: false, reason: `refresh: ${input2.agent} needs the ${input2.agent} CLI on PATH; install it in an earlier step.` };
-  const home = (0, import_node_fs9.mkdtempSync)((0, import_node_path8.join)((0, import_node_os.tmpdir)(), "sustain-refresh-"));
+  const home = (0, import_node_fs9.mkdtempSync)((0, import_node_path8.join)((0, import_node_os.tmpdir)(), "aisus-refresh-"));
   try {
-    agentHome(home, input2.agent, { name: "sustain-refresh", source: input2.skillSource });
+    agentHome(home, input2.agent, { name: "aisus-refresh", source: input2.skillSource });
     const { args, env } = refreshCommand(input2.agent, input2.map, input2.paths, home, input2.env);
     const before = runFolderNames(input2.root);
     const result = (0, import_node_child_process2.spawnSync)(binary, args, { cwd: input2.root, env, shell: false, encoding: "utf8", maxBuffer: 256 * 1024 * 1024, timeout: REFRESH_TIMEOUT_MS });
@@ -10044,7 +10044,7 @@ function runRefresh(input2) {
     const newer = read(made.runFolder);
     const summary = older.ok && newer.ok ? diffSummary(diffMaps(older.diagram, newer.diagram)) : "the map changed";
     const folder = `${ARCHIFY_DIR}/${made.runFolder}`;
-    const committed = git(input2.root, ["add", "-f", "--", folder]) !== null && git(input2.root, ["-c", "user.name=Sustain", "-c", "user.email=sustain@users.noreply.github.com", "-c", "commit.gpgsign=false", "commit", "-q", "-m", `Update the architecture map for this pull request
+    const committed = git(input2.root, ["add", "-f", "--", folder]) !== null && git(input2.root, ["-c", "user.name=aisus", "-c", "user.email=aisus@users.noreply.github.com", "-c", "commit.gpgsign=false", "commit", "-q", "-m", `Update the architecture map for this pull request
 
 ${summary}.`, "--", folder]) !== null && git(input2.root, ["push", "-q", "origin", `HEAD:refs/heads/${input2.headRef}`]) !== null;
     if (!committed) return { ok: false, reason: `the new map ${made.runFolder} could not be committed and pushed to ${input2.headRef}.` };
@@ -10055,7 +10055,7 @@ ${summary}.`, "--", folder]) !== null && git(input2.root, ["push", "-q", "origin
 }
 function refreshLines(outcome) {
   if (!outcome.ok) return ["", "**Map update**", "", `The map was not updated. ${outcome.reason.charAt(0).toUpperCase()}${outcome.reason.slice(1)}`];
-  return ["", "**Map update**", "", `Sustain refreshed the map in \`${outcome.run}\` and pushed it to this branch. ${outcome.summary.charAt(0).toUpperCase()}${outcome.summary.slice(1)}. It used ${outcome.tokens.toLocaleString("en-US")} tokens.`];
+  return ["", "**Map update**", "", `aisus refreshed the map in \`${outcome.run}\` and pushed it to this branch. ${outcome.summary.charAt(0).toUpperCase()}${outcome.summary.slice(1)}. It used ${outcome.tokens.toLocaleString("en-US")} tokens.`];
 }
 
 // action/src/main.ts
@@ -10071,7 +10071,7 @@ function pullRequest(event) {
   return { number: pull.number, baseRef: pull.base.ref, headRef: typeof pull.head?.ref === "string" ? pull.head.ref : pull.base.ref, defaultBranch: typeof defaultBranch === "string" ? defaultBranch : void 0 };
 }
 async function uploadCheck(context, pull, report, run2) {
-  const cloud = input(context.env, "cloud-url") || context.env["SUSTAIN_CLOUD_URL"] || "";
+  const cloud = input(context.env, "cloud-url") || context.env["AISUS_CLOUD_URL"] || "";
   const repo = context.env["GITHUB_REPOSITORY"] ?? "";
   if (cloud === "") return { ok: false, reason: "upload needs the cloud-url input." };
   const head = collectGitFacts(context.root)?.head;
@@ -10088,7 +10088,7 @@ async function uploadCheck(context, pull, report, run2) {
 async function runAction(context) {
   const pull = pullRequest(context.event);
   if (pull === null) {
-    context.log("Sustain check runs on pull_request events; this event has no pull request.");
+    context.log("aisus check runs on pull_request events; this event has no pull request.");
     return { exitCode: 1, result: "error", comment: null };
   }
   const failOn = input(context.env, "fail-on").split(",").map((entry) => entry.trim()).filter((entry) => entry !== "");
@@ -10112,7 +10112,7 @@ async function runAction(context) {
   let update = [];
   const decision = refreshDecision({ refresh: input(context.env, "refresh"), env: context.env, event: context.event, report, components: diagram.components, head: collectGitFacts(context.root)?.head ?? null });
   if (decision.run) {
-    const outcome2 = runRefresh({ root: context.root, map: report.map, agent: decision.agent, paths: decision.paths, headRef: pull.headRef, skillSource: (0, import_node_path9.join)(__dirname, "..", "..", "skills", "sustain-refresh"), env: context.env });
+    const outcome2 = runRefresh({ root: context.root, map: report.map, agent: decision.agent, paths: decision.paths, headRef: pull.headRef, skillSource: (0, import_node_path9.join)(__dirname, "..", "..", "skills", "aisus-refresh"), env: context.env });
     update = refreshLines(outcome2);
     context.log(outcome2.ok ? `Map updated in ${outcome2.run}.` : `Map not updated: ${outcome2.reason}`);
   } else if (decision.reason !== null) {
@@ -10120,14 +10120,14 @@ async function runAction(context) {
     context.log(`Map not updated: ${decision.reason}`);
   }
   const chart = deltaMermaid(report, diagram);
-  const link = page === null ? [] : ["", `[See it on the map in Sustain Cloud](${page})`];
+  const link = page === null ? [] : ["", `[See it on the map in aisus cloud](${page})`];
   const body = [COMMENT_MARKER, deltaMarkdown(report, report, COMMENT_ITEMS).trimEnd(), ...update, ...link, ...chart === null ? [] : ["", chart]].join("\n");
   if (input(context.env, "comment") !== "false") {
     const existing = (await context.client.listComments(pull.number)).find((comment) => comment.body.startsWith(COMMENT_MARKER));
     if (existing) await context.client.updateComment(existing.id, body);
     else await context.client.createComment(pull.number, body);
   }
-  context.log(`Sustain check: ${report.result}${report.reasons.length > 0 ? ` (${report.reasons.join("; ")})` : ""}`);
+  context.log(`aisus check: ${report.result}${report.reasons.length > 0 ? ` (${report.reasons.join("; ")})` : ""}`);
   return { exitCode: report.result === "pass" ? 0 : 1, result: report.result, comment: body };
 }
 

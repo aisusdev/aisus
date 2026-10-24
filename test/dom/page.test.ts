@@ -37,7 +37,7 @@ describe("RCH-01 diagram page", () => {
     const executable = [...page.querySelectorAll("script")].filter((script) => script.type === "" || /javascript|module/.test(script.type));
     expect(executable).toHaveLength(1);
     expect(page.querySelector("img")).toBeNull();
-    const data = JSON.parse(page.getElementById("sustain-data")!.textContent!) as PageData;
+    const data = JSON.parse(page.getElementById("aisus-data")!.textContent!) as PageData;
     expect((data.doc as typeof DOC).components[0]!.label).toBe(HOSTILE);
   });
 
@@ -45,7 +45,7 @@ describe("RCH-01 diagram page", () => {
     const fetchSpy = vi.spyOn(globalThis, "fetch");
     const store = document.createElement("script");
     store.type = "application/json";
-    store.id = "sustain-data";
+    store.id = "aisus-data";
     store.textContent = escapeJson(JSON.stringify(DATA));
     document.body.append(store);
     await import("../../webview/page");

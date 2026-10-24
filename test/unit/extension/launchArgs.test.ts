@@ -35,17 +35,17 @@ describe("SAF-04 launch arguments", () => {
   });
 
   test.each(FOCUSES)("Devin gets -- and the prompt for task %j", (task) => {
-    const argv = devinPromptArgs(`/sustain-bugfix ${task}`.trim());
+    const argv = devinPromptArgs(`/aisus-bugfix ${task}`.trim());
     expect(argv[0]).toBe("--");
     expect(argv).toHaveLength(2);
     expect(forbiddenIn(argv)).toEqual([]);
   });
 
   test("UI-02 Claude Code runs headless with exactly the generate tools and dontAsk", () => {
-    const argv = headlessArgs("claude", "/sustain-architecture auth", { skillDir: "/h/.claude/skills/sustain-architecture" });
+    const argv = headlessArgs("claude", "/aisus-architecture auth", { skillDir: "/h/.claude/skills/aisus-architecture" });
     expect(argv).toEqual([
       "-p",
-      "/sustain-architecture auth",
+      "/aisus-architecture auth",
       "--output-format",
       "stream-json",
       "--verbose",
@@ -55,34 +55,34 @@ describe("SAF-04 launch arguments", () => {
       "Read",
       "Grep",
       "Glob",
-      "Bash(node /h/.claude/skills/sustain-architecture/scripts/repo-facts.mjs *)",
-      "Bash(node /h/.claude/skills/sustain-architecture/scripts/validate.mjs *)",
-      "Bash(node /h/.claude/skills/sustain-architecture/scripts/render-html.mjs *)",
+      "Bash(node /h/.claude/skills/aisus-architecture/scripts/repo-facts.mjs *)",
+      "Bash(node /h/.claude/skills/aisus-architecture/scripts/validate.mjs *)",
+      "Bash(node /h/.claude/skills/aisus-architecture/scripts/render-html.mjs *)",
       "Edit(./.archify/**)",
     ]);
     expect(forbiddenIn(argv)).toEqual([]);
   });
 
   test("FRS-06 a refresh names the refresh skill and may run only its own scripts", () => {
-    expect(skillPrompt("claude", "sustain-refresh", " --from architecture-a-20261018-120000 ")).toBe("/sustain-refresh --from architecture-a-20261018-120000");
-    expect(skillPrompt("codex", "sustain-refresh", "")).toBe("$sustain-refresh");
-    const argv = headlessArgs("claude", "/sustain-refresh --from x", { skillDir: "/h/.claude/skills/sustain-refresh", scripts: SKILL_SCRIPTS["sustain-refresh"] });
+    expect(skillPrompt("claude", "aisus-refresh", " --from architecture-a-20261018-120000 ")).toBe("/aisus-refresh --from architecture-a-20261018-120000");
+    expect(skillPrompt("codex", "aisus-refresh", "")).toBe("$aisus-refresh");
+    const argv = headlessArgs("claude", "/aisus-refresh --from x", { skillDir: "/h/.claude/skills/aisus-refresh", scripts: SKILL_SCRIPTS["aisus-refresh"] });
     expect(argv.slice(argv.indexOf("--allowedTools") + 1)).toEqual([
       "Read",
       "Grep",
       "Glob",
-      "Bash(node /h/.claude/skills/sustain-refresh/scripts/refresh-facts.mjs *)",
-      "Bash(node /h/.claude/skills/sustain-refresh/scripts/validate.mjs *)",
-      "Bash(node /h/.claude/skills/sustain-refresh/scripts/render-html.mjs *)",
+      "Bash(node /h/.claude/skills/aisus-refresh/scripts/refresh-facts.mjs *)",
+      "Bash(node /h/.claude/skills/aisus-refresh/scripts/validate.mjs *)",
+      "Bash(node /h/.claude/skills/aisus-refresh/scripts/render-html.mjs *)",
       "Edit(./.archify/**)",
     ]);
     expect(forbiddenIn(argv)).toEqual([]);
   });
 
   test("ACC-05 an audit names the audit skill, may give work to subagents, and may run only its recorder", () => {
-    expect(skillPrompt("claude", "sustain-audit", "architecture-a-20261018-120000")).toBe("/sustain-audit architecture-a-20261018-120000");
-    const argv = headlessArgs("claude", "/sustain-audit x", { skillDir: "/h/.claude/skills/sustain-audit", scripts: SKILL_SCRIPTS["sustain-audit"], subagents: true });
-    expect(argv.slice(argv.indexOf("--allowedTools") + 1)).toEqual(["Read", "Grep", "Glob", "Task", "Bash(node /h/.claude/skills/sustain-audit/scripts/audit-record.mjs *)", "Edit(./.archify/**)"]);
+    expect(skillPrompt("claude", "aisus-audit", "architecture-a-20261018-120000")).toBe("/aisus-audit architecture-a-20261018-120000");
+    const argv = headlessArgs("claude", "/aisus-audit x", { skillDir: "/h/.claude/skills/aisus-audit", scripts: SKILL_SCRIPTS["aisus-audit"], subagents: true });
+    expect(argv.slice(argv.indexOf("--allowedTools") + 1)).toEqual(["Read", "Grep", "Glob", "Task", "Bash(node /h/.claude/skills/aisus-audit/scripts/audit-record.mjs *)", "Edit(./.archify/**)"]);
     expect(forbiddenIn(argv)).toEqual([]);
   });
 
@@ -94,7 +94,7 @@ describe("SAF-04 launch arguments", () => {
   });
 
   test("UI-02 Codex runs in the workspace-write sandbox, and read-only for a question", () => {
-    expect(headlessArgs("codex", "$sustain-architecture", { skillDir: "/s" })).toEqual(["exec", "--json", "--sandbox", "workspace-write", "$sustain-architecture"]);
+    expect(headlessArgs("codex", "$aisus-architecture", { skillDir: "/s" })).toEqual(["exec", "--json", "--sandbox", "workspace-write", "$aisus-architecture"]);
     expect(headlessArgs("codex", "What calls x?", { skillDir: "/s", readOnly: true })).toEqual(["exec", "--json", "--sandbox", "read-only", "What calls x?"]);
   });
 
@@ -123,17 +123,17 @@ describe("SAF-04 launch arguments", () => {
 describe("RCH-04 more agents", () => {
   test("Devin runs Generate with the slash prompt after --", () => {
     const devin = AGENTS.find((agent) => agent.cli === "devin")!;
-    expect(devinPromptArgs(agentPrompt(devin, " payment flow "))).toEqual(["--", "/sustain-architecture payment flow"]);
+    expect(devinPromptArgs(agentPrompt(devin, " payment flow "))).toEqual(["--", "/aisus-architecture payment flow"]);
   });
 
   test("a copied prompt is @name for Devin Desktop, and elsewhere asks to follow the skill's SKILL.md", () => {
-    const dir = "/h/.agents/skills/sustain-architecture";
+    const dir = "/h/.agents/skills/aisus-architecture";
     expect(PROMPT_TARGETS.map((target) => target.label)).toEqual(["GitHub Copilot agent mode", "Cursor's agent", "Gemini CLI", "OpenCode", "Devin Desktop"]);
-    expect(copiedPrompt("devin-desktop", "sustain-architecture", " payment flow ", dir)).toBe("@sustain-architecture payment flow");
-    expect(copiedPrompt("devin-desktop", "sustain-architecture", "", dir)).toBe("@sustain-architecture");
+    expect(copiedPrompt("devin-desktop", "aisus-architecture", " payment flow ", dir)).toBe("@aisus-architecture payment flow");
+    expect(copiedPrompt("devin-desktop", "aisus-architecture", "", dir)).toBe("@aisus-architecture");
     for (const target of ["copilot", "cursor", "gemini", "opencode"] as const) {
-      expect(copiedPrompt(target, "sustain-architecture", "payment flow", dir)).toBe(`Follow the sustain-architecture skill in ${dir}/SKILL.md, and run its scripts from that folder. Its arguments are: payment flow`);
-      expect(copiedPrompt(target, "sustain-architecture", " ", dir)).toBe(`Follow the sustain-architecture skill in ${dir}/SKILL.md, and run its scripts from that folder.`);
+      expect(copiedPrompt(target, "aisus-architecture", "payment flow", dir)).toBe(`Follow the aisus-architecture skill in ${dir}/SKILL.md, and run its scripts from that folder. Its arguments are: payment flow`);
+      expect(copiedPrompt(target, "aisus-architecture", " ", dir)).toBe(`Follow the aisus-architecture skill in ${dir}/SKILL.md, and run its scripts from that folder.`);
     }
   });
 });

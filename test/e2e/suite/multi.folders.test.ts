@@ -12,13 +12,13 @@ suite("FR-WS-01 multi-root workspace", () => {
 
   setup(async () => {
     // The folder pick decides where a project install goes (SET-01).
-    await vscode.workspace.getConfiguration("sustain").update("skillScope", "project", vscode.ConfigurationTarget.Global);
+    await vscode.workspace.getConfiguration("aisus").update("skillScope", "project", vscode.ConfigurationTarget.Global);
     ui = stubUi();
     folders = vscode.workspace.workspaceFolders!.map((folder) => folder.uri.fsPath);
   });
 
   teardown(async () => {
-    await vscode.workspace.getConfiguration("sustain").update("skillScope", undefined, vscode.ConfigurationTarget.Global);
+    await vscode.workspace.getConfiguration("aisus").update("skillScope", undefined, vscode.ConfigurationTarget.Global);
     ui.restore();
     for (const folder of folders) {
       rmSync(join(folder, ".agents"), { recursive: true, force: true });
@@ -29,18 +29,18 @@ suite("FR-WS-01 multi-root workspace", () => {
   test("the QuickPick lists every folder and the pick decides the repo root", async () => {
     assert.equal(folders.length, 2);
     ui.answers.quickPick.push("beta");
-    await vscode.commands.executeCommand("sustain.installSkills");
+    await vscode.commands.executeCommand("aisus.installSkills");
     assert.deepEqual(
       ui.quickPicks[0]!.map((item) => item.label),
       ["alpha", "beta"],
     );
-    assert.equal(existsSync(join(folders[1]!, ".agents/skills/sustain-architecture/SKILL.md")), true);
+    assert.equal(existsSync(join(folders[1]!, ".agents/skills/aisus-architecture/SKILL.md")), true);
     assert.equal(existsSync(join(folders[0]!, ".agents")), false);
   });
 
   test("dismissing the folder pick does nothing", async () => {
     ui.answers.quickPick.push(undefined);
-    await vscode.commands.executeCommand("sustain.generateArchitecture");
+    await vscode.commands.executeCommand("aisus.generateArchitecture");
     assert.equal(ui.inputBoxes.length + ui.infos.length + ui.errors.length, 0);
     for (const folder of folders) assert.equal(existsSync(join(folder, ".agents")), false);
   });
