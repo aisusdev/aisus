@@ -1,0 +1,88 @@
+# aisus cloud: the recommended first run
+
+This plan starts from privacy-first. It tied ship-fast for the highest judge total (45 each), and it is the only proposal that makes private repositories work without code access. Ship-fast's fixes become day 1. Best-ux's one-commit workflow and live checklist become day 2.
+
+## 1. The new first run
+
+1. **aisus.dev, signed out.** The visitor sees the hero and a three-line trust strip: "aisus sees repository names and your role, never code", "maps arrive from your CI, signed by GitHub" and "delete anything, any time". Real Free and Team pricing replaces "Free during beta". "Sign in with GitHub" goes straight to GitHub, and the second, identical button on /signin is gone.
+2. **GitHub authorizes aisus.** The user comes back to aisus.dev, which now shows "Your repositories" instead of the landing page.
+3. **The first visit offers "Install aisus on GitHub".** A "What aisus can see" panel sits beside it. It says GitHub's screen will list one permission, "Read access to metadata". That permission covers repository names, visibility, default branch and the user's own permission, and no code. The panel also says that GitHub's "Act on your behalf" wording is limited to that one permission. On GitHub the user picks an account or organization, then all or selected repositories, and GitHub sends them back. An organization member who is not an owner can only request the install. The card then reads "Requested. Waiting for an owner of acme to approve aisus", and the user can still install on their personal account right away.
+4. **"Your repositories" shows one card per account.** The card header shows the plan and its usage, for example "acme · Free · 0 of 1 private repositories". Anyone who administers one of the account's repositories also sees "Upgrade to Team" with the seat count next to it. Each row shows the repository name, private or public, the user's role and a status: "No map yet" with Set up, or "Map 2 h ago" with Open. The card footer links to "Add or remove repositories on GitHub". An "Open another public repository" field takes owner/name. When the install granted exactly one repository, the user goes straight to its setup.
+5. **Set up opens /<owner>/<repo>, which now shows a three-step checklist** instead of "No map from main yet". Step 1, Make a map, has two tabs:
+   - VS Code: Download, then Generate.
+   - Claude Code or Codex: `npx skills add kerktaiheng/aisus`, then `/aisus-architecture`.
+
+   Both tabs end with one line to copy, `git add .archify && git commit -m "Add aisus map" && git push`. A user who has already committed a map skips this step.
+6. **Step 2 adds the workflow in one commit.** "Add this workflow on GitHub" opens GitHub's new-file editor with `.github/workflows/aisus.yml` already filled in. The file runs on push to the default branch and on pull_request, and sets `id-token: write`, `upload: true` and this site's `cloud-url`. The user presses Commit changes. The YAML is also shown on the page with a Copy button.
+   - If branch protection makes GitHub open a pull request instead, the step says to merge it.
+   - Owners on another CI open "Not on GitHub Actions?". They create an upload token there and copy one complete publish command with the token and the site address filled in. A warning says that shell history keeps the token.
+   - On Free, a second private repository gets a warning with Upgrade at this step, before the commit.
+7. **Step 3 waits for the map.** The page refreshes every 5 seconds for up to 10 minutes and reports the latest upload it received, for example "Received a check from pull request #3. Merge it to publish the main map." After 10 minutes it offers "Check again" and a link to the workflow's runs on GitHub. When the map lands, the page turns into the map with a one-time "Your map is live" bar. The bar offers Copy link, plus Show in gallery for a public repository.
+8. **Teammates need no invite.** They open the link, sign in, and get the role their GitHub permission gives them.
+   - A teammate without write access who opens a repository with no map sees "No map yet. Anyone with write access on GitHub can set it up" and a Copy setup link button.
+   - A repository aisus can't see shows "aisus can't see owner/repo. If it's private, add it to the aisus app's repositories" with Configure on GitHub. The wording is the same whether or not the repository exists.
+9. **The first pull request gets a comment** that links to its page. On Free, three places say what Team adds: that page, the /<owner> dashboard and share links. Admins see "Upgrade to Team" and everyone else sees "Ask an admin of acme". When an upload is refused, the message in CI logs and in `publish` output ends with the upgrade address.
+10. **Upgrade opens Stripe Checkout.** It returns to aisus.dev?upgraded=acme, which shows "acme is on Team. If it still says Free, reload in a few seconds." The card's badge now reads Team, and Manage billing replaces Upgrade.
+
+Which day ships which steps:
+- **Day 1** ships steps 1, 2, 4, 9 and 10 for public repositories. Set up leads to the repository's settings, where the publish command is ready to copy.
+- **Day 2** adds steps 5 to 8.
+- **Phase 3** adds step 3 and private repositories. Until then the list says that private repositories arrive with the aisus GitHub app.
+
+## 2. What changes
+
+| Where | Change | Size |
+|---|---|---|
+| Release (owner, §7 hard stop) | Push a v* tag on day 1, and again after day 2 for the Action change. Today `gh release view -R kerktaiheng/aisus` answers "release not found". That means /install and every aisus.mjs download lead to an empty releases page. | ops, day 1 |
+| `cloud/src/lib/github.ts` | Add `repositories(token)`, which calls GET /user/repos for the 100 most recently pushed repositories with permissions. Add `adminOrganizations(token)`, which calls GET /user/memberships/orgs and keeps role admin. Both are read live and never stored. | +45, day 1 |
+| `cloud/src/app/page.tsx`, `cloud/src/components/Home.tsx` (new), `layout.tsx`, `signin/page.tsx` | **Signed out:** the landing page uses SignInButton directly. Pricing is built from PLANS without the private-repository rows. **Signed in:** the page renders "Your repositories", with account cards (plan badge, seats, Upgrade) and rows merged from GitHub's list and spacesOf (status, then Set up or Open). It also has the "Open another public repository" field, the private-repositories line and the ?upgraded= banner. **Navigation:** sign-in returns to /, and the header gets a Repositories link. The home lives at / because github.com/start is a real user, and a new top-level /start route would hide that user's maps. | +200, day 1 |
+| `cloud/src/lib/store.ts` | Add `mainMapTimes(db, fullNames)`, the latest default-branch map of each repository, for the status column. | +25, day 1 |
+| `cloud/src/lib/billingRequests.ts`, `cloud/src/lib/billing.ts`, `cloud/src/app/settings/page.tsx` | billedAccount also accepts the user's own login and organizations they administer. This lets no one new buy: users already administer their own repositories, and organization admins administer every repository of the organization. Checkout returns to /?upgraded=<account>. /settings lists these accounts under Plans, which removes "Plans belong to the accounts whose repositories you own". Unit cases go in test/unit/billing.test.ts. | +70, day 1 |
+| `cloud/src/components/PlanGate.tsx` (new), the pull page, `[owner]/page.tsx`, repository settings share links | One gate component says what Team adds. It shows Upgrade to admins and "Ask an admin of <owner>" to everyone else. It replaces the four muted plan notes. | +70, day 1 |
+| `cloud/src/components/Actions.tsx` | NewToken shows the complete publish command with the token and NEXTAUTH_URL filled in, a Copy button and the shell-history warning. | +30, day 1 |
+| `cloud/src/app/settings/[owner]/[repo]/page.tsx` | A signed-in non-owner sees "Only admins of owner/repo on GitHub can manage it. The map is at /owner/repo." instead of notFound(). | +20, day 1 |
+| `cloud/test/web/mockGithub.mjs`, `cloud/test/web/cld14-first-run.spec.ts` (new) | Mock /user/repos and /user/memberships/orgs. One spec covers: sign-in, the list, the Upgrade button for the user's own account and an admin organization, and the banner after checkout. | +100, day 1 |
+| `action/src/main.ts`, `action/action.yml`, `action/dist/index.js` | **When it uploads:** on push to the default branch and on workflow_dispatch, the Action uploads the main map as kind "map" over OIDC, using the existing mapPayload. It uploads only when the push changed `.archify/` or the workflow file, which keeps busy repositories under 60 uploads an hour. **With no map:** it logs "No map in .archify/ yet; commit one to publish it" and exits 0. Today it exits 1 with "this event has no pull request". This brings the code in line with what CLD-09 already says. | +70 and +60 tests, rebuilt dist, day 2 |
+| `cloud/src/components/SetupChecklist.tsx` (new), `cloud/src/lib/setup.ts` (new), `cloud/src/app/[owner]/[repo]/page.tsx` | The three-step checklist replaces "No map from main yet", and Set up now leads here. setup.ts builds the YAML and the GitHub new-file link from the default branch and the site address. The page adds: the Copy YAML button, the token path for owners, and a router.refresh() every 5 seconds that stops after 10 minutes. It also adds the latest-upload line read from existing upload rows, the viewer variant and the one-time "Your map is live" bar. It needs no status endpoint and no schema change. | +190, day 2 |
+| `cloud/src/app/api/v1/uploads/route.ts` | The 402 refusal message ends with the upgrade address, and CI logs and `publish` output print it. | +3, day 2 |
+| Tests and `README.md` "aisus cloud" | Extend the spec with Set up, an OIDC upload and the map appearing. Rewrite the README section as three steps: sign in, Set up, commit the workflow. It says the token is for other CI. | +80, day 2 |
+| GitHub (owner, §7 hard stop) | Create the aisus GitHub App with these settings: Metadata read-only and nothing else, webhook off, "Request user authorization during installation" off. The Setup URL is https://aisus.dev/ with redirect on update, the callback is /api/auth/callback/github, and expiring user tokens are on. Put its id and secret in GITHUB_CLIENT_ID and GITHUB_CLIENT_SECRET, and its slug in a new GITHUB_APP_SLUG. Keep the old OAuth app for 8 hours, then delete it. User authorization during installation stays off for a reason: with it on, GitHub skips the Setup URL and sends installs to the callback, where next-auth rejects a flow it didn't start. | ops, 15 min, phase 3 |
+| `cloud/src/auth.ts` | With GITHUB_APP_SLUG set, send no scope. Without it, today's OAuth app keeps working for self-hosters, with public repositories only. | +15, phase 3 |
+| `cloud/src/lib/github.ts` | Add `installations(token)` and `installationRepositories(token, id)`, paginated at 100. A GitHub 401 becomes "sign in again" instead of a 500. Today `repository()` handles only 403 and 404. | +55, phase 3 |
+| `cloud/src/lib/access.ts` | In App mode, signIn skips /user/orgs, and organizations come from installations. `reposOf(user)` joins installations and their repositories, reads them live and caches them for 60 seconds per user. It writes no access rows, which keeps seat counts as they are today. | +45, phase 3 |
+| `Home.tsx`, `page.tsx`, `cloud/src/app/settings/page.tsx`, `cloud/src/app/privacy/page.tsx` | **Home:** the Install button, the "What aisus can see" panel, installation cards with private-repository usage, the Requested state and "Add or remove repositories on GitHub". installation_id and setup_action in the URL are treated as hints and checked against GET /user/installations. **Settings:** "Organizations" becomes "Where aisus is installed". **Privacy:** names the one permission. **Landing page:** gets the trust strip, and the private rows return to pricing. | +160, phase 3 |
+| `cloud/src/lib/pages.ts` and the map, settings and pull pages | A signed-in user who opens a repository aisus can't see gets the "aisus can't see owner/repo" page with Configure on GitHub. The wording is the same for missing and invisible repositories. | +35, phase 3 |
+| `billingRequests.ts`, `SetupChecklist.tsx` | billedAccount also accepts admins of any repository of the account in the user's installations. The checklist warns about Free's one private repository before the commit, using privateRepositoryRefusal. | +35, phase 3 |
+| `cloud/test/web/mockGithub.mjs` and tests | Serve /user/installations and the installation repositories, and answer 404 for private repositories unless they are installed, as GitHub does. Today the mock gives admin on private acme repositories to a read:user,read:org token, which hid the bug. Update the private-repository specs and add unit tests for 401 handling and reposOf roles. | +200, phase 3 |
+| `docs/spec-v0.3.md` CLD-01, new ADR, `docs/architecture.md`, README | CLD-01 becomes the GitHub App with Metadata read-only and no read:org. The ADR records the four options compared: today's scopes, the repo scope, pasted fine-grained tokens and the App. | +80, phase 3 |
+
+Day 1 is about +560 lines, day 2 about +400 and phase 3 about +625.
+
+## 3. GitHub access
+
+Days 1 and 2 keep today's OAuth app and its scopes, read:user and read:org. They add two reads those scopes already allow: GET /user/repos for public repositories with the user's permission, and GET /user/memberships/orgs for the organizations the user administers. Neither result is stored. Phase 3 replaces the OAuth app with an aisus GitHub App that holds one permission, Metadata read-only, on the repositories the user or organization owner picks. The App is the only way to see private repositories without the "repo" scope, which grants read and write to all private code. The App drops read:org, keeps GitHub's 8-hour expiring user tokens and never requests installation tokens. Uploads stay signed by Actions OIDC or by a per-repository upload token.
+
+## 4. Phasing
+
+**Day 1 ships first, in under a day, with the current scopes.** It ends both messages you saw on /settings. It gives one-click sign-in, a repository list before the cloud knows any repository, plans and Upgrade for your own account and the organizations you administer, Upgrade at every plan gate, the banner after checkout, and a ready publish command. It needs no new permission and no schema change. Your steps are: push to main, deploy, and push the v* tag. The pricing change waits on open choice 2.
+
+**Day 2 makes "commit one workflow file" the default path for public repositories.** It adds the Action's main-map upload and the checklist with its live wait. It needs no spec change, because CLD-09 already promises the main map. Push a second tag after it lands.
+
+**Phase 3 takes three to four days and adds the GitHub App and private repositories.** It starts once you approve open choice 1 and create the App. Run two checks before building it:
+- Confirm that a real private repository answers 404 on aisus.dev today, and that it works through the App.
+- Test whether an App user token can read GET /repos for a public repository that is outside every installation. If it can't, the "Open another public repository" field goes away in App mode, and public repositories get added to the installation like private ones.
+
+Everyone signs in once more after the switch. Their data stays, because the users table is keyed by githubId.
+
+**Later, only when needed:**
+- A "hello" upload kind that reports "workflow ran, found no map", if that becomes a common support question. It changes the upload format and needs an ADR.
+- Stored refresh tokens, if signing in again every 8 hours annoys people.
+- A preview of the check's counts on Free pull request pages.
+- An account switcher in the header and a /pricing page.
+- The extension link from open choice 3.
+
+## 5. Open choices for the owner
+
+1. **Approve the metadata-only GitHub App.** Creating it is a §7 hard stop. It also changes CLD-01, which names read:org, and needs a new ADR. Without the App, private repositories stay unusable: GET /repos answers 404 for them today, every private map and settings page is a 404, and neither plan's private-repository promise can be kept. Recommendation: approve it now. First spend ten minutes confirming the 404 with one real private repository on aisus.dev, because the [web] mock hid it.
+2. **Sell Team before private repositories work.** CLD-08 still says "free during beta", but Stripe is live on aisus.dev. Recommendation: replace the note on day 1 with real Free and Team pricing. List only what works today for public repositories: pull request pages, the dashboard, share links and full history. Add the private rows in phase 3. Charging for private repositories that answer 404 would cost more trust than it earns.
+3. **Let the extension open the repository's page in the browser.** After Generate, a sidebar link "Share with your team on aisus cloud" would open aisus.dev/<owner>/<repo> through vscode.env.openExternal, landing on the setup checklist. The extension itself sends nothing. The browser visit does tell aisus.dev the repository's name, which touches the no-network rule. Recommendation: allow it after phase 3 as one line in the spec under that rule. Keep CLD-12 as the separate opt-in for uploading from VS Code.

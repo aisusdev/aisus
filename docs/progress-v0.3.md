@@ -688,6 +688,24 @@ Built 2026-10-24: 227 files rewritten by ordered rules, 13 files and folders ren
 
 Where it differs from the proposal: `docs/research/` keeps its text as well as `docs/adr/`, since it holds another person's dated reports.
 
+## Plans and first run (owner request, 2026-10-24)
+
+The owner found the cloud's first run unusable: after signing in, nothing listed their repositories, and plans stayed hidden until a repository was known. A design panel (three proposals, two judges) also found that private repositories cannot work with today's sign-in, which reads only public repositories. The owner chose to rebuild the first run in full, including a GitHub App, and set new plans: Free has no cloud; Pro, US$5 a month, is the cloud for one person's own repositories, public and private, with full history, pull request pages and share links; Team, US$10 per seat a month, is Pro for everyone in an organization, with its repositories, the team dashboard and seats. Enterprise stays the self-hosted plan. The extension also offers "Share with your team on aisus cloud" after Generate, which opens the repository's page in the browser; the extension itself still sends nothing. `kerk/cloud-first-run.md` holds the panel's full flow.
+
+### Plans and first run proposal (2026-10-24)
+
+| Location | Change | Est. LoC |
+|---|---|---|
+| `cloud/plans.ts`, a migration, `cloud/src/lib/billing.ts`, `cloud/src/lib/billingRequests.ts`, `deploy/stripe-setup.sh`, `deploy/compose.yaml`, `deploy/deploy.sh` | Free, Pro and Team: uploads need Pro or Team, Checkout sells Pro to a person's own account and Team to an organization an admin runs, the webhook sets the plan from the price bought, and the Stripe script creates both prices | +200 |
+| `cloud/src/lib/github.ts`, `cloud/src/lib/store.ts`, `cloud/src/app/page.tsx`, a home component, `layout.tsx`, `signin/page.tsx`, the settings page | Day 1: signed in, `/` lists "Your repositories" by account, with the plan, Upgrade, each repository's map status and Set up or Open; one-click sign-in; plans for your own account and the organizations you administer; the banner after Checkout; real pricing on the landing page | +400 |
+| A plan gate component, the pull request page, the dashboard, share links, the new-token panel | Day 1: every locked feature says what unlocks it, with Upgrade for admins and "ask an admin" for the rest; a new token comes with the full publish command | +150 |
+| `cloud/src/app/[owner]/[repo]/page.tsx`, `action/` | Day 2: a repository without a map shows a three-step checklist (make a map, add the workflow in one commit through GitHub's editor, wait for the map with a live refresh), and the Action uploads the main map from the default branch | +350 |
+| `cloud/src/auth.ts`, `cloud/src/lib/github.ts`, `cloud/src/lib/access.ts`, settings | Phase 3: sign-in through an aisus GitHub App with one permission, Metadata read-only, on the repositories the user or organization picks, so private repositories work without code access | +400 |
+| `src/extension/`, `webview/home.ts` | "Share with your team on aisus cloud" after a map is made, opening `https://aisus.dev/<owner>/<repo>` through the browser | +40 |
+| `docs/adr/0067-*.md`, `docs/adr/0068-*.md` | ADR 0067: plans Free, Pro and Team, superseding ADR 0063. ADR 0068: sign-in through a metadata-only GitHub App | 2 ADRs |
+
+Tests: unit tests for the plans, Checkout and the webhook with Pro and Team, the repository list and the home's data, and the GitHub App's token handling; `[web]` tests for the signed-in home, the plan gate, the checklist and the upgrade path against the mocks; a unit test for the extension's share link.
+
 ## Log
 
 - 2026-10-18 — D5 closed pending owner. Gates: `npm run check` exit 0 (1073 tests, 55 ADRs); `npm run test:e2e` exit 0 on VS Code 1.126.0 and 1.141.0 (single 74, empty 3, multi 2 each); cloud `vitest` 35 passed; cloud `[web]` 8 passed against the built app. Every new test was seen to fail once with its behaviour broken: 16 deliberate breaks across D5. Deployment is a hard stop and waits for the owner (see Waiting).
