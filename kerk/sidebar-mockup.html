@@ -1,0 +1,3394 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>aisus sidebar mockup</title>
+<style>
+/* ======================================================================
+   The page around the frame (not part of the design)
+   ====================================================================== */
+:root {
+  color-scheme: dark;
+  --page-bg: #101114;
+  --page-fg: #dadbe0;
+  --page-muted: #8d9099;
+  --page-line: #2a2c33;
+  --page-chip: #1a1c21;
+  --page-chip-on: #2b3a52;
+  --page-accent: #6cb6ff;
+}
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) {
+    color-scheme: light;
+    --page-bg: #eceef2;
+    --page-fg: #1f2329;
+    --page-muted: #5d6470;
+    --page-line: #d3d7de;
+    --page-chip: #ffffff;
+    --page-chip-on: #d6e6fb;
+    --page-accent: #0b62c4;
+  }
+}
+:root[data-theme="dark"] { color-scheme: dark; }
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--page-bg);
+  color: var(--page-fg);
+  font: 13px/1.45 system-ui, -apple-system, "Segoe UI", Ubuntu, sans-serif;
+}
+.page { max-width: 1340px; margin: 0 auto; padding: 18px 20px 10px; }
+.page h1 { margin: 0; font-size: 17px; font-weight: 650; letter-spacing: -0.01em; }
+.page h1 span { font-weight: 400; color: var(--page-muted); }
+.page__lede { margin: 4px 0 12px; color: var(--page-muted); max-width: 80ch; }
+.ctl { display: flex; flex-wrap: wrap; gap: 10px 22px; align-items: center; padding: 10px 12px; border: 1px solid var(--page-line); border-radius: 8px; background: var(--page-chip); }
+.ctl__group { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.ctl__label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--page-muted); }
+.seg { display: inline-flex; border: 1px solid var(--page-line); border-radius: 6px; overflow: hidden; }
+.seg button, .ctl__btn {
+  font: inherit; color: var(--page-fg); background: transparent; border: none; padding: 4px 10px; cursor: pointer;
+}
+.seg button + button { border-left: 1px solid var(--page-line); }
+.seg button[aria-pressed="true"] { background: var(--page-chip-on); font-weight: 600; }
+.ctl__btn { border: 1px solid var(--page-line); border-radius: 6px; }
+.ctl__btn:hover, .seg button:hover { background: color-mix(in srgb, var(--page-chip-on) 60%, transparent); }
+.ctl select { font: inherit; color: var(--page-fg); background: var(--page-bg); border: 1px solid var(--page-line); border-radius: 5px; padding: 2px 4px; }
+.ctl label { display: inline-flex; align-items: center; gap: 5px; }
+.ctl :focus-visible, .logs :focus-visible { outline: 2px solid var(--page-accent); outline-offset: 1px; }
+.stage { max-width: 1340px; margin: 0 auto; padding: 8px 20px 0; }
+.frame-scroll { overflow-x: auto; padding: 4px 2px 14px; }
+.logs { max-width: 1340px; margin: 0 auto; padding: 4px 20px 40px; display: grid; grid-template-columns: 1.3fr 1fr 1fr; gap: 16px; }
+.logs section { border: 1px solid var(--page-line); border-radius: 8px; background: var(--page-chip); padding: 10px 12px; min-width: 0; }
+.logs h2 { margin: 0 0 6px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--page-muted); font-weight: 600; }
+.logs ol { margin: 0; padding: 0; list-style: none; max-height: 210px; overflow: auto; font-size: 12px; }
+.logs li { padding: 3px 0; border-bottom: 1px dashed var(--page-line); overflow-wrap: anywhere; }
+.logs .log__dir { display: inline-block; min-width: 108px; color: var(--page-muted); }
+.logs code { font: 11.5px/1.4 ui-monospace, "Cascadia Code", Menlo, monospace; }
+.logs .empty { color: var(--page-muted); border: none; }
+.logs ul { margin: 0; padding-left: 18px; }
+.logs ul li { border: none; padding: 2px 0; }
+@media (max-width: 900px) { .logs { grid-template-columns: 1fr; } }
+
+/* ======================================================================
+   The VS Code frame and its themes. The sidebar webview below uses only
+   the --vscode-* tokens; the --syn-* colours are for the fake editor.
+   ====================================================================== */
+.vsc[data-vs="dark"] {
+  --vscode-font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", system-ui, Ubuntu, "Droid Sans", sans-serif;
+  --vscode-font-size: 13px;
+  --vscode-editor-font-family: "Cascadia Code", Consolas, "SF Mono", Menlo, "Courier New", monospace;
+  --vscode-foreground: #cccccc;
+  --vscode-descriptionForeground: #9d9d9d;
+  --vscode-icon-foreground: #cccccc;
+  --vscode-focusBorder: #0078d4;
+  --vscode-widget-border: #313131;
+  --vscode-widget-shadow: rgba(0, 0, 0, 0.36);
+  --vscode-titleBar-activeBackground: #181818;
+  --vscode-titleBar-activeForeground: #cccccc;
+  --vscode-titleBar-border: #2b2b2b;
+  --vscode-commandCenter-background: rgba(255, 255, 255, 0.05);
+  --vscode-commandCenter-border: rgba(204, 204, 204, 0.2);
+  --vscode-commandCenter-foreground: #cccccc;
+  --vscode-activityBar-background: #181818;
+  --vscode-activityBar-foreground: #d7d7d7;
+  --vscode-activityBar-inactiveForeground: #868686;
+  --vscode-activityBar-activeBorder: #0078d4;
+  --vscode-activityBar-border: #2b2b2b;
+  --vscode-activityBarBadge-background: #0078d4;
+  --vscode-activityBarBadge-foreground: #ffffff;
+  --vscode-sideBar-background: #181818;
+  --vscode-sideBar-border: #2b2b2b;
+  --vscode-sideBarTitle-foreground: #cccccc;
+  --vscode-sideBarSectionHeader-foreground: #cccccc;
+  --vscode-sideBarSectionHeader-border: #2b2b2b;
+  --vscode-editor-background: #1f1f1f;
+  --vscode-editor-foreground: #cccccc;
+  --vscode-editor-lineHighlightBackground: rgba(255, 255, 255, 0.05);
+  --vscode-editorLineNumber-foreground: #6e7681;
+  --vscode-editorGroupHeader-tabsBackground: #181818;
+  --vscode-editorGroupHeader-tabsBorder: #2b2b2b;
+  --vscode-tab-activeBackground: #1f1f1f;
+  --vscode-tab-inactiveBackground: #181818;
+  --vscode-tab-activeForeground: #ffffff;
+  --vscode-tab-inactiveForeground: #9d9d9d;
+  --vscode-tab-activeBorderTop: #0078d4;
+  --vscode-tab-border: #2b2b2b;
+  --vscode-breadcrumb-foreground: #a9a9a9;
+  --vscode-editorWidget-background: #202020;
+  --vscode-editorHoverWidget-background: #202020;
+  --vscode-editorHoverWidget-foreground: #cccccc;
+  --vscode-editorHoverWidget-border: #454545;
+  --vscode-statusBar-background: #181818;
+  --vscode-statusBar-foreground: #cccccc;
+  --vscode-statusBar-border: #2b2b2b;
+  --vscode-statusBarItem-hoverBackground: rgba(241, 241, 241, 0.2);
+  --vscode-statusBarItem-remoteBackground: #0078d4;
+  --vscode-statusBarItem-remoteForeground: #ffffff;
+  --vscode-button-background: #0078d4;
+  --vscode-button-foreground: #ffffff;
+  --vscode-button-hoverBackground: #026ec1;
+  --vscode-button-border: rgba(255, 255, 255, 0.07);
+  --vscode-button-secondaryBackground: #313131;
+  --vscode-button-secondaryForeground: #cccccc;
+  --vscode-button-secondaryHoverBackground: #3c3c3c;
+  --vscode-input-background: #313131;
+  --vscode-input-foreground: #cccccc;
+  --vscode-input-border: #3c3c3c;
+  --vscode-input-placeholderForeground: #989898;
+  --vscode-dropdown-background: #313131;
+  --vscode-dropdown-foreground: #cccccc;
+  --vscode-dropdown-border: #3c3c3c;
+  --vscode-textLink-foreground: #4daafc;
+  --vscode-textLink-activeForeground: #4daafc;
+  --vscode-errorForeground: #f85149;
+  --vscode-editorWarning-foreground: #cca700;
+  --vscode-testing-iconPassed: #73c991;
+  --vscode-badge-background: #616161;
+  --vscode-badge-foreground: #f8f8f8;
+  --vscode-panelTitle-activeForeground: #cccccc;
+  --vscode-panelTitle-activeBorder: #0078d4;
+  --vscode-panelTitle-inactiveForeground: #9d9d9d;
+  --vscode-progressBar-background: #0078d4;
+  --vscode-textBlockQuote-background: #2b2b2b;
+  --vscode-textCodeBlock-background: #2b2b2b;
+  --vscode-toolbar-hoverBackground: rgba(90, 93, 94, 0.31);
+  --vscode-list-hoverBackground: #2a2d2e;
+  --vscode-quickInput-background: #222222;
+  --vscode-quickInput-foreground: #cccccc;
+  --vscode-quickInputList-focusBackground: #04395e;
+  --vscode-quickInputList-focusForeground: #ffffff;
+  --vscode-menu-background: #1f1f1f;
+  --vscode-menu-foreground: #cccccc;
+  --vscode-menu-selectionBackground: #0078d4;
+  --vscode-menu-selectionForeground: #ffffff;
+  --vscode-menu-border: #454545;
+  --vscode-menu-separatorBackground: #454545;
+  --vscode-notifications-background: #1f1f1f;
+  --vscode-notifications-border: #2b2b2b;
+  --vscode-inputValidation-warningBorder: #b89500;
+  --vscode-scrollbarSlider-background: rgba(121, 121, 121, 0.4);
+  --vscode-gitDecoration-modifiedResourceForeground: #e2c08d;
+  --vscode-gitDecoration-untrackedResourceForeground: #73c991;
+  --vscode-charts-blue: #3794ff;
+  --vscode-charts-purple: #b180d7;
+  --vscode-charts-green: #89d185;
+  --vscode-charts-orange: #d18616;
+  --vscode-charts-yellow: #cca700;
+  --vscode-charts-red: #f14c4c;
+  --syn-kw: #569cd6; --syn-ctl: #c586c0; --syn-str: #ce9178; --syn-fn: #dcdcaa; --syn-var: #9cdcfe; --syn-com: #6a9955; --syn-num: #b5cea8;
+}
+.vsc[data-vs="light"] {
+  --vscode-font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", system-ui, Ubuntu, "Droid Sans", sans-serif;
+  --vscode-font-size: 13px;
+  --vscode-editor-font-family: "Cascadia Code", Consolas, "SF Mono", Menlo, "Courier New", monospace;
+  --vscode-foreground: #3b3b3b;
+  --vscode-descriptionForeground: #6a6a6a;
+  --vscode-icon-foreground: #3b3b3b;
+  --vscode-focusBorder: #005fb8;
+  --vscode-widget-border: #e0e0e0;
+  --vscode-widget-shadow: rgba(0, 0, 0, 0.16);
+  --vscode-titleBar-activeBackground: #f8f8f8;
+  --vscode-titleBar-activeForeground: #1e1e1e;
+  --vscode-titleBar-border: #e5e5e5;
+  --vscode-commandCenter-background: rgba(0, 0, 0, 0.03);
+  --vscode-commandCenter-border: rgba(30, 30, 30, 0.2);
+  --vscode-commandCenter-foreground: #3b3b3b;
+  --vscode-activityBar-background: #f8f8f8;
+  --vscode-activityBar-foreground: #1f1f1f;
+  --vscode-activityBar-inactiveForeground: #616161;
+  --vscode-activityBar-activeBorder: #005fb8;
+  --vscode-activityBar-border: #e5e5e5;
+  --vscode-activityBarBadge-background: #005fb8;
+  --vscode-activityBarBadge-foreground: #ffffff;
+  --vscode-sideBar-background: #f8f8f8;
+  --vscode-sideBar-border: #e5e5e5;
+  --vscode-sideBarTitle-foreground: #3b3b3b;
+  --vscode-sideBarSectionHeader-foreground: #3b3b3b;
+  --vscode-sideBarSectionHeader-border: #e5e5e5;
+  --vscode-editor-background: #ffffff;
+  --vscode-editor-foreground: #3b3b3b;
+  --vscode-editor-lineHighlightBackground: rgba(0, 0, 0, 0.04);
+  --vscode-editorLineNumber-foreground: #6e7681;
+  --vscode-editorGroupHeader-tabsBackground: #f8f8f8;
+  --vscode-editorGroupHeader-tabsBorder: #e5e5e5;
+  --vscode-tab-activeBackground: #ffffff;
+  --vscode-tab-inactiveBackground: #f8f8f8;
+  --vscode-tab-activeForeground: #3b3b3b;
+  --vscode-tab-inactiveForeground: #868686;
+  --vscode-tab-activeBorderTop: #005fb8;
+  --vscode-tab-border: #e5e5e5;
+  --vscode-breadcrumb-foreground: #555555;
+  --vscode-editorWidget-background: #f8f8f8;
+  --vscode-editorHoverWidget-background: #f8f8f8;
+  --vscode-editorHoverWidget-foreground: #3b3b3b;
+  --vscode-editorHoverWidget-border: #c8c8c8;
+  --vscode-statusBar-background: #f8f8f8;
+  --vscode-statusBar-foreground: #3b3b3b;
+  --vscode-statusBar-border: #e5e5e5;
+  --vscode-statusBarItem-hoverBackground: rgba(31, 31, 31, 0.12);
+  --vscode-statusBarItem-remoteBackground: #005fb8;
+  --vscode-statusBarItem-remoteForeground: #ffffff;
+  --vscode-button-background: #005fb8;
+  --vscode-button-foreground: #ffffff;
+  --vscode-button-hoverBackground: #0258a8;
+  --vscode-button-border: rgba(0, 0, 0, 0.1);
+  --vscode-button-secondaryBackground: #e5e5e5;
+  --vscode-button-secondaryForeground: #3b3b3b;
+  --vscode-button-secondaryHoverBackground: #cccccc;
+  --vscode-input-background: #ffffff;
+  --vscode-input-foreground: #3b3b3b;
+  --vscode-input-border: #cecece;
+  --vscode-input-placeholderForeground: #767676;
+  --vscode-dropdown-background: #ffffff;
+  --vscode-dropdown-foreground: #3b3b3b;
+  --vscode-dropdown-border: #cecece;
+  --vscode-textLink-foreground: #005fb8;
+  --vscode-textLink-activeForeground: #005fb8;
+  --vscode-errorForeground: #d0362b;
+  --vscode-editorWarning-foreground: #a86b00;
+  --vscode-testing-iconPassed: #388a34;
+  --vscode-badge-background: #cccccc;
+  --vscode-badge-foreground: #3b3b3b;
+  --vscode-panelTitle-activeForeground: #3b3b3b;
+  --vscode-panelTitle-activeBorder: #005fb8;
+  --vscode-panelTitle-inactiveForeground: #767676;
+  --vscode-progressBar-background: #005fb8;
+  --vscode-textBlockQuote-background: #efefef;
+  --vscode-textCodeBlock-background: #efefef;
+  --vscode-toolbar-hoverBackground: rgba(184, 184, 184, 0.31);
+  --vscode-list-hoverBackground: #ececec;
+  --vscode-quickInput-background: #f8f8f8;
+  --vscode-quickInput-foreground: #3b3b3b;
+  --vscode-quickInputList-focusBackground: #dbe8f7;
+  --vscode-quickInputList-focusForeground: #000000;
+  --vscode-menu-background: #ffffff;
+  --vscode-menu-foreground: #3b3b3b;
+  --vscode-menu-selectionBackground: #005fb8;
+  --vscode-menu-selectionForeground: #ffffff;
+  --vscode-menu-border: #cecece;
+  --vscode-menu-separatorBackground: #e5e5e5;
+  --vscode-notifications-background: #ffffff;
+  --vscode-notifications-border: #e5e5e5;
+  --vscode-inputValidation-warningBorder: #bf8803;
+  --vscode-scrollbarSlider-background: rgba(100, 100, 100, 0.4);
+  --vscode-gitDecoration-modifiedResourceForeground: #895503;
+  --vscode-gitDecoration-untrackedResourceForeground: #007100;
+  --vscode-charts-blue: #1a85ff;
+  --vscode-charts-purple: #652d90;
+  --vscode-charts-green: #388a34;
+  --vscode-charts-orange: #d18616;
+  --vscode-charts-yellow: #bf8803;
+  --vscode-charts-red: #e51400;
+  --syn-kw: #0000ff; --syn-ctl: #af00db; --syn-str: #a31515; --syn-fn: #795e26; --syn-var: #001080; --syn-com: #008000; --syn-num: #098658;
+}
+.vsc[data-vs="hc"] {
+  --vscode-font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", system-ui, Ubuntu, "Droid Sans", sans-serif;
+  --vscode-font-size: 13px;
+  --vscode-editor-font-family: "Cascadia Code", Consolas, "SF Mono", Menlo, "Courier New", monospace;
+  --vscode-contrastBorder: #6fc3df;
+  --vscode-foreground: #ffffff;
+  --vscode-descriptionForeground: #c8c8c8;
+  --vscode-icon-foreground: #ffffff;
+  --vscode-focusBorder: #f38518;
+  --vscode-widget-border: #6fc3df;
+  --vscode-widget-shadow: transparent;
+  --vscode-titleBar-activeBackground: #000000;
+  --vscode-titleBar-activeForeground: #ffffff;
+  --vscode-titleBar-border: #6fc3df;
+  --vscode-commandCenter-background: #000000;
+  --vscode-commandCenter-border: #6fc3df;
+  --vscode-commandCenter-foreground: #ffffff;
+  --vscode-activityBar-background: #000000;
+  --vscode-activityBar-foreground: #ffffff;
+  --vscode-activityBar-inactiveForeground: #ffffff;
+  --vscode-activityBar-activeBorder: #f38518;
+  --vscode-activityBar-border: #6fc3df;
+  --vscode-activityBarBadge-background: #000000;
+  --vscode-activityBarBadge-foreground: #ffffff;
+  --vscode-sideBar-background: #000000;
+  --vscode-sideBar-border: #6fc3df;
+  --vscode-sideBarTitle-foreground: #ffffff;
+  --vscode-sideBarSectionHeader-foreground: #ffffff;
+  --vscode-sideBarSectionHeader-border: #6fc3df;
+  --vscode-editor-background: #000000;
+  --vscode-editor-foreground: #ffffff;
+  --vscode-editor-lineHighlightBackground: transparent;
+  --vscode-editorLineNumber-foreground: #ffffff;
+  --vscode-editorGroupHeader-tabsBackground: #000000;
+  --vscode-editorGroupHeader-tabsBorder: #6fc3df;
+  --vscode-tab-activeBackground: #000000;
+  --vscode-tab-inactiveBackground: #000000;
+  --vscode-tab-activeForeground: #ffffff;
+  --vscode-tab-inactiveForeground: #ffffff;
+  --vscode-tab-activeBorderTop: #f38518;
+  --vscode-tab-border: #6fc3df;
+  --vscode-breadcrumb-foreground: #ffffff;
+  --vscode-editorWidget-background: #0c141f;
+  --vscode-editorHoverWidget-background: #0c141f;
+  --vscode-editorHoverWidget-foreground: #ffffff;
+  --vscode-editorHoverWidget-border: #6fc3df;
+  --vscode-statusBar-background: #000000;
+  --vscode-statusBar-foreground: #ffffff;
+  --vscode-statusBar-border: #6fc3df;
+  --vscode-statusBarItem-hoverBackground: rgba(255, 255, 255, 0.12);
+  --vscode-statusBarItem-remoteBackground: #000000;
+  --vscode-statusBarItem-remoteForeground: #ffffff;
+  --vscode-button-background: #000000;
+  --vscode-button-foreground: #ffffff;
+  --vscode-button-hoverBackground: #1a1a1a;
+  --vscode-button-border: #6fc3df;
+  --vscode-button-secondaryBackground: #000000;
+  --vscode-button-secondaryForeground: #ffffff;
+  --vscode-button-secondaryHoverBackground: #1a1a1a;
+  --vscode-input-background: #000000;
+  --vscode-input-foreground: #ffffff;
+  --vscode-input-border: #6fc3df;
+  --vscode-input-placeholderForeground: #c8c8c8;
+  --vscode-dropdown-background: #000000;
+  --vscode-dropdown-foreground: #ffffff;
+  --vscode-dropdown-border: #6fc3df;
+  --vscode-textLink-foreground: #21a6ff;
+  --vscode-textLink-activeForeground: #21a6ff;
+  --vscode-errorForeground: #f48771;
+  --vscode-editorWarning-foreground: #ffd700;
+  --vscode-testing-iconPassed: #73c991;
+  --vscode-badge-background: #000000;
+  --vscode-badge-foreground: #ffffff;
+  --vscode-panelTitle-activeForeground: #ffffff;
+  --vscode-panelTitle-activeBorder: #f38518;
+  --vscode-panelTitle-inactiveForeground: #ffffff;
+  --vscode-progressBar-background: #6fc3df;
+  --vscode-textBlockQuote-background: #0c141f;
+  --vscode-textCodeBlock-background: #0c141f;
+  --vscode-toolbar-hoverBackground: rgba(255, 255, 255, 0.12);
+  --vscode-list-hoverBackground: rgba(255, 255, 255, 0.1);
+  --vscode-quickInput-background: #000000;
+  --vscode-quickInput-foreground: #ffffff;
+  --vscode-quickInputList-focusBackground: rgba(111, 195, 223, 0.3);
+  --vscode-quickInputList-focusForeground: #ffffff;
+  --vscode-menu-background: #000000;
+  --vscode-menu-foreground: #ffffff;
+  --vscode-menu-selectionBackground: rgba(243, 133, 24, 0.35);
+  --vscode-menu-selectionForeground: #ffffff;
+  --vscode-menu-border: #6fc3df;
+  --vscode-menu-separatorBackground: #6fc3df;
+  --vscode-notifications-background: #000000;
+  --vscode-notifications-border: #6fc3df;
+  --vscode-inputValidation-warningBorder: #ffd700;
+  --vscode-scrollbarSlider-background: rgba(111, 195, 223, 0.6);
+  --vscode-gitDecoration-modifiedResourceForeground: #e2c08d;
+  --vscode-gitDecoration-untrackedResourceForeground: #73c991;
+  --vscode-charts-blue: #3794ff;
+  --vscode-charts-purple: #b180d7;
+  --vscode-charts-green: #89d185;
+  --vscode-charts-orange: #d18616;
+  --vscode-charts-yellow: #ffd700;
+  --vscode-charts-red: #f48771;
+  --syn-kw: #569cd6; --syn-ctl: #c586c0; --syn-str: #ce9178; --syn-fn: #dcdcaa; --syn-var: #9cdcfe; --syn-com: #7ca668; --syn-num: #b5cea8;
+}
+
+.vsc {
+  --sbw: 320px;
+  position: relative;
+  display: grid;
+  grid-template-rows: 30px minmax(0, 1fr) 22px;
+  min-width: calc(48px + var(--sbw) + 520px);
+  height: 780px;
+  margin: 0 auto;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 22px 60px rgba(0, 0, 0, 0.42), 0 0 0 1px rgba(127, 127, 127, 0.25);
+  font-family: var(--vscode-font-family);
+  font-size: var(--vscode-font-size);
+  color: var(--vscode-foreground);
+  background: var(--vscode-editor-background);
+}
+.ico { fill: none; stroke: currentColor; stroke-width: 1.15; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+.ico .f { fill: currentColor; stroke: none; }
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+
+.titlebar { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; padding: 0 10px; background: var(--vscode-titleBar-activeBackground); color: var(--vscode-titleBar-activeForeground); border-bottom: 1px solid var(--vscode-titleBar-border, transparent); font-size: 12px; }
+.titlebar__lights { display: flex; gap: 7px; }
+.titlebar__lights span { width: 11px; height: 11px; border-radius: 50%; background: #ff5f57; }
+.titlebar__lights span:nth-child(2) { background: #febc2e; }
+.titlebar__lights span:nth-child(3) { background: #28c840; }
+.command-center { width: 360px; height: 22px; display: flex; align-items: center; justify-content: center; gap: 6px; border-radius: 6px; background: var(--vscode-commandCenter-background); border: 1px solid var(--vscode-commandCenter-border); color: var(--vscode-commandCenter-foreground); }
+.titlebar__right { justify-self: end; display: flex; gap: 12px; opacity: 0.8; }
+
+.workbench { display: grid; grid-template-columns: 48px var(--sbw) minmax(0, 1fr); min-height: 0; }
+.activity { display: flex; flex-direction: column; justify-content: space-between; background: var(--vscode-activityBar-background); border-right: 1px solid var(--vscode-activityBar-border, transparent); }
+.activity__btn { position: relative; width: 48px; height: 48px; display: grid; place-items: center; padding: 0; background: none; border: none; color: var(--vscode-activityBar-inactiveForeground); cursor: pointer; }
+.activity__btn:hover, .activity__btn[aria-pressed="true"] { color: var(--vscode-activityBar-foreground); }
+.activity__btn[aria-pressed="true"]::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 2px; background: var(--vscode-activityBar-activeBorder); }
+.activity__btn:focus-visible { outline: 1px solid var(--vscode-focusBorder); outline-offset: -1px; }
+.activity__badge { position: absolute; right: 7px; bottom: 8px; min-width: 16px; height: 16px; padding: 0 4px; border-radius: 8px; font-size: 9px; line-height: 16px; font-weight: 600; text-align: center; background: var(--vscode-activityBarBadge-background); color: var(--vscode-activityBarBadge-foreground); border: 1px solid var(--vscode-contrastBorder, transparent); }
+
+.sidebar { display: flex; flex-direction: column; min-height: 0; min-width: 0; background: var(--vscode-sideBar-background); border-right: 1px solid var(--vscode-sideBar-border, transparent); }
+.view { display: flex; flex-direction: column; min-height: 0; flex: 1; }
+.view[hidden] { display: none; }
+.view-title { flex: none; height: 35px; display: flex; align-items: center; justify-content: space-between; padding: 0 8px 0 20px; }
+.view-title h2 { margin: 0; font-size: 11px; font-weight: 400; text-transform: uppercase; color: var(--vscode-sideBarTitle-foreground); }
+.view-actions { display: flex; gap: 2px; }
+.action { width: 22px; height: 22px; display: grid; place-items: center; padding: 0; border-radius: 5px; background: none; border: 1px solid transparent; color: var(--vscode-icon-foreground); cursor: pointer; }
+.action:hover { background: var(--vscode-toolbar-hoverBackground); }
+.action:focus-visible { outline: 1px solid var(--vscode-focusBorder); outline-offset: -1px; }
+.action--new { position: relative; }
+.view-progress { flex: none; height: 2px; position: relative; overflow: hidden; }
+.view-progress.on::after { content: ""; position: absolute; top: 0; left: -30%; width: 30%; height: 100%; background: var(--vscode-progressBar-background); animation: slide 0.9s linear infinite; }
+@keyframes slide { to { left: 100%; } }
+
+/* Explorer and Source Control views, for the native entry points */
+.tree { padding: 2px 0; font-size: 13px; }
+.tree__row { display: flex; align-items: center; gap: 4px; height: 22px; padding-right: 8px; white-space: nowrap; color: var(--vscode-foreground); }
+.tree__row:hover { background: var(--vscode-list-hoverBackground); }
+.tree__chev { width: 16px; text-align: center; color: var(--vscode-icon-foreground); font-size: 10px; }
+.tree__head { font-weight: 700; font-size: 11px; text-transform: uppercase; }
+.tree__hint { padding: 10px 20px; color: var(--vscode-descriptionForeground); }
+.scm { padding: 0 12px 10px 20px; display: flex; flex-direction: column; gap: 8px; }
+.scm__msg { width: 100%; height: 26px; padding: 5px 6px; font: inherit; color: var(--vscode-input-foreground); background: var(--vscode-input-background); border: 1px solid var(--vscode-input-border, transparent); border-radius: 2px; }
+.scm__group { display: flex; align-items: center; justify-content: space-between; font-size: 11px; font-weight: 700; text-transform: uppercase; margin-top: 4px; }
+.scm__list { list-style: none; margin: 0; padding: 0; }
+.scm__file { display: flex; align-items: center; gap: 6px; height: 22px; }
+.scm__name { white-space: nowrap; }
+.scm__dir { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--vscode-descriptionForeground); font-size: 12px; }
+.scm__st { font-size: 12px; font-weight: 600; width: 12px; text-align: center; }
+.scm__st--M { color: var(--vscode-gitDecoration-modifiedResourceForeground); }
+.scm__st--U { color: var(--vscode-gitDecoration-untrackedResourceForeground); }
+.scm__note { color: var(--vscode-descriptionForeground); font-size: 12px; margin: 4px 0 0; }
+
+/* Editor */
+.editor { position: relative; display: flex; flex-direction: column; min-width: 0; min-height: 0; background: var(--vscode-editor-background); }
+.etabs { flex: none; height: 35px; display: flex; align-items: stretch; background: var(--vscode-editorGroupHeader-tabsBackground); border-bottom: 1px solid var(--vscode-editorGroupHeader-tabsBorder, transparent); }
+.etabs__list { display: flex; min-width: 0; overflow: hidden; flex: 1; }
+.etab { position: relative; display: flex; align-items: center; gap: 6px; padding: 0 6px 0 12px; max-width: 280px; min-width: 0; border: none; border-right: 1px solid var(--vscode-tab-border); background: var(--vscode-tab-inactiveBackground); color: var(--vscode-tab-inactiveForeground); font: inherit; cursor: pointer; white-space: nowrap; }
+.etab[aria-selected="true"] { background: var(--vscode-tab-activeBackground); color: var(--vscode-tab-activeForeground); }
+.etab[aria-selected="true"]::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 1px; background: var(--vscode-tab-activeBorderTop); }
+.etab:focus-visible { outline: 1px solid var(--vscode-focusBorder); outline-offset: -1px; }
+.etab__title { overflow: hidden; text-overflow: ellipsis; }
+.etab__ts { font-size: 10px; font-weight: 700; color: var(--vscode-charts-blue); }
+.etab__close { width: 20px; height: 20px; display: grid; place-items: center; border-radius: 4px; opacity: 0.8; }
+.etab__close:hover { background: var(--vscode-toolbar-hoverBackground); }
+.eactions { display: flex; align-items: center; gap: 2px; padding: 0 8px; }
+.econtent { flex: 1; min-height: 0; position: relative; overflow: auto; }
+.breadcrumbs { height: 22px; display: flex; align-items: center; gap: 4px; padding: 0 14px; color: var(--vscode-breadcrumb-foreground); font-size: 12px; }
+.code { font-family: var(--vscode-editor-font-family); font-size: 13px; line-height: 19px; padding: 2px 0 20px; }
+.code__line { display: grid; grid-template-columns: 56px 1fr; white-space: pre; }
+.code__line--hl { background: var(--vscode-editor-lineHighlightBackground); outline: 1px solid var(--vscode-focusBorder); outline-offset: -1px; }
+.code__no { text-align: right; padding-right: 22px; color: var(--vscode-editorLineNumber-foreground); }
+.code .k { color: var(--syn-kw); } .code .x { color: var(--syn-ctl); } .code .s { color: var(--syn-str); } .code .fn { color: var(--syn-fn); } .code .v { color: var(--syn-var); } .code .c { color: var(--syn-com); } .code .n { color: var(--syn-num); }
+.welcome { padding: 60px 64px; }
+.welcome h2 { margin: 0 0 4px; font-size: 28px; font-weight: 400; }
+.welcome p { margin: 0 0 22px; color: var(--vscode-descriptionForeground); font-size: 15px; }
+.welcome h3 { margin: 0 0 8px; font-size: 15px; font-weight: 400; }
+.welcome ul { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 6px; }
+
+/* Map panel placeholder */
+.mapview { position: relative; min-height: 100%; display: flex; flex-direction: column; }
+.fresh { display: flex; align-items: center; gap: 10px; margin: 10px 14px 0; padding: 6px 10px; border-radius: 4px; background: var(--vscode-editorWidget-background); border: 1px solid var(--vscode-widget-border); border-left: 3px solid var(--vscode-editorWarning-foreground); font-size: 12px; }
+.fresh__text { flex: 1; }
+.compare-note { margin: 10px 14px 0; font-size: 12px; color: var(--vscode-descriptionForeground); }
+.canvas { position: relative; flex: 1; padding: 16px 18px 56px 12px; }
+.layer { position: relative; display: grid; grid-template-columns: 70px 1fr; align-items: center; gap: 8px; margin-bottom: 30px; }
+.layer__name { font-size: 10px; text-transform: uppercase; letter-spacing: 0.07em; color: var(--vscode-descriptionForeground); }
+.layer__boxes { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px 16px; }
+.layer--0 { --hue: var(--vscode-charts-blue); }
+.layer--1 { --hue: var(--vscode-charts-purple); }
+.layer--2 { --hue: var(--vscode-charts-green); }
+.layer--3 { --hue: var(--vscode-charts-orange); }
+.layer--4 { --hue: var(--vscode-charts-yellow); }
+.box { position: relative; z-index: 1; width: 108px; padding: 6px 8px; text-align: left; border-radius: 6px; border: 1px solid color-mix(in srgb, var(--hue) 60%, var(--vscode-widget-border)); background: color-mix(in srgb, var(--hue) 13%, var(--vscode-editor-background)); color: var(--vscode-editor-foreground); font: inherit; cursor: pointer; transition: box-shadow 0.2s; }
+.box:hover { background: color-mix(in srgb, var(--hue) 22%, var(--vscode-editor-background)); }
+.box:focus-visible { outline: 2px solid var(--vscode-focusBorder); outline-offset: 2px; }
+.box__label { display: block; font-weight: 600; font-size: 12.5px; }
+.box__sub { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-family: var(--vscode-editor-font-family); font-size: 10.5px; color: var(--vscode-descriptionForeground); }
+.box__badge { position: absolute; top: -8px; right: -7px; height: 16px; padding: 0 5px; border-radius: 8px; font-size: 9.5px; line-height: 16px; font-weight: 700; background: var(--vscode-editorWarning-foreground); color: var(--vscode-editor-background); }
+.box--new { border-style: dashed; }
+.box--focus { box-shadow: 0 0 0 2px var(--vscode-focusBorder), 0 0 0 6px color-mix(in srgb, var(--vscode-focusBorder) 30%, transparent); }
+.box--heat-4 { background: color-mix(in srgb, var(--vscode-charts-red) 45%, var(--vscode-editor-background)); }
+.box--heat-3 { background: color-mix(in srgb, var(--vscode-charts-red) 32%, var(--vscode-editor-background)); }
+.box--heat-2 { background: color-mix(in srgb, var(--vscode-charts-orange) 26%, var(--vscode-editor-background)); }
+.box--heat-1 { background: color-mix(in srgb, var(--vscode-charts-yellow) 18%, var(--vscode-editor-background)); }
+.edges { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; overflow: visible; }
+.edges path { fill: none; stroke: var(--vscode-descriptionForeground); stroke-opacity: 0.5; stroke-width: 1.2; }
+.edges path.violation { stroke: var(--vscode-errorForeground); stroke-opacity: 0.95; stroke-dasharray: 4 3; stroke-width: 1.4; }
+.edges .ah { fill: var(--vscode-descriptionForeground); fill-opacity: 0.6; }
+.edges .ah--v { fill: var(--vscode-errorForeground); fill-opacity: 1; }
+.edges text { fill: var(--vscode-errorForeground); font-size: 10px; font-family: var(--vscode-font-family); }
+.map-toolbar { position: absolute; right: 14px; bottom: 12px; display: flex; gap: 2px; padding: 2px; border-radius: 6px; background: var(--vscode-editorWidget-background); border: 1px solid var(--vscode-widget-border); z-index: 2; }
+.map-legend { position: absolute; left: 14px; bottom: 14px; font-size: 11px; color: var(--vscode-descriptionForeground); z-index: 2; }
+.tour-callout { position: absolute; z-index: 6; width: 250px; padding: 10px 12px; background: var(--vscode-editorHoverWidget-background); color: var(--vscode-editorHoverWidget-foreground); border: 1px solid var(--vscode-editorHoverWidget-border); border-radius: 6px; box-shadow: 0 4px 16px var(--vscode-widget-shadow); font-size: 12.5px; }
+.tour-callout__step { font-size: 11px; color: var(--vscode-descriptionForeground); }
+.tour-callout__title { font-weight: 600; margin: 2px 0 4px; }
+.tour-callout__text { margin: 0 0 8px; }
+.tour-callout__actions { display: flex; gap: 8px; align-items: center; }
+
+/* Status bar */
+.statusbar { display: flex; justify-content: space-between; align-items: stretch; font-size: 12px; background: var(--vscode-statusBar-background); color: var(--vscode-statusBar-foreground); border-top: 1px solid var(--vscode-statusBar-border, transparent); }
+.sb-group { display: flex; min-width: 0; }
+.sb-item { display: flex; align-items: center; gap: 4px; padding: 0 6px; height: 100%; background: none; border: none; color: inherit; font: inherit; cursor: pointer; white-space: nowrap; }
+.sb-item:hover { background: var(--vscode-statusBarItem-hoverBackground); }
+.sb-item:focus-visible { outline: 1px solid var(--vscode-focusBorder); outline-offset: -1px; }
+.sb-remote { background: var(--vscode-statusBarItem-remoteBackground); color: var(--vscode-statusBarItem-remoteForeground); padding: 0 10px; }
+.sb-plain { cursor: default; }
+.sb-item[hidden] { display: none; }
+.sb-plain:hover { background: none; }
+.spin { animation: spin 1s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Overlays: hover, quick pick, menu, modal, notifications */
+.hover { position: absolute; z-index: 30; width: 330px; padding: 8px 10px; background: var(--vscode-editorHoverWidget-background); color: var(--vscode-editorHoverWidget-foreground); border: 1px solid var(--vscode-editorHoverWidget-border); border-radius: 4px; box-shadow: 0 2px 8px var(--vscode-widget-shadow); font-size: 12.5px; line-height: 1.5; }
+.hover[hidden] { display: none; }
+.hover__title { font-weight: 600; }
+.hover hr { border: none; border-top: 1px solid var(--vscode-editorHoverWidget-border); margin: 6px -10px; }
+.hover__line { display: flex; gap: 6px; }
+.hover__line--warn { color: var(--vscode-editorWarning-foreground); }
+.hover__line--ok { color: var(--vscode-testing-iconPassed); }
+.hover__muted { color: var(--vscode-descriptionForeground); }
+.hover a, .hover .link { color: var(--vscode-textLink-foreground); }
+.quickpick { position: absolute; z-index: 40; top: 34px; left: 50%; transform: translateX(-50%); width: min(560px, 80%); padding: 6px; background: var(--vscode-quickInput-background); color: var(--vscode-quickInput-foreground); border-radius: 7px; box-shadow: 0 0 12px 2px var(--vscode-widget-shadow); border: 1px solid var(--vscode-widget-border); }
+.quickpick__title { text-align: center; font-size: 12px; padding: 0 0 6px; color: var(--vscode-descriptionForeground); }
+.quickpick__input { width: 100%; height: 26px; padding: 0 6px; font: inherit; color: var(--vscode-input-foreground); background: var(--vscode-input-background); border: 1px solid var(--vscode-focusBorder); border-radius: 2px; outline: none; }
+.quickpick__list { list-style: none; margin: 6px 0 0; padding: 0; max-height: 260px; overflow: auto; }
+.quickpick__item { display: flex; gap: 8px; align-items: baseline; padding: 2px 8px; border-radius: 3px; cursor: pointer; line-height: 22px; }
+.quickpick__item[aria-selected="true"] { background: var(--vscode-quickInputList-focusBackground); color: var(--vscode-quickInputList-focusForeground); }
+.quickpick__desc { color: var(--vscode-descriptionForeground); font-size: 12px; }
+.quickpick__item[aria-selected="true"] .quickpick__desc { color: inherit; opacity: 0.8; }
+.menu { position: absolute; z-index: 45; min-width: 240px; padding: 4px 0; background: var(--vscode-menu-background); color: var(--vscode-menu-foreground); border: 1px solid var(--vscode-menu-border); border-radius: 5px; box-shadow: 0 2px 8px var(--vscode-widget-shadow); }
+.menu__item { display: flex; justify-content: space-between; gap: 18px; width: calc(100% - 8px); margin: 0 4px; padding: 0 12px 0 22px; height: 24px; align-items: center; text-align: left; font: inherit; color: inherit; background: none; border: none; border-radius: 3px; cursor: pointer; }
+.menu__item:hover, .menu__item:focus { background: var(--vscode-menu-selectionBackground); color: var(--vscode-menu-selectionForeground); outline: none; }
+.menu__tag { font-size: 11px; opacity: 0.7; }
+.menu__sep { height: 1px; margin: 4px 0; background: var(--vscode-menu-separatorBackground); }
+.modal-back { position: absolute; inset: 0; z-index: 50; background: rgba(0, 0, 0, 0.3); display: flex; justify-content: center; align-items: flex-start; padding-top: 120px; }
+.modal { width: 440px; padding: 18px 18px 14px; background: var(--vscode-editorWidget-background); color: var(--vscode-foreground); border: 1px solid var(--vscode-widget-border); border-radius: 6px; box-shadow: 0 6px 24px var(--vscode-widget-shadow); display: grid; grid-template-columns: 32px 1fr; gap: 6px 12px; }
+.modal__icon { color: var(--vscode-editorWarning-foreground); padding-top: 2px; }
+.modal__msg { font-weight: 600; margin: 0; }
+.modal__detail { margin: 0; color: var(--vscode-descriptionForeground); grid-column: 2; }
+.modal__actions { grid-column: 1 / -1; display: flex; justify-content: flex-end; gap: 8px; margin-top: 12px; }
+.toasts { position: absolute; right: 12px; bottom: 32px; z-index: 35; display: flex; flex-direction: column; gap: 8px; width: 360px; pointer-events: none; }
+.toast { pointer-events: auto; display: flex; align-items: flex-start; gap: 8px; padding: 10px 8px 10px 12px; background: var(--vscode-notifications-background); color: var(--vscode-foreground); border: 1px solid var(--vscode-notifications-border); border-radius: 4px; box-shadow: 0 2px 8px var(--vscode-widget-shadow); font-size: 12.5px; }
+.toast__icon { color: var(--vscode-charts-blue); margin-top: 1px; }
+.toast__msg { flex: 1; }
+
+/* ======================================================================
+   The sidebar webview: aisus.home. Only --vscode-* tokens from here on.
+   ====================================================================== */
+.webview {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  container: webview / size;
+  font-family: var(--vscode-font-family);
+  font-size: var(--vscode-font-size);
+  line-height: 1.4;
+  color: var(--vscode-foreground);
+  background: var(--vscode-sideBar-background);
+}
+.webview::-webkit-scrollbar { width: 10px; }
+.webview::-webkit-scrollbar-thumb { background: var(--vscode-scrollbarSlider-background); }
+.home { display: flex; flex-direction: column; min-height: 100%; padding: 0 12px; }
+
+.header { display: flex; flex-direction: column; gap: 3px; padding: 2px 0 9px; }
+.header__row { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.header__folder { flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 600; }
+.composer__agent { flex: 0 1 auto; min-width: 0; max-width: 60%; height: 22px; padding: 0 4px; color: var(--vscode-dropdown-foreground); background: var(--vscode-dropdown-background); border: 1px solid var(--vscode-dropdown-border, transparent); border-radius: 2px; font: inherit; }
+.composer__agent--none { display: inline-flex; align-items: center; gap: 4px; padding: 0 8px; cursor: pointer; color: var(--vscode-editorWarning-foreground); }
+.header__status { color: var(--vscode-descriptionForeground); overflow-wrap: anywhere; }
+.header__run { display: flex; align-items: center; gap: 6px; width: 100%; min-width: 0; padding: 0; text-align: left; font: inherit; color: var(--vscode-foreground); background: none; border: none; cursor: pointer; }
+.header__run-text { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.header__run:hover .header__run-text { text-decoration: underline; }
+.header__clock { flex: none; font-variant-numeric: tabular-nums; color: var(--vscode-descriptionForeground); }
+.header__warn { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; color: var(--vscode-editorWarning-foreground); }
+.header__nofolder { display: flex; flex-direction: column; align-items: flex-start; gap: 10px; padding: 10px 0; }
+.header__empty { margin: 0; color: var(--vscode-descriptionForeground); }
+
+.tabs { position: sticky; top: 0; z-index: 3; display: flex; margin: 0 -12px; padding: 0 6px; background: var(--vscode-sideBar-background); border-bottom: 1px solid var(--vscode-sideBarSectionHeader-border, var(--vscode-widget-border, transparent)); }
+.tabs[hidden] { display: none; }
+.tab { position: relative; display: inline-flex; align-items: center; gap: 5px; margin: 0 5px; padding: 7px 2px 6px; font: inherit; font-size: 11px; text-transform: uppercase; letter-spacing: 0.02em; color: var(--vscode-panelTitle-inactiveForeground); background: none; border: none; border-bottom: 1px solid transparent; margin-bottom: -1px; cursor: pointer; white-space: nowrap; }
+.tab:hover { color: var(--vscode-panelTitle-activeForeground); }
+.tab[aria-selected="true"] { color: var(--vscode-panelTitle-activeForeground); border-bottom-color: var(--vscode-panelTitle-activeBorder); }
+.tab:focus-visible { outline: 1px solid var(--vscode-focusBorder); outline-offset: -1px; }
+.tab__badge { display: inline-flex; align-items: center; gap: 4px; }
+.badge { display: inline-block; min-width: 16px; height: 16px; padding: 0 5px; border-radius: 8px; font-size: 10px; line-height: 16px; font-weight: 600; text-align: center; letter-spacing: 0; background: var(--vscode-badge-background); color: var(--vscode-badge-foreground); border: 1px solid var(--vscode-contrastBorder, transparent); box-sizing: border-box; }
+.dot { flex: none; width: 7px; height: 7px; border-radius: 50%; background: var(--vscode-progressBar-background); animation: pulse 1.3s ease-in-out infinite; }
+@keyframes pulse { 50% { opacity: 0.35; } }
+
+.panel { display: flex; flex-direction: column; flex: 1; padding-bottom: 18px; }
+.panel[hidden] { display: none; }
+.panel--ask { padding-bottom: 0; }
+
+.section { padding: 10px 0; border-top: 1px solid var(--vscode-sideBarSectionHeader-border, var(--vscode-widget-border, transparent)); display: flex; flex-direction: column; align-items: flex-start; gap: 6px; }
+.panel > :first-child { border-top: none; }
+.section__title { margin: 0; font-size: 11px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: var(--vscode-sideBarSectionHeader-foreground, var(--vscode-foreground)); }
+.muted, .composer__note, .run__focus, .run__estimate, .run__figures, .map__meta, .run__note, .review__hint, .review__counts, .tour__note, .learning__intro, .setup__note, .practice__intro, .practice__note, .practice__estimate, .practice__pending, .practice-question__pending, .ask__note, .ask__estimate, .turn__pending, .turn__figures, .rule__reason, .rules__empty, .newmap__lede, .composer__lede, .empty__text, .runs-line__label, .hunt__status {
+  color: var(--vscode-descriptionForeground);
+}
+p { margin: 0; }
+
+.button { display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 4px 11px; font: inherit; line-height: 18px; color: var(--vscode-button-secondaryForeground); background: var(--vscode-button-secondaryBackground); border: 1px solid var(--vscode-button-border, transparent); border-radius: 2px; cursor: pointer; }
+.button:hover:not(:disabled) { background: var(--vscode-button-secondaryHoverBackground); }
+.button--primary { color: var(--vscode-button-foreground); background: var(--vscode-button-background); }
+.button--primary:hover:not(:disabled) { background: var(--vscode-button-hoverBackground); }
+.button--block { width: 100%; }
+.button:disabled { opacity: 0.5; cursor: default; }
+.link { padding: 0; font: inherit; color: var(--vscode-textLink-foreground); background: none; border: none; cursor: pointer; text-align: left; }
+.link:hover { color: var(--vscode-textLink-activeForeground); text-decoration: underline; }
+.link--danger { color: var(--vscode-errorForeground); }
+.link:disabled { opacity: 0.5; cursor: default; text-decoration: none; }
+.button:focus-visible, .link:focus-visible, .toggle__option:focus-visible, .map__title:focus-visible, .icon-btn:focus-visible, .starter:focus-visible, .cite:focus-visible, .box-link:focus-visible, .header__run:focus-visible, .disclosure__summary:focus-visible, .composer__agent:focus, .run:focus-visible {
+  outline: 1px solid var(--vscode-focusBorder);
+  outline-offset: -1px;
+}
+.run:focus { outline: 1px solid var(--vscode-focusBorder); }
+.icon-btn { width: 22px; height: 22px; display: inline-grid; place-items: center; padding: 0; border-radius: 4px; background: none; border: 1px solid transparent; color: var(--vscode-icon-foreground); cursor: pointer; flex: none; }
+.icon-btn:hover, .icon-btn[aria-expanded="true"] { background: var(--vscode-toolbar-hoverBackground); }
+textarea.input { width: 100%; resize: vertical; padding: 5px 6px; font: inherit; color: var(--vscode-input-foreground); background: var(--vscode-input-background); border: 1px solid var(--vscode-input-border, transparent); border-radius: 2px; }
+textarea.input::placeholder { color: var(--vscode-input-placeholderForeground); }
+textarea.input:focus { outline: 1px solid var(--vscode-focusBorder); outline-offset: -1px; }
+textarea.input:disabled { opacity: 0.6; }
+
+/* Disclosures */
+.disclosure { border-top: 1px solid var(--vscode-sideBarSectionHeader-border, var(--vscode-widget-border, transparent)); }
+.disclosure__summary { list-style: none; display: flex; align-items: center; gap: 6px; padding: 9px 0; cursor: pointer; font-size: 11px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: var(--vscode-sideBarSectionHeader-foreground, var(--vscode-foreground)); }
+.disclosure__summary::-webkit-details-marker { display: none; }
+.disclosure__summary::before { content: ""; flex: none; width: 0; height: 0; margin: 0 2px; border-left: 4px solid currentColor; border-top: 4px solid transparent; border-bottom: 4px solid transparent; transition: transform 0.1s; }
+.disclosure[open] > .disclosure__summary::before { transform: rotate(90deg); }
+.disclosure__meta { font-weight: 400; text-transform: none; letter-spacing: 0; font-size: 12px; color: var(--vscode-descriptionForeground); }
+.disclosure__meta--warn { color: var(--vscode-editorWarning-foreground); }
+.disclosure__meta--err { color: var(--vscode-errorForeground); }
+.disclosure__body { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; padding: 0 0 12px 14px; }
+.disclosure--inline { border-top: none; margin-top: 2px; }
+.disclosure--inline > .disclosure__summary { padding: 2px 0; font-size: 12px; font-weight: 400; text-transform: none; letter-spacing: 0; color: var(--vscode-textLink-foreground); }
+.disclosure--inline > .disclosure__body { padding: 2px 0 4px 12px; }
+.setup--top { border-top: none; }
+
+/* Cards */
+.card { position: relative; margin: 10px 0 4px; padding: 10px; border: 1px solid var(--vscode-widget-border, transparent); border-radius: 4px; background: var(--vscode-editorWidget-background, transparent); display: flex; flex-direction: column; align-items: flex-start; gap: 4px; min-width: 0; }
+.card + .disclosure, .card + .section, .card + .runs-line { margin-top: 8px; }
+.mapcard__headline { display: flex; align-items: baseline; gap: 6px; font-weight: 600; }
+.mapcard__mark--warn { color: var(--vscode-editorWarning-foreground); font-size: 10px; }
+.mapcard__mark--ok { color: var(--vscode-testing-iconPassed); }
+.mapcard__actions { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; width: 100%; margin-top: 6px; }
+.mapcard__actions .icon-btn { margin-left: auto; }
+.map__title { display: block; max-width: 100%; padding: 0; overflow: hidden; font: inherit; font-weight: 600; text-align: left; text-overflow: ellipsis; white-space: nowrap; color: var(--vscode-foreground); background: none; border: none; cursor: pointer; }
+.map__title:hover { color: var(--vscode-textLink-foreground); text-decoration: underline; }
+.map__meta { font-size: 12px; overflow-wrap: anywhere; }
+.more-row { display: flex; flex-wrap: wrap; gap: 6px 14px; width: 100%; margin-top: 8px; padding-top: 8px; border-top: 1px dashed var(--vscode-widget-border); }
+.maps__list { list-style: none; margin: 0; padding: 0; width: 100%; display: flex; flex-direction: column; gap: 8px; }
+.map__row { display: flex; align-items: center; gap: 6px; min-width: 0; }
+.map__row .map__title { flex: 1; min-width: 0; }
+
+/* Run card */
+.run { overflow: hidden; }
+.run__progress { position: absolute; left: 0; right: 0; top: 0; height: 2px; overflow: hidden; }
+.run__progress::after { content: ""; position: absolute; top: 0; left: -30%; width: 30%; height: 100%; background: var(--vscode-progressBar-background); animation: slide 1.1s linear infinite; }
+.run__top { display: flex; justify-content: space-between; gap: 8px; width: 100%; font-weight: 600; }
+.run__status--running { color: var(--vscode-textLink-foreground); }
+.run__status--done { color: var(--vscode-testing-iconPassed); }
+.run__status--failed { color: var(--vscode-errorForeground); }
+.run__status--cancelled { color: var(--vscode-descriptionForeground); }
+.run__phase { font-weight: 500; }
+.run__estimate { font-size: 12px; }
+.run__figures { font-variant-numeric: tabular-nums; }
+.run__feed { width: 100%; margin: 4px 0 0; padding: 0; list-style: none; font-family: var(--vscode-editor-font-family); font-size: 11.5px; }
+.feed { padding: 1px 0 1px 8px; border-left: 2px solid var(--vscode-widget-border, var(--vscode-descriptionForeground)); overflow-wrap: anywhere; }
+.feed--write, .feed--validate { border-left-color: var(--vscode-textLink-foreground); }
+.feed--message { color: var(--vscode-descriptionForeground); font-family: var(--vscode-font-family); }
+.feed--error { border-left-color: var(--vscode-errorForeground); color: var(--vscode-errorForeground); }
+.run__denials { width: 100%; padding: 6px 8px; margin-top: 4px; border: 1px solid var(--vscode-inputValidation-warningBorder, var(--vscode-widget-border, transparent)); border-radius: 2px; display: flex; flex-direction: column; align-items: flex-start; gap: 4px; }
+.run__denial-list { margin: 0; padding-left: 16px; font-family: var(--vscode-editor-font-family); font-size: 11.5px; overflow-wrap: anywhere; }
+.run__actions { display: flex; gap: 8px; margin-top: 6px; }
+
+/* Map tab: new map, runs line, setup */
+.newmap__title { margin: 4px 0 0; font-size: 13px; font-weight: 600; }
+.composer { display: flex; flex-direction: column; gap: 6px; width: 100%; }
+.composer__notes { display: flex; flex-direction: column; gap: 3px; }
+.composer__note { font-size: 12px; }
+.runs-line { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; padding: 9px 0; border-top: 1px solid var(--vscode-sideBarSectionHeader-border, var(--vscode-widget-border, transparent)); }
+.toggle { display: inline-flex; border: 1px solid var(--vscode-input-border, var(--vscode-widget-border, transparent)); border-radius: 2px; }
+.toggle__option { padding: 2px 8px; font: inherit; color: var(--vscode-foreground); background: transparent; border: none; cursor: pointer; }
+.toggle__option--on { color: var(--vscode-button-secondaryForeground); background: var(--vscode-button-secondaryBackground); }
+.checks { list-style: none; margin: 0; padding: 0; width: 100%; display: flex; flex-direction: column; gap: 3px; }
+.check { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 6px; }
+.check__detail { flex: 1 1 160px; min-width: 0; }
+.check--ok .check__mark { color: var(--vscode-testing-iconPassed, var(--vscode-foreground)); }
+.check--fail .check__mark { color: var(--vscode-errorForeground); }
+.check__fix { margin-left: 18px; }
+.setup__note { font-size: 12px; }
+
+/* Ask tab */
+.ask__turns { flex: 1; display: flex; flex-direction: column; padding: 4px 0 10px; }
+.turn { padding: 10px 0; border-bottom: 1px solid var(--vscode-widget-border, transparent); }
+.turn__question { padding: 5px 8px; font-weight: 600; background: var(--vscode-textBlockQuote-background, var(--vscode-input-background)); border-radius: 4px; overflow-wrap: anywhere; }
+.turn__figures { font-size: 12px; }
+.turn__pending { margin-top: 6px; }
+.answer { overflow-wrap: anywhere; }
+.answer p { margin: 7px 0; }
+.answer code { font-family: var(--vscode-editor-font-family); font-size: 0.92em; padding: 0 3px; background: var(--vscode-textCodeBlock-background, var(--vscode-input-background)); border-radius: 3px; }
+.cite, .box-link { padding: 0; font: inherit; color: var(--vscode-textLink-foreground); background: none; border: none; cursor: pointer; }
+.cite { font-family: var(--vscode-editor-font-family); font-size: 0.92em; }
+.box-link { text-decoration: underline dotted; }
+.cite:hover, .box-link:hover { text-decoration: underline; }
+.caret { display: inline-block; width: 6px; height: 1em; vertical-align: text-bottom; background: var(--vscode-foreground); opacity: 0.6; animation: pulse 1s steps(2) infinite; }
+.ask__footer { position: sticky; bottom: 0; z-index: 2; margin: 0 -12px; padding: 8px 12px 10px; display: flex; flex-direction: column; gap: 6px; background: var(--vscode-sideBar-background); border-top: 1px solid var(--vscode-sideBarSectionHeader-border, var(--vscode-widget-border, transparent)); }
+.ask__estimate, .ask__note { font-size: 12px; }
+.ask__buttons { display: flex; align-items: center; gap: 10px; }
+.ask__kbd { margin-left: auto; font-size: 11px; color: var(--vscode-descriptionForeground); }
+/* The footer stops sticking when the view is under 360 px tall (a media query in the real webview). */
+@container webview (max-height: 360px) { .ask__footer { position: static; } }
+.empty { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; padding: 16px 0 8px; }
+.empty__title { font-weight: 600; }
+.starters { display: flex; flex-direction: column; align-items: stretch; gap: 6px; width: 100%; margin-top: 4px; }
+.starter { padding: 5px 9px; text-align: left; font: inherit; color: var(--vscode-foreground); background: transparent; border: 1px solid var(--vscode-widget-border, var(--vscode-input-border, transparent)); border-radius: 4px; cursor: pointer; }
+.starter:hover { background: var(--vscode-list-hoverBackground); }
+
+/* Review tab */
+.health__list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 5px; width: 100%; }
+.health__item { display: flex; flex-direction: column; align-items: flex-start; }
+.health__open { color: var(--vscode-foreground); }
+.health__item--attention .health__open { color: var(--vscode-editorWarning-foreground); }
+.hotspots__list { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 2px; }
+.review__counts { font-size: 12px; overflow-wrap: anywhere; }
+.review__candidates { list-style: none; margin: 0; padding: 0; width: 100%; }
+.candidate { padding: 6px 0 2px; }
+.candidate__dir { font-family: var(--vscode-editor-font-family); font-weight: 600; }
+.row-actions { display: flex; flex-wrap: wrap; gap: 4px 12px; }
+.rules__list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; width: 100%; }
+.rule__id { font-family: var(--vscode-editor-font-family); font-size: 12px; }
+.rule--broken .rule__id { color: var(--vscode-errorForeground); }
+.rule__reason { font-size: 12px; }
+.rule__violation { font-size: 12px; }
+
+/* Learn tab */
+.hunt__title { font-weight: 600; }
+.practice__scopes { display: flex; flex-wrap: wrap; gap: 6px; }
+.practice__estimate, .practice__note { font-size: 12px; }
+.practice__scope { font-weight: 600; margin-top: 4px; }
+.practice__questions { display: flex; flex-direction: column; gap: 12px; margin: 0; padding-left: 18px; width: 100%; }
+.practice-question { display: list-item; }
+.practice-question > * + * { margin-top: 5px; }
+.practice-question > textarea { display: block; }
+.practice-question__text { overflow-wrap: anywhere; }
+.practice-question__given { width: 100%; padding: 4px 8px; background: var(--vscode-textBlockQuote-background, var(--vscode-input-background)); border-radius: 4px; overflow-wrap: anywhere; }
+.practice-grade { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 6px; overflow-wrap: anywhere; }
+.practice-grade__label { font-weight: 600; }
+.practice-grade--correct .practice-grade__label { color: var(--vscode-testing-iconPassed); }
+.practice-grade--partial .practice-grade__label { color: var(--vscode-editorWarning-foreground); }
+.practice-grade--wrong .practice-grade__label { color: var(--vscode-errorForeground); }
+.practice-log { display: flex; flex-direction: column; gap: 3px; margin: 0; padding-left: 16px; color: var(--vscode-descriptionForeground); overflow-wrap: anywhere; font-size: 12px; }
+
+@media (prefers-reduced-motion: reduce) {
+  .dot, .spin, .caret, .run__progress::after, .view-progress.on::after { animation: none; }
+  .run__progress::after, .view-progress.on::after { left: 0; width: 100%; opacity: 0.6; }
+}
+</style>
+</head>
+<body>
+
+<header class="page">
+  <h1>aisus sidebar <span>· clickable mockup of the recommended tabs design</span></h1>
+  <p class="page__lede">One webview view, <code>aisus.home</code>: a header, then Map, Ask, Review and Learn. The repository is <strong>shop</strong>. The panel on the right is a placeholder for the map. Nothing here makes a network request; the messages the sidebar would post are listed under the frame.</p>
+  <div class="ctl" id="controls">
+    <div class="ctl__group">
+      <span class="ctl__label" id="whoLabel">Who</span>
+      <div class="seg" role="group" aria-labelledby="whoLabel">
+        <button type="button" data-who="first">First run</button>
+        <button type="button" data-who="returning">Returning user</button>
+        <button type="button" data-who="nofolder">No folder open</button>
+      </div>
+    </div>
+    <div class="ctl__group">
+      <span class="ctl__label">Simulate</span>
+      <button type="button" class="ctl__btn" id="ctlRun">Start a run</button>
+      <label>Run ends <select id="ctlOutcome">
+        <option value="accepted">accepted</option>
+        <option value="refused">with a refused tool</option>
+        <option value="failed">failed</option>
+      </select></label>
+      <label><input type="checkbox" id="ctlAgent"> No agent on PATH</label>
+    </div>
+    <div class="ctl__group">
+      <span class="ctl__label" id="themeLabel">Theme</span>
+      <div class="seg" role="group" aria-labelledby="themeLabel">
+        <button type="button" data-vs="dark">Dark</button>
+        <button type="button" data-vs="light">Light</button>
+        <button type="button" data-vs="hc">High contrast</button>
+      </div>
+    </div>
+    <div class="ctl__group">
+      <span class="ctl__label" id="widthLabel">Sidebar</span>
+      <div class="seg" role="group" aria-labelledby="widthLabel">
+        <button type="button" data-w="300">300 px</button>
+        <button type="button" data-w="320">320 px</button>
+      </div>
+    </div>
+    <button type="button" class="ctl__btn" id="ctlReset">Reset</button>
+  </div>
+</header>
+
+<main class="stage">
+  <div class="frame-scroll">
+    <div class="vsc" id="vsc" data-vs="dark">
+      <div class="titlebar">
+        <div class="titlebar__lights" aria-hidden="true"><span></span><span></span><span></span></div>
+        <div class="command-center" id="commandCenter"></div>
+        <div class="titlebar__right" aria-hidden="true"></div>
+      </div>
+      <div class="workbench">
+        <nav class="activity" aria-label="Activity Bar">
+          <div id="activityTop"></div>
+          <div id="activityBottom"></div>
+        </nav>
+        <aside class="sidebar" id="sidebar" aria-label="Primary side bar">
+          <section class="view" id="view-aisus" aria-label="aisus">
+            <div class="view-title"><h2>aisus</h2><div class="view-actions" id="aisusActions"></div></div>
+            <div class="view-progress" id="aisusProgress"></div>
+            <div class="webview" id="webview">
+              <div class="home" id="home">
+                <header class="header" id="hdr"></header>
+                <div class="tabs" id="tabs" role="tablist" aria-label="aisus"></div>
+                <div class="panel" id="panel-map" role="tabpanel" aria-labelledby="tab-map"></div>
+                <div class="panel panel--ask" id="panel-ask" role="tabpanel" aria-labelledby="tab-ask"></div>
+                <div class="panel" id="panel-review" role="tabpanel" aria-labelledby="tab-review"></div>
+                <div class="panel" id="panel-learn" role="tabpanel" aria-labelledby="tab-learn"></div>
+                <div class="sr-only" id="live" role="status" aria-live="polite"></div>
+              </div>
+            </div>
+          </section>
+          <section class="view" id="view-explorer" aria-label="Explorer" hidden></section>
+          <section class="view" id="view-scm" aria-label="Source Control" hidden></section>
+          <section class="view" id="view-other" aria-label="Other view" hidden></section>
+        </aside>
+        <section class="editor" id="editor" aria-label="Editor">
+          <div class="etabs">
+            <div class="etabs__list" id="etabs" role="tablist" aria-label="Open editors"></div>
+            <div class="eactions" id="eactions"></div>
+          </div>
+          <div class="econtent" id="econtent"></div>
+        </section>
+      </div>
+      <footer class="statusbar" id="statusbar">
+        <div class="sb-group" id="sbLeft"></div>
+        <div class="sb-group" id="sbRight"></div>
+      </footer>
+      <div class="hover" id="sbHover" role="tooltip" hidden></div>
+      <div class="toasts" id="toasts" aria-live="polite"></div>
+    </div>
+  </div>
+</main>
+
+<section class="logs" aria-label="What happened">
+  <section>
+    <h2>Messages between the sidebar and the host</h2>
+    <ol id="msgLog"><li class="empty">Click something in the frame.</li></ol>
+  </section>
+  <section>
+    <h2>What a screen reader hears (the live region)</h2>
+    <ol id="liveLog"><li class="empty">Only "Run accepted: n boxes", "Run failed", "Answer ready" and "Review ready".</li></ol>
+  </section>
+  <section>
+    <h2>Things to try</h2>
+    <ul>
+      <li>Tab to the tab strip and use Left, Right, Home and End.</li>
+      <li>First run: Generate, then watch the header line, the Map dot and the status bar.</li>
+      <li>Hover <em>aisus: 3 changed</em> in the status bar, then click it.</li>
+      <li>On a map card, open the ⋯ row; try Delete….</li>
+      <li>Ask tab: Clear, then pick a starter. It fills the box and sends nothing.</li>
+      <li>The map's ⋯ menu: Ask About This Map.</li>
+      <li>Source Control in the Activity Bar: the Review Changes icon.</li>
+      <li>Learn: type half an answer, switch tabs and come back.</li>
+    </ul>
+  </section>
+</section>
+
+<script>
+(function () {
+  "use strict";
+
+  /* ------------------------------------------------------------------
+     Helpers
+     ------------------------------------------------------------------ */
+  const ICONS = {
+    explorer: '<path d="M5.5 1.5h5l3 3v8.5h-8z"/><path d="M10.5 1.5v3h3"/><path d="M3.5 4v10.5h7.5"/>',
+    search: '<path d="M11.5 6.5a4.5 4.5 0 1 1-9 0a4.5 4.5 0 1 1 9 0z"/><path d="M10 10l4.5 4.5"/>',
+    scm: '<path d="M4.5 4.8v6.4"/><path d="M11.5 6.8c0 3.2-4.6 2.2-6.6 4.7"/><circle cx="4.5" cy="3.3" r="1.5"/><circle cx="4.5" cy="12.7" r="1.5"/><circle cx="11.5" cy="5.3" r="1.5"/>',
+    run: '<path d="M5 3v10l8-5z"/>',
+    extensions: '<path d="M2 6.5h4v4H2zM6 6.5h4v4H6zM2 10.5h4v4H2zM6 10.5h4v4H6z"/><path d="M9.8 1.6l3.2-.3.4 3.3-3.3.4z"/>',
+    aisus: '<path d="M1.5 2.5h5v3.5h-5zM9.5 2.5h5v3.5h-5zM5.5 10h5v3.5h-5z"/><path d="M4 6v1.8h8V6M8 7.8V10"/>',
+    account: '<path d="M10.8 5.2a2.8 2.8 0 1 1-5.6 0a2.8 2.8 0 1 1 5.6 0z"/><path d="M2.8 14.2c.6-2.8 2.6-4.2 5.2-4.2s4.6 1.4 5.2 4.2"/>',
+    gear: '<path d="M10.4 8a2.4 2.4 0 1 1-4.8 0a2.4 2.4 0 1 1 4.8 0z"/><path d="M8 1.5v2M8 12.5v2M1.5 8h2M12.5 8h2M3.4 3.4l1.4 1.4M11.2 11.2l1.4 1.4M3.4 12.6l1.4-1.4M11.2 4.8l1.4-1.4"/>',
+    refresh: '<path d="M13 8a5 5 0 1 1-1.6-3.7"/><path d="M13 2v3h-3"/>',
+    checklist: '<path d="M2 4.2l1.4 1.4L6 3M2 10.2l1.4 1.4L6 9M8.5 4.5h5.5M8.5 10.5h5.5"/>',
+    stop: '<path d="M4 4h8v8H4z"/>',
+    more: '<circle class="f" cx="3.5" cy="8" r="1.1"/><circle class="f" cx="8" cy="8" r="1.1"/><circle class="f" cx="12.5" cy="8" r="1.1"/>',
+    map: '<path d="M1.5 3.5l4-1.5 5 2 4-1.5v10l-4 1.5-5-2-4 1.5z"/><path d="M5.5 2v10M10.5 4v10"/>',
+    diff: '<path d="M8 2.5v6M5 5.5h6M5 13h6"/>',
+    export: '<path d="M8 1.5v8M5 4.5l3-3 3 3M3 8.5v5h10v-5"/>',
+    shield: '<path d="M8 1.5l5.5 2v4c0 3.4-2.4 5.8-5.5 7-3.1-1.2-5.5-3.6-5.5-7v-4z"/><path d="M5.5 8l1.8 1.8 3.2-3.6"/>',
+    eye: '<path d="M1.5 8s2.5-4.5 6.5-4.5S14.5 8 14.5 8 12 12.5 8 12.5 1.5 8 1.5 8z"/><circle cx="8" cy="8" r="2"/>',
+    flame: '<path d="M8 14.5c-2.9 0-4.5-2-4.5-4.4C3.5 7 6 6 6 2.5c2 1 3.1 3 3.1 4.6.8-.6 1.2-1.5 1.3-2.6 1.2 1.3 2.1 3 2.1 5.5 0 2.5-1.6 4.5-4.5 4.5z"/>',
+    tour: '<path d="M14.5 8a6.5 6.5 0 1 1-13 0a6.5 6.5 0 1 1 13 0z"/><path d="M6.5 5.3v5.4l4.2-2.7z"/>',
+    branch: '<path d="M4.5 4.8v6.4"/><path d="M11.5 6.8c0 3.2-4.6 2.2-6.6 4.7"/><circle cx="4.5" cy="3.3" r="1.5"/><circle cx="4.5" cy="12.7" r="1.5"/><circle cx="11.5" cy="5.3" r="1.5"/>',
+    bell: '<path d="M4 11V7a4 4 0 0 1 8 0v4l1.5 1.5h-11z"/><path d="M6.5 14.2h3"/>',
+    error: '<path d="M14.5 8a6.5 6.5 0 1 1-13 0a6.5 6.5 0 1 1 13 0z"/><path d="M5.8 5.8l4.4 4.4M10.2 5.8l-4.4 4.4"/>',
+    warning: '<path d="M8 1.8l6.6 12H1.4z"/><path d="M8 6.2v3.6M8 11.6v.4"/>',
+    sync: '<path d="M13.5 8a5.5 5.5 0 1 1-1.9-4.2"/><path d="M13 1.8v2.6h-2.6"/>',
+    check: '<path d="M3 8.5l3 3 7-7"/>',
+    close: '<path d="M4 4l8 8M12 4l-8 8"/>',
+    info: '<path d="M14.5 8a6.5 6.5 0 1 1-13 0a6.5 6.5 0 1 1 13 0z"/><path d="M8 7.2v4M8 4.8v.3"/>',
+    remote: '<path d="M2.5 5.5l3 2.5-3 2.5M13.5 5.5l-3 2.5 3 2.5"/>',
+    zoomIn: '<path d="M8 3.5v9M3.5 8h9"/>',
+    zoomOut: '<path d="M3.5 8h9"/>',
+    fit: '<path d="M2 5.5V2h3.5M10.5 2H14v3.5M14 10.5V14h-3.5M5.5 14H2v-3.5"/>',
+    folder: '<path d="M1.5 3.5h4.5l1.5 1.5h7v8h-13z"/>',
+    file: '<path d="M4 1.5h5.5l3 3v10H4z"/><path d="M9.5 1.5v3h3"/>',
+  };
+  const svg = (name, size) => `<svg class="ico" width="${size || 16}" height="${size || 16}" viewBox="0 0 16 16" aria-hidden="true" focusable="false">${ICONS[name]}</svg>`;
+  function icon(name, size) {
+    const wrap = document.createElement("span");
+    wrap.innerHTML = svg(name, size);
+    return wrap.firstChild;
+  }
+  function el(tag, cls, text) {
+    const node = document.createElement(tag);
+    if (cls) node.className = cls;
+    if (text !== undefined && text !== null && text !== "") node.textContent = text;
+    return node;
+  }
+  const fidOf = (s) => String(s).replace(/[^A-Za-z0-9_-]+/g, "-");
+  function btn(label, cls, onClick, fid) {
+    const node = el("button", cls, label);
+    node.type = "button";
+    node.dataset.fid = fidOf(fid || cls + "-" + label);
+    if (onClick) node.addEventListener("click", onClick);
+    return node;
+  }
+  function action(iconName, label, onClick, fid) {
+    const node = btn("", "action", onClick, fid || label);
+    node.innerHTML = svg(iconName, 16);
+    node.title = label;
+    node.setAttribute("aria-label", label);
+    return node;
+  }
+  const $ = (id) => document.getElementById(id);
+  const plural = (n, one, many) => `${n} ${n === 1 ? one : many || one + "s"}`;
+  const cap = (s) => s.charAt(0).toUpperCase() + s.slice(1);
+
+  /* ------------------------------------------------------------------
+     Clock. The mock day is 2026-10-24; run clocks run 7 times faster.
+     ------------------------------------------------------------------ */
+  const DAY = 864e5;
+  const BASE = Date.parse("2026-10-24T10:00:00+08:00");
+  const T0 = Date.now();
+  const now = () => BASE + (Date.now() - T0);
+  const SPEED = 7;
+  function relativeAge(from) {
+    const seconds = Math.max(0, Math.floor((now() - from) / 1000));
+    const steps = [[31536000, "year"], [2592000, "month"], [86400, "day"], [3600, "hour"], [60, "minute"]];
+    for (const [size, unit] of steps) {
+      const count = Math.floor(seconds / size);
+      if (count >= 1) return `${count} ${unit}${count === 1 ? "" : "s"} ago`;
+    }
+    return "just now";
+  }
+  function clock(ms) {
+    const total = Math.max(0, Math.floor(ms / 1000));
+    const h = Math.floor(total / 3600), m = Math.floor((total % 3600) / 60), s = total % 60;
+    const pad = (n) => String(n).padStart(2, "0");
+    return h > 0 ? `${h}:${pad(m)}:${pad(s)}` : `${m}:${pad(s)}`;
+  }
+  const tokenCount = (n) => (n < 1000 ? String(n) : `${(n / 1000).toFixed(n < 10000 ? 1 : 0).replace(/\.0$/, "")}k`);
+
+  let GEN = 0;
+  function later(ms, fn) {
+    const gen = GEN;
+    return setTimeout(() => { if (gen === GEN) fn(); }, ms);
+  }
+
+  /* ------------------------------------------------------------------
+     Content for "shop"
+     ------------------------------------------------------------------ */
+  const ROOT = "/home/dev/code/shop";
+  const AGENTS = [
+    { cli: "claude", label: "Claude Code", version: "Claude Code 2.1.12", skills: "~/.claude/skills", install: "npm install -g @anthropic-ai/claude-code" },
+    { cli: "codex", label: "Codex", version: "codex-cli 0.48.0", skills: "~/.agents/skills", install: "npm install -g @openai/codex" },
+  ];
+  const DATA_NOTE = "Your agent reads this folder and sends what it reads to its own provider. aisus sends nothing.";
+  const SUB = "on a subscription it uses part of your plan's limit";
+  const EST = {
+    generate: `About 120k–180k tokens (about $0.38–$0.57 at API prices; ${SUB})`,
+    refresh: `About 30k–50k tokens (about $0.10–$0.16 at API prices; ${SUB})`,
+    add: `About 20k–40k tokens (about $0.07–$0.13 at API prices; ${SUB})`,
+    tour: `About 20k–30k tokens (about $0.07–$0.10 at API prices; ${SUB})`,
+    ask: `About 10k–20k tokens (about $0.03–$0.06 at API prices; ${SUB})`,
+    practice: `About 20k–40k tokens (about $0.07–$0.13 at API prices; ${SUB})`,
+  };
+  const BOXES = [
+    { id: "web", label: "Web", sub: "web/src", row: 0 },
+    { id: "admin", label: "Admin", sub: "admin/src", row: 0 },
+    { id: "api", label: "API", sub: "api/src", row: 1 },
+    { id: "auth", label: "Auth", sub: "auth/src", row: 1 },
+    { id: "search", label: "Search", sub: "search/src", row: 1 },
+    { id: "orders", label: "Orders", sub: "orders/src", row: 2 },
+    { id: "store", label: "Store", sub: "store/src", row: 2 },
+    { id: "cart", label: "Cart", sub: "cart/src", row: 2 },
+    { id: "catalog", label: "Catalog", sub: "catalog/src", row: 2 },
+    { id: "payments", label: "Payments", sub: "payments/src", row: 3 },
+    { id: "inventory", label: "Inventory", sub: "inventory/src", row: 3 },
+    { id: "worker", label: "Worker", sub: "worker/src", row: 3 },
+    { id: "notifications", label: "Notifications", sub: "notify/src", row: 3 },
+    { id: "database", label: "Database", sub: "db/migrations", row: 4 },
+    { id: "cache", label: "Cache", sub: "cache/src", row: 4 },
+    { id: "config", label: "Config", sub: "config/", row: 4 },
+  ];
+  const COUPONS = { id: "coupons", label: "Coupons", sub: "coupons/src", row: 3, added: true };
+  const ROWS = ["Clients", "Edge", "Domain", "Services", "Data"];
+  const EDGES = [["web", "api"], ["admin", "api"], ["api", "auth"], ["api", "search"], ["api", "orders"], ["api", "store"], ["api", "cart"], ["api", "catalog"], ["orders", "payments"], ["orders", "inventory"], ["orders", "worker"], ["worker", "notifications"], ["store", "database"], ["catalog", "cache"], ["inventory", "database"], ["cart", "coupons"]];
+  const CHANGED_ORDER = ["api", "store", "cart", "orders", "web", "search"];
+  const CHECKOUT_SET = ["web", "api", "auth", "orders", "cart", "payments", "database"];
+  const HOTSPOTS = [
+    { id: "store", label: "Store", commits: 9, lines: 412 },
+    { id: "api", label: "API", commits: 7, lines: 268 },
+    { id: "web", label: "Web", commits: 6, lines: 341 },
+    { id: "cart", label: "Cart", commits: 4, lines: 96 },
+    { id: "orders", label: "Orders", commits: 3, lines: 77 },
+  ];
+  const HEAT = { store: 4, api: 3, web: 3, cart: 2, orders: 1, catalog: 1 };
+  const TOUR = [
+    { box: "web", text: "The storefront. Every page calls the API; nothing here touches the database." },
+    { box: "api", text: "One Express server. Routes in api/src/routes check the session with Auth, then hand off." },
+    { box: "orders", text: "Checkout lands here. place.ts creates the order and asks Payments to charge it." },
+    { box: "payments", text: "Wraps the card provider's client. Only Orders calls it." },
+    { box: "store", text: "Products, prices and stock reads, over the database." },
+    { box: "database", text: "Postgres migrations. The bottom layer imports no other box." },
+  ];
+  const ANSWERS = {
+    checkout: [
+      ["Checkout starts in ", { box: "api", label: "API" }, ": ", { code: "POST /checkout" }, " in ", { cite: "api/src/routes/checkout.ts", line: 9 }, " checks the cart and hands it to ", { box: "orders", label: "Orders" }, "."],
+      [{ box: "orders", label: "Orders" }, " creates the order and asks ", { box: "payments", label: "Payments" }, " to charge it (", { cite: "orders/src/place.ts", line: 42, end: 67 }, "). Payments wraps the card provider's client in ", { cite: "payments/src/charge.ts", line: 12 }, "."],
+      ["Nothing else calls Payments, which is what the rule ", { code: "payments-via-orders" }, " asks for."],
+    ],
+    store: [
+      [{ box: "store", label: "Store" }, " owns products, prices and stock reads. Its entry point is ", { cite: "store/src/index.ts", line: 1 }, ", which the ", { box: "api", label: "API" }, " calls for every product page."],
+      ["It reads and writes through ", { box: "database", label: "Database" }, " in ", { cite: "store/src/db.ts", line: 9 }, ". ", { box: "admin", label: "Admin" }, " imports that file directly in ", { cite: "admin/src/reports.ts", line: 3 }, ", which breaks ", { code: "admin-via-api" }, "."],
+    ],
+    api: [
+      [{ box: "api", label: "API" }, " is one Express server started in ", { cite: "api/src/server.ts", line: 24 }, ". Each route checks the session with ", { box: "auth", label: "Auth" }, " first."],
+      ["The routes then hand off: products to ", { box: "store", label: "Store" }, ", carts to ", { box: "cart", label: "Cart" }, " and checkout to ", { box: "orders", label: "Orders" }, " (", { cite: "api/src/routes/checkout.ts", line: 9, end: 17 }, ")."],
+    ],
+    web: [
+      [{ box: "web", label: "Web" }, " is the storefront, a React app whose routes are in ", { cite: "web/src/app.tsx", line: 14 }, ". It only talks to the ", { box: "api", label: "API" }, ", through ", { cite: "web/src/lib/client.ts", line: 6 }, "."],
+      ["Most of its recent changes are the coupon form, which the map has no box for yet."],
+    ],
+    other: [
+      ["The map's ", { box: "api", label: "API" }, " and ", { box: "orders", label: "Orders" }, " boxes cover this. Start where the routes are registered, ", { cite: "api/src/server.ts", line: 24 }, ", then follow checkout into ", { cite: "orders/src/place.ts", line: 42 }, "."],
+      ["If you mean the new coupon code, it lives in ", { code: "coupons/" }, ", which no box covers yet. Review changes can suggest one."],
+    ],
+  };
+  const QSETS = {
+    branch: [
+      "Where is a coupon's discount taken off the order total, and which box owns that code?",
+      "What does checkout do when Payments times out?",
+      "Why does Admin's sales report break the admin-via-api rule, and how would you fix it?",
+    ],
+    uncommitted: [
+      "What does coupons/src/codes.ts check before a code is accepted?",
+      "Which route calls applyCoupon, and which box is it in?",
+      "What happens to a cart's total if a coupon expires during checkout?",
+    ],
+    box: (label) => [
+      `What is ${label} responsible for, in one sentence?`,
+      `Which boxes call ${label}, and through what?`,
+      `Which file in ${label} would you change to add a field to its main record?`,
+    ],
+  };
+  const GRADES = {
+    [QSETS.branch[1]]: { grade: "partial", reason: "Close. Orders retries the charge once, then marks the order payment_pending instead of failing it.", cite: { path: "orders/src/place.ts", line: 71 } },
+    [QSETS.branch[2]]: { grade: "correct", reason: "Yes. reports.ts imports store/src/db.ts directly; calling GET /admin/reports on the API keeps it inside the rule.", cite: { path: "admin/src/reports.ts", line: 3 } },
+  };
+  const DEFAULT_GRADE = { grade: "partial", reason: "Partly. You named the right box; the code also checks the coupon's expiry before it applies the discount.", cite: { path: "coupons/src/codes.ts", line: 14 } };
+  const GRADE_LABEL = { correct: "Correct", partial: "Partial", wrong: "Wrong" };
+
+  const SCRIPTS = {
+    generate: { delay: 850, tin: 152400, tout: 8900, cost: 0.47, steps: [
+      ["command", "Creating the run folder", { phase: "created" }],
+      ["read", "Read package.json"],
+      ["search", "Searched for \"Router()\""],
+      ["read", "Read api/src/server.ts"],
+      ["read", "Read api/src/routes/checkout.ts"],
+      ["read", "Read orders/src/place.ts"],
+      ["read", "Read store/src/index.ts"],
+      ["read", "Read payments/src/charge.ts"],
+      ["read", "Read web/src/app.tsx"],
+      ["message", "Sixteen boxes in five layers. Checking that every cited path exists."],
+      ["write", "Wrote .aisus/run-2026-10-24-1012/candidate.json"],
+      ["validate", "Validating the draft", { phase: "validating", attempts: 1 }],
+      ["validate", "Rejected with 2 errors, repairing", { phase: "rejected" }],
+      ["write", "Wrote .aisus/run-2026-10-24-1012/candidate.json"],
+      ["validate", "Validating the draft", { phase: "validating", attempts: 2 }],
+      ["END"],
+    ] },
+    refresh: { delay: 900, tin: 38200, tout: 2100, cost: 0.12, steps: [
+      ["command", "Finding what changed", { phase: "created" }],
+      ["read", "Read api/src/routes/checkout.ts"],
+      ["read", "Read store/src/index.ts"],
+      ["read", "Read cart/src/totals.ts"],
+      ["write", "Wrote .aisus/run-2026-10-24-1031/candidate.json"],
+      ["validate", "Validating the draft", { phase: "validating", attempts: 1 }],
+      ["END"],
+    ] },
+    add: { delay: 900, tin: 26400, tout: 1500, cost: 0.08, steps: [
+      ["command", "Finding what changed", { phase: "created" }],
+      ["read", "Read coupons/src/apply.ts"],
+      ["read", "Read coupons/src/codes.ts"],
+      ["read", "Read cart/src/totals.ts"],
+      ["write", "Wrote .aisus/run-2026-10-24-1044/candidate.json"],
+      ["validate", "Validating the draft", { phase: "validating", attempts: 1 }],
+      ["END"],
+    ] },
+    tour: { delay: 850, tin: 24800, tout: 3300, cost: 0.09, steps: [
+      ["read", "Read the map"],
+      ["read", "Read web/src/app.tsx"],
+      ["read", "Read orders/src/place.ts"],
+      ["write", "Wrote tour.json (6 stops)"],
+      ["validate", "Checking each stop's citation"],
+      ["END"],
+    ] },
+  };
+  const VERB = { generate: "Generating", refresh: "Refreshing", add: "Adding to map", tour: "Creating tour" };
+  const STATUS_LABEL = { running: "Running", done: "Done", failed: "Failed", cancelled: "Cancelled" };
+
+  /* ------------------------------------------------------------------
+     State
+     ------------------------------------------------------------------ */
+  const UI = { lastTab: { first: "map", returning: "map", nofolder: "map" }, vs: "dark", width: 320 };
+  let S = null;
+
+  function seed(scenario) {
+    GEN += 1;
+    const prev = S;
+    const returning = scenario === "returning";
+    S = {
+      scenario,
+      agentMissing: prev ? prev.agentMissing : false,
+      agentInstallCopied: false,
+      outcome: prev ? prev.outcome : "accepted",
+      agent: "claude",
+      runMode: "sidebar",
+      tab: UI.lastTab[scenario] || "map",
+      scroll: {},
+      container: "aisus",
+      branch: returning ? "feature/coupons" : "main",
+      maps: returning ? [
+        { id: "m1", title: "shop architecture", runFolder: "run-2026-10-22-0915", focus: "", agent: "Claude Code", createdAt: BASE - 2 * DAY - 3600e3, boxes: 16, changed: 3, tour: true, added: false },
+        { id: "m2", title: "Checkout flow", runFolder: "run-2026-10-15-1640", focus: "checkout and payments", agent: "Claude Code", createdAt: BASE - 9 * DAY, boxes: 7, changed: 2, tour: false, added: false },
+        { id: "m3", title: "shop architecture", runFolder: "run-2026-09-20-1102", focus: "", agent: "Codex", createdAt: BASE - 34 * DAY, boxes: 14, changed: 6, tour: false, added: false },
+      ] : [],
+      run: null,
+      runDismissed: false,
+      lastRun: returning ? { agent: "Claude Code", kind: "Generate", at: BASE - 2 * DAY - 3600e3, dur: "3:12", tin: 182000, tout: 9400, cost: 0.58 } : null,
+      skillsOk: scenario !== "first",
+      dataNoteShown: scenario !== "first",
+      checking: false,
+      uncovered: returning ? { lines: 48, files: 2 } : { lines: 0, files: 0 },
+      candidates: returning ? [{ dir: "coupons", label: "Coupons", lines: 48, files: ["coupons/src/apply.ts", "coupons/src/codes.ts"] }] : [],
+      rules: returning ? [
+        { id: "admin-via-api", reason: "Admin reaches Store only through the API.", violations: 1, detail: { path: "admin/src/reports.ts", line: 3, text: "imports store/src/db.ts" } },
+        { id: "api-no-ui", reason: "The API never imports code from Web or Admin.", violations: 0 },
+        { id: "payments-via-orders", reason: "Only Orders calls Payments.", violations: 0 },
+        { id: "data-at-the-bottom", reason: "Database, Cache and Config import no other box.", violations: 0 },
+      ] : [],
+      review: null,
+      reviewing: false,
+      ask: { streaming: false, turns: returning ? [{ q: "How does checkout reach Payments?", agent: "Claude Code", status: "done", blocks: ANSWERS.checkout, shown: 1e9, tin: 14200, tout: 610, cost: 0.09, error: null }] : [] },
+      practice: {
+        check: returning ? { scope: "This branch (feature/coupons against main)", status: "done", questions: [
+          { id: "q1", q: QSETS.branch[0], status: "graded", answer: "In Cart. applyCoupon in cart/src/totals.ts runs before tax is added.", grade: { grade: "correct", reason: "Yes. Totals live in Cart, and applyCoupon runs before the tax step.", cite: { path: "cart/src/totals.ts", line: 58 } } },
+          { id: "q2", q: QSETS.branch[1], status: "open", answer: null, grade: null },
+          { id: "q3", q: QSETS.branch[2], status: "open", answer: null, grade: null },
+        ] } : null,
+        log: returning ? [
+          { kind: "explain", title: "Explain-back", detail: "Uncommitted changes · 2 of 3 correct", at: "2026-10-22" },
+          { kind: "hunt", title: "Bug hunt", detail: "Store · 3 of 4 bugs found · 120 points", at: "2026-10-19" },
+          { kind: "tour", title: "Tour", detail: "shop architecture · 6 stops", at: "2026-10-15" },
+        ] : [],
+      },
+      session: null,
+      ui: { more: null, feedAll: false, olderOpen: false, newMapOpen: false, setupOpen: false, rulesOpen: returning, top5Open: false, practiceOpen: false },
+      editor: {
+        tabs: scenario === "nofolder" ? ["welcome"] : returning ? ["code", "map"] : ["code"],
+        active: scenario === "nofolder" ? "welcome" : returning ? "map" : "code",
+        mapId: returning ? "m1" : null,
+        hl: null,
+      },
+      focusBox: null,
+      tour: null,
+      hotspotsShown: false,
+    };
+    lastFailing = null;
+    for (const key of Object.keys(keys)) delete keys[key];
+    drafts.clear();
+    focusTA.value = "";
+    question.value = "";
+    closeOverlays();
+  }
+
+  const isRunning = () => !!(S.run && S.run.status === "running");
+  const agentInfo = () => AGENTS.find((a) => a.cli === S.agent) || AGENTS[0];
+  const agentLabel = () => agentInfo().label;
+  const currentMap = () => S.maps[0] || null;
+  const fileOf = (m) => `${ROOT}/.aisus/${m.runFolder}/candidate.json`;
+  const mapById = (id) => S.maps.find((m) => m.id === id) || null;
+
+  function checks() {
+    if (S.checking) return null;
+    const a = agentInfo();
+    return [
+      { id: "node", ok: true, detail: "Node 22.11.0" },
+      S.agentMissing ? { id: a.cli, ok: false, detail: `${a.cli} was not found`, fix: "Copy install command" } : { id: a.cli, ok: true, detail: a.version },
+      S.skillsOk ? { id: "skills", ok: true, detail: "aisus's skills are installed and unchanged" } : { id: "skills", ok: false, detail: "aisus's skills are missing or changed", fix: "Install skills" },
+      { id: "git", ok: true, detail: "Git repository" },
+    ];
+  }
+  const failing = () => (checks() || []).filter((c) => !c.ok);
+  /* Generate cannot run when Node or the chosen agent is missing (Node is always found here). */
+  const generateBlocked = () => S.agentMissing;
+  let lastFailing = null;
+  function syncSetupOpen() {
+    if (S.checking) return;
+    const f = failing().length > 0;
+    if (f !== lastFailing) { S.ui.setupOpen = f; lastFailing = f; }
+  }
+
+  function boxesOf(m) {
+    if (!m) return BOXES;
+    let list = BOXES;
+    if (m.boxes <= 7) list = BOXES.filter((b) => CHECKOUT_SET.includes(b.id));
+    else if (m.boxes === 14) list = BOXES.filter((b) => b.id !== "cache" && b.id !== "config");
+    return m.added ? list.concat([COUPONS]) : list;
+  }
+  const changedIds = (m) => CHANGED_ORDER.filter((id) => boxesOf(m).some((b) => b.id === id)).slice(0, m.changed);
+  const labelOf = (id) => (BOXES.concat([COUPONS]).find((b) => b.id === id) || { label: id }).label;
+
+  function health() {
+    const m = currentMap();
+    if (!m) return null;
+    const broken = S.rules.reduce((sum, r) => sum + r.violations, 0);
+    return [
+      m.changed === 0 ? { kind: "freshness", text: "Every box matches its code.", attention: false } : { kind: "freshness", text: `${m.changed} of ${plural(m.boxes, "box", "boxes")} changed since the map.`, attention: true },
+      S.uncovered.lines === 0 ? { kind: "uncovered", text: "Every changed line since the map is in a box.", attention: false } : { kind: "uncovered", text: `${plural(S.uncovered.lines, "changed line")} in ${plural(S.uncovered.files, "file")} are in no box.`, attention: true },
+      S.rules.length === 0 ? { kind: "violations", text: "No architecture rules yet.", attention: false } : broken === 0 ? { kind: "violations", text: "No import breaks a rule.", attention: false } : { kind: "violations", text: `${plural(broken, "import")} ${broken === 1 ? "breaks" : "break"} a rule.`, attention: true },
+      { kind: "hotspot", text: "Store changed most, with 9 commits in the last 30 days.", attention: false },
+    ];
+  }
+
+  function mapStatus() {
+    const m = currentMap();
+    if (!m) return "No map yet";
+    const age = relativeAge(m.createdAt);
+    const parts = [age === "just now" ? "Map from just now" : `Map from ${age}`, plural(m.boxes, "box", "boxes")];
+    if (m.changed > 0) parts.push(`${m.changed} changed`);
+    return parts.join(" · ");
+  }
+
+  function phaseLine(r) {
+    switch (r.phase) {
+      case "created": return "Run folder created";
+      case "validating": return `Validating, attempt ${r.attempts}`;
+      case "rejected": return `Rejected on attempt ${r.attempts}, repairing`;
+      case "accepted": return r.attempts > 1 ? `Accepted on attempt ${r.attempts}` : "Accepted";
+      default: return null;
+    }
+  }
+  const runElapsed = (r) => ((r.endedReal || Date.now()) - r.startedReal) * SPEED;
+  function runFigures(r) {
+    const parts = [clock(runElapsed(r))];
+    if (r.mode !== "terminal" && r.tin + r.tout > 0) parts.push(`${tokenCount(r.tin)} in`, `${tokenCount(r.tout)} out`);
+    if (r.cost !== null) parts.push(`$${r.cost.toFixed(2)}`);
+    return parts.join(" · ");
+  }
+  const runHeadline = (r) => [VERB[r.kind], phaseLine(r)].filter(Boolean).join(" · ");
+  function runFocusLine(r) {
+    if (r.kind === "generate") return r.focus ? `Focus: ${r.focus}` : "Whole repository";
+    if (r.kind === "refresh") return `Refresh: ${r.targets.map(labelOf).join(", ")}`;
+    if (r.kind === "add") return r.branch ? `Update map for ${S.branch}` : "Add to map: coupons/";
+    return `Create tour: ${r.title}`;
+  }
+
+  /* One filled button per tab: primaryAction(state, tab) in src/model/home.ts. */
+  function primaryMap() {
+    if (generateBlocked()) return "fix:" + S.agent;
+    if (S.run && !S.runDismissed && S.run.denials.length > 0) return "runInTerminal";
+    const m = currentMap();
+    if (m && m.changed > 0) return "refresh";
+    if (!m) return "generate";
+    return "open";
+  }
+
+  /* tabBadges(state) */
+  function badges() {
+    const m = currentMap();
+    const qs = S.practice.check ? S.practice.check.questions : [];
+    const waiting = qs.filter((q) => q.status === "open" || q.status === "failed").length;
+    const review = m ? health().filter((h) => (h.kind === "uncovered" || h.kind === "violations") && h.attention).length : 0;
+    return {
+      map: isRunning() ? { dot: true, sr: "run in progress" } : m && m.changed > 0 ? { n: m.changed, sr: `${m.changed} boxes changed` } : null,
+      ask: S.ask.streaming ? { dot: true, sr: "answer streaming" } : null,
+      review: review > 0 ? { n: review, sr: `${plural(review, "health line")} to look at` } : null,
+      learn: waiting > 0 || S.session ? { n: waiting || null, dot: !!S.session, sr: [waiting ? `Explain-back: ${qs.length - waiting} of ${qs.length} answered` : null, S.session ? "bug hunt running" : null].filter(Boolean).join(", ") } : null,
+    };
+  }
+
+  /* ------------------------------------------------------------------
+     Logs and the live region
+     ------------------------------------------------------------------ */
+  function log(dir, msg) {
+    const list = $("msgLog");
+    const first = list.firstElementChild;
+    if (first && first.classList.contains("empty")) first.remove();
+    const item = el("li");
+    item.append(el("span", "log__dir", dir), el("code", "", JSON.stringify(msg)));
+    list.prepend(item);
+    while (list.children.length > 60) list.lastElementChild.remove();
+  }
+  const post = (msg) => log("sidebar → host", msg);
+  const hostToSidebar = (msg) => log("host → sidebar", msg);
+  function announce(text) {
+    const live = $("live");
+    live.textContent = "";
+    setTimeout(() => { live.textContent = text; }, 40);
+    const list = $("liveLog");
+    const first = list.firstElementChild;
+    if (first && first.classList.contains("empty")) first.remove();
+    const time = new Date().toTimeString().slice(0, 8);
+    const item = el("li");
+    item.append(el("span", "log__dir", time), document.createTextNode(text));
+    list.prepend(item);
+  }
+
+  /* ------------------------------------------------------------------
+     Panels keep their elements: rebuilt only when their key changes,
+     with focus (and a half-typed answer) put back.
+     ------------------------------------------------------------------ */
+  const keys = {};
+  function rebuild(node, build) {
+    const active = document.activeElement;
+    let restore = null;
+    if (active && active !== document.body && node.contains(active)) {
+      if (active.dataset && active.dataset.persist) restore = { el: active, sel: typeof active.selectionStart === "number" ? [active.selectionStart, active.selectionEnd] : null };
+      else if (active.dataset && active.dataset.fid) restore = { fid: active.dataset.fid };
+      else restore = { fallback: true };
+    }
+    node.replaceChildren(...build());
+    if (!restore) return;
+    let target = null;
+    if (restore.el && node.contains(restore.el)) target = restore.el;
+    else if (restore.fid) target = node.querySelector(`[data-fid="${restore.fid}"]`);
+    if (target && !target.disabled) {
+      target.focus({ preventScroll: true });
+      if (restore.sel && target.setSelectionRange) target.setSelectionRange(restore.sel[0], restore.sel[1]);
+    }
+  }
+  function maybe(name, node, key, build) {
+    if (keys[name] === key) return;
+    keys[name] = key;
+    rebuild(node, build);
+  }
+
+  /* Persistent inputs */
+  const focusTA = el("textarea", "input composer__focus");
+  focusTA.rows = 2;
+  focusTA.placeholder = "What should the map focus on? (optional)";
+  focusTA.setAttribute("aria-label", "Focus");
+  focusTA.dataset.persist = "focus";
+  focusTA.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) { e.preventDefault(); const g = document.querySelector('[data-fid="generate"]'); if (g && !g.disabled) g.click(); }
+  });
+  const question = el("textarea", "input ask__question");
+  question.rows = 2;
+  question.placeholder = "Ask about this repository";
+  question.setAttribute("aria-label", "Question");
+  question.dataset.persist = "question";
+  question.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) { e.preventDefault(); onAsk(); }
+  });
+  const drafts = new Map();
+  function draftNode(q, index) {
+    let node = drafts.get(q.id);
+    if (!node) {
+      node = el("textarea", "input practice-question__answer");
+      node.rows = 3;
+      node.placeholder = "Your answer";
+      node.setAttribute("aria-label", `Your answer to question ${index + 1}`);
+      node.dataset.persist = "answer-" + q.id;
+      drafts.set(q.id, node);
+    }
+    return node;
+  }
+  const askTurnsEl = el("div", "ask__turns");
+  askTurnsEl.setAttribute("aria-label", "Conversation");
+  const askFooterEl = el("div", "ask__footer");
+
+  /* ------------------------------------------------------------------
+     Header
+     ------------------------------------------------------------------ */
+  function headerKey() {
+    return JSON.stringify([S.scenario, S.agentMissing, S.agent, isRunning() ? runHeadline(S.run) : mapStatus(), failing().length]);
+  }
+  function buildHeader() {
+    if (S.scenario === "nofolder") {
+      const wrap = el("div", "header__nofolder");
+      wrap.append(el("p", "header__empty", "Open a folder to map it."), btn("Open Folder…", "button button--primary", () => {
+        post({ type: "openFolder" });
+        setScenario("first");
+        toast("Opened ~/code/shop.");
+      }, "openFolder"));
+      return [wrap];
+    }
+    const row = el("div", "header__row");
+    const folder = el("div", "header__folder", "shop");
+    folder.title = ROOT;
+    row.append(folder);
+    if (S.agentMissing) {
+      const none = btn("", "composer__agent composer__agent--none", () => openLocal("map", "setup"), "noAgent");
+      none.append(icon("warning", 13), document.createTextNode("No agent found"));
+      none.title = "Open Setup";
+      row.append(none);
+    } else {
+      const select = el("select", "composer__agent");
+      select.setAttribute("aria-label", "Agent");
+      select.dataset.fid = "agent";
+      for (const a of AGENTS) {
+        const option = el("option", "", a.label);
+        option.value = a.cli;
+        option.selected = a.cli === S.agent;
+        select.append(option);
+      }
+      select.addEventListener("change", () => { S.agent = select.value; post({ type: "setAgent", agent: select.value }); render(); });
+      row.append(select);
+    }
+    const out = [row];
+    if (isRunning()) {
+      const run = btn("", "header__run", () => openLocal("map", "run"), "hdrRun");
+      const clockNode = el("span", "header__clock");
+      clockNode.id = "hdrClock";
+      run.append(el("span", "dot"), el("span", "header__run-text", runHeadline(S.run)), clockNode);
+      run.title = "Show the run on the Map tab";
+      out.push(run);
+    } else {
+      out.push(el("div", "header__status", mapStatus()));
+    }
+    const f = failing();
+    if (f.length > 0) {
+      const warn = el("div", "header__warn");
+      warn.append(icon("warning", 13), el("span", "", `${plural(f.length, "setup check")} failed ·`), btn("Show", "link", () => openLocal("map", "setup"), "warnShow"));
+      out.push(warn);
+    }
+    return out;
+  }
+
+  /* ------------------------------------------------------------------
+     Tabs
+     ------------------------------------------------------------------ */
+  const TABS = [["map", "Map"], ["ask", "Ask"], ["review", "Review"], ["learn", "Learn"]];
+  const tabButtons = {};
+  function buildTabs() {
+    const strip = $("tabs");
+    for (const [id, label] of TABS) {
+      const tab = el("button", "tab");
+      tab.type = "button";
+      tab.id = "tab-" + id;
+      tab.setAttribute("role", "tab");
+      tab.setAttribute("aria-controls", "panel-" + id);
+      tab.append(el("span", "tab__label", label), el("span", "tab__badge"));
+      tab.addEventListener("click", () => selectTab(id, true));
+      tab.addEventListener("keydown", onTabKey);
+      tabButtons[id] = tab;
+      strip.append(tab);
+    }
+  }
+  function onTabKey(event) {
+    const ids = TABS.map((t) => t[0]);
+    const index = ids.indexOf(S.tab);
+    let next = null;
+    if (event.key === "ArrowRight") next = (index + 1) % ids.length;
+    else if (event.key === "ArrowLeft") next = (index - 1 + ids.length) % ids.length;
+    else if (event.key === "Home") next = 0;
+    else if (event.key === "End") next = ids.length - 1;
+    if (next === null) return;
+    event.preventDefault();
+    selectTab(ids[next], true);
+  }
+  function updateTabs() {
+    const b = badges();
+    for (const [id] of TABS) {
+      const tab = tabButtons[id];
+      const selected = S.tab === id;
+      tab.setAttribute("aria-selected", String(selected));
+      tab.tabIndex = selected ? 0 : -1;
+      const slot = tab.querySelector(".tab__badge");
+      const info = b[id];
+      const kids = [];
+      if (info) {
+        if (info.n) { const n = el("span", "badge", String(info.n)); n.setAttribute("aria-hidden", "true"); kids.push(n); }
+        if (info.dot) { const d = el("span", "dot"); d.setAttribute("aria-hidden", "true"); kids.push(d); }
+        kids.push(el("span", "sr-only", ", " + info.sr));
+      }
+      const sig = JSON.stringify(info || null);
+      if (slot.dataset.sig !== sig) { slot.dataset.sig = sig; slot.replaceChildren(...kids); }
+    }
+  }
+  function selectTab(id, focusTab) {
+    const view = $("webview");
+    if (S.tab !== id) {
+      S.scroll[S.tab] = view.scrollTop;
+      S.tab = id;
+      UI.lastTab[S.scenario] = id;
+      closeMoreRows();
+    }
+    render();
+    view.scrollTop = S.scroll[id] || 0;
+    if (focusTab) tabButtons[id].focus();
+  }
+  function closeMoreRows() { S.ui.more = null; }
+
+  /* From inside the sidebar: change tab and put focus on a target. */
+  function openLocal(tab, focus) {
+    S.container = "aisus";
+    if (S.scenario === "nofolder") { render(); return; }
+    selectTab(tab, false);
+    focusTarget(focus);
+  }
+  /* From the host (status bar, Source Control, the map's menu): showTab. */
+  function showTab(tab, focus) {
+    hostToSidebar(focus && focus !== "none" ? { type: "showTab", tab, focus } : { type: "showTab", tab });
+    openLocal(tab, focus);
+  }
+  function focusTarget(focus) {
+    if (!focus || focus === "none") return;
+    if (focus === "question") { question.focus(); return; }
+    if (focus === "composer") {
+      const d = $("newMapDetails");
+      if (d) { d.open = true; S.ui.newMapOpen = true; }
+      focusTA.focus();
+      return;
+    }
+    if (focus === "setup") {
+      S.ui.setupOpen = true;
+      const d = $("setupDetails");
+      if (d) { d.open = true; const s = d.querySelector("summary"); s.focus(); s.scrollIntoView({ block: "nearest" }); }
+      return;
+    }
+    if (focus === "run") {
+      const card = $("runCard");
+      if (card) { card.focus({ preventScroll: true }); card.scrollIntoView({ block: "nearest" }); }
+    }
+  }
+
+  /* ------------------------------------------------------------------
+     Disclosures
+     ------------------------------------------------------------------ */
+  function details(key, title, meta) {
+    const node = el("details", "disclosure disclosure--" + key);
+    node.open = !!S.ui[key + "Open"];
+    const summary = el("summary", "disclosure__summary");
+    summary.dataset.fid = "sum-" + key;
+    summary.append(el("span", "disclosure__title", title));
+    for (const [text, tone] of meta || []) summary.append(el("span", "disclosure__meta" + (tone ? " disclosure__meta--" + tone : ""), text));
+    const body = el("div", "disclosure__body");
+    node.append(summary, body);
+    node.addEventListener("toggle", () => { if (node.isConnected) S.ui[key + "Open"] = node.open; });
+    return { node, body };
+  }
+  function emptyState(text) {
+    const wrap = el("div", "empty");
+    wrap.append(el("p", "empty__text", text), btn("Go to Map", "button", () => openLocal("map", "composer"), "goToMap"));
+    return wrap;
+  }
+
+  /* ------------------------------------------------------------------
+     Map tab
+     ------------------------------------------------------------------ */
+  function mapKey() {
+    const r = S.run && { k: S.run.kind, s: S.run.status, p: S.run.phase, a: S.run.attempts, f: S.run.feed.length, d: S.run.denials.length, m: S.run.mode, c: S.run.cost };
+    return JSON.stringify([S.maps, r, S.runDismissed, checks(), S.runMode, S.agentMissing, S.agent, S.skillsOk, S.dataNoteShown, S.ui.more, S.ui.feedAll]);
+  }
+  function buildMapPanel() {
+    const out = [];
+    const m = currentMap();
+    const prim = primaryMap();
+    const blocked = generateBlocked();
+    if (blocked) out.push(buildSetup(prim, true));
+    if (S.run && !S.runDismissed) out.push(buildRunCard(prim));
+    if (m) {
+      out.push(buildMapCard(m, prim));
+      if (S.maps.length > 1) out.push(buildOlder());
+      out.push(buildNewMap(false, prim));
+    } else {
+      out.push(buildNewMap(true, prim));
+    }
+    out.push(buildRunsLine());
+    if (!blocked) out.push(buildSetup(prim, false));
+    return out;
+  }
+
+  function buildRunCard(prim) {
+    const r = S.run;
+    const card = el("section", `card run run--${r.status}`);
+    card.id = "runCard";
+    card.tabIndex = -1;
+    card.setAttribute("aria-label", "Run");
+    if (r.status === "running") card.append(el("div", "run__progress"));
+    const top = el("div", "run__top");
+    top.append(el("span", "run__agent", r.mode === "terminal" ? `${r.agent} in a terminal` : `${r.agent} · in sidebar`), el("span", `run__status run__status--${r.status}`, STATUS_LABEL[r.status]));
+    card.append(top, el("div", "run__focus", runFocusLine(r)));
+    const phase = phaseLine(r);
+    if (phase) card.append(el("div", "run__phase", phase));
+    card.append(el("div", "run__estimate", `Estimate: ${r.estimate}`));
+    const figures = el("div", "run__figures", runFigures(r));
+    figures.id = "runFigures";
+    card.append(figures);
+    if (r.mode === "terminal") {
+      card.append(el("p", "run__note", "The agent's output is in its terminal. This card follows the run's run.json."));
+    } else if (r.feed.length > 0) {
+      const list = el("ol", "run__feed");
+      list.setAttribute("aria-label", "Activity");
+      for (const item of S.ui.feedAll ? r.feed : r.feed.slice(-3)) list.append(el("li", `feed feed--${item.kind}`, item.text));
+      card.append(list);
+      if (r.feed.length > 3) card.append(btn(S.ui.feedAll ? "Show the last 3" : `Show all (${r.feed.length})`, "link", () => { S.ui.feedAll = !S.ui.feedAll; render(); }, "feedAll"));
+    }
+    if (r.denials.length > 0) {
+      const box = el("div", "run__denials");
+      const list = el("ul", "run__denial-list");
+      for (const d of r.denials) list.append(el("li", "", d));
+      box.append(el("p", "", "The agent was refused:"), list, btn("Run in terminal instead", "button" + (prim === "runInTerminal" ? " button--primary" : ""), onRunInTerminal, "runInTerminal"));
+      card.append(box);
+    }
+    const actions = el("div", "run__actions");
+    if (r.status === "running") actions.append(btn("Cancel", "button", onCancelRun, "cancelRun"));
+    else actions.append(btn("Dismiss", "button", onDismissRun, "dismissRun"));
+    card.append(actions);
+    return card;
+  }
+
+  function metaOf(m, withChanged) {
+    return [m.focus || "Whole repository", m.agent, relativeAge(m.createdAt), plural(m.boxes, "box", "boxes"), withChanged && m.changed > 0 ? `${m.changed} changed` : null, m.tour ? "has a tour" : null].filter(Boolean).join(" · ");
+  }
+  function moreButton(m) {
+    const node = btn("", "icon-btn", () => {
+      S.ui.more = S.ui.more === m.id ? null : m.id;
+      render();
+      if (S.ui.more) { const first = document.querySelector(`#more-${m.id} button`); if (first) first.focus(); }
+    }, "more-" + m.id);
+    node.innerHTML = svg("more", 16);
+    node.setAttribute("aria-label", `More actions for ${m.title}, ${relativeAge(m.createdAt)}`);
+    node.setAttribute("aria-expanded", String(S.ui.more === m.id));
+    node.setAttribute("aria-controls", "more-" + m.id);
+    node.title = "More actions";
+    return node;
+  }
+  function moreRow(m, withRefresh) {
+    const row = el("div", "more-row");
+    row.id = "more-" + m.id;
+    row.setAttribute("role", "group");
+    row.setAttribute("aria-label", `More actions for ${m.title}`);
+    if (withRefresh) { const r = btn("Refresh", "link", () => refreshMap(m), "refresh-" + m.id); r.disabled = isRunning(); row.append(r); }
+    const tour = btn("Create tour", "link", () => onCreateTour(m, false), "tour-" + m.id);
+    tour.disabled = isRunning();
+    row.append(btn("Export page", "link", () => onExport(m), "export-" + m.id), tour, btn("Delete…", "link link--danger", () => onDelete(m), "delete-" + m.id));
+    row.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") { S.ui.more = null; render(); const b = document.querySelector(`[data-fid="more-${m.id}"]`); if (b) b.focus(); }
+    });
+    return row;
+  }
+  function buildMapCard(m, prim) {
+    const running = isRunning();
+    const card = el("section", "card mapcard");
+    card.setAttribute("aria-label", "Current map");
+    const head = el("p", "mapcard__headline");
+    const mark = el("span", m.changed > 0 ? "mapcard__mark mapcard__mark--warn" : "mapcard__mark mapcard__mark--ok", m.changed > 0 ? "●" : "✓");
+    mark.setAttribute("aria-hidden", "true");
+    head.append(mark, el("span", "", m.changed > 0 ? `${m.changed} of ${m.boxes} boxes changed since the map.` : "Every box matches its code."));
+    const title = btn(m.title, "map__title", () => openMap(m), "mapTitle");
+    title.title = `Open ${m.runFolder}`;
+    const actions = el("div", "mapcard__actions");
+    const refreshing = running && S.run.kind === "refresh";
+    if (m.changed > 0) {
+      const refresh = btn(refreshing ? "Refreshing…" : `Refresh ${plural(m.changed, "changed box", "changed boxes")}`, "button" + (prim === "refresh" ? " button--primary" : ""), () => refreshMap(m), "mapRefresh");
+      refresh.disabled = running;
+      actions.append(refresh, btn("Open", "link", () => openMap(m), "mapOpen"));
+    } else {
+      const refresh = btn("Refresh", "link", () => refreshMap(m), "mapRefresh");
+      refresh.disabled = running;
+      actions.append(btn("Open", "button" + (prim === "open" ? " button--primary" : ""), () => openMap(m), "mapOpen"), refresh);
+    }
+    actions.append(moreButton(m));
+    card.append(head, title, el("div", "map__meta", metaOf(m, false)), actions);
+    if (S.ui.more === m.id) card.append(moreRow(m, false));
+    return card;
+  }
+  function buildOlder() {
+    const older = S.maps.slice(1);
+    const d = details("older", "Older maps", [[`(${older.length})`]]);
+    const list = el("ul", "maps__list");
+    for (const m of older) {
+      const item = el("li", "map");
+      const row = el("div", "map__row");
+      const title = btn(m.title, "map__title", () => openMap(m), "title-" + m.id);
+      title.title = `Open ${m.runFolder}`;
+      row.append(title, moreButton(m));
+      item.append(row, el("div", "map__meta", metaOf(m, true)));
+      if (S.ui.more === m.id) item.append(moreRow(m, true));
+      list.append(item);
+    }
+    d.body.append(list);
+    return d.node;
+  }
+  function composerNotes() {
+    const notes = [EST.generate];
+    if (!S.skillsOk) notes.push(`Installs the aisus skill in ${agentInfo().skills}.`);
+    if (!S.dataNoteShown) notes.push(DATA_NOTE);
+    return notes;
+  }
+  function buildComposer(prim) {
+    const running = isRunning();
+    const generate = btn(running && S.run.kind === "generate" ? "Generating…" : "Generate", "button button--block" + (prim === "generate" ? " button--primary" : ""), onGenerate, "generate");
+    generate.disabled = running || generateBlocked() || S.agentMissing;
+    generate.title = "Ctrl+Enter in the focus box";
+    focusTA.disabled = S.agentMissing;
+    const notes = el("div", "composer__notes");
+    if (S.agentMissing) notes.append(el("p", "composer__note", "Generate needs an agent. Setup above says how to install one."));
+    else for (const n of composerNotes()) notes.append(el("p", "composer__note", n));
+    return [focusTA, generate, notes, btn("Copy prompt for…", "link", onCopyPrompt, "copyPrompt")];
+  }
+  function buildNewMap(noMap, prim) {
+    const composer = el("div", "composer");
+    composer.append(...buildComposer(prim));
+    if (noMap) {
+      const s = el("section", "section newmap");
+      s.setAttribute("aria-labelledby", "newMapTitle");
+      const h = el("h2", "newmap__title", "Map this folder");
+      h.id = "newMapTitle";
+      s.append(h, el("p", "newmap__lede", "Your agent reads the code and draws its architecture. Each box opens the code it describes."), composer);
+      return s;
+    }
+    const d = details("newMap", "New map", []);
+    d.node.id = "newMapDetails";
+    d.body.append(el("p", "composer__lede", "A new map, with its own focus. The current one stays."), composer);
+    return d.node;
+  }
+  function buildRunsLine() {
+    const line = el("div", "runs-line");
+    const label = el("span", "runs-line__label", "Runs");
+    label.id = "runsLabel";
+    const group = el("div", "toggle");
+    group.setAttribute("role", "group");
+    group.setAttribute("aria-labelledby", "runsLabel");
+    for (const [value, text] of [["sidebar", "In sidebar"], ["terminal", "In terminal"]]) {
+      const option = btn(text, "toggle__option" + (S.runMode === value ? " toggle__option--on" : ""), () => { S.runMode = value; post({ type: "setRunMode", runMode: value }); render(); }, "mode-" + value);
+      option.setAttribute("aria-pressed", String(S.runMode === value));
+      group.append(option);
+    }
+    line.append(label, group);
+    line.title = "Generate, Refresh, Create tour, Add to map and Map This Box in Detail all run here";
+    return line;
+  }
+  function buildSetup(prim, top) {
+    const list = checks();
+    const bad = failing();
+    const meta = list === null ? [["· checking…"]] : bad.length ? [["· needs attention", "warn"]] : [["· ready"]];
+    const d = details("setup", "Setup", meta);
+    d.node.id = "setupDetails";
+    if (top) d.node.classList.add("setup--top");
+    if (list) {
+      const ul = el("ul", "checks");
+      for (const c of list) {
+        const row = el("li", `check check--${c.ok ? "ok" : "fail"}`);
+        const mark = el("span", "check__mark", c.ok ? "✓" : "✗");
+        mark.setAttribute("aria-hidden", "true");
+        row.append(mark, el("span", "sr-only", c.ok ? "Passed:" : "Failed:"), el("span", "check__detail", c.detail));
+        if (!c.ok && c.fix) row.append(btn(c.fix, (prim === "fix:" + c.id ? "button button--primary" : "link") + " check__fix", () => onFix(c), "fix-" + c.id));
+        ul.append(row);
+      }
+      d.body.append(ul);
+      if (bad.some((c) => c.id === "skills") && !generateBlocked()) d.body.append(el("p", "setup__note", "Generate installs it for you, so you can skip this."));
+    } else {
+      d.body.append(el("p", "setup__note", "Checking Node, your agent, the skill and git…"));
+    }
+    const again = btn("Check again", "link", onCheckSetup, "checkAgain");
+    again.disabled = S.checking;
+    d.body.append(again);
+    return d.node;
+  }
+
+  /* ------------------------------------------------------------------
+     Ask tab
+     ------------------------------------------------------------------ */
+  function spanNode(span) {
+    if (typeof span === "string") return document.createTextNode(span);
+    if (span.code) return el("code", "", span.code);
+    if (span.box) {
+      const b = btn(span.label, "box-link", () => onFocusBox(span.box), "box-" + span.box);
+      b.title = "Show this box on the map";
+      return b;
+    }
+    const text = `${span.cite}:${span.line}${span.end ? "–" + span.end : ""}`;
+    const c = btn(text, "cite", () => onCitation(span), "cite-" + text);
+    c.title = "Open the code";
+    return c;
+  }
+  function unitsOf(blocks) {
+    let n = 0;
+    for (const para of blocks) for (const span of para) n += typeof span === "string" ? span.split(/\s+/).filter(Boolean).length : 1;
+    return n;
+  }
+  function answerNode(blocks, limit, streaming) {
+    const root = el("div", "answer");
+    let used = 0;
+    let last = null;
+    outer: for (const para of blocks) {
+      if (used >= limit) break;
+      const p = el("p");
+      root.append(p);
+      last = p;
+      for (const span of para) {
+        if (used >= limit) break outer;
+        if (typeof span === "string") {
+          let text = "";
+          for (const part of span.split(/(\s+)/)) {
+            if (part === "") continue;
+            if (/^\s+$/.test(part)) { text += part; continue; }
+            if (used >= limit) break;
+            text += part;
+            used += 1;
+          }
+          p.append(document.createTextNode(text));
+        } else {
+          used += 1;
+          p.append(spanNode(span));
+        }
+      }
+    }
+    if (streaming && last) { const c = el("span", "caret"); c.setAttribute("aria-hidden", "true"); last.append(c); }
+    return root;
+  }
+  function askTurn(turn) {
+    const node = el("div", `turn turn--${turn.status}`);
+    node.append(el("div", "turn__question", turn.q));
+    if (turn.shown > 0) node.append(answerNode(turn.blocks, turn.shown, turn.status === "running"));
+    else if (turn.status === "running") node.append(el("p", "turn__pending", `${turn.agent} is reading the map…`));
+    const figures = [turn.agent];
+    if (turn.tin + turn.tout > 0) figures.push(`${tokenCount(turn.tin)} in`, `${tokenCount(turn.tout)} out`);
+    if (turn.cost !== null) figures.push(`$${turn.cost.toFixed(2)}`);
+    if (turn.status === "cancelled") figures.push("stopped");
+    node.append(el("div", "turn__figures", figures.join(" · ")));
+    return node;
+  }
+  function buildTurns() {
+    if (S.ask.turns.length === 0) {
+      const wrap = el("div", "empty");
+      wrap.append(el("p", "empty__title", "Ask your agent about this repository."), el("p", "empty__text", "It reads the map first and cites the lines it uses."));
+      const starters = el("div", "starters");
+      starters.setAttribute("role", "group");
+      starters.setAttribute("aria-label", "Starter questions");
+      for (const h of HOTSPOTS.slice(0, 3)) {
+        const text = `How does ${h.label} work?`;
+        starters.append(btn(text, "starter", () => { question.value = text; question.focus(); question.setSelectionRange(text.length, text.length); }, "starter-" + h.id));
+      }
+      wrap.append(starters);
+      return [wrap];
+    }
+    return S.ask.turns.map(askTurn);
+  }
+  function buildFooter() {
+    const blocked = S.agentMissing ? "No agent found on PATH. Setup on the Map tab says how to install one." : null;
+    question.disabled = !!blocked;
+    const out = [question, el("p", blocked ? "ask__note" : "ask__estimate", blocked || EST.ask)];
+    const row = el("div", "ask__buttons");
+    const ask = btn("Ask", "button button--primary", onAsk, "ask");
+    ask.disabled = !!blocked || S.ask.streaming;
+    row.append(ask);
+    if (S.ask.streaming) row.append(btn("Stop", "button", onStopAsk, "stopAsk"));
+    if (!S.ask.streaming && S.ask.turns.length > 0) row.append(btn("Clear", "link", onClearAsk, "clearAsk"));
+    row.append(el("span", "ask__kbd", "Ctrl+Enter"));
+    out.push(row);
+    return out;
+  }
+
+  /* ------------------------------------------------------------------
+     Review tab
+     ------------------------------------------------------------------ */
+  function reviewKey() {
+    return JSON.stringify([S.maps.map((m) => [m.id, m.boxes, m.changed]), S.uncovered, S.candidates, S.rules, S.review, S.reviewing, isRunning()]);
+  }
+  function buildReview() {
+    if (!currentMap()) return [emptyState("Generate a map first. Review compares changes with it.")];
+    const out = [];
+    const hs = el("section", "section");
+    hs.append(el("h2", "section__title", "Health"));
+    const list = el("ul", "health__list");
+    for (const h of health()) {
+      const item = el("li", "health__item" + (h.attention ? " health__item--attention" : ""));
+      const open = btn(h.text, "link health__open", () => onOpenHealth(h.kind), "health-" + h.kind);
+      if (h.attention) open.prepend(el("span", "sr-only", "Needs a look: "));
+      item.append(open);
+      if (h.kind === "hotspot") {
+        const d = details("top5", "Top 5", []);
+        d.node.classList.add("disclosure--inline");
+        const ol = el("ol", "hotspots__list");
+        for (const b of HOTSPOTS) {
+          const li = el("li");
+          li.append(btn(`${b.label} · ${plural(b.commits, "commit")} · ${b.lines} lines`, "link", () => onFocusBox(b.id), "hot-" + b.id));
+          ol.append(li);
+        }
+        d.body.append(ol);
+        item.append(d.node);
+      }
+      list.append(item);
+    }
+    hs.append(list);
+    out.push(hs);
+
+    const rs = el("section", "section review");
+    rs.append(el("h2", "section__title", "Review changes"), el("p", "review__hint", "Checks your changes against the map. Uses no tokens."));
+    const review = btn(S.reviewing ? "Reviewing…" : "Review changes…", "button button--primary", onReview, "review");
+    review.disabled = S.reviewing;
+    rs.append(review);
+    const r = S.review;
+    if (r) {
+      const c = r.counts;
+      const arrows = c.arrows > 0 ? ` · ${plural(c.arrows, "new arrow")}` : "";
+      rs.append(el("p", "review__counts", `${r.scope}: ${c.touched} touched · ${c.stale} stale · ${c.gone} gone · ${c.uncovered} not on the map · ${plural(c.candidates, "new box candidate")}${arrows}`));
+      if (r.candidates.length > 0) {
+        const ul = el("ul", "review__candidates");
+        for (const cand of r.candidates) {
+          const li = el("li", "candidate");
+          const acts = el("div", "row-actions");
+          const add = btn("Add to map", "link", () => onAddToMap(cand), "add-" + cand.dir);
+          add.disabled = isRunning();
+          acts.append(btn("Show files", "link", () => { post({ type: "showFiles", dir: cand.dir }); toast(cand.files.join(", ")); }, "files-" + cand.dir), add, btn("Ignore", "link", () => onIgnore(cand), "ignore-" + cand.dir));
+          li.append(el("div", "candidate__dir", cand.dir + "/"), el("div", "map__meta", `${plural(cand.files.length, "file")} · ${cand.lines} lines · suggested box: ${cand.label}`), acts);
+          ul.append(li);
+        }
+        rs.append(ul);
+      }
+      if (r.canUpdate) {
+        const upd = btn("Update map for this branch", "link", onUpdateBranch, "updateBranch");
+        upd.disabled = isRunning();
+        rs.append(upd);
+      }
+    }
+    out.push(rs);
+
+    const broken = S.rules.filter((x) => x.violations > 0).length;
+    const meta = S.rules.length ? [[`· ${S.rules.length}`]].concat(broken ? [[`· ${broken} broken`, "err"]] : []) : [["· none yet"]];
+    const d = details("rules", "Rules", meta);
+    d.node.classList.add("rules");
+    if (S.rules.length === 0) d.body.append(el("p", "rules__empty", "No rules yet. Suggest some, or right-click an arrow or a box on the map."));
+    else {
+      const ul = el("ul", "rules__list");
+      for (const rule of S.rules) {
+        const li = el("li", "rule" + (rule.violations > 0 ? " rule--broken" : ""));
+        li.append(el("div", "rule__id", `${rule.id} · ${plural(rule.violations, "violation")}`), el("div", "rule__reason", rule.reason));
+        if (rule.detail) {
+          const v = el("div", "rule__violation");
+          v.append(spanNode({ cite: rule.detail.path, line: rule.detail.line }), document.createTextNode(" " + rule.detail.text));
+          li.append(v);
+        }
+        ul.append(li);
+      }
+      d.body.append(ul);
+    }
+    d.body.append(btn("Suggest rules", "button", onSuggestRules, "suggestRules"));
+    out.push(d.node);
+    return out;
+  }
+
+  /* ------------------------------------------------------------------
+     Learn tab
+     ------------------------------------------------------------------ */
+  function learnKey() {
+    const c = S.practice.check;
+    return JSON.stringify([c && [c.scope, c.status, c.questions.map((q) => [q.id, q.status, !!q.grade])], S.practice.log.length, S.session, S.maps.length, currentMap() && currentMap().tour, S.agentMissing, isRunning()]);
+  }
+  function buildLearn() {
+    const out = [];
+    const m = currentMap();
+    if (S.session) {
+      const s = S.session;
+      const card = el("section", "card hunt");
+      card.setAttribute("aria-label", "Bug hunt in progress");
+      card.append(el("div", "hunt__title", "Bug hunt"), el("div", "hunt__status", `${cap(s.phase)} · Step ${Math.min(s.step + 1, s.total)} of ${s.total} · Score ${s.score}`), btn("Open session", "button button--primary", onOpenSession, "openSession"));
+      out.push(card);
+    }
+    const ex = el("section", "section practice");
+    ex.append(el("h2", "section__title", "Explain back"), el("p", "practice__intro", "Your agent asks three questions about the code and grades your answers. The results stay on this machine."));
+    const check = S.practice.check;
+    const busy = !!check && (check.status === "running" || check.questions.some((q) => q.status === "grading"));
+    const blocked = S.agentMissing ? "No agent found on PATH. Setup on the Map tab says how to install one." : null;
+    const scopes = el("div", "practice__scopes");
+    for (const [scope, label] of [["branch", "This branch"], ["uncommitted", "Uncommitted changes"], ["box", "A box…"]]) {
+      const b = btn(label, "button", () => onPracticeStart(scope), "scope-" + scope);
+      b.disabled = !!blocked || busy || (scope === "box" && !m);
+      if (scope === "box" && !m) b.title = "Needs a map";
+      scopes.append(b);
+    }
+    ex.append(scopes, el("p", blocked ? "practice__note" : "practice__estimate", blocked || EST.practice));
+    if (check) {
+      ex.append(el("div", "practice__scope", check.scope));
+      if (check.status === "running") ex.append(el("p", "practice__pending", "Your agent is writing three questions…"), btn("Stop", "button", onPracticeCancel, "practiceStop"));
+      if (check.status === "cancelled") ex.append(el("p", "practice__pending", "Stopped before the questions were written."));
+      if (check.questions.length > 0) {
+        const ol = el("ol", "practice__questions");
+        let firstOpen = true;
+        check.questions.forEach((q, index) => {
+          const open = q.status === "open" || q.status === "failed";
+          ol.append(practiceQuestion(q, index, busy, open && firstOpen && !S.session));
+          if (open) firstOpen = false;
+        });
+        ex.append(ol);
+      }
+      if (!busy) ex.append(btn("Clear", "link", onPracticeClear, "practiceClear"));
+    }
+    out.push(ex);
+    if (!S.session) {
+      const hunt = el("section", "section learning");
+      hunt.append(el("h2", "section__title", "Bug hunt"), el("p", "learning__intro", "Your agent builds a change with you step by step and plants a bug or two in each step for you to find and fix."), btn("Start learning session", "button", onStartLearning, "startLearning"));
+      out.push(hunt);
+    }
+    const tour = el("section", "section tour");
+    tour.append(el("h2", "section__title", "Tour"));
+    if (!m) tour.append(el("p", "tour__note", "Tours need a map."));
+    else if (m.tour) tour.append(el("p", "tour__note", `${m.title} has a tour of 6 stops. Each opens its code and asks a question.`), btn("Play tour", "button", onPlayTour, "playTour"));
+    else {
+      const create = btn("Create tour", "button", () => onCreateTour(m, true), "createTourLearn");
+      create.disabled = isRunning();
+      tour.append(el("p", "tour__note", `${m.title} has no tour yet. Your agent picks the stops.`), create);
+    }
+    out.push(tour);
+    const logList = S.practice.log;
+    const d = details("practice", "Your practice", logList.length ? [[`(${logList.length})`]] : []);
+    if (logList.length) {
+      const ul = el("ul", "practice-log");
+      for (const e of logList) ul.append(el("li", "", `${e.at} · ${e.title} · ${e.detail}`));
+      d.body.append(ul);
+    } else d.body.append(el("p", "practice__note", "Bug hunts, explain-backs and tours you finish show here, with their dates."));
+    out.push(d.node);
+    return out;
+  }
+  function practiceQuestion(q, index, busy, primary) {
+    const item = el("li", `practice-question practice-question--${q.status}`);
+    item.append(el("div", "practice-question__text", q.q));
+    if (q.status === "open" || q.status === "failed") {
+      const area = draftNode(q, index);
+      const send = btn("Answer", "button" + (primary ? " button--primary" : ""), () => onAnswer(q, area), "answer-" + q.id);
+      send.disabled = busy || S.agentMissing;
+      item.append(area, send);
+      return item;
+    }
+    item.append(el("div", "practice-question__given", q.answer || ""));
+    if (q.status === "grading") item.append(el("p", "practice-question__pending", "Grading…"));
+    if (q.grade) {
+      const g = el("div", `practice-grade practice-grade--${q.grade.grade}`);
+      g.append(el("span", "practice-grade__label", GRADE_LABEL[q.grade.grade]), el("span", "", q.grade.reason));
+      if (q.grade.cite) g.append(spanNode({ cite: q.grade.cite.path, line: q.grade.cite.line }));
+      item.append(g);
+    }
+    return item;
+  }
+
+  /* ------------------------------------------------------------------
+     The webview's render
+     ------------------------------------------------------------------ */
+  function renderWebview() {
+    const noFolder = S.scenario === "nofolder";
+    maybe("header", $("hdr"), headerKey(), buildHeader);
+    $("tabs").hidden = noFolder;
+    for (const [id] of TABS) $("panel-" + id).hidden = noFolder || S.tab !== id;
+    if (noFolder) return;
+    updateTabs();
+    maybe("map", $("panel-map"), mapKey(), buildMapPanel);
+    const hasMap = S.maps.length > 0;
+    maybe("ask", $("panel-ask"), JSON.stringify([hasMap]), () => (hasMap ? [askTurnsEl, askFooterEl] : [emptyState("Generate a map first. Ask uses it as the guide.")]));
+    if (hasMap) {
+      maybe("askTurns", askTurnsEl, JSON.stringify(S.ask.turns.map((t) => [t.q, t.status, t.shown])), buildTurns);
+      maybe("askFooter", askFooterEl, JSON.stringify([S.ask.streaming, S.ask.turns.length > 0, S.agentMissing]), buildFooter);
+    }
+    maybe("review", $("panel-review"), reviewKey(), buildReview);
+    maybe("learn", $("panel-learn"), learnKey(), buildLearn);
+  }
+
+  /* ------------------------------------------------------------------
+     Actions (what the host would do, simulated)
+     ------------------------------------------------------------------ */
+  let runTimer = null;
+  function startRun(kind, opts) {
+    opts = opts || {};
+    if (isRunning()) { toast("A run is already going. Cancel it first."); return false; }
+    clearTimeout(runTimer);
+    const m = currentMap();
+    const target = opts.target ? mapById(opts.target) : m;
+    S.run = {
+      kind, agent: agentLabel(), mode: opts.mode || S.runMode, focus: opts.focus || "", branch: !!opts.branch,
+      targets: kind === "refresh" && target ? changedIds(target) : [], targetId: target ? target.id : null, title: target ? target.title : "",
+      status: "running", phase: null, attempts: 0, feed: [], tin: 0, tout: 0, cost: null, estimate: EST[kind], denials: [],
+      startedReal: Date.now(), endedReal: null, step: 0,
+    };
+    S.runDismissed = false;
+    S.ui.feedAll = false;
+    scheduleStep(S.run);
+    render();
+    return true;
+  }
+  function scheduleStep(r) {
+    const script = SCRIPTS[r.kind];
+    runTimer = later(script.delay, () => {
+      if (S.run !== r || r.status !== "running") return;
+      const step = script.steps[r.step];
+      r.step += 1;
+      if (step[0] === "END") { finishRun(r); return; }
+      r.feed.push({ kind: step[0], text: step[1] });
+      if (step[2]) { if (step[2].phase) r.phase = step[2].phase; if (step[2].attempts) r.attempts = step[2].attempts; }
+      const frac = r.step / script.steps.length;
+      if (r.mode !== "terminal") { r.tin = Math.round(script.tin * frac); r.tout = Math.round(script.tout * frac); }
+      render();
+      scheduleStep(r);
+    });
+  }
+  function finishRun(r) {
+    const script = SCRIPTS[r.kind];
+    const outcome = r.mode === "terminal" && S.outcome === "refused" ? "accepted" : S.outcome;
+    r.endedReal = Date.now();
+    if (r.mode !== "terminal") { r.tin = script.tin; r.tout = script.tout; r.cost = script.cost; }
+    if (outcome === "refused") {
+      r.feed.push({ kind: "error", text: "Refused: Bash(node ~/.claude/skills/aisus/scripts/validate.mjs)" });
+      r.denials = ["Bash: node ~/.claude/skills/aisus/scripts/validate.mjs"];
+      r.status = "failed";
+      announce("Run failed");
+    } else if (outcome === "failed") {
+      r.feed.push({ kind: "error", text: "The agent stopped: usage limit reached. Try again later." });
+      r.status = "failed";
+      announce("Run failed");
+    } else {
+      r.feed.push({ kind: "validate", text: r.kind === "tour" ? "Tour accepted" : "Accepted" });
+      r.phase = "accepted";
+      r.status = "done";
+      acceptRun(r);
+    }
+    S.lastRun = { agent: r.agent, kind: cap(r.kind === "add" ? "add to map" : r.kind), at: now(), dur: clock(runElapsed(r)), tin: r.tin, tout: r.tout, cost: r.cost };
+    render();
+  }
+  function acceptRun(r) {
+    const m = r.targetId ? mapById(r.targetId) : currentMap();
+    if (r.kind === "generate") {
+      const boxes = r.focus ? 7 : 16;
+      const map = { id: "m" + Date.now(), title: r.focus ? cap(r.focus) : "shop architecture", runFolder: "run-2026-10-24-1012", focus: r.focus, agent: r.agent, createdAt: now(), boxes, changed: 0, tour: false, added: false };
+      S.maps.unshift(map);
+      S.skillsOk = true;
+      S.dataNoteShown = true;
+      S.ui.newMapOpen = false;
+      focusTA.value = "";
+      log("host → map", { type: "load", file: fileOf(map) });
+      openMapEditor(map.id);
+      announce(`Run accepted: ${boxes} boxes`);
+    } else if (r.kind === "refresh" && m) {
+      m.changed = 0;
+      announce(`Run accepted: ${m.boxes} boxes`);
+    } else if (r.kind === "add" && m) {
+      if (!m.added) { m.added = true; m.boxes += 1; }
+      if (r.branch) m.changed = 0;
+      S.candidates = [];
+      S.uncovered = { lines: 0, files: 0 };
+      if (S.review) {
+        S.review.candidates = [];
+        S.review.counts.candidates = 0;
+        S.review.counts.uncovered = 0;
+        S.review.counts.arrows = 0;
+        S.review.canUpdate = m.changed > 0;
+      }
+      announce(`Run accepted: ${m.boxes} boxes`);
+    } else if (r.kind === "tour" && m) {
+      m.tour = true;
+      announce("Run accepted: a tour of 6 stops");
+    }
+  }
+  function onGenerate() {
+    if (isRunning() || generateBlocked()) return;
+    post({ type: "generate", focus: focusTA.value });
+    S.skillsOk = true; /* SET-03: Generate installs or repairs the skill first */
+    startRun("generate", { focus: focusTA.value.trim() });
+  }
+  function onCancelRun() {
+    if (!isRunning()) return;
+    post({ type: "cancelRun" });
+    const r = S.run;
+    r.status = "cancelled";
+    r.endedReal = Date.now();
+    r.feed.push({ kind: "message", text: "Cancelled" });
+    render();
+    const d = document.querySelector('[data-fid="dismissRun"]');
+    if (d) d.focus();
+  }
+  function onDismissRun() {
+    post({ type: "dismissRun" });
+    S.runDismissed = true;
+    render();
+    const target = $("panel-map").querySelector("button:not(:disabled), summary");
+    if (target) target.focus();
+  }
+  function onRunInTerminal() {
+    post({ type: "runInTerminal" });
+    const r = S.run;
+    const kind = r ? r.kind : "generate";
+    if (r) r.denials = [];
+    S.run = null;
+    startRun(kind, { mode: "terminal", focus: r ? r.focus : "", target: r ? r.targetId : null, branch: r ? r.branch : false });
+    toast(`Opened a terminal running ${agentLabel()}.`);
+  }
+  function refreshMap(m) {
+    if (isRunning()) return;
+    post({ type: "refreshMap", file: fileOf(m) });
+    if (!m.changed) { toast("Every box matches its code. There is nothing to refresh."); return; }
+    S.ui.more = null;
+    startRun("refresh", { target: m.id });
+  }
+  function openMap(m) {
+    post({ type: "openMap", file: fileOf(m) });
+    openMapEditor(m.id);
+  }
+  function openMapEditor(id) {
+    if (!S.editor.tabs.includes("map")) S.editor.tabs.push("map");
+    S.editor.mapId = id;
+    S.editor.active = "map";
+    render();
+  }
+  function onExport(m) {
+    post({ type: "exportMap", file: fileOf(m) });
+    toast(`Wrote ${m.title.toLowerCase().replace(/\s+/g, "-")}.html next to the map. It opens in any browser.`);
+  }
+  function onCreateTour(m, fromLearn) {
+    post({ type: "createTour", file: fileOf(m) });
+    S.ui.more = null;
+    if (startRun("tour", { target: m.id }) && fromLearn) showTab("map", "run");
+  }
+  function onDelete(m) {
+    post({ type: "deleteMap", file: fileOf(m) });
+    modal({
+      message: `Delete the map "${m.title}" from ${relativeAge(m.createdAt)}?`,
+      detail: `This removes .aisus/${m.runFolder} and everything in it.`,
+      confirm: "Delete",
+      onConfirm() {
+        S.maps = S.maps.filter((x) => x !== m);
+        S.ui.more = null;
+        if (S.editor.mapId === m.id) {
+          if (S.maps[0]) S.editor.mapId = S.maps[0].id;
+          else { S.editor.tabs = S.editor.tabs.filter((t) => t !== "map"); S.editor.active = S.editor.tabs[0] || "code"; }
+        }
+        toast(`Deleted .aisus/${m.runFolder}.`);
+        render();
+        const t = $("panel-map").querySelector("button:not(:disabled), summary");
+        if (t) t.focus();
+      },
+    });
+  }
+  function onCopyPrompt() {
+    post({ type: "copyPromptFor", focus: focusTA.value });
+    quickPick({
+      title: "Copy the Generate prompt for",
+      placeholder: "Pick an agent aisus does not launch",
+      items: [{ label: "Cursor" }, { label: "Windsurf" }, { label: "GitHub Copilot" }, { label: "Another agent", desc: "The plain prompt" }],
+      onPick: (it) => toast(`Copied the prompt for ${it.label}. Paste it into the agent's chat.`),
+    });
+  }
+  function onFix(c) {
+    post({ type: "fix", check: c.id });
+    if (c.id === "skills") { S.skillsOk = true; toast(`Installed the aisus skill in ${agentInfo().skills}.`); }
+    else { S.agentInstallCopied = true; toast(`Copied: ${agentInfo().install}. Run it in a terminal, then Check again.`); }
+    render();
+  }
+  function onCheckSetup() {
+    post({ type: "checkSetup" });
+    S.checking = true;
+    progress(true);
+    render();
+    later(800, () => {
+      S.checking = false;
+      if (S.agentInstallCopied) { S.agentMissing = false; S.agentInstallCopied = false; }
+      progress(false);
+      render();
+    });
+  }
+  function onFocusBox(id) {
+    post({ type: "focusBox", id });
+    const m = mapById(S.editor.mapId) || currentMap();
+    if (!m) return;
+    if (!boxesOf(m).some((b) => b.id === id)) { toast(`${labelOf(id)} is not on this map.`); return; }
+    S.focusBox = id;
+    openMapEditor(m.id);
+    later(1800, () => { if (S.focusBox === id) { S.focusBox = null; render(); } });
+  }
+  function onCitation(span) {
+    post({ type: "openCitation", path: span.cite, line: span.line, endLine: span.end || null });
+    if (span.cite === "api/src/routes/checkout.ts") {
+      if (!S.editor.tabs.includes("code")) S.editor.tabs.unshift("code");
+      S.editor.active = "code";
+      S.editor.hl = span.line;
+      render();
+      later(2200, () => { S.editor.hl = null; render(); });
+    } else toast(`Opened ${span.cite} at line ${span.line}${span.end ? "–" + span.end : ""}.`);
+  }
+  function onOpenHealth(kind) {
+    post({ type: "openHealth", item: kind });
+    const m = currentMap();
+    if (!m) return;
+    if (kind === "hotspot") S.hotspotsShown = true;
+    openMapEditor(m.id);
+    if (kind === "uncovered") toast(`The map's changes overlay lists the ${plural(S.uncovered.files, "file")} no box covers.`);
+    if (kind === "violations") toast("admin/src/reports.ts:3 imports store/src/db.ts, which breaks admin-via-api. The red arrow on the map.");
+  }
+
+  function onAsk() {
+    const text = question.value.trim();
+    if (!text || S.ask.streaming || S.agentMissing) return;
+    post({ type: "ask", question: question.value });
+    question.value = "";
+    const key = /store/i.test(text) ? "store" : /\bapi\b/i.test(text) ? "api" : /\bweb\b/i.test(text) ? "web" : /pay|checkout/i.test(text) ? "checkout" : "other";
+    const blocks = ANSWERS[key];
+    const turn = { q: text, agent: agentLabel(), status: "running", blocks, shown: 0, total: unitsOf(blocks), tin: 0, tout: 0, cost: null, error: null };
+    S.ask.turns.push(turn);
+    S.ask.streaming = true;
+    render();
+    stickToBottom(true);
+    later(1100, () => streamTurn(turn));
+  }
+  function streamTurn(turn) {
+    if (turn.status !== "running") return;
+    const near = isNearBottom();
+    turn.shown = Math.min(turn.total, turn.shown + 2);
+    if (turn.shown >= turn.total) {
+      turn.status = "done";
+      turn.tin = 12400 + turn.total * 40;
+      turn.tout = 380 + turn.total * 6;
+      turn.cost = 0.07 + turn.total / 2000;
+      S.ask.streaming = false;
+      announce("Answer ready");
+    }
+    render();
+    if (near) stickToBottom(false);
+    if (turn.status === "running") later(70, () => streamTurn(turn));
+  }
+  function isNearBottom() { const v = $("webview"); return v.scrollHeight - v.scrollTop - v.clientHeight < 80; }
+  function stickToBottom() { if (S.tab === "ask") { const v = $("webview"); v.scrollTop = v.scrollHeight; } }
+  function onStopAsk() {
+    post({ type: "cancelAsk" });
+    const turn = S.ask.turns[S.ask.turns.length - 1];
+    if (turn && turn.status === "running") { turn.status = "cancelled"; turn.tin = 9100; turn.tout = 120; }
+    S.ask.streaming = false;
+    render();
+    question.focus();
+  }
+  function onClearAsk() {
+    post({ type: "clearAsk" });
+    S.ask.turns = [];
+    render();
+    question.focus();
+  }
+
+  function onReview() {
+    if (S.reviewing) return;
+    post({ type: "review" });
+    if (!currentMap()) { toast("Generate a map first. Review compares changes with it."); return; }
+    const changes = S.branch === "main" ? "no changes yet" : "5 files";
+    quickPick({
+      title: "Review changes",
+      placeholder: "Which changes?",
+      items: [
+        { id: "branch", label: "This branch against main", desc: S.branch === "main" ? "main · nothing to compare" : `${S.branch} · ${changes}` },
+        { id: "uncommitted", label: "Uncommitted changes", desc: S.branch === "main" ? "none" : "3 files" },
+        { id: "range", label: "A commit range…", desc: "HEAD~5..HEAD" },
+      ],
+      onPick(it) {
+        S.reviewing = true;
+        render();
+        later(800, () => {
+          S.reviewing = false;
+          S.review = makeReview(it);
+          announce("Review ready");
+          render();
+        });
+      },
+    });
+  }
+  function makeReview(scope) {
+    const m = currentMap();
+    const has = S.candidates.length > 0;
+    const quiet = !has && m.changed === 0;
+    const counts = quiet ? { touched: 0, stale: 0, gone: 0, uncovered: 0, candidates: 0, arrows: 0 }
+      : scope.id === "uncommitted" ? { touched: 3, stale: 2, gone: 0, uncovered: has ? 2 : 0, candidates: S.candidates.length, arrows: has ? 1 : 0 }
+      : { touched: 5, stale: Math.min(3, m.changed), gone: 0, uncovered: has ? 2 : 0, candidates: S.candidates.length, arrows: has ? 1 : 0 };
+    const label = scope.id === "branch" ? `${S.branch} against main` : scope.id === "uncommitted" ? "Uncommitted changes" : "HEAD~5..HEAD";
+    return { scope: label, counts, candidates: S.candidates.slice(), canUpdate: has || m.changed > 0 };
+  }
+  function onAddToMap(cand) {
+    post({ type: "addToMap", dir: cand.dir });
+    if (startRun("add", {})) showTab("map", "run");
+  }
+  function onUpdateBranch() {
+    post({ type: "updateBranchMap" });
+    if (startRun("add", { branch: true })) showTab("map", "run");
+  }
+  function onIgnore(cand) {
+    post({ type: "ignoreCandidate", dir: cand.dir });
+    S.candidates = S.candidates.filter((c) => c.dir !== cand.dir);
+    if (S.review) {
+      S.review.candidates = S.review.candidates.filter((c) => c.dir !== cand.dir);
+      S.review.counts.candidates = S.review.candidates.length;
+    }
+    render();
+    const r = document.querySelector('[data-fid="review"]');
+    if (r) r.focus();
+  }
+  function onSuggestRules() {
+    post({ type: "suggestRules" });
+    toast(`${agentLabel()} is suggesting rules from the map. You accept or skip each one.`);
+  }
+
+  function onPracticeStart(scope) {
+    if (scope === "box" && !currentMap()) { toast("A box… needs a map. Try This branch or Uncommitted changes."); return; }
+    if (scope === "box") {
+      quickPick({
+        title: "Check my understanding",
+        placeholder: "Which box?",
+        items: boxesOf(currentMap()).map((b) => ({ id: b.id, label: b.label, desc: b.sub })),
+        onPick: (it) => startCheck("box", it.label),
+      });
+      return;
+    }
+    startCheck(scope);
+  }
+  function startCheck(scope, label) {
+    post({ type: "practiceStart", scope });
+    const scopeText = scope === "branch" ? `This branch (${S.branch}${S.branch === "main" ? ", last 5 commits" : " against main"})` : scope === "uncommitted" ? "Uncommitted changes" : `Box: ${label}`;
+    const check = { scope: scopeText, status: "running", questions: [] };
+    S.practice.check = check;
+    render();
+    later(2400, () => {
+      if (S.practice.check !== check || check.status !== "running") return;
+      const list = scope === "branch" ? QSETS.branch : scope === "uncommitted" ? QSETS.uncommitted : QSETS.box(label);
+      check.questions = list.map((q, i) => ({ id: `${scope}-${Date.now()}-${i}`, q, status: "open", answer: null, grade: null }));
+      check.status = "done";
+      render();
+    });
+  }
+  function onPracticeCancel() {
+    post({ type: "practiceCancel" });
+    if (S.practice.check) S.practice.check.status = "cancelled";
+    render();
+  }
+  function onPracticeClear() {
+    post({ type: "practiceClear" });
+    S.practice.check = null;
+    render();
+    const b = document.querySelector('[data-fid="scope-branch"]');
+    if (b) b.focus();
+  }
+  function onAnswer(q, area) {
+    if (!area.value.trim()) { area.focus(); return; }
+    const check = S.practice.check;
+    const index = check.questions.indexOf(q);
+    post({ type: "practiceAnswer", index, answer: area.value });
+    q.answer = area.value;
+    q.status = "grading";
+    drafts.delete(q.id);
+    render();
+    later(1600, () => {
+      q.grade = GRADES[q.q] || DEFAULT_GRADE;
+      q.status = "graded";
+      if (check.questions.every((x) => x.status === "graded")) {
+        const right = check.questions.filter((x) => x.grade.grade === "correct").length;
+        S.practice.log.unshift({ kind: "explain", title: "Explain-back", detail: `${check.scope.replace(/ \(.*\)$/, "")} · ${right} of ${check.questions.length} correct`, at: "2026-10-24" });
+      }
+      render();
+      const next = document.querySelector('.practice-question--open textarea');
+      if (next && document.activeElement === document.body) next.focus();
+    });
+  }
+  function onStartLearning() {
+    post({ type: "startLearning" });
+    toast(`Started a learning session with ${agentLabel()} in a terminal.`);
+    S.session = { phase: "clarify", step: 0, total: 4, score: 0 };
+    render();
+    const seq = [["plan", 0, 0], ["hunt", 0, 0], ["hunt", 1, 40], ["hunt", 2, 80], ["hunt", 3, 120], ["verify", 3, 160]];
+    let k = 0;
+    const step = () => {
+      if (!S.session) return;
+      if (k >= seq.length) {
+        S.practice.log.unshift({ kind: "hunt", title: "Bug hunt", detail: "Coupon expiry · 4 of 4 bugs found · 160 points", at: "2026-10-24" });
+        S.session = null;
+        render();
+        return;
+      }
+      const [phase, s, score] = seq[k];
+      k += 1;
+      Object.assign(S.session, { phase, step: s, score });
+      render();
+      later(3500, step);
+    };
+    later(3000, step);
+  }
+  function onOpenSession() {
+    post({ type: "openSession" });
+    toast("Opens the learning session beside the editor, with its steps and leaderboard.");
+  }
+  function onPlayTour() {
+    const m = currentMap();
+    if (!m || !m.tour) return;
+    post({ type: "playTour" });
+    const ready = S.editor.active === "map" && S.editor.mapId === m.id;
+    if (!ready) log("host → map", { type: "load", file: fileOf(m) });
+    openMapEditor(m.id);
+    later(ready ? 60 : 600, () => {
+      if (!ready) log("map → host", { type: "ready" });
+      log("host → map", { type: "playTour" });
+      S.tour = { i: 0 };
+      render();
+      const next = document.querySelector('[data-fid="tourNext"]');
+      if (next) next.focus();
+    });
+  }
+
+  /* ------------------------------------------------------------------
+     Overlays
+     ------------------------------------------------------------------ */
+  let overlay = null;
+  function closeOverlays() {
+    if (overlay) { overlay.close(true); overlay = null; }
+  }
+  function returnFocusTo(fid) {
+    const t = fid ? document.querySelector(`[data-fid="${fid}"]`) : null;
+    if (t && !t.disabled) t.focus();
+  }
+  function quickPick(opts) {
+    closeOverlays();
+    const back = document.activeElement && document.activeElement.dataset ? document.activeElement.dataset.fid : null;
+    const box = el("div", "quickpick");
+    box.setAttribute("role", "dialog");
+    box.setAttribute("aria-label", opts.title || opts.placeholder);
+    if (opts.title) box.append(el("div", "quickpick__title", opts.title));
+    const input = el("input", "quickpick__input");
+    input.type = "text";
+    input.placeholder = opts.placeholder;
+    input.setAttribute("role", "combobox");
+    input.setAttribute("aria-expanded", "true");
+    input.setAttribute("aria-controls", "qpList");
+    input.setAttribute("aria-autocomplete", "list");
+    const list = el("ul", "quickpick__list");
+    list.id = "qpList";
+    list.setAttribute("role", "listbox");
+    let active = 0;
+    let shown = opts.items;
+    function setActive(i) {
+      active = i;
+      [...list.children].forEach((li, j) => li.setAttribute("aria-selected", String(j === active)));
+      input.setAttribute("aria-activedescendant", shown.length ? "qp-" + active : "");
+      const cur = list.children[active];
+      if (cur && cur.scrollIntoView) cur.scrollIntoView({ block: "nearest" });
+    }
+    function draw() {
+      const f = input.value.toLowerCase();
+      shown = opts.items.filter((i) => i.label.toLowerCase().includes(f));
+      list.replaceChildren(...shown.map((it, i) => {
+        const li = el("li", "quickpick__item");
+        li.id = "qp-" + i;
+        li.setAttribute("role", "option");
+        li.append(el("span", "", it.label));
+        if (it.desc) li.append(el("span", "quickpick__desc", it.desc));
+        li.addEventListener("mousedown", (e) => e.preventDefault());
+        li.addEventListener("mouseenter", () => setActive(i));
+        li.addEventListener("click", () => pick(it));
+        return li;
+      }));
+      setActive(Math.min(active, Math.max(0, shown.length - 1)));
+    }
+    function pick(it) { close(false); opts.onPick(it); }
+    function close(silent) {
+      box.remove();
+      document.removeEventListener("mousedown", outside, true);
+      if (overlay && overlay.box === box) overlay = null;
+      if (!silent) returnFocusTo(back);
+    }
+    function outside(e) { if (!box.contains(e.target)) close(false); }
+    input.addEventListener("input", () => { active = 0; draw(); });
+    input.addEventListener("keydown", (e) => {
+      if (e.key === "ArrowDown") { e.preventDefault(); if (shown.length) setActive((active + 1) % shown.length); }
+      else if (e.key === "ArrowUp") { e.preventDefault(); if (shown.length) setActive((active - 1 + shown.length) % shown.length); }
+      else if (e.key === "Enter") { e.preventDefault(); if (shown[active]) pick(shown[active]); }
+      else if (e.key === "Escape") { e.preventDefault(); close(false); }
+    });
+    box.append(input, list);
+    $("vsc").append(box);
+    draw();
+    input.focus();
+    document.addEventListener("mousedown", outside, true);
+    overlay = { box, close };
+  }
+  function menu(anchor, items) {
+    closeOverlays();
+    const back = anchor.dataset.fid;
+    const box = el("div", "menu");
+    box.setAttribute("role", "menu");
+    for (const it of items) {
+      if (it === "sep") { const s = el("div", "menu__sep"); s.setAttribute("role", "separator"); box.append(s); continue; }
+      const b = btn("", "menu__item", () => { close(true); it.run(); }, "menu-" + it.label);
+      b.setAttribute("role", "menuitem");
+      b.tabIndex = -1;
+      b.append(el("span", "", it.label));
+      if (it.tag) b.append(el("span", "menu__tag", it.tag));
+      box.append(b);
+    }
+    const frame = $("vsc").getBoundingClientRect();
+    const r = anchor.getBoundingClientRect();
+    box.style.top = `${r.bottom - frame.top + 2}px`;
+    box.style.right = `${Math.max(4, frame.right - r.right)}px`;
+    const buttons = () => [...box.querySelectorAll(".menu__item")];
+    box.addEventListener("keydown", (e) => {
+      const list = buttons();
+      const i = list.indexOf(document.activeElement);
+      if (e.key === "ArrowDown") { e.preventDefault(); list[(i + 1) % list.length].focus(); }
+      else if (e.key === "ArrowUp") { e.preventDefault(); list[(i - 1 + list.length) % list.length].focus(); }
+      else if (e.key === "Home") { e.preventDefault(); list[0].focus(); }
+      else if (e.key === "End") { e.preventDefault(); list[list.length - 1].focus(); }
+      else if (e.key === "Escape" || e.key === "Tab") { e.preventDefault(); close(false); }
+    });
+    function close(silent) {
+      box.remove();
+      document.removeEventListener("mousedown", outside, true);
+      if (overlay && overlay.box === box) overlay = null;
+      if (!silent) returnFocusTo(back);
+    }
+    function outside(e) { if (!box.contains(e.target) && e.target !== anchor && !anchor.contains(e.target)) close(true); }
+    $("vsc").append(box);
+    buttons()[0].focus();
+    document.addEventListener("mousedown", outside, true);
+    overlay = { box, close };
+  }
+  function modal(opts) {
+    closeOverlays();
+    const back = document.activeElement && document.activeElement.dataset ? document.activeElement.dataset.fid : null;
+    const shade = el("div", "modal-back");
+    const box = el("div", "modal");
+    box.setAttribute("role", "alertdialog");
+    box.setAttribute("aria-modal", "true");
+    box.setAttribute("aria-labelledby", "modalMsg");
+    box.setAttribute("aria-describedby", "modalDetail");
+    const ic = el("div", "modal__icon");
+    ic.innerHTML = svg("warning", 24);
+    const msg = el("p", "modal__msg", opts.message);
+    msg.id = "modalMsg";
+    const detail = el("p", "modal__detail", opts.detail);
+    detail.id = "modalDetail";
+    const acts = el("div", "modal__actions");
+    const ok = btn(opts.confirm, "button button--primary", () => { close(true); opts.onConfirm(); }, "modalOk");
+    const cancel = btn("Cancel", "button", () => close(false), "modalCancel");
+    acts.append(ok, cancel);
+    box.append(ic, msg, detail, acts);
+    shade.append(box);
+    shade.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") { e.preventDefault(); close(false); }
+      if (e.key === "Tab") { e.preventDefault(); (document.activeElement === ok ? cancel : ok).focus(); }
+    });
+    function close(silent) {
+      shade.remove();
+      if (overlay && overlay.box === shade) overlay = null;
+      if (!silent) returnFocusTo(back);
+    }
+    $("vsc").append(shade);
+    ok.focus();
+    overlay = { box: shade, close };
+  }
+  function toast(message) {
+    const host = $("toasts");
+    const t = el("div", "toast");
+    const ic = el("span", "toast__icon");
+    ic.innerHTML = svg("info", 16);
+    const x = btn("", "action", () => t.remove(), "toastClose");
+    x.innerHTML = svg("close", 14);
+    x.setAttribute("aria-label", "Clear notification");
+    t.append(ic, el("span", "toast__msg", message), x);
+    host.append(t);
+    while (host.children.length > 3) host.firstElementChild.remove();
+    setTimeout(() => t.remove(), 4500);
+  }
+  function progress(on) { $("aisusProgress").classList.toggle("on", on); }
+
+  /* ------------------------------------------------------------------
+     Workbench chrome: activity bar, views, editor, status bar
+     ------------------------------------------------------------------ */
+  const ACTIVITY = [["explorer", "Explorer"], ["search", "Search"], ["scm", "Source Control"], ["run", "Run and Debug"], ["extensions", "Extensions"], ["aisus", "aisus"]];
+  const activityButtons = {};
+  function buildActivity() {
+    for (const [id, label] of ACTIVITY) {
+      const b = btn("", "activity__btn", () => { S.container = id; render(); }, "act-" + id);
+      b.innerHTML = svg(id, 24);
+      b.title = label;
+      b.setAttribute("aria-label", label);
+      activityButtons[id] = b;
+      $("activityTop").append(b);
+    }
+    for (const [id, label] of [["account", "Accounts"], ["gear", "Manage"]]) {
+      const b = btn("", "activity__btn", null, "act-" + id);
+      b.innerHTML = svg(id, 24);
+      b.title = label;
+      b.setAttribute("aria-label", label);
+      $("activityBottom").append(b);
+    }
+  }
+  function renderActivity() {
+    for (const [id] of ACTIVITY) {
+      const b = activityButtons[id];
+      b.setAttribute("aria-pressed", String(S.container === id));
+      const old = b.querySelector(".activity__badge");
+      if (old) old.remove();
+      if (id === "scm" && S.branch !== "main") { const badge = el("span", "activity__badge", "5"); badge.setAttribute("aria-label", "5 pending changes"); b.append(badge); }
+    }
+  }
+  function renderViews() {
+    const which = S.container;
+    $("view-aisus").hidden = which !== "aisus";
+    $("view-explorer").hidden = which !== "explorer";
+    $("view-scm").hidden = which !== "scm";
+    $("view-other").hidden = !["search", "run", "extensions"].includes(which);
+    if (which === "aisus") {
+      const acts = $("aisusActions");
+      const sig = JSON.stringify([isRunning()]);
+      if (acts.dataset.sig !== sig) {
+        acts.dataset.sig = sig;
+        const list = [];
+        if (isRunning()) list.push(action("stop", "Cancel Run", onCancelRun, "vt-cancel"));
+        list.push(action("refresh", "Refresh", () => { progress(true); later(600, () => { progress(false); render(); }); }, "vt-refresh"));
+        list.push(action("checklist", "Check Setup", () => { onCheckSetup(); openLocal("map", "setup"); }, "vt-setup"));
+        const more = action("more", "More Actions…", null, "vt-more");
+        more.addEventListener("click", () => menu(more, [
+          { label: "Open Architecture File…", run: () => toast("Opens a file picker for a candidate.json.") },
+          { label: "Install Agent Skills", run: () => { S.skillsOk = true; toast(`Installed the aisus skill in ${agentInfo().skills}.`); render(); } },
+          "sep",
+          { label: "Remove aisus from This Folder", run: () => toast("Asks first, then removes .aisus and its hook entries.") },
+        ]));
+        list.push(more);
+        acts.replaceChildren(...list);
+      }
+      renderWebview();
+    } else if (which === "explorer") renderExplorer();
+    else if (which === "scm") renderScm();
+    else renderOther(which);
+  }
+  function viewTitle(title, actions) {
+    const head = el("div", "view-title");
+    const h = el("h2", "", title);
+    const acts = el("div", "view-actions");
+    acts.append(...(actions || []));
+    head.append(h, acts);
+    return head;
+  }
+  function renderExplorer() {
+    const view = $("view-explorer");
+    if (view.dataset.built === S.scenario) return;
+    view.dataset.built = S.scenario;
+    if (S.scenario === "nofolder") {
+      const hint = el("div", "tree__hint");
+      hint.append(el("p", "", "You have not yet opened a folder."));
+      view.replaceChildren(viewTitle("Explorer"), hint);
+      return;
+    }
+    const tree = el("div", "tree");
+    const row = (depth, kind, name, extra) => {
+      const r = el("div", "tree__row" + (extra || ""));
+      r.style.paddingLeft = `${8 + depth * 12}px`;
+      r.append(el("span", "tree__chev", kind === "open" ? "▾" : kind === "closed" ? "▸" : ""));
+      if (kind !== "head") r.append(icon(kind === "file" ? "file" : "folder", 14));
+      r.append(el("span", "", name));
+      return r;
+    };
+    tree.append(row(0, "open", "shop", " tree__head"));
+    for (const name of [".aisus", "admin"]) tree.append(row(1, "closed", name));
+    tree.append(row(1, "open", "api"), row(2, "open", "src"), row(3, "open", "routes"), row(4, "file", "checkout.ts"), row(3, "file", "server.ts"));
+    for (const name of ["auth", "cart", "catalog", "coupons", "orders", "payments", "store", "web"]) tree.append(row(1, "closed", name));
+    tree.append(row(1, "file", "package.json"), row(1, "file", "README.md"));
+    view.replaceChildren(viewTitle("Explorer", [action("more", "More Actions…", () => toast("Explorer actions are not part of this mockup."), "ex-more")]), tree);
+  }
+  function renderScm() {
+    const view = $("view-scm");
+    const sig = S.scenario + S.branch;
+    if (view.dataset.built === sig) return;
+    view.dataset.built = sig;
+    const review = action("aisus", "Review Changes (aisus)", () => { showTab("review", "none"); onReview(); }, "scm-review");
+    const more = action("more", "More Actions…", null, "scm-more");
+    more.addEventListener("click", () => menu(more, [
+      { label: "Check My Understanding", tag: "aisus", run: () => {
+        showTab("learn", "none");
+        quickPick({
+          title: "Check my understanding",
+          placeholder: "Of which changes?",
+          items: [{ id: "branch", label: "This branch", desc: S.branch }, { id: "uncommitted", label: "Uncommitted changes" }, { id: "box", label: "A box…" }],
+          onPick: (it) => onPracticeStart(it.id),
+        });
+      } },
+      "sep",
+      { label: "Pull", run: () => toast("Pull is not part of this mockup.") },
+      { label: "Push", run: () => toast("Push is not part of this mockup.") },
+      { label: "Branch", run: () => toast("Branch is not part of this mockup.") },
+    ]));
+    const body = el("div", "scm");
+    if (S.scenario === "nofolder") {
+      body.append(el("p", "scm__note", "Open a folder that holds a git repository."));
+      view.replaceChildren(viewTitle("Source Control", []), body);
+      return;
+    }
+    const msg = el("input", "scm__msg");
+    msg.type = "text";
+    msg.placeholder = `Message (Ctrl+Enter to commit on "${S.branch}")`;
+    msg.setAttribute("aria-label", "Commit message");
+    const commit = btn("", "button button--primary button--block", () => toast("Commit is not part of this mockup."), "scm-commit");
+    commit.append(icon("check", 14), document.createTextNode("Commit"));
+    body.append(msg, commit);
+    const files = S.branch === "main" ? [] : [["apply.ts", "coupons/src", "U"], ["codes.ts", "coupons/src", "U"], ["totals.ts", "cart/src", "M"], ["checkout.ts", "api/src/routes", "M"], ["index.ts", "store/src", "M"]];
+    const group = el("div", "scm__group");
+    group.append(el("span", "", "Changes"), el("span", "badge", String(files.length)));
+    const ul = el("ul", "scm__list");
+    for (const [name, dir, st] of files) {
+      const li = el("li", "scm__file");
+      li.append(icon("file", 14), el("span", "scm__name", name), el("span", "scm__dir", dir), el("span", `scm__st scm__st--${st}`, st));
+      ul.append(li);
+    }
+    body.append(group, ul);
+    if (!files.length) body.append(el("p", "scm__note", "No changes."));
+    body.append(el("p", "scm__note", "The aisus icon in this title bar is Review Changes; Check My Understanding is in its ⋯ menu."));
+    view.replaceChildren(viewTitle("Source Control", [review, action("check", "Commit", () => toast("Commit is not part of this mockup."), "scm-ok"), action("refresh", "Refresh", null, "scm-refresh"), more]), body);
+  }
+  function renderOther(which) {
+    const view = $("view-other");
+    const titles = { search: "Search", run: "Run and Debug", extensions: "Extensions" };
+    if (view.dataset.built === which) return;
+    view.dataset.built = which;
+    view.replaceChildren(viewTitle(titles[which]), el("div", "tree__hint", "Not part of this mockup. The aisus icon is the last one in the Activity Bar."));
+  }
+
+  const CODE = [
+    '<span class="k">import</span> { <span class="v">Router</span> } <span class="k">from</span> <span class="s">"express"</span>;',
+    '<span class="k">import</span> { <span class="v">requireSession</span> } <span class="k">from</span> <span class="s">"@shop/auth"</span>;',
+    '<span class="k">import</span> { <span class="v">placeOrder</span> } <span class="k">from</span> <span class="s">"@shop/orders"</span>;',
+    '<span class="k">import</span> { <span class="v">applyCoupon</span>, <span class="v">loadCart</span> } <span class="k">from</span> <span class="s">"@shop/cart"</span>;',
+    '',
+    '<span class="k">export const</span> <span class="v">checkout</span> = <span class="fn">Router</span>();',
+    '',
+    '<span class="c">// POST /checkout: check the cart, then hand it to Orders.</span>',
+    '<span class="v">checkout</span>.<span class="fn">post</span>(<span class="s">"/checkout"</span>, <span class="v">requireSession</span>, <span class="k">async</span> (<span class="v">req</span>, <span class="v">res</span>) =&gt; {',
+    '  <span class="k">const</span> <span class="v">cart</span> = <span class="x">await</span> <span class="fn">loadCart</span>(<span class="v">req</span>.<span class="v">session</span>.<span class="v">userId</span>);',
+    '  <span class="x">if</span> (<span class="v">cart</span>.<span class="v">items</span>.<span class="v">length</span> === <span class="n">0</span>) {',
+    '    <span class="x">return</span> <span class="v">res</span>.<span class="fn">status</span>(<span class="n">400</span>).<span class="fn">json</span>({ <span class="v">error</span>: <span class="s">"Your cart is empty"</span> });',
+    '  }',
+    '  <span class="k">const</span> <span class="v">priced</span> = <span class="fn">applyCoupon</span>(<span class="v">cart</span>, <span class="v">req</span>.<span class="v">body</span>.<span class="v">coupon</span>);',
+    '  <span class="k">const</span> <span class="v">order</span> = <span class="x">await</span> <span class="fn">placeOrder</span>(<span class="v">priced</span>, <span class="v">req</span>.<span class="v">session</span>.<span class="v">userId</span>);',
+    '  <span class="v">res</span>.<span class="fn">status</span>(<span class="n">201</span>).<span class="fn">json</span>({ <span class="v">id</span>: <span class="v">order</span>.<span class="v">id</span>, <span class="v">total</span>: <span class="v">order</span>.<span class="v">total</span> });',
+    '});',
+  ];
+
+  function editorTitle(id) {
+    if (id === "code") return "checkout.ts";
+    if (id === "welcome") return "Welcome";
+    const m = mapById(S.editor.mapId);
+    return `Architecture: ${m ? m.title : "shop"}`;
+  }
+  function renderEditor() {
+    const tabs = $("etabs");
+    const tabSig = JSON.stringify([S.editor.tabs, S.editor.active, editorTitle("map")]);
+    if (tabs.dataset.sig !== tabSig) {
+      tabs.dataset.sig = tabSig;
+      tabs.replaceChildren(...S.editor.tabs.map((id) => {
+        const t = el("div", "etab");
+        t.setAttribute("role", "tab");
+        t.tabIndex = id === S.editor.active ? 0 : -1;
+        t.setAttribute("aria-selected", String(id === S.editor.active));
+        if (id === "code") t.append(el("span", "etab__ts", "TS"));
+        else if (id === "map") t.append(icon("map", 14));
+        else t.append(icon("info", 14));
+        t.append(el("span", "etab__title", editorTitle(id)));
+        const close = el("span", "etab__close");
+        close.innerHTML = svg("close", 12);
+        close.title = "Close";
+        close.addEventListener("click", (e) => {
+          e.stopPropagation();
+          S.editor.tabs = S.editor.tabs.filter((x) => x !== id);
+          if (S.editor.active === id) S.editor.active = S.editor.tabs[S.editor.tabs.length - 1] || null;
+          if (id === "map") S.tour = null;
+          render();
+        });
+        t.append(close);
+        t.addEventListener("click", () => { S.editor.active = id; render(); });
+        t.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); S.editor.active = id; render(); } });
+        return t;
+      }));
+    }
+    const act = $("eactions");
+    const m = mapById(S.editor.mapId);
+    const actSig = JSON.stringify([S.editor.active, S.hotspotsShown, m && m.tour, isRunning()]);
+    if (act.dataset.sig !== actSig) {
+      act.dataset.sig = actSig;
+      const list = [];
+      if (S.editor.active === "code") {
+        list.push(action("map", "Show in Map", () => {
+          const cm = currentMap();
+          if (!cm) { toast("No map yet. Generate one from the aisus sidebar."); showTab("map", "composer"); return; }
+          onFocusBox("api");
+        }, "e-showInMap"));
+      } else if (S.editor.active === "map") {
+        list.push(
+          action("search", "Find in Map", () => toast("Find in Map: type a label or a path."), "e-find"),
+          action("refresh", "Refresh Architecture", () => { const x = mapById(S.editor.mapId); if (x && x.changed > 0) { post0("aisus.refreshArchitecture"); if (startRun("refresh", { target: x.id })) showTab("map", "run"); } else toast("Every box matches its code."); }, "e-refresh"),
+          action("diff", "Show Changes on Diagram", () => toast("Marks the boxes your changes touch."), "e-diff"),
+          action("export", "Export Page", () => { const x = mapById(S.editor.mapId); if (x) onExport(x); }, "e-export"),
+          action("shield", "Audit Map", () => toast("Audit Map asks your agent to check each box against its code."), "e-audit"),
+          action("flame", S.hotspotsShown ? "Hide Hotspots" : "Show Hotspots", () => { S.hotspotsShown = !S.hotspotsShown; render(); }, "e-hot"),
+          action("tour", "Tour", () => { const x = mapById(S.editor.mapId); if (x && x.tour && x === currentMap()) onPlayTour(); else toast("This map has no tour. Create Tour is in the ⋯ menu."); }, "e-tour"),
+        );
+        const more = action("more", "More Actions…", null, "e-more");
+        more.addEventListener("click", () => menu(more, [
+          { label: "Compare With…", run: () => toast("Compare With… picks an older map.") },
+          { label: "Write Architecture Notes for Agents", run: () => toast("Writes the map as notes your agent reads.") },
+          { label: "Create Tour", run: () => { const x = mapById(S.editor.mapId); if (x) { post0("aisus.createTour"); if (startRun("tour", { target: x.id })) showTab("map", "run"); } } },
+          { label: "Save Image", run: () => toast("Saves the map as SVG or PNG.") },
+          "sep",
+          { label: "Ask About This Map", tag: "new", run: () => { post0("aisus.askAboutMap"); showTab("ask", "question"); } },
+          { label: "Review Changes", tag: "new here", run: () => { post0("aisus.reviewChanges"); showTab("review", "none"); onReview(); } },
+          { label: "Suggest Rules", tag: "new here", run: () => { post0("aisus.suggestRules"); S.ui.rulesOpen = true; delete keys.review; showTab("review", "none"); onSuggestRules(); } },
+        ]));
+        list.push(more);
+      }
+      act.replaceChildren(...list);
+    }
+    renderEditorContent();
+  }
+  const post0 = (command) => log("command", { command });
+
+  function renderEditorContent() {
+    const host = $("econtent");
+    const id = S.editor.active;
+    const m = mapById(S.editor.mapId);
+    const sig = JSON.stringify([id, S.scenario, S.editor.hl, id === "map" && m ? [m.id, m.boxes, m.changed, m.added, S.focusBox, S.tour, S.hotspotsShown, S.rules.length] : null]);
+    if (host.dataset.sig === sig) return;
+    host.dataset.sig = sig;
+    if (!id) { host.replaceChildren(); return; }
+    if (id === "welcome") {
+      const w = el("div", "welcome");
+      w.append(el("h2", "", "Welcome"), el("p", "", "No folder is open."), el("h3", "", "Start"));
+      const ul = el("ul");
+      const li1 = el("li");
+      li1.append(btn("Open Folder…", "link", () => { setScenario("first"); toast("Opened ~/code/shop."); }, "w-open"));
+      const li2 = el("li");
+      li2.append(btn("Clone Git Repository…", "link", () => toast("Not part of this mockup."), "w-clone"));
+      ul.append(li1, li2);
+      w.append(ul);
+      host.replaceChildren(w);
+      return;
+    }
+    if (id === "code") {
+      const crumbs = el("div", "breadcrumbs", "api › src › routes › checkout.ts");
+      const code = el("div", "code");
+      CODE.forEach((line, i) => {
+        const row = el("div", "code__line" + (S.editor.hl === i + 1 ? " code__line--hl" : ""));
+        row.append(el("span", "code__no", String(i + 1)));
+        const text = el("span");
+        text.innerHTML = line || " ";
+        row.append(text);
+        code.append(row);
+      });
+      host.replaceChildren(crumbs, code);
+      return;
+    }
+    host.replaceChildren(buildMapView(m));
+    requestAnimationFrame(drawEdges);
+  }
+  function buildMapView(m) {
+    const wrap = el("div", "mapview");
+    if (!m) { wrap.append(el("p", "compare-note", "No map.")); return wrap; }
+    const ids = boxesOf(m);
+    const changed = new Set(changedIds(m));
+    if (m.changed > 0) {
+      const bar = el("div", "fresh");
+      bar.append(el("span", "fresh__text", `${m.changed} of ${m.boxes} boxes changed since this map (${m.id === "m1" ? "4f2a9c1, " : ""}${relativeAge(m.createdAt)})`));
+      const r = btn("Refresh", "link", () => { post0("aisus.refreshArchitecture"); if (startRun("refresh", { target: m.id })) showTab("map", "run"); }, "fresh-refresh");
+      r.disabled = isRunning();
+      bar.append(r);
+      wrap.append(bar);
+    }
+    if (m !== currentMap()) wrap.append(el("p", "compare-note", `An older map (${m.runFolder}). The newest is ${currentMap().runFolder}.`));
+    const canvas = el("div", "canvas");
+    canvas.id = "mapCanvas";
+    const edges = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    edges.setAttribute("class", "edges");
+    edges.id = "mapEdges";
+    edges.setAttribute("aria-hidden", "true");
+    canvas.append(edges);
+    ROWS.forEach((name, row) => {
+      const inRow = ids.filter((b) => b.row === row);
+      if (!inRow.length) return;
+      const layer = el("div", `layer layer--${row}`);
+      const boxes = el("div", "layer__boxes");
+      for (const b of inRow) {
+        const node = el("button", "box");
+        node.type = "button";
+        node.dataset.box = b.id;
+        if (b.added) node.classList.add("box--new");
+        if (S.focusBox === b.id) node.classList.add("box--focus");
+        if (S.tour && TOUR[S.tour.i].box === b.id) node.classList.add("box--focus");
+        if (S.hotspotsShown && HEAT[b.id]) node.classList.add("box--heat-" + HEAT[b.id]);
+        node.append(el("span", "box__label", b.label), el("span", "box__sub", b.sub));
+        if (changed.has(b.id)) { const badge = el("span", "box__badge", "edited"); node.append(badge); }
+        node.setAttribute("aria-label", `${b.label}, ${b.sub}${changed.has(b.id) ? ", code edited since the map" : ""}. Opens its code.`);
+        node.addEventListener("click", () => {
+          log("map → host", { type: "openSource", componentId: b.id, index: 0 });
+          if (b.id === "api") { if (!S.editor.tabs.includes("code")) S.editor.tabs.unshift("code"); S.editor.active = "code"; S.editor.hl = 9; render(); later(2000, () => { S.editor.hl = null; render(); }); }
+          else toast(`Opened ${b.sub}/index.ts, lines 1–64.`);
+        });
+        boxes.append(node);
+      }
+      layer.append(el("span", "layer__name", name), boxes);
+      canvas.append(layer);
+    });
+    if (S.tour) canvas.append(buildTourCallout(m));
+    const legend = el("div", "map-legend", S.hotspotsShown ? "Hotspots: darker boxes changed more in the last 30 days." : "Placeholder for the map panel. Click a box to open its code.");
+    const tools = el("div", "map-toolbar");
+    tools.append(action("zoomOut", "Zoom out", null, "z-out"), action("zoomIn", "Zoom in", null, "z-in"), action("fit", "Fit", null, "z-fit"));
+    canvas.append(legend, tools);
+    wrap.append(canvas);
+    return wrap;
+  }
+  function buildTourCallout(m) {
+    const i = S.tour.i;
+    const stop = TOUR[i];
+    const box = el("div", "tour-callout");
+    box.id = "tourCallout";
+    box.style.visibility = "hidden";
+    box.setAttribute("role", "dialog");
+    box.setAttribute("aria-label", `Tour stop ${i + 1} of ${TOUR.length}`);
+    box.append(el("div", "tour-callout__step", `Stop ${i + 1} of ${TOUR.length} · ${m.title}`), el("div", "tour-callout__title", labelOf(stop.box)), el("p", "tour-callout__text", stop.text));
+    const acts = el("div", "tour-callout__actions");
+    const backB = btn("Back", "button", () => { S.tour.i -= 1; log("map → host", { type: "tourStop", index: S.tour.i }); render(); focusTour("tourBack"); }, "tourBack");
+    backB.disabled = i === 0;
+    const last = i === TOUR.length - 1;
+    const next = btn(last ? "Finish" : "Next", "button button--primary", () => {
+      if (last) {
+        log("map → host", { type: "tourFinished" });
+        S.practice.log.unshift({ kind: "tour", title: "Tour", detail: `${m.title} · ${TOUR.length} stops`, at: "2026-10-24" });
+        S.tour = null;
+        render();
+        toast("Tour finished. It is in Your practice on the Learn tab.");
+        return;
+      }
+      S.tour.i += 1;
+      log("map → host", { type: "tourStop", index: S.tour.i });
+      render();
+      focusTour("tourNext");
+    }, "tourNext");
+    const end = btn("End tour", "link", () => { S.tour = null; render(); }, "tourEnd");
+    acts.append(backB, next, end);
+    box.append(acts);
+    box.addEventListener("keydown", (e) => { if (e.key === "Escape") { S.tour = null; render(); } });
+    return box;
+  }
+  function focusTour(fid) { const t = document.querySelector(`[data-fid="${fid}"]`); if (t && !t.disabled) t.focus(); else { const n = document.querySelector('[data-fid="tourNext"]'); if (n) n.focus(); } }
+
+  function drawEdges() {
+    const canvas = $("mapCanvas");
+    const svgNode = $("mapEdges");
+    if (!canvas || !svgNode) return;
+    const base = canvas.getBoundingClientRect();
+    const pos = {};
+    canvas.querySelectorAll(".box").forEach((b) => {
+      const r = b.getBoundingClientRect();
+      pos[b.dataset.box] = { x: r.left - base.left + r.width / 2, top: r.top - base.top, bottom: r.bottom - base.top, left: r.left - base.left, right: r.right - base.left };
+    });
+    const NS = "http://www.w3.org/2000/svg";
+    const kids = [];
+    const defs = document.createElementNS(NS, "defs");
+    for (const [idName, cls] of [["ah", "ah"], ["ahv", "ah ah--v"]]) {
+      const marker = document.createElementNS(NS, "marker");
+      marker.setAttribute("id", idName);
+      marker.setAttribute("viewBox", "0 0 8 8");
+      marker.setAttribute("refX", "7");
+      marker.setAttribute("refY", "4");
+      marker.setAttribute("markerWidth", "7");
+      marker.setAttribute("markerHeight", "7");
+      marker.setAttribute("orient", "auto-start-reverse");
+      const p = document.createElementNS(NS, "path");
+      p.setAttribute("d", "M0 0L8 4L0 8z");
+      p.setAttribute("class", cls);
+      marker.append(p);
+      defs.append(marker);
+    }
+    kids.push(defs);
+    const curve = (a, b) => {
+      const x1 = a.x, y1 = a.bottom, x2 = b.x, y2 = b.top - 2;
+      const dy = Math.max(24, (y2 - y1) / 2);
+      return `M${x1} ${y1} C${x1} ${y1 + dy}, ${x2} ${y2 - dy}, ${x2} ${y2}`;
+    };
+    for (const [from, to] of EDGES) {
+      const a = pos[from], b = pos[to];
+      if (!a || !b) continue;
+      const p = document.createElementNS(NS, "path");
+      if (b.top <= a.top) {
+        const y = a.top + (a.bottom - a.top) / 2;
+        p.setAttribute("d", `M${a.right} ${y} L${b.left - 2} ${y}`);
+      } else p.setAttribute("d", curve(a, b));
+      p.setAttribute("marker-end", "url(#ah)");
+      kids.push(p);
+    }
+    if (S.rules.some((r) => r.violations > 0) && pos.admin && pos.store) {
+      const a = pos.admin, b = pos.store;
+      const p = document.createElementNS(NS, "path");
+      /* Route through the gap between Auth and Search, so the red arrow stays visible. */
+      const gap = pos.auth && pos.search && pos.search.left > pos.auth.right ? (pos.auth.right + pos.search.left) / 2 : a.left + 12;
+      const mid = pos.auth ? pos.auth.bottom + 14 : (a.bottom + b.top) / 2;
+      const x1 = gap, y1 = a.bottom, x2 = b.x - 24, y2 = b.top - 2;
+      p.setAttribute("d", `M${x1} ${y1} L${x1} ${mid - 8} C${x1} ${mid + 4}, ${x2} ${mid - 4}, ${x2} ${y2}`);
+      p.setAttribute("class", "violation");
+      p.setAttribute("marker-end", "url(#ahv)");
+      kids.push(p);
+      const t = document.createElementNS(NS, "text");
+      t.setAttribute("x", String(x1 + 6));
+      t.setAttribute("y", String(y1 + 14));
+      t.textContent = "admin-via-api";
+      kids.push(t);
+    }
+    svgNode.replaceChildren(...kids);
+    const callout = $("tourCallout");
+    if (callout && S.tour) {
+      const target = pos[TOUR[S.tour.i].box];
+      if (target) {
+        const width = base.width;
+        let left = target.right + 14;
+        if (left + 250 > width - 8) left = Math.max(8, target.left - 264);
+        callout.style.left = `${left}px`;
+        callout.style.top = `${Math.max(8, target.top - 10)}px`;
+      }
+      callout.style.visibility = "visible";
+    }
+  }
+
+  /* Status bar */
+  let sbAisus = null;
+  function buildStatus() {
+    const left = $("sbLeft");
+    const remote = btn("", "sb-item sb-remote", () => toast("Remote menu is not part of this mockup."), "sb-remote");
+    remote.innerHTML = svg("remote", 14);
+    remote.setAttribute("aria-label", "Open a remote window");
+    const branch = btn("", "sb-item", () => { S.container = "scm"; render(); }, "sb-branch");
+    branch.id = "sbBranch";
+    const problems = btn("", "sb-item", null, "sb-problems");
+    problems.append(icon("error", 14), document.createTextNode("0"), icon("warning", 14), document.createTextNode("0"));
+    problems.setAttribute("aria-label", "No problems");
+    left.append(remote, branch, problems);
+    const right = $("sbRight");
+    const pos = el("span", "sb-item sb-plain");
+    pos.id = "sbPos";
+    sbAisus = btn("", "sb-item", onStatusClick, "sb-aisus");
+    sbAisus.id = "sbAisus";
+    sbAisus.setAttribute("aria-describedby", "sbHover");
+    const bell = btn("", "sb-item", null, "sb-bell");
+    bell.innerHTML = svg("bell", 14);
+    bell.setAttribute("aria-label", "Notifications");
+    const enc = el("span", "sb-item sb-plain", "UTF-8");
+    enc.id = "sbEnc";
+    const lang = el("span", "sb-item sb-plain", "TypeScript");
+    lang.id = "sbLang";
+    right.append(pos, enc, lang, sbAisus, bell);
+    const hover = $("sbHover");
+    let hideTimer = null;
+    const show = () => { clearTimeout(hideTimer); fillHover(); hover.hidden = false; placeHover(); };
+    const hide = () => { clearTimeout(hideTimer); hideTimer = setTimeout(() => { hover.hidden = true; }, 250); };
+    sbAisus.addEventListener("mouseenter", show);
+    sbAisus.addEventListener("focus", show);
+    sbAisus.addEventListener("mouseleave", hide);
+    sbAisus.addEventListener("blur", hide);
+    sbAisus.addEventListener("keydown", (e) => { if (e.key === "Escape") hover.hidden = true; });
+    hover.addEventListener("mouseenter", () => clearTimeout(hideTimer));
+    hover.addEventListener("mouseleave", hide);
+    hover.addEventListener("focusin", () => clearTimeout(hideTimer));
+    hover.addEventListener("focusout", hide);
+  }
+  function statusText() {
+    if (S.scenario === "nofolder") return "aisus";
+    if (isRunning()) return `aisus: generating ${clock(runElapsed(S.run))}`;
+    const m = currentMap();
+    if (m && m.changed > 0) return `aisus: ${m.changed} changed`;
+    return "aisus";
+  }
+  function renderStatus() {
+    $("sbBranch").replaceChildren(icon("branch", 14), document.createTextNode(S.scenario === "nofolder" ? "" : S.branch));
+    $("sbBranch").setAttribute("aria-label", S.scenario === "nofolder" ? "No repository" : `Branch ${S.branch}`);
+    $("sbBranch").hidden = S.scenario === "nofolder";
+    $("sbPos").textContent = S.editor.active === "code" ? "Ln 9, Col 3" : "";
+    $("sbEnc").hidden = $("sbLang").hidden = S.editor.active !== "code";
+    const sig = JSON.stringify([isRunning()]);
+    if (sbAisus.dataset.sig !== sig) {
+      sbAisus.dataset.sig = sig;
+      const ic = icon(isRunning() ? "sync" : "aisus", 14);
+      if (isRunning()) ic.classList.add("spin");
+      const text = el("span", "");
+      text.id = "sbText";
+      sbAisus.replaceChildren(ic, text);
+    }
+    $("sbText").textContent = statusText();
+    $("commandCenter").replaceChildren(icon("search", 14), document.createTextNode(S.scenario === "nofolder" ? "Search" : "shop"));
+    if (!$("sbHover").hidden) fillHover();
+  }
+  function fillHover() {
+    const hover = $("sbHover");
+    const out = [];
+    const title = el("div", "hover__title", S.scenario === "nofolder" ? "aisus" : "aisus · shop");
+    out.push(title);
+    const m = currentMap();
+    if (S.scenario === "nofolder") out.push(el("div", "hover__muted", "Open a folder to map it."));
+    else {
+      if (isRunning()) {
+        const line = el("div", "hover__line");
+        const c = el("span", "", clock(runElapsed(S.run)));
+        c.id = "hoverClock";
+        line.append(el("span", "", `${runHeadline(S.run)} ·`), c);
+        out.push(line);
+      }
+      if (!m) out.push(el("div", "hover__muted", "No map yet."));
+      else {
+        const att = health().filter((h) => h.attention);
+        if (!att.length) out.push(el("div", "hover__line hover__line--ok", "✓ Map matches the code"));
+        for (const h of att) out.push(el("div", "hover__line hover__line--warn", "● " + h.text));
+      }
+      if (S.lastRun) {
+        out.push(el("hr"));
+        const r = S.lastRun;
+        out.push(el("div", "hover__muted", `Last run: ${r.agent} · ${r.kind} · ${relativeAge(r.at)} · ${r.dur}${r.tin ? ` · ${tokenCount(r.tin)} in · ${tokenCount(r.tout)} out` : ""}${r.cost !== null && r.cost !== undefined ? ` · $${r.cost.toFixed(2)}` : ""}`));
+      }
+      if (!isRunning() && m && m.changed > 0 && S.editor.tabs.includes("map")) {
+        out.push(el("hr"));
+        const link = btn(`Refresh ${plural(m.changed, "changed box", "changed boxes")}`, "link", () => {
+          $("sbHover").hidden = true;
+          post0("aisus.refreshArchitecture");
+          if (startRun("refresh", { target: m.id })) showTab("map", "run");
+        }, "hover-refresh");
+        out.push(link);
+      }
+    }
+    const where = S.scenario === "nofolder" ? "the sidebar" : isRunning() ? "the run on the Map tab" : m && m.changed > 0 ? "the Map tab" : `the ${cap(UI.lastTab[S.scenario] || "map")} tab, the last one used`;
+    out.push(el("div", "hover__muted", `Click to open ${where}.`));
+    hover.replaceChildren(...out);
+  }
+  function placeHover() {
+    const hover = $("sbHover");
+    const frame = $("vsc").getBoundingClientRect();
+    const r = sbAisus.getBoundingClientRect();
+    hover.style.bottom = `${frame.bottom - r.top + 4}px`;
+    hover.style.right = `${Math.max(6, frame.right - r.right - 40)}px`;
+  }
+  function onStatusClick() {
+    $("sbHover").hidden = true;
+    if (S.scenario === "nofolder") { log("status bar", { command: "aisus.home.reveal" }); S.container = "aisus"; render(); return; }
+    const m = currentMap();
+    let tab = UI.lastTab[S.scenario] || "map";
+    let focus = "none";
+    if (isRunning()) { tab = "map"; focus = "run"; }
+    else if (m && m.changed > 0) tab = "map";
+    log("status bar", { command: "aisus.home.reveal", args: focus === "none" ? [tab] : [tab, focus] });
+    showTab(tab, focus);
+  }
+
+  /* ------------------------------------------------------------------
+     Page controls
+     ------------------------------------------------------------------ */
+  function setScenario(s) {
+    seed(s);
+    $("webview").scrollTop = 0;
+    render();
+  }
+  function renderControls() {
+    document.querySelectorAll("#controls [data-who]").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.who === S.scenario)));
+    document.querySelectorAll("#controls [data-vs]").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.vs === UI.vs)));
+    document.querySelectorAll("#controls [data-w]").forEach((b) => b.setAttribute("aria-pressed", String(Number(b.dataset.w) === UI.width)));
+    $("ctlAgent").checked = S.agentMissing;
+    $("ctlOutcome").value = S.outcome;
+    const m = currentMap();
+    const label = isRunning() ? "Cancel the run" : S.scenario === "nofolder" ? "Start a run (opens shop first)" : !m ? "Start a run (Generate)" : m.changed > 0 ? "Start a run (Refresh)" : "Start a run (Generate)";
+    $("ctlRun").textContent = label;
+  }
+  function wireControls() {
+    document.querySelectorAll("#controls [data-who]").forEach((b) => b.addEventListener("click", () => setScenario(b.dataset.who)));
+    document.querySelectorAll("#controls [data-vs]").forEach((b) => b.addEventListener("click", () => {
+      UI.vs = b.dataset.vs;
+      $("vsc").dataset.vs = UI.vs;
+      render();
+      requestAnimationFrame(drawEdges);
+    }));
+    document.querySelectorAll("#controls [data-w]").forEach((b) => b.addEventListener("click", () => {
+      UI.width = Number(b.dataset.w);
+      $("vsc").style.setProperty("--sbw", UI.width + "px");
+      render();
+      requestAnimationFrame(drawEdges);
+    }));
+    $("ctlAgent").addEventListener("change", (e) => { S.agentMissing = e.target.checked; S.agentInstallCopied = false; render(); });
+    $("ctlOutcome").addEventListener("change", (e) => { S.outcome = e.target.value; });
+    $("ctlReset").addEventListener("click", () => {
+      $("msgLog").replaceChildren(Object.assign(el("li", "empty"), { textContent: "Click something in the frame." }));
+      $("liveLog").replaceChildren(Object.assign(el("li", "empty"), { textContent: "Only \"Run accepted: n boxes\", \"Run failed\", \"Answer ready\" and \"Review ready\"." }));
+      setScenario(S.scenario);
+    });
+    $("ctlRun").addEventListener("click", () => {
+      if (isRunning()) { onCancelRun(); return; }
+      if (S.scenario === "nofolder") setScenario("first");
+      if (S.agentMissing) { toast("No agent on PATH. Untick the box above, or follow Setup."); showTab("map", "setup"); return; }
+      const m = currentMap();
+      S.container = "aisus";
+      if (m && m.changed > 0) refreshMap(m);
+      else { selectTab("map", false); onGenerate(); }
+    });
+  }
+
+  /* ------------------------------------------------------------------
+     Render loop
+     ------------------------------------------------------------------ */
+  function render() {
+    syncSetupOpen();
+    renderControls();
+    renderActivity();
+    renderViews();
+    renderEditor();
+    renderStatus();
+    tick();
+  }
+  function tick() {
+    if (!S || !S.run) return;
+    const r = S.run;
+    const hdr = $("hdrClock");
+    if (hdr && isRunning()) hdr.textContent = "· " + clock(runElapsed(r));
+    const fig = $("runFigures");
+    if (fig) fig.textContent = runFigures(r);
+    const sbText = $("sbText");
+    if (sbText) sbText.textContent = statusText();
+    const hc = $("hoverClock");
+    if (hc && isRunning()) hc.textContent = clock(runElapsed(r));
+  }
+
+  buildTabs();
+  buildActivity();
+  buildStatus();
+  wireControls();
+  seed("returning");
+  render();
+  setInterval(tick, 500);
+  window.addEventListener("resize", () => requestAnimationFrame(drawEdges));
+  if (typeof ResizeObserver === "function") new ResizeObserver(() => drawEdges()).observe($("econtent"));
+  window.__mock = { get state() { return S; }, render, setScenario };
+})();
+</script>
+</body>
+</html>
