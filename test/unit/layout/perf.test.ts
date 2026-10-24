@@ -41,18 +41,30 @@ test("NFR-PERF-01 ENG-02 the 60/120 layout stays within the budget of a 12-compo
     () => lay(large),
     () => lay(small),
   );
-  expect(result.ok, `${result.subject.toFixed(0)} ms vs ${BUDGET_FACTOR} × ${result.reference.toFixed(0)} ms`).toBe(true);
+  expect(result.ok, `${result.subject.toFixed(0)} ms is ${result.ratio.toFixed(1)} × ${result.reference.toFixed(0)} ms, over ${BUDGET_FACTOR} ×`).toBe(true);
 });
 
 test("ENG-02 the budget fails a large layout 10 times slower than usual", async () => {
-  // A fake clock makes the small layout take 100 ms and the large one 7.4 times that, then 10 times more.
+  // A fake clock makes the small layout take 50 ms and the large one 12 times that, then 10 times more.
   let clock = 0;
   const now = () => clock;
   const advance = (ms: number) => async () => {
     clock += ms;
   };
-  expect((await checkLayoutBudget(advance(740), advance(100), now)).ok).toBe(true);
-  expect((await checkLayoutBudget(advance(7400), advance(100), now)).ok).toBe(false);
+  expect((await checkLayoutBudget(advance(600), advance(50), now)).ok).toBe(true);
+  expect((await checkLayoutBudget(advance(6000), advance(50), now)).ok).toBe(false);
+});
+
+test("ENG-02 the budget holds when the machine slows down partway through", async () => {
+  // From the seventh layout on, every layout takes 3 times as long, as when another job starts on the runner.
+  let clock = 0;
+  let calls = 0;
+  const now = () => clock;
+  const advance = (ms: number) => async () => {
+    calls++;
+    clock += calls > 6 ? ms * 3 : ms;
+  };
+  expect((await checkLayoutBudget(advance(600), advance(50), now)).ok).toBe(true);
 });
 
 const threads: Thread[] = [];
