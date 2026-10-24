@@ -740,6 +740,18 @@ The owner asked for two things. First, aisus names no other project anywhere, in
 
 Tests: the existing tests follow the new names. Unit tests check that maps are read from `.aisus/maps/`, and that the extension's excluded lines replace the old `.aisus/` line and keep maps committed.
 
+The owner then asked that aisus be tied to nothing outside itself. The repository moved to the `aisusdev` organization. Every link names it directly instead of relying on GitHub's redirect from the old address. Nothing derived from the other project stays in the repository. That way the licence notice it required can go too. The rows below join the proposal and replace its `THIRD_PARTY_NOTICES.md` row.
+
+| Location | Change | Est. LoC |
+|---|---|---|
+| `src/model/schemas/architecture.schema.json`, `common.schema.json` | New schemas for the same map format, written from a description of the format's fields and the validator, without the old schema text. The schemas accept and refuse the same maps as before | ±600 |
+| `fixtures/maps/**` and the tests that read them | New fixtures of invented systems replace the copied ones, with the same coverage: nesting, wide graphs, Japanese and Korean labels, portrait cards, first drafts, a base and head pair, and a skill run | ±3000 |
+| `skills/aisus-architecture/references/example.json`, both skills' `references/map-format.md` | A new example map and a format guide written from aisus's own schema, validator and skill | ±400 |
+| `THIRD_PARTY_NOTICES.md`, `scripts/notices.mjs` | The other project's section goes. The notices list the bundled packages only | -40 |
+| Every doc, ADR and comment | The old product name, the former team repository and the prototype's name go, described in neutral words | about 150 lines |
+| `package.json`, README, `cloud/src/lib/install.ts`, `deploy/`, the Action reference, skills install commands | Every link names `aisusdev/aisus` | 34 lines |
+| `src/extension/skillFiles.ts`, `src/extension/install.ts` | Skills installed into a repository are real copies in both `.agents/skills/` and `.claude/skills/`, never a symbolic link | +10 / -25 |
+
 ## Log
 
 - 2026-10-18 — D5 closed pending owner. Gates: `npm run check` exit 0 (1073 tests, 55 ADRs); `npm run test:e2e` exit 0 on VS Code 1.126.0 and 1.141.0 (single 74, empty 3, multi 2 each); cloud `vitest` 35 passed; cloud `[web]` 8 passed against the built app. Every new test was seen to fail once with its behaviour broken: 16 deliberate breaks across D5. Deployment is a hard stop and waits for the owner (see Waiting).
