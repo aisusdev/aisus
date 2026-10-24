@@ -1,0 +1,26 @@
+<!-- IDE-01: the aisus plugin. JCEF is part of the platform in 2026.1 and the bundled "Web Browser
+     (JCEF)" plugin in 2026.2; com.intellij.modules.jcef names it in both. -->
+<idea-plugin>
+  <id>dev.aisus</id>
+  <name>aisus</name>
+  <vendor>aisus</vendor>
+  <description><![CDATA[
+    <p>An architecture map of your repository whose boxes open the code they cite.</p>
+    <p>Generate a map with Claude Code, Codex or Devin in the terminal, open it in the aisus tool window, and click a box to open its cited lines.</p>
+  ]]></description>
+
+  <depends>com.intellij.modules.platform</depends>
+  <depends>com.intellij.modules.jcef</depends>
+  <depends>org.jetbrains.plugins.terminal</depends>
+
+  <extensions defaultExtensionNs="com.intellij">
+    <toolWindow id="aisus" anchor="right" icon="AllIcons.Toolwindows.WebToolWindow" factoryClass="aisus.intellij.AisusToolWindowFactory"/>
+    <notificationGroup id="aisus" displayType="BALLOON"/>
+  </extensions>
+
+  <actions>
+    <action id="aisus.ShowInMap" class="aisus.intellij.ShowInMapAction" text="Show in aisus Map" description="Mark the boxes that cite this file on the aisus map">
+      <add-to-group group-id="EditorPopupMenu" anchor="last"/>
+    </action>
+  </actions>
+</idea-plugin>

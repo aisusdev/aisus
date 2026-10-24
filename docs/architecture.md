@@ -416,6 +416,19 @@ Export and audit (CLD-13): `GET /api/v1/account/export` downloads `{exportedAt, 
 
 `meta` may hold `run`, `focus`, `agent`, `tokens`, `costUsd`, `skillVersion`, `pull` and `defaultBranch`. The main map is the latest map uploaded from the repository's default branch.
 
+## The IntelliJ plugin
+
+`intellij/` (IDE-01) is a Gradle build of its own, plugin ID `dev.aisus`, for IntelliJ IDEA 2026.1 (build 261) and later. `./gradlew buildPlugin` packs `out/intellij/jcef.js` and `jcef.css`, `dist/cli/`, `dist/skills/` and `dist/skill-hashes.json` into the plugin as `aisus/aisus-core.zip`, so `npm run build` and `node esbuild.mjs --intellij` run first. `AisusCore` unpacks the zip once per plugin version under `<IDE system folder>/aisus/<version>/`, refusing any entry that would land outside it, because node runs the CLI from real files.
+
+| File | Responsibility |
+|---|---|
+| `MapView.kt` | A `JBCefBrowser` with one `JBCefJSQuery`. The page sets `window.aisusDark` from `JBColor.isBright()` and defines `window.aisusPost(json)` before the viewer's script; its CSP allows exactly those two scripts by hash, the stylesheet by hash, and `worker-src blob:`. Messages to the page wait for the page's `{type: "ready"}` and are delivered as `window.aisusReceive(<json>)`. A theme change reloads the page. |
+| `Bridge.kt` | Parses `ready` and `openSource`; builds `load`, `empty` and `highlight` with Gson, which escapes `<`, `>` and `&`, so a map's text cannot end the page's script; finds a box's source and the boxes citing a file. |
+| `MapPanel.kt` | The Map tab: the newest map from `Maps` (run folders in `.archify/` by timestamp, then counter, then modification time) or the one picked on Home. A clicked citation opens through `SourcePaths.resolve` (repository-relative, no `.` or `..` segments, real path inside the repository) and `CodeNavigator`. Without JCEF, `export-page` writes the map's page and `BrowserUtil.browse` opens it. |
+| `HomePanel.kt` | The Home tab: Generate runs `AgentLaunch`'s command line (`claude "/aisus-architecture <focus>"`, `codex "$aisus-architecture <focus>"`, `devin -- "/aisus-architecture <focus>"`, quoted for POSIX shells or PowerShell) in a new IDE terminal tab; Review runs `check --base <ref> --format markdown`; Setup runs `preflight` and `install --scope user`. |
+| `ShowInMapAction.kt` | "Show in aisus Map" in the editor menu sends `highlight` for the current file's repository-relative path. |
+| `NodeCli.kt` | Runs `node <core>/dist/cli/aisus.mjs <command> --root <project>` off the UI thread and answers on it; a missing node gets one notification. |
+
 ## On-disk layout
 
 | Path | Contents |

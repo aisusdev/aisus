@@ -18,7 +18,7 @@ Tracks [spec-v0.3.md](spec-v0.3.md). Milestone statuses: Not started, In progres
 | I4 Skill retention | Closed pending owner (LRN-01 `[smoke]`) | `5b7a19c` |
 | I5 Cloud for teams | Waiting for the owner (CLD-12 hard stop, CLD-07 Stripe products) | `f732167` |
 | I6 Polish and reach | Closed pending owner (RCH-04 `[smoke]`) | `34d09df` |
-| I7 IntelliJ plugin | Waiting for the owner (IDE-01 needs a JDK and Gradle; the JCEF host is built) | |
+| I7 IntelliJ plugin | Closed pending owner (IDE-01 `[smoke]`) | IDE-01 |
 
 ## Waiting
 
@@ -43,7 +43,7 @@ Items only the owner can do, with exact steps.
 - CLD-07 billing (hard stop: creating Stripe products). In Stripe, create the Team product with a monthly per-seat price, enable the Customer Portal with plan changes and cancellation, and add a webhook endpoint `https://<domain>/api/stripe/webhook` for `checkout.session.completed`, `customer.subscription.updated` and `customer.subscription.deleted`. Set `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET` (the endpoint's signing secret), `STRIPE_TEAM_PRICE` (the price's id) and `AISUS_TEAM_PRICE_TEXT` (such as "$8 per seat a month") on the host. Then upgrade a test account in Stripe's test mode and confirm Settings shows Team.
 - CLD-10 Postgres (install: a new npm dependency). The app runs on PGlite in the `/data` volume. Approve adding `pg@8` with `@types/pg` to `cloud/`, and `cloud/src/db/client.ts` then uses Postgres through Drizzle when `DATABASE_URL` is set, and `cloud/docker-compose.yml` gains a `postgres:17` service. This also covers the D5 deployment's driver step.
 - Deployment: set up the `aisus` AWS profile, buy the domain, and put the Stripe test key in `~/.config/aisus/secrets.env`. Then `deploy/aws-up.sh`, `deploy/deploy.sh --setup` and `deploy/deploy.sh` run, the domain's `@` and `stats` records point at the server, and the GitHub OAuth app gets the callback `https://<domain>/api/auth/callback/github`. `kerk/dogfood.md` has the steps.
-- IDE-01 `[jvm]` (hard stop: installing toolchains). Approve installing, without sudo: Eclipse Temurin JDK 21 and JDK 25, from the adoptium.net tarballs into `~/.jdks`; the Gradle 9 wrapper in `intellij/`, which downloads Gradle itself; and the IntelliJ IDEA 2026.1 and 2026.2 distributions that the IntelliJ Platform Gradle Plugin 2.x downloads from JetBrains on the first build, about 1.5 GB each. Then the `intellij/` rows of the I7 proposal are built, and `./gradlew test verifyPlugin` joins the gates.
+- IDE-01 `[smoke]`: build the plugin with `npm run build`, `node esbuild.mjs --intellij` and `./gradlew buildPlugin` in `intellij/`. In IntelliJ IDEA 2026.1 or later, open Settings, then Plugins, then the gear, then Install Plugin from Disk, and pick `intellij/build/distributions/aisus-intellij-0.3.0.zip`. Open AB3, press Generate on the aisus tool window's Home tab, then on the Map tab click a box and confirm its cited lines open and are selected.
 - CLD-12 (hard stop: network access in shipped extension code). Reply with a go to let the extension send maps to aisus cloud when `aisus.cloud.enabled` is on. Nothing of CLD-12 is built until then. With the go, the maps list gains "Share to aisus cloud", which signs in through VS Code's GitHub authentication, previews the exact JSON, asks to confirm, and sends it through `src/cloud/client.ts`, the one file the no-network test then allows in the extension.
 - UI-06 `[smoke]`: ask one question per agent from the sidebar about a mapped repository. Confirm the answer cites `path:line`, the links open the lines, and a second Claude Code question resumes the session.
 
@@ -617,24 +617,31 @@ FRS-07 Compare maps was built in I3 for PRC-03, and is ticked there.
 
 ### I7 proposal (2026-10-19)
 
-| Location | Change | Est. LoC |
-|---|---|---|
-| `webview/hosts/jcef.ts`, `webview/jcef.ts`, `esbuild.mjs` | IDE-01: the viewer's JCEF host. The viewer's messages go to Kotlin as JSON through `window.aisusPost`, Kotlin's messages arrive through `window.aisusReceive`, and `window.aisusDark` picks the light or dark palette. Built as `dist/jcef.js` | +50 |
-| `intellij/settings.gradle.kts`, `intellij/build.gradle.kts`, `intellij/gradle.properties`, `intellij/src/main/resources/META-INF/plugin.xml` | IDE-01: the Kotlin project on the IntelliJ Platform Gradle Plugin 2.x for IntelliJ IDEA 2026.2 (Java 25) and 2026.1 (Java 21), with the bundled "Web Browser (JCEF)" plugin as a dependency for 2026.2. The plugin packs `dist/jcef.js`, `dist/webview.css`, `dist/cli/` and `dist/skills/` | +120 |
-| `intellij/src/main/kotlin/…/MapPanel.kt`, `Bridge.kt` | The Map tab: a JCEF page with the viewer, its messages, and `OpenFileDescriptor(project, file, line - 1, 0).navigate(true)` on the UI thread. Without JCEF, the diagram page opens instead | +200 |
-| `intellij/src/main/kotlin/…/HomePanel.kt`, `AisusToolWindowFactory.kt` | The Home tab: the composer with Generate in the IDE terminal, the maps list, Review through `check` and Setup through `preflight` and `install` | +220 |
-| `intellij/src/main/kotlin/…/ShowInMapAction.kt` | "Show in aisus Map" in the editor menu | +60 |
-| `intellij/src/main/kotlin/…/CoreCli.kt`, `AgentLaunch.kt` | `node <plugin>/core/cli/aisus.mjs <command> --root <root>`, and each agent's terminal command | +100 |
-| `intellij/src/test/kotlin/` | The bridge, argv and CLI-call tests | +150 |
+| Location | Change | Est. LoC | Built |
+|---|---|---|---|
+| `webview/hosts/jcef.ts`, `webview/jcef.ts`, `esbuild.mjs` | IDE-01: the viewer's JCEF host. The viewer's messages go to Kotlin as JSON through `window.aisusPost`, Kotlin's messages arrive through `window.aisusReceive`, and `window.aisusDark` picks the light or dark palette. Built as `dist/jcef.js` | +50 | +48 (2026-10-19) |
+| `intellij/settings.gradle.kts`, `intellij/build.gradle.kts`, `intellij/gradle.properties`, `intellij/src/main/resources/META-INF/plugin.xml` | IDE-01: the Kotlin project on the IntelliJ Platform Gradle Plugin 2.x for IntelliJ IDEA 2026.2 (Java 25) and 2026.1 (Java 21), with the bundled "Web Browser (JCEF)" plugin as a dependency for 2026.2. The plugin packs `dist/jcef.js`, `dist/webview.css`, `dist/cli/` and `dist/skills/` | +120 | +135, with the stock Gradle 9.8.2 wrapper |
+| `intellij/src/main/kotlin/…/MapPanel.kt`, `Bridge.kt` | The Map tab: a JCEF page with the viewer, its messages, and `OpenFileDescriptor(project, file, line - 1, 0).navigate(true)` on the UI thread. Without JCEF, the diagram page opens instead | +200 | +217 (`MapView.kt`, `MapPanel.kt`), `Bridge.kt` +107 |
+| `intellij/src/main/kotlin/…/HomePanel.kt`, `AisusToolWindowFactory.kt` | The Home tab: the composer with Generate in the IDE terminal, the maps list, Review through `check` and Setup through `preflight` and `install` | +220 | +149 (`HomePanel.kt`, `AisusToolWindowFactory.kt`, `AisusToolWindow.kt`, `AisusProject.kt`) |
+| `intellij/src/main/kotlin/…/ShowInMapAction.kt` | "Show in aisus Map" in the editor menu | +60 | +25 |
+| `intellij/src/main/kotlin/…/CoreCli.kt`, `AgentLaunch.kt` | `node <plugin>/core/cli/aisus.mjs <command> --root <root>`, and each agent's terminal command | +100 | +305 (also `AisusCore.kt`, `NodeCli.kt`, `TerminalRunner.kt`, `CodeNavigator.kt`, `Notify.kt`, `ProjectRoot.kt`, `SourcePaths.kt`, `Maps.kt`) |
+| `intellij/src/test/kotlin/` | The bridge, argv and CLI-call tests | +150 | +200 |
 
 Tests the I7 AC calls for:
 - IDE-01: the JCEF host's bridge `[dom]`; the bridge, argv and CLI-call tests and `verifyPlugin` `[jvm]`; on AB3, generate, open, and click to open the cited lines `[smoke]`.
 
 The `intellij/` rows wait for a JDK and Gradle, which are not installed here (hard stop: installing toolchains, see Waiting). Kotlin that cannot be compiled or tested here is not written blind. The JCEF host is built now.
 
+Where the I7 build differs from the proposal:
+- The Kotlin package is `aisus.intellij` and the plugin ID `dev.aisus`, after the rename. JetBrains' verifier refuses "intellij" in a plugin ID.
+- The proposal's note said Kotlin waits for a JDK. The owner installed JDK 21 and Gradle on 2026-10-22. Ubuntu's Gradle 4.4 cannot build on Java 21, so the build uses Gradle 9.8.2's stock wrapper, checked against Gradle's published checksum.
+- The build compiles against 2026.1.5 with JDK 21. The bundled "Web Browser (JCEF)" plugin of 2026.2 is named in `plugin.xml` as `com.intellij.modules.jcef`, which 2026.1 also declares, so one build loads on both. Verifying against 2026.2 downloads another IDE and runs after this close.
+- The Home tab is a Swing form, not the VS Code sidebar's webview. It runs the same core CLI.
+- Kotlin's `jvmDefault` is `NO_COMPATIBILITY`, so the plugin does not override `ToolWindowFactory`'s deprecated defaults through generated bridges.
+
 Done when: The plugin opens cited lines on AB3.
 
-- [ ] **IDE-01 IntelliJ plugin** `[jvm]` `[smoke]` — the JCEF host done 2026-10-19: `webview/hosts/jcef.ts`, `webview/jcef.ts` and `node esbuild.mjs --intellij`, which writes `out/intellij/jcef.js` and `jcef.css`. Tests: `jcef.test.ts` (2: messages go out as JSON through `aisusPost` and come in through `aisusReceive`; `aisusDark` picks the palette). The built bundle was also run once in happy-dom, where it posted `ready` and showed an empty state sent through `aisusReceive`. Each of 3 deliberate breaks failed a test. The bundle stays out of `dist/`, because `.vscodeignore` cannot leave out one file of a folder it includes. The `intellij/` project waits for a JDK and Gradle (see Waiting).
+- [ ] **IDE-01 IntelliJ plugin** `[jvm]` `[smoke]` — the JCEF host done 2026-10-19: `webview/hosts/jcef.ts`, `webview/jcef.ts` and `node esbuild.mjs --intellij`, which writes `out/intellij/jcef.js` and `jcef.css`. Tests: `jcef.test.ts` (2: messages go out as JSON through `aisusPost` and come in through `aisusReceive`; `aisusDark` picks the palette). The built bundle was also run once in happy-dom, where it posted `ready` and showed an empty state sent through `aisusReceive`. Each of 3 deliberate breaks failed a test. The bundle stays out of `dist/`, because `.vscodeignore` cannot leave out one file of a folder it includes. `[jvm]` done 2026-10-24: `intellij/`, a Kotlin project on the IntelliJ Platform Gradle Plugin 2.19.0, Kotlin 2.4.21 and Gradle 9.8.2, built with JDK 21 against IntelliJ IDEA 2026.1.5. The Map tab hosts the viewer in JCEF (`MapView.kt`, `MapPanel.kt`), opens a box's cited lines with `OpenFileDescriptor`, and without JCEF opens the map's page in the browser through `export-page`. The Home tab (`HomePanel.kt`) has the composer with Generate in the IDE terminal, the maps, Review through `check` and Setup through `preflight` and `install`. "Show in aisus Map" sits in the editor menu. The core CLI, the viewer and the skills ship in the plugin as `aisus-core.zip`, unpacked once per version under the IDE's system folder. Tests: 10 JUnit tests in `intellij/src/test/` (the bridge 3, safe paths 1, map order 1, agent command lines 2, CLI calls and unpacking 3); each of 9 deliberate breaks failed a test, after three first breaks changed nothing or did not compile and the map-order test was made stronger. `./gradlew verifyPlugin`: "Plugin dev.aisus:0.3.0 against IU-261.27258.48: Compatible", with no deprecated API and 17 uses of the experimental terminal API. `[smoke]` waits for the owner (see Waiting).
 
 ## Deployment (owner request, 2026-10-22)
 
