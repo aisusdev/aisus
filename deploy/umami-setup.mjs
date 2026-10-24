@@ -24,13 +24,14 @@ for (let attempt = 0; ; attempt++) {
   await new Promise((resolve) => setTimeout(resolve, 2000));
 }
 
-let session;
+// Changing the password ends the session, so the setup signs in again with the new one.
 try {
-  session = await login("umami");
-  await call("/me/password", session.token, { currentPassword: "umami", newPassword: process.env.ADMIN_PASSWORD });
+  const first = await login("umami");
+  await call("/me/password", first.token, { currentPassword: "umami", newPassword: process.env.ADMIN_PASSWORD });
 } catch {
-  session = await login(process.env.ADMIN_PASSWORD);
+  // The default password was replaced on an earlier deploy.
 }
+const session = await login(process.env.ADMIN_PASSWORD);
 const listed = await call("/websites?pageSize=100", session.token);
 const found = (listed.data ?? listed).find((site) => site.domain === process.env.SITE);
 const site = found ?? (await call("/websites", session.token, { name: "Sustain", domain: process.env.SITE }));

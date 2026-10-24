@@ -662,6 +662,8 @@ Where it differs from the proposal:
 - `deploy/umami-setup.mjs` replaces Umami's default admin password and creates the website, since Umami starts with the published password `umami`.
 - The deploy scripts wait for the owner's AWS profile, domain, OAuth app and Stripe key (see Waiting).
 
+Deployed 2026-10-24 to `13.251.233.109` (`t4g.small`, ap-southeast-1) on `https://13-251-233-109.sslip.io`, before the domain resolves. Checked from outside: `/api/health`, `/`, `/privacy` and the Grafana and Umami logins answer 200; `/install` redirects to the releases page, since no release exists yet; `/stats/script.js` answers 200 and other `/stats/` paths 404; `/api/metrics` answers 404; the certificate is Let's Encrypt's. The landing page carries the Umami tag with its `sustainStats` hook. Prometheus reads all four targets (`up` is 1 for sustain, caddy, node and prometheus), and the server had 448 MB of its 1.8 GB free. The first deploy's Umami setup failed with a 401, because changing Umami's password ends the session, so `umami-setup.mjs` now signs in again with the new password.
+
 ## Log
 
 - 2026-10-18 — D5 closed pending owner. Gates: `npm run check` exit 0 (1073 tests, 55 ADRs); `npm run test:e2e` exit 0 on VS Code 1.126.0 and 1.141.0 (single 74, empty 3, multi 2 each); cloud `vitest` 35 passed; cloud `[web]` 8 passed against the built app. Every new test was seen to fail once with its behaviour broken: 16 deliberate breaks across D5. Deployment is a hard stop and waits for the owner (see Waiting).
