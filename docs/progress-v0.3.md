@@ -723,6 +723,23 @@ Day 1 also brings the website design the owner asked for (`kerk/website-mockup.h
 
 Tests: unit tests for the two GitHub reads, the map times, and billing for the user's own account and an administered organization; a `[web]` spec `cld14-first-run.spec.ts` for sign-in, the three steps through the mocked Checkout, the banner, the repository list, and the plan gate for an admin and a member. The existing `[web]` specs follow the new markup.
 
+## A toolkit for sustainable development (owner request, 2026-10-24)
+
+The owner asked for two things. First, aisus names no other project anywhere, including the open-source diagram project its map format came from. Second, aisus presents itself as a toolkit for sustainable development, in which a developer trades some output for understanding. The map is the main tool. Review, Ask, Learn, rules, tours and the cloud sit beside it. The landing page also keeps half the mockup's words, in prose, with nothing set smaller than body text.
+
+### Toolkit proposal (2026-10-24)
+
+| Location | Change | Est. LoC |
+|---|---|---|
+| `src/model/runFolder.ts`, `src/model/session.ts`, `src/extension/hooksFiles.ts` and every reader of the map folder | Maps live in `.aisus/maps/<run>/` and are committed. Learning sessions move to `.aisus/sessions/` and stay local. The excluded lines become `.aisus/sessions/`, `.aisus/maps/**/draft.json` and `.aisus/maps/**/*.html`. The extension replaces the `.aisus/` line it wrote before | +60 / -40 across about 40 files |
+| Identifiers, schemas, fixtures, skills, the Action, the CLI, the IntelliJ plugin and tests | Every name that carried the other project's name takes the map's name, such as `MAP_DIR`, `MapDoc`, `fixtures/maps/` and `references/map-format.md`. The schemas' `$id`s move under `https://aisus.dev/schemas/` | about 870 lines renamed, about 30 files moved |
+| A new ADR, the ADRs and docs that named the project, `docs/research/` | The new ADR says the map format and its folder are aisus's own, superseding ADR 0013's folder layout. The older ADRs and docs describe the format without naming where it came from | 1 ADR, about 120 lines |
+| `THIRD_PARTY_NOTICES.md` | Keeps the MIT licence text and the copyright line, which the licence requires, under a neutral heading | ±5 |
+| `README.md`, `package.json`, `docs/vision.md`, the spec's opening, `intellij/src/main/resources/META-INF/plugin.xml` | aisus is a toolkit for sustainable development. A developer trades some output for understanding, and the map is the main tool | about 40 lines |
+| The Day 1 landing page | At most 340 words outside the product picture, about half the mockup's, in prose, with nothing smaller than body text | applies to the Day 1 proposal |
+
+Tests: the existing tests follow the new names. Unit tests check that maps are read from `.aisus/maps/`, and that the extension's excluded lines replace the old `.aisus/` line and keep maps committed.
+
 ## Log
 
 - 2026-10-18 — D5 closed pending owner. Gates: `npm run check` exit 0 (1073 tests, 55 ADRs); `npm run test:e2e` exit 0 on VS Code 1.126.0 and 1.141.0 (single 74, empty 3, multi 2 each); cloud `vitest` 35 passed; cloud `[web]` 8 passed against the built app. Every new test was seen to fail once with its behaviour broken: 16 deliberate breaks across D5. Deployment is a hard stop and waits for the owner (see Waiting).
