@@ -372,48 +372,109 @@ describe("ARC-03 hotspots on the map", () => {
   });
 });
 
-describe("FRS-07 compare maps", () => {
+describe("FRS-07 FRS-10 compare maps", () => {
   const BEFORE = {
     components: [
-      { id: "api", label: "API", sources: [{ path: "src/api/a.ts" }] },
-      { id: "cache", label: "Cache", sources: [{ path: "src/cache/a.ts" }] },
+      { id: "api", label: "API", type: "backend", sources: [{ path: "src/api/a.ts" }] },
+      { id: "cache", label: "Cache", type: "database", sources: [{ path: "src/cache/a.ts" }] },
+      { id: "db", label: "DB", type: "database", sources: [{ path: "src/db/a.ts" }] },
     ],
     connections: [{ from: "api", to: "cache", label: "reads" }],
+    boundaries: [{ kind: "region" as const, label: "Backend", wraps: ["api", "db"] }],
   };
   const AFTER = {
     meta: { title: "Now" },
     components: [
       { id: "api", label: "Server", type: "backend", sources: [{ path: "src/api/a.ts" }] },
       { id: "mail", label: "Mail", type: "external", sources: [{ path: "src/mail/a.ts" }] },
+      { id: "db", label: "DB", type: "database", sources: [{ path: "src/db/a.ts" }] },
     ],
     connections: [{ from: "api", to: "mail" }],
+    boundaries: [{ kind: "region", label: "Services", wraps: ["api", "db"] }],
   };
+  const AFTER_VIEW = { components: AFTER.components, connections: AFTER.connections, boundaries: [{ kind: "region" as const, label: "Services", wraps: ["api", "db"] }] };
+  const context = {
+    baselineRun: "architecture-now-20261024-090000",
+    currentRun: "architecture-now-20261025-090000",
+    warnings: [{ code: "reversed" as const, message: "The earlier map is newer than this one, so the changes show in reverse." }],
+    approximate: true,
+    keptAvailable: true,
+    keptNote: false,
+    baselineCommit: { revision: "abcdef1234567890abcdef1234567890abcdef12", subject: "Add cache", committedAt: new Date(Date.now() - 2 * 86_400_000).toISOString(), dirtyCount: 3 },
+    currentCommit: { revision: "1234567abcdef1234567abcdef1234567abcdef1", subject: "Send mail", committedAt: null, dirtyCount: 0 },
+  };
+  const changes = { schema: 1 as const, baseRevision: "a".repeat(40), revision: "b".repeat(40), touched: [{ id: "db", files: [{ status: "modified" as const, path: "src/db/a.ts" }] }], uncited: [{ status: "added" as const, path: "src/new.ts" }, { status: "deleted" as const, path: "src/gone.ts" }] };
+  const node = (id: string): Element => document.querySelector(`.node[data-id="${id}"]`)!;
+  const marks = (selector: string): string[] => [...document.querySelectorAll(`${selector} .compare-mark`)].map((mark) => mark.textContent!);
+  const section = (key: string): string[] => [...document.querySelectorAll(`.changes-panel [data-section="${key}"] .changes-panel__item`)].map((item) => item.textContent!);
 
-  test("added boxes and arrows are outlined, removed ones are drawn see-through, and the bar sums it up with Clear", async () => {
+  async function compared(shown = true): Promise<void> {
     send({ type: "load", doc: AFTER, file: "/r/now.json" });
-    await vi.waitFor(() => expect(document.querySelectorAll(".node").length).toBe(2));
-    const diff = diffMaps(BEFORE, { components: AFTER.components, connections: AFTER.connections });
-    send({ type: "compare", compare: { against: "architecture-old-20261001-090000", diff } });
     await vi.waitFor(() => expect(document.querySelectorAll(".node").length).toBe(3));
-    const node = (id: string): Element => document.querySelector(`.node[data-id="${id}"]`)!;
-    expect(node("mail").classList.contains("node--added")).toBe(true);
-    expect(node("api").classList.contains("node--added")).toBe(false);
-    expect(node("removed:0").classList.contains("node--removed")).toBe(true);
-    expect([...node("removed:0").querySelectorAll("text")].map((text) => text.textContent)).toEqual(["Cache", "removed"]);
-    expect(JSON.parse(node("removed:0").getAttribute("data-vscode-context")!).webviewSection).toBe("ghost");
+    send({ type: "compare", compare: { against: context.baselineRun, diff: diffMaps(BEFORE, AFTER_VIEW, new Set(["db"])), context, changes, shown } });
+  }
+
+  test("new, changed, renamed and kept elements are marked, and removed ones are not drawn", async () => {
+    await compared();
+    expect(document.querySelectorAll(".node").length).toBe(3);
+    expect(["api", "mail", "db"].map((id) => ["node--added", "node--changed", "node--kept"].filter((name) => node(id).classList.contains(name)))).toEqual([["node--changed"], ["node--added"], ["node--kept"]]);
+    expect([marks('.node[data-id="api"]'), marks('.node[data-id="mail"]'), marks('.node[data-id="db"]'), marks(".boundary")]).toEqual([["CHANGED"], ["NEW"], ["KEPT"], ["RENAMED"]]);
     expect(document.querySelector('.edge[data-index="0"]')!.classList.contains("edge--added")).toBe(true);
-    const removed = document.querySelector('.edge[data-index="1"]')!;
-    expect([removed.classList.contains("edge--removed"), removed.getAttribute("data-from"), removed.getAttribute("data-to")]).toEqual([true, "api", "removed:0"]);
-    const bar = document.querySelector<HTMLElement>(".compare")!;
-    expect(bar.hidden).toBe(false);
-    expect(bar.textContent).toBe("Compared with architecture-old-20261001-090000: 1 box added · 1 removed · 1 relabelled · 1 arrow added · 1 removed Clear");
+  });
+
+  test("the header names both commits, counts the changes, says approximate and warns, with Swap on a reversed comparison", async () => {
+    await compared();
+    const header = document.querySelector<HTMLElement>(".compare")!;
+    expect(header.hidden).toBe(false);
+    expect(header.querySelector(".compare__commits")!.textContent).toBe("Compared with abcdef1 “Add cache” · 2 days ago and 3 uncommitted files → 1234567 “Send mail”");
+    expect(header.querySelector(".compare__counts")!.textContent).toBe("+2 −2 ~2");
+    expect(header.querySelector(".compare__approximate")).not.toBeNull();
+    expect(header.querySelector('.compare__warning[data-code="reversed"]')!.textContent).toBe("The earlier map is newer than this one, so the changes show in reverse. Swap");
     posted.length = 0;
-    bar.querySelector("button")!.click();
-    expect(posted).toEqual([{ type: "clearCompare" }]);
+    header.querySelector<HTMLButtonElement>(".compare__swap")!.click();
+    header.querySelector<HTMLButtonElement>(".compare__with")!.click();
+    expect(posted).toEqual([{ type: "swap" }, { type: "compareWith" }]);
+  });
+
+  test("the panel lists each change with what changed, the kept boxes and the uncited files, and its entries zoom or open", async () => {
+    await compared();
+    expect(section("added")).toEqual(["box Mail", "arrow Server → Mail"]);
+    expect(section("removed")).toEqual(["box Cache", "arrow API → Cache (reads)"]);
+    expect(section("changed")).toEqual(["box Server label: “API” → “Server”", "boundary Services label: “Backend” → “Services”"]);
+    expect(section("kept")).toEqual(["box DB 1 changed file"]);
+    expect(section("uncited")).toEqual(["added src/new.ts", "deleted src/gone.ts"]);
+    posted.length = 0;
+    document.querySelector<HTMLButtonElement>(".changes-panel__baseline")!.click();
+    document.querySelector<HTMLButtonElement>('.changes-panel__file[data-path="src/new.ts"]')!.click();
+    expect(posted).toEqual([{ type: "openBaseline" }, { type: "openFile", path: "src/new.ts" }]);
+    expect(document.querySelector('.changes-panel [data-section="uncited"] span.changes-panel__item')!.textContent).toBe("deleted src/gone.ts");
+    const before = transform();
+    document.querySelector<HTMLButtonElement>('.changes-panel [data-section="added"] button[data-kind="box"]')!.click();
+    expect(transform()).not.toBe(before);
+  });
+
+  test("the Changes toggle hides the marks and the panel, keeps the header, and tells the host", async () => {
+    await compared();
+    posted.length = 0;
+    const toggle = document.querySelector<HTMLButtonElement>(".compare__toggle")!;
+    expect(toggle.getAttribute("aria-pressed")).toBe("true");
+    toggle.click();
+    expect(posted).toEqual([{ type: "showChanges", on: false }]);
+    expect(document.querySelector<HTMLElement>(".changes-panel")!.hidden).toBe(true);
+    expect(document.querySelectorAll(".node--added, .node--changed, .node--kept, .compare-mark").length).toBe(0);
+    expect(document.querySelector<HTMLElement>(".compare")!.hidden).toBe(false);
+    expect(document.querySelector(".compare__toggle")!.getAttribute("aria-pressed")).toBe("false");
     send({ type: "compare", compare: null });
-    await vi.waitFor(() => expect(document.querySelectorAll(".node").length).toBe(2));
-    expect(bar.hidden).toBe(true);
-    expect(document.querySelectorAll(".node--added, .edge--added").length).toBe(0);
+    expect(document.querySelector<HTMLElement>(".compare")!.hidden).toBe(true);
+  });
+
+  test("without a context, as on a cloud page, the header names the earlier map and offers no host actions", async () => {
+    send({ type: "load", doc: AFTER, file: "/r/now.json" });
+    await vi.waitFor(() => expect(document.querySelectorAll(".node").length).toBe(3));
+    send({ type: "compare", compare: { against: "the map of 1 Oct", diff: diffMaps(BEFORE, AFTER_VIEW), changes, shown: true } });
+    expect(document.querySelector(".compare__commits")!.textContent).toBe("Compared with the map of 1 Oct");
+    expect(document.querySelectorAll(".compare__with, .changes-panel__baseline, [data-section='kept'], [data-section='uncited']").length).toBe(0);
+    expect(node("db").classList.contains("node--kept")).toBe(false);
   });
 });
 

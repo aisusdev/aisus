@@ -3,12 +3,12 @@
 // webview, the diagram page and the cloud site share it.
 import { layoutDiagram } from "@aisus/core/layout/layout";
 import type { MeasureText, Scene } from "@aisus/core/layout/scene";
-import type { ChangeOverlay, Ghost, GhostArrow, HostMessage } from "@aisus/core/model/messages";
+import type { ChangeOverlay, Comparison, Ghost, GhostArrow, HostMessage } from "@aisus/core/model/messages";
 import { NO_IMPORT_EVIDENCE } from "@aisus/core/model/uncertainty";
-import { diffSummary, type MapDiff } from "@aisus/core/model/diff";
 import type { Freshness } from "@aisus/core/model/staleness";
 import { readDiagram, type ViewDiagram } from "@aisus/core/model/tolerant";
 import { onMessage, post } from "./bridge";
+import { ChangesView, formatFields, type ElementKind } from "./changes";
 import { NodeClicks } from "./click";
 import { renderScene } from "./render";
 import { screenReaderList } from "./a11y";
@@ -49,24 +49,6 @@ export function withGhosts(diagram: ViewDiagram, ghosts: readonly Ghost[], arrow
     sources: [],
   }));
   return { ...diagram, components: [...diagram.components, ...extra], connections: [...diagram.connections, ...newArrows] };
-}
-
-/** Removed boxes' ids hold a colon too, like ghosts', so they never clash with the map's. */
-const REMOVED_PREFIX = "removed:";
-
-/**
- * FRS-07: `diagram` with the older map's removed boxes added as see-through boxes, and its removed
- * arrows added after the map's own, wherever both of their ends are drawn.
- */
-export function withRemoved(diagram: ViewDiagram, diff: MapDiff | null): { diagram: ViewDiagram; arrows: number } {
-  if (diff === null || (diff.boxes.removed.length === 0 && diff.arrows.removed.length === 0)) return { diagram, arrows: 0 };
-  const removedIds = new Map(diff.boxes.removed.map((box, index) => [box.id, `${REMOVED_PREFIX}${index}`]));
-  const boxes = diff.boxes.removed.map((box, index) => ({ id: `${REMOVED_PREFIX}${index}`, type: "external" as const, label: box.label, sublabel: "removed", sources: [] }));
-  const drawn = new Set([...diagram.components.map((component) => component.id), ...boxes.map((box) => box.id)]);
-  const arrows = diff.arrows.removed
-    .map((arrow) => ({ from: removedIds.get(arrow.from) ?? arrow.from, to: removedIds.get(arrow.to) ?? arrow.to, ...(arrow.label ? { label: arrow.label } : {}), variant: "dashed" as const }))
-    .filter((arrow) => drawn.has(arrow.from) && drawn.has(arrow.to));
-  return { diagram: { ...diagram, components: [...diagram.components, ...boxes], connections: [...diagram.connections, ...arrows] }, arrows: arrows.length };
 }
 
 /** `diagram` with each arrow in `edges` dashed and labelled as having no import evidence (ACC-03). */
@@ -134,10 +116,14 @@ export function startViewer(mount: HTMLElement = document.body): void {
   tooltipElement.className = "tooltip";
   tooltipElement.setAttribute("role", "tooltip");
   tooltipElement.hidden = true;
-  // FRS-07: what the comparison found, and Clear.
+  // FRS-10: the comparison's header above the map, and the Changes panel on its right.
   const compareBar = document.createElement("div");
   compareBar.className = "compare";
   compareBar.hidden = true;
+  const changesPanel = document.createElement("aside");
+  changesPanel.className = "changes-panel";
+  changesPanel.setAttribute("aria-label", "Changes");
+  changesPanel.hidden = true;
   // ACC-03: what the dotted boxes and grey dashed arrows mean.
   const legend = document.createElement("div");
   legend.className = "checks-legend";
@@ -198,7 +184,7 @@ export function startViewer(mount: HTMLElement = document.body): void {
     event.preventDefault();
     if (component.sources.length > 0) post({ type: "openSource", componentId: component.id, index: 0 });
   });
-  app.append(svg, toolbar, tour.start, finder.element, highlightBar, freshnessBar, changesBar, compareBar, emptyState, tooltipElement, legend, tour.card, screenReader, overview);
+  app.append(svg, toolbar, tour.start, finder.element, highlightBar, freshnessBar, changesBar, compareBar, changesPanel, emptyState, tooltipElement, legend, tour.card, screenReader, overview);
   mount.append(app);
 
   const viewport = new ViewportController(svg, content, toolbar, window);
@@ -217,41 +203,85 @@ export function startViewer(mount: HTMLElement = document.body): void {
   let lastLoad: { doc: unknown; file: string } | null = null;
   let ghosts: Ghost[] = [];
   let ghostArrows: GhostArrow[] = [];
-  /** FRS-07: the comparison with an older map, kept across reloads until cleared. */
-  let compare: { against: string; diff: MapDiff } | null = null;
-  /** Connections from this index on are the older map's removed arrows. */
-  let firstRemoved = Number.POSITIVE_INFINITY;
+  /** FRS-10: the comparison with an earlier map, kept across reloads until the host replaces it. */
+  let compare: Comparison | null = null;
+  const changesView = new ChangesView(compareBar, changesPanel, {
+    post,
+    focus: (kind, index) => focusElement(kind, index),
+    toggle: (on) => {
+      if (compare === null) return;
+      compare = { ...compare, shown: on };
+      applyCompare();
+      post({ type: "showChanges", on });
+    },
+  });
+
+  /** Zooms to a box, arrow or boundary of the shown map. */
+  function focusElement(kind: ElementKind, index: number): void {
+    if (shownScene === undefined) return;
+    let rect: { x: number; y: number; w: number; h: number } | undefined;
+    if (kind === "box") rect = shownScene.nodes.find((node) => node.index === index)?.rect;
+    else if (kind === "boundary") rect = shownScene.boundaries.find((boundary) => boundary.index === index)?.rect;
+    else {
+      const points = shownScene.edges.find((edge) => edge.index === index)?.points ?? [];
+      if (points.length > 0) {
+        const xs = points.map((point) => point.x);
+        const ys = points.map((point) => point.y);
+        rect = { x: Math.min(...xs), y: Math.min(...ys), w: Math.max(1, Math.max(...xs) - Math.min(...xs)), h: Math.max(1, Math.max(...ys) - Math.min(...ys)) };
+      }
+    }
+    if (rect !== undefined) viewport.set(focusView(rect, viewport.size()));
+  }
+
+  /** The word on a mark for each status. */
+  const MARKS: Record<string, string> = { added: "NEW", changed: "CHANGED", renamed: "RENAMED", kept: "KEPT" };
+
+  /** Adds `word` at the top left of `rect`'s element inside `group`. */
+  function mark(group: Element, box: Element | null, word: string): void {
+    if (box === null) return;
+    const text = document.createElementNS(SVG_NS, "text");
+    text.setAttribute("class", "compare-mark");
+    text.setAttribute("x", String(Number(box.getAttribute("x")) + 6));
+    text.setAttribute("y", String(Number(box.getAttribute("y")) - 6));
+    text.setAttribute("font-size", "10");
+    text.textContent = word;
+    group.append(text);
+  }
 
   function applyCompare(): void {
-    const added = new Set(compare?.diff.boxes.added ?? []);
-    const addedArrows = new Set(compare?.diff.arrows.added ?? []);
+    const shown = compare !== null && compare.shown;
+    const diff = compare?.diff;
+    for (const old of content.querySelectorAll(".compare-mark")) old.remove();
+    const index = new Map((shownDiagram?.components ?? []).map((box, i) => [box.id, i]));
+    const notes: Record<string, string> = {};
     for (const node of content.querySelectorAll(".node")) {
       const id = node.getAttribute("data-id") ?? "";
-      node.classList.toggle("node--added", added.has(id));
-      node.classList.toggle("node--removed", id.startsWith(REMOVED_PREFIX));
-      if (id.startsWith(REMOVED_PREFIX)) node.setAttribute("data-vscode-context", JSON.stringify({ webviewSection: "ghost", preventDefaultContextMenuItems: true }));
+      const entry = shown ? diff?.boxes[index.get(id) ?? -1] : undefined;
+      for (const status of ["added", "changed", "kept"]) node.classList.toggle(`node--${status}`, entry?.status === status);
+      if (entry !== undefined && MARKS[entry.status] !== undefined) {
+        mark(node, node.querySelector(".node__box"), MARKS[entry.status]!);
+        notes[id] = entry.status === "added" ? "New since the earlier map." : entry.status === "kept" ? "Its code changed, and the update kept it." : `Changed: ${formatFields(entry.fields)}.`;
+      }
     }
     for (const edge of content.querySelectorAll(".edge, .edge-label")) {
-      const index = Number(edge.getAttribute("data-index"));
-      edge.classList.toggle("edge--added", addedArrows.has(index));
-      edge.classList.toggle("edge--removed", index >= firstRemoved && index < firstViolation);
+      const i = Number(edge.getAttribute("data-index"));
+      const entry = shown && i < firstViolation ? diff?.arrows[i] : undefined;
+      edge.classList.toggle("edge--added", entry?.status === "added");
+      edge.classList.toggle("edge--changed", entry?.status === "changed");
     }
-    const notes: Record<string, string> = {};
-    if (compare !== null) {
-      for (const id of compare.diff.boxes.added) notes[id] = `New since ${compare.against}.`;
-      for (const box of compare.diff.boxes.relabelled) notes[box.id] = `Was ${box.label} in ${compare.against}.`;
-      compare.diff.boxes.removed.forEach((box, index) => (notes[`${REMOVED_PREFIX}${index}`] = `Removed since ${compare!.against}.`));
+    for (const boundary of content.querySelectorAll(".boundary")) {
+      const entry = shown ? diff?.boundaries[Number(boundary.getAttribute("data-index"))] : undefined;
+      for (const status of ["added", "changed", "renamed"]) boundary.classList.toggle(`boundary--${status}`, entry?.status === status);
+      if (entry !== undefined && MARKS[entry.status] !== undefined) mark(boundary, boundary.querySelector(".boundary__box"), MARKS[entry.status]!);
     }
     tooltip.setNotes("compare", notes);
-    compareBar.replaceChildren();
-    compareBar.hidden = compare === null;
-    if (compare === null) return;
-    const clear = document.createElement("button");
-    clear.type = "button";
-    clear.className = "toolbar__button compare__clear";
-    clear.textContent = "Clear";
-    clear.addEventListener("click", () => post({ type: "clearCompare" }));
-    compareBar.append(document.createTextNode(`Compared with ${compare.against}: ${diffSummary(compare.diff)} `), clear);
+    changesView.show(shownDiagram, compare);
+    // The canvas makes room for the panel, so fitting never puts a box under it.
+    const withPanel = !changesPanel.hidden;
+    if (app.classList.contains("app--with-panel") !== withPanel) {
+      app.classList.toggle("app--with-panel", withPanel);
+      viewport.fit();
+    }
   }
 
   /** ARC-01: arrows for imports that break the rules. */
@@ -418,16 +448,15 @@ export function startViewer(mount: HTMLElement = document.body): void {
     app.classList.remove("app--empty");
     const ids = new Set(result.diagram.components.map((component) => component.id));
     const broken = violationArrows.filter((arrow) => ids.has(arrow.from) && ids.has(arrow.to)).map((arrow) => ({ ...arrow, variant: "emphasis" as const }));
-    const uncertainOnes = withUncertainty(result.diagram, uncertain.shown ? uncertain.edges : []);
-    const compared = withRemoved(uncertainOnes, compare?.diff ?? null);
-    const checked = compared.diagram;
-    firstRemoved = uncertainOnes.connections.length;
+    const checked = withUncertainty(result.diagram, uncertain.shown ? uncertain.edges : []);
     firstViolation = checked.connections.length;
     firstGhostArrow = firstViolation + broken.length;
     const diagram = withGhosts({ ...checked, connections: [...checked.connections, ...broken] }, ghosts, ghostArrows);
     const scene = await layoutDiagram(diagram, { measure, viewport: viewport.size(), run });
     if (current !== generation) return;
     renderScene(content, diagram, scene, measure);
+    shownScene = scene;
+    shownDiagram = result.diagram;
     applyGhosts();
     applyUncertainty();
     applyHotspots();
@@ -436,8 +465,6 @@ export function startViewer(mount: HTMLElement = document.body): void {
     applyFreshness();
     applyChanges();
     tour.reapply();
-    shownScene = scene;
-    shownDiagram = result.diagram;
     screenReader.replaceChildren(screenReaderList(result.diagram, post));
     finder.setDiagram(result.diagram);
     tooltip.setDiagram(diagram);
@@ -503,7 +530,8 @@ export function startViewer(mount: HTMLElement = document.body): void {
     }
     if (message.type === "compare") {
       compare = message.compare;
-      if (lastLoad === null) return;
+      applyCompare();
+      return;
     }
     if (message.type === "hotspots") {
       heat = { boxes: message.boxes, shown: message.shown };
@@ -531,6 +559,8 @@ export function startViewer(mount: HTMLElement = document.body): void {
       finder.close();
       finder.setDiagram(null);
       shownDiagram = undefined;
+      compare = null;
+      changesView.show(undefined, null);
       screenReader.replaceChildren();
       overview.hidden = true;
       showEmpty(message.message, message.action);

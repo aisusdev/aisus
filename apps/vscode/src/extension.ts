@@ -1,7 +1,6 @@
 import * as vscode from "vscode";
 import type { CheckReport } from "@aisus/core/model/check";
-import type { MapDiff } from "@aisus/core/model/diff";
-import type { ChangeOverlay, Ghost, HomeState, HomeWebviewMessage, RunCard, SessionWebviewMessage, WebviewMessage } from "@aisus/core/model/messages";
+import type { ChangeOverlay, Comparison, Ghost, HomeState, HomeWebviewMessage, RunCard, SessionWebviewMessage, WebviewMessage } from "@aisus/core/model/messages";
 import type { MapFreshness } from "@aisus/core/model/staleness";
 import type { TourStop } from "@aisus/core/model/tour";
 import { Ask } from "./ask";
@@ -50,7 +49,7 @@ export interface TestHook {
   panelChanges(): ChangeOverlay | null | undefined;
   /** The new box candidates drawn on the map, and the last review's report (PRC-02). */
   /** The comparison on the shown map (FRS-07, PRC-03). */
-  panelCompare(): { against: string; diff: MapDiff } | null | undefined;
+  panelCompare(): Comparison | null | undefined;
   panelGhosts(): Ghost[] | undefined;
   /** The shown map's tour (SKL-02). */
   panelTour(): TourStop[] | null | undefined;

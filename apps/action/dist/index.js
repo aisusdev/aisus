@@ -4621,7 +4621,7 @@ var require_core = __commonJS({
       errorsText(errors = this.errors, { separator = ", ", dataVar = "data" } = {}) {
         if (!errors || errors.length === 0)
           return "No errors";
-        return errors.map((e) => `${dataVar}${e.instancePath} ${e.message}`).reduce((text3, msg) => text3 + separator + msg);
+        return errors.map((e) => `${dataVar}${e.instancePath} ${e.message}`).reduce((text4, msg) => text4 + separator + msg);
       }
       $dataMetaSchema(metaSchema, keywordsJsonPointers) {
         const rules = this.RULES.all;
@@ -7560,14 +7560,14 @@ function sidePath(line, prefix) {
   if (raw === "/dev/null") return null;
   return raw.startsWith(prefix) ? raw.slice(2) : raw;
 }
-function parseDiff(text3) {
-  const files = [];
+function parseDiff(text4) {
+  const files2 = [];
   let current = null;
-  for (const line of text3.split("\n")) {
+  for (const line of text4.split("\n")) {
     if (line.startsWith("diff --git ")) {
       const [oldPath, path2] = headerPaths(line.slice("diff --git ".length));
       current = { path: path2, oldPath, status: "modified", hunks: [] };
-      files.push(current);
+      files2.push(current);
     } else if (current === null) {
       continue;
     } else if (line.startsWith("rename from ")) {
@@ -7594,7 +7594,7 @@ function parseDiff(text3) {
       }
     }
   }
-  return files;
+  return files2;
 }
 function touches(hunk, start, end) {
   if (hunk.oldLines === 0) return hunk.oldStart >= start && hunk.oldStart < end;
@@ -7965,9 +7965,9 @@ function joinPath(dir, rel) {
   }
   return parts.join("/");
 }
-function lineAt(text3, index) {
+function lineAt(text4, index) {
   let line = 1;
-  for (let at = text3.indexOf("\n"); at !== -1 && at < index; at = text3.indexOf("\n", at + 1)) line++;
+  for (let at = text4.indexOf("\n"); at !== -1 && at < index; at = text4.indexOf("\n", at + 1)) line++;
   return line;
 }
 var ImportSet = class {
@@ -7989,23 +7989,23 @@ var ImportSet = class {
 var PACKAGE = /^\s*package\s+([\w.]+)\s*;/m;
 var IMPORT = /^\s*import\s+(static\s+)?([\w.]+?)(\.\*)?\s*;/gm;
 var baseName = (path2) => path2.slice(path2.lastIndexOf("/") + 1).replace(/\.java$/, "");
-function javaIndex(files, read) {
+function javaIndex(files2, read) {
   const index = { classes: /* @__PURE__ */ new Map(), packages: /* @__PURE__ */ new Map(), packageOf: /* @__PURE__ */ new Map() };
-  for (const file of files) {
-    const text3 = read(file);
-    if (text3 === null) continue;
-    const pkg = PACKAGE.exec(text3)?.[1] ?? "";
+  for (const file of files2) {
+    const text4 = read(file);
+    if (text4 === null) continue;
+    const pkg = PACKAGE.exec(text4)?.[1] ?? "";
     index.classes.set(pkg === "" ? baseName(file) : `${pkg}.${baseName(file)}`, file);
     index.packages.set(pkg, [...index.packages.get(pkg) ?? [], file]);
     index.packageOf.set(file, pkg);
   }
   return index;
 }
-function javaImports(file, text3, index) {
+function javaImports(file, text4, index) {
   const found = new ImportSet();
-  for (const match of text3.matchAll(IMPORT)) {
+  for (const match of text4.matchAll(IMPORT)) {
     const [, , name2, star] = match;
-    const line = lineAt(text3, match.index);
+    const line = lineAt(text4, match.index);
     if (star) {
       const classFile = index.classes.get(name2);
       if (classFile !== void 0) found.add(classFile, line);
@@ -8023,9 +8023,9 @@ function javaImports(file, text3, index) {
   const pkg = index.packageOf.get(file) ?? "";
   for (const other of index.packages.get(pkg) ?? []) {
     if (other === file) continue;
-    for (const use of text3.matchAll(new RegExp(`\\b${baseName(other)}\\b`, "g"))) {
-      const line = lineAt(text3, use.index);
-      if (/^\s*(package|import)\b/.test(text3.split("\n")[line - 1] ?? "")) continue;
+    for (const use of text4.matchAll(new RegExp(`\\b${baseName(other)}\\b`, "g"))) {
+      const line = lineAt(text4, use.index);
+      if (/^\s*(package|import)\b/.test(text4.split("\n")[line - 1] ?? "")) continue;
       found.add(other, line);
       break;
     }
@@ -8042,10 +8042,10 @@ function dotted(path2, root) {
   const rel = (root === "" ? path2 : path2.slice(root.length + 1)).replace(/\.py$/, "").replace(/\/__init__$/, "");
   return rel === "__init__" ? null : rel.split("/").join(".");
 }
-function pythonIndex(files) {
-  const set = new Set(files);
+function pythonIndex(files2) {
+  const set = new Set(files2);
   const modules = /* @__PURE__ */ new Map();
-  for (const file of files) {
+  for (const file of files2) {
     let packageDir = null;
     for (let dir = dirOf(file); dir !== "" && set.has(`${dir}/__init__.py`); dir = dirOf(dir)) packageDir = dir;
     const roots = /* @__PURE__ */ new Set(["", "src", packageDir === null ? dirOf(file) : dirOf(packageDir)]);
@@ -8056,26 +8056,26 @@ function pythonIndex(files) {
   }
   return { files: set, modules };
 }
-function moduleAt(path2, files) {
+function moduleAt(path2, files2) {
   if (path2 === null) return null;
-  return [`${path2}.py`, `${path2}/__init__.py`].find((candidate) => files.has(candidate)) ?? null;
+  return [`${path2}.py`, `${path2}/__init__.py`].find((candidate) => files2.has(candidate)) ?? null;
 }
 function absolute(name2, index) {
   for (let target = name2; target !== ""; target = target.includes(".") ? target.slice(0, target.lastIndexOf(".")) : "") {
-    const files = index.modules.get(target);
-    if (files !== void 0) return files;
+    const files2 = index.modules.get(target);
+    if (files2 !== void 0) return files2;
   }
   return [];
 }
-function pythonImports(file, text3, index) {
+function pythonImports(file, text4, index) {
   const found = new ImportSet();
-  for (const match of text3.matchAll(IMPORT2)) {
-    const line = lineAt(text3, match.index);
+  for (const match of text4.matchAll(IMPORT2)) {
+    const line = lineAt(text4, match.index);
     for (const part of match[1].split(",")) for (const target of absolute(part.trim().split(/[ \t]+/)[0], index)) found.add(target, line);
   }
-  for (const match of text3.matchAll(FROM)) {
+  for (const match of text4.matchAll(FROM)) {
     const [, dots, module2, list] = match;
-    const line = lineAt(text3, match.index);
+    const line = lineAt(text4, match.index);
     const names = list.replace(/[()]/g, "").split(",").map((name2) => name2.trim().split(/\s+/)[0]).filter((name2) => /^\w+$/.test(name2));
     if (dots === "") {
       for (const name2 of names) {
@@ -8107,30 +8107,30 @@ var SPECIFIERS = [
 var EXTENSIONS = [".ts", ".tsx", ".mts", ".cts", ".js", ".jsx", ".mjs", ".cjs"];
 var SOURCE_FOR = { ".js": [".ts", ".tsx"], ".jsx": [".tsx"], ".mjs": [".mts"], ".cjs": [".cts"] };
 var CONFIG_NAMES = ["tsconfig.json", "jsconfig.json"];
-function parseLoose(text3) {
+function parseLoose(text4) {
   let out = "";
-  for (let i = 0; i < text3.length; i++) {
-    const char = text3[i];
+  for (let i = 0; i < text4.length; i++) {
+    const char = text4[i];
     if (char === '"') {
       let j = i + 1;
-      while (j < text3.length && text3[j] !== '"') j += text3[j] === "\\" ? 2 : 1;
-      out += text3.slice(i, j + 1);
+      while (j < text4.length && text4[j] !== '"') j += text4[j] === "\\" ? 2 : 1;
+      out += text4.slice(i, j + 1);
       i = j;
-    } else if (char === "/" && text3[i + 1] === "/") {
-      while (i < text3.length && text3[i] !== "\n") i++;
+    } else if (char === "/" && text4[i + 1] === "/") {
+      while (i < text4.length && text4[i] !== "\n") i++;
       out += "\n";
-    } else if (char === "/" && text3[i + 1] === "*") {
-      i = text3.indexOf("*/", i + 2);
+    } else if (char === "/" && text4[i + 1] === "*") {
+      i = text4.indexOf("*/", i + 2);
       if (i < 0) break;
       i++;
     } else out += char;
   }
   return JSON.parse(out.replace(/,(\s*[}\]])/g, "$1"));
 }
-function pathConfig(path2, text3) {
+function pathConfig(path2, text4) {
   let options;
   try {
-    options = parseLoose(text3).compilerOptions;
+    options = parseLoose(text4).compilerOptions;
   } catch {
     return null;
   }
@@ -8141,35 +8141,35 @@ function pathConfig(path2, text3) {
   if (baseUrl === null && paths2.length === 0) return null;
   return { base: baseUrl ?? dir, baseUrl, paths: paths2 };
 }
-function resolveFile(base, files) {
+function resolveFile(base, files2) {
   if (base === null) return null;
   const dot = base.lastIndexOf(".");
   const extension = dot > base.lastIndexOf("/") ? base.slice(dot) : "";
   const candidates = [base, ...(SOURCE_FOR[extension] ?? []).map((source) => base.slice(0, dot) + source), ...EXTENSIONS.map((ext) => base + ext), ...EXTENSIONS.map((ext) => `${base}/index${ext}`)];
-  return candidates.find((candidate) => files.has(candidate)) ?? null;
+  return candidates.find((candidate) => files2.has(candidate)) ?? null;
 }
-function throughConfig(specifier, config, files) {
+function throughConfig(specifier, config, files2) {
   for (const [pattern, targets] of config.paths) {
     const star = pattern.indexOf("*");
     const matched = star < 0 ? specifier === pattern ? "" : null : specifier.startsWith(pattern.slice(0, star)) && specifier.endsWith(pattern.slice(star + 1)) ? specifier.slice(star, specifier.length - (pattern.length - star - 1)) : null;
     if (matched === null) continue;
     for (const target of targets) {
-      const found = resolveFile(joinPath(config.base, target.replace("*", matched)), files);
+      const found = resolveFile(joinPath(config.base, target.replace("*", matched)), files2);
       if (found !== null) return found;
     }
   }
-  return config.baseUrl === null ? null : resolveFile(joinPath(config.baseUrl, specifier), files);
+  return config.baseUrl === null ? null : resolveFile(joinPath(config.baseUrl, specifier), files2);
 }
-function typescriptImports(file, text3, files, configFor) {
+function typescriptImports(file, text4, files2, configFor) {
   const found = new ImportSet();
   for (const pattern of SPECIFIERS) {
-    for (const match of text3.matchAll(pattern)) {
+    for (const match of text4.matchAll(pattern)) {
       const specifier = match[1];
-      const resolved = specifier.startsWith(".") ? resolveFile(joinPath(dirOf(file), specifier), files) : (() => {
+      const resolved = specifier.startsWith(".") ? resolveFile(joinPath(dirOf(file), specifier), files2) : (() => {
         const config = configFor(dirOf(file));
-        return config === null ? null : throughConfig(specifier, config, files);
+        return config === null ? null : throughConfig(specifier, config, files2);
       })();
-      if (resolved !== null && resolved !== file) found.add(resolved, lineAt(text3, match.index));
+      if (resolved !== null && resolved !== file) found.add(resolved, lineAt(text4, match.index));
     }
   }
   return found.refs();
@@ -8182,9 +8182,9 @@ function importLanguage(path2) {
   if (/\.(ts|tsx|mts|cts|js|jsx|mjs|cjs)$/.test(path2) && !path2.endsWith(".d.ts")) return "typescript";
   return null;
 }
-function importResolver(files, read) {
-  const byLanguage = (language) => files.filter((file) => importLanguage(file) === language);
-  const all = new Set(files);
+function importResolver(files2, read) {
+  const byLanguage = (language) => files2.filter((file) => importLanguage(file) === language);
+  const all = new Set(files2);
   const java = javaIndex(byLanguage("java"), read);
   const python = pythonIndex(byLanguage("python"));
   const configs = /* @__PURE__ */ new Map();
@@ -8193,9 +8193,9 @@ function importResolver(files, read) {
     let found = null;
     for (const name2 of CONFIG_NAMES) {
       const path2 = joinPath(dir, name2);
-      const text3 = all.has(path2) ? read(path2) : null;
-      if (text3 !== null) {
-        found = pathConfig(path2, text3);
+      const text4 = all.has(path2) ? read(path2) : null;
+      if (text4 !== null) {
+        found = pathConfig(path2, text4);
         break;
       }
     }
@@ -8203,11 +8203,11 @@ function importResolver(files, read) {
     configs.set(dir, found);
     return found;
   };
-  return (file, text3) => {
+  return (file, text4) => {
     const language = importLanguage(file);
-    if (language === "java") return javaImports(file, text3, java);
-    if (language === "python") return pythonImports(file, text3, python);
-    return language === "typescript" ? typescriptImports(file, text3, all, configFor) : [];
+    if (language === "java") return javaImports(file, text4, java);
+    if (language === "python") return pythonImports(file, text4, python);
+    return language === "typescript" ? typescriptImports(file, text4, all, configFor) : [];
   };
 }
 
@@ -8332,12 +8332,12 @@ function trackedFiles(root, env = process.env) {
   if (program === void 0) return null;
   const output = run(program, root, [...GIT_PREFIX, "ls-files", "--stage", "-z"]);
   if (output === null) return null;
-  const files = [];
+  const files2 = [];
   for (const entry of output.split("\0")) {
     const tab = entry.indexOf("	");
-    if (tab > 0 && (entry.startsWith("100644 ") || entry.startsWith("100755 "))) files.push(entry.slice(tab + 1));
+    if (tab > 0 && (entry.startsWith("100644 ") || entry.startsWith("100755 "))) files2.push(entry.slice(tab + 1));
   }
-  return files;
+  return files2;
 }
 function generatedFiles(root, paths2, env = process.env) {
   const program = gitProgram(env);
@@ -8443,7 +8443,7 @@ function skipped(path2) {
   return path2.split("/").some((segment) => SKIPPED_DIRS.includes(segment)) || isDenied(path2);
 }
 function walk(root) {
-  const files = [];
+  const files2 = [];
   const pending = [""];
   while (pending.length > 0) {
     const dir = pending.pop();
@@ -8457,10 +8457,10 @@ function walk(root) {
       const path2 = dir === "" ? entry.name : `${dir}/${entry.name}`;
       if (SKIPPED_DIRS.includes(entry.name) || isDenied(path2)) continue;
       if (entry.isDirectory()) pending.push(path2);
-      else if (entry.isFile()) files.push(path2);
+      else if (entry.isFile()) files2.push(path2);
     }
   }
-  return files.sort();
+  return files2.sort();
 }
 function listFiles(root, env = process.env) {
   const tracked = trackedFiles(root, env);
@@ -8514,8 +8514,8 @@ var FINGERPRINTS_FILE = "fingerprints.json";
 function gitBlobId(bytes) {
   return (0, import_node_crypto.createHash)("sha1").update(`blob ${bytes.length}\0`).update(bytes).digest("hex");
 }
-function normalizedLines(text3) {
-  return text3.split("\n").map((line) => line.trimEnd());
+function normalizedLines(text4) {
+  return text4.split("\n").map((line) => line.trimEnd());
 }
 function hashLines(lines) {
   return (0, import_node_crypto.createHash)("sha256").update(lines.join("\n")).digest("hex");
@@ -8735,15 +8735,15 @@ function readDiagram(value) {
 
 // packages/core/model/check.ts
 function loadConfig(root) {
-  let text3;
+  let text4;
   try {
-    text3 = (0, import_node_fs7.readFileSync)((0, import_node_path6.join)(root, CONFIG_FILE), "utf8");
+    text4 = (0, import_node_fs7.readFileSync)((0, import_node_path6.join)(root, CONFIG_FILE), "utf8");
   } catch {
     return { ok: true, config: {} };
   }
   let value;
   try {
-    value = JSON.parse(text3);
+    value = JSON.parse(text4);
   } catch (error) {
     return { ok: false, reason: `${CONFIG_FILE} is not valid JSON: ${error.message}` };
   }
@@ -8812,14 +8812,14 @@ function runCheck(options) {
   }
   const prints = readFingerprints(runDir);
   const read = head === void 0 ? fileReader(root) : (path2) => fileAt(root, head, path2);
-  const text3 = (path2) => read(path2)?.toString("utf8") ?? null;
+  const text4 = (path2) => read(path2)?.toString("utf8") ?? null;
   const headFiles = head === void 0 ? [.../* @__PURE__ */ new Set([...listFiles(root).files, ...changes.map((change) => change.path)])] : filesAt(root, head, "");
-  const resolve = importResolver(headFiles, text3);
+  const resolve = importResolver(headFiles, text4);
   const imports = { base: /* @__PURE__ */ new Map(), head: /* @__PURE__ */ new Map() };
   const headRefs = /* @__PURE__ */ new Map();
   for (const change of changes) {
     if (change.status === "deleted" || importLanguage(change.path) === null) continue;
-    const now = text3(change.path);
+    const now = text4(change.path);
     if (now !== null) {
       const refs = resolve(change.path, now);
       imports.head.set(change.path, refs.map((ref) => ref.path));
@@ -8847,11 +8847,11 @@ function runCheck(options) {
 
 // packages/core/model/deltaMarkdown.ts
 var COMMENT_MARKER = "<!-- aisus-check -->";
-function escapeMarkdown(text3) {
-  return text3.replace(/([\\`*_{}[\]()#+!~-])/g, "\\$1").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/\|/g, "&#124;").replace(/\r?\n/g, " ");
+function escapeMarkdown(text4) {
+  return text4.replace(/([\\`*_{}[\]()#+!~-])/g, "\\$1").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/\|/g, "&#124;").replace(/\r?\n/g, " ");
 }
-function path(text3) {
-  return text3.includes("`") || /[\r\n]/.test(text3) ? escapeMarkdown(text3) : `\`${text3}\``;
+function path(text4) {
+  return text4.includes("`") || /[\r\n]/.test(text4) ? escapeMarkdown(text4) : `\`${text4}\``;
 }
 function plural(count3, one, many = `${one}s`) {
   return `${count3} ${count3 === 1 ? one : many}`;
@@ -8904,8 +8904,8 @@ function deltaMarkdown(report, meta, maxItems = Number.POSITIVE_INFINITY) {
   return `${lines.join("\n")}
 `;
 }
-function mermaidLabel(text3) {
-  return text3.replace(/"/g, "#quot;").replace(/</g, "#lt;").replace(/>/g, "#gt;").replace(/[\r\n]+/g, " ");
+function mermaidLabel(text4) {
+  return text4.replace(/"/g, "#quot;").replace(/</g, "#lt;").replace(/>/g, "#gt;").replace(/[\r\n]+/g, " ");
 }
 function deltaMermaid(report, diagram) {
   const touched = new Set([...report.touched.strong, ...report.touched.weak].map((box) => box.id));
@@ -9614,27 +9614,27 @@ var PATTERNS = [
   { kind: "Slack token", pattern: /\bxox[abprs]-[A-Za-z0-9-]{10,}/ },
   { kind: "AWS access key", pattern: /\bAKIA[0-9A-Z]{16}\b/ }
 ];
-function entropy(text3) {
+function entropy(text4) {
   const counts = /* @__PURE__ */ new Map();
-  for (const char of text3) counts.set(char, (counts.get(char) ?? 0) + 1);
+  for (const char of text4) counts.set(char, (counts.get(char) ?? 0) + 1);
   let bits = 0;
   for (const count3 of counts.values()) {
-    const p = count3 / text3.length;
+    const p = count3 / text4.length;
     bits -= p * Math.log2(p);
   }
   return bits;
 }
-function highEntropyRun(text3) {
-  for (const match of text3.matchAll(/[A-Za-z0-9+_=-]{32,}/g)) {
+function highEntropyRun(text4) {
+  for (const match of text4.matchAll(/[A-Za-z0-9+_=-]{32,}/g)) {
     const run2 = match[0];
     if (/^[0-9a-fA-F]+$/.test(run2)) continue;
     if (/\d/.test(run2) && /[a-z]/.test(run2) && /[A-Z]/.test(run2) && entropy(run2) >= 4.2) return true;
   }
   return false;
 }
-function secretKind(text3) {
-  for (const { kind, pattern } of PATTERNS) if (pattern.test(text3)) return kind;
-  return highEntropyRun(text3) ? "high-entropy string" : null;
+function secretKind(text4) {
+  for (const { kind, pattern } of PATTERNS) if (pattern.test(text4)) return kind;
+  return highEntropyRun(text4) ? "high-entropy string" : null;
 }
 function findSecrets(value, pointer = "") {
   if (typeof value === "string") {
@@ -9735,8 +9735,8 @@ function agentHomePreview(home, agent) {
 
 // packages/core/model/agentStream/feed.ts
 var NO_USAGE = { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 };
-function clip(text3, max = 120) {
-  const flat = text3.replace(/\s+/g, " ").trim();
+function clip(text4, max = 120) {
+  const flat = text4.replace(/\s+/g, " ").trim();
   return flat.length <= max ? flat : `${flat.slice(0, max - 1)}\u2026`;
 }
 function commandItem(command) {
@@ -9956,14 +9956,33 @@ function branchPaths(report, components2) {
 
 // packages/core/model/diff.ts
 var SAME_FILES = 0.5;
+var UNCHANGED = { status: "unchanged", fields: [] };
+var ADDED = { status: "added", fields: [] };
+var files = (box) => new Set((box.sources ?? []).map((source) => source.path));
 function overlap(a, b) {
-  const left = new Set((a.sources ?? []).map((source) => source.path));
-  const right = new Set((b.sources ?? []).map((source) => source.path));
+  const left = files(a);
+  const right = files(b);
   const shared = [...left].filter((path2) => right.has(path2)).length;
   const union = (/* @__PURE__ */ new Set([...left, ...right])).size;
   return union === 0 ? 0 : shared / union;
 }
-function diffMaps(before, after) {
+function sameSet(a, b) {
+  return a.size === b.size && [...a].every((item) => b.has(item));
+}
+function text3(fields, field, before, after) {
+  if ((before ?? null) !== (after ?? null)) fields.push({ field, before: before ?? null, after: after ?? null });
+}
+var changedOrNot = (fields) => fields.length === 0 ? UNCHANGED : { status: "changed", fields };
+function uniqueKeys(items, keyOf) {
+  const seen = /* @__PURE__ */ new Map();
+  return items.map((item) => {
+    const key = keyOf(item);
+    const n = (seen.get(key) ?? 0) + 1;
+    seen.set(key, n);
+    return n === 1 ? key : `${key}#${n}`;
+  });
+}
+function diffMaps(before, after, touched = /* @__PURE__ */ new Set()) {
   const newIds = new Set(after.components.map((box) => box.id));
   const oldIds = new Set(before.components.map((box) => box.id));
   const renamed = /* @__PURE__ */ new Map();
@@ -9977,40 +9996,98 @@ function diffMaps(before, after) {
     }
     if (best !== null) renamed.set(box.id, best.id);
   }
-  const matchedNew = new Set(renamed.values());
-  const newLabel = new Map(after.components.map((box) => [box.id, box.label]));
-  const relabelled = before.components.filter((box) => renamed.has(box.id) && (renamed.get(box.id) !== box.id || newLabel.get(box.id) !== box.label)).map((box) => ({ id: renamed.get(box.id), was: box.id, label: box.label }));
-  const key = (from, to) => `${from}\0${to}`;
-  const oldArrows = new Map(before.connections.map((arrow) => [key(renamed.get(arrow.from) ?? arrow.from, renamed.get(arrow.to) ?? arrow.to), arrow]));
-  const newKeys = new Set(after.connections.map((arrow) => key(arrow.from, arrow.to)));
+  const olderOf = new Map([...renamed].map(([older, newer]) => [newer, older]));
+  const olderBox = new Map(before.components.map((box) => [box.id, box]));
+  const beforeBoundaries = before.boundaries ?? [];
+  const afterBoundaries = after.boundaries ?? [];
+  const mapIds = (ids) => new Set(ids.map((id) => renamed.get(id) ?? `\0${id}`));
+  const beforeKeys = uniqueKeys(beforeBoundaries, (boundary) => boundary.label);
+  const afterKeys = uniqueKeys(afterBoundaries, (boundary) => boundary.label);
+  const beforeIndex = new Map(beforeKeys.map((key, index) => [key, index]));
+  const pairedBefore = /* @__PURE__ */ new Map();
+  const usedBefore = /* @__PURE__ */ new Set();
+  afterKeys.forEach((key, index) => {
+    const match = beforeIndex.get(key);
+    if (match !== void 0) {
+      pairedBefore.set(index, match);
+      usedBefore.add(match);
+    }
+  });
+  const relabelled = /* @__PURE__ */ new Set();
+  afterBoundaries.forEach((boundary, index) => {
+    if (pairedBefore.has(index)) return;
+    const members = new Set(boundary.wraps);
+    const match = beforeBoundaries.findIndex((old, k) => !usedBefore.has(k) && sameSet(mapIds(old.wraps), members));
+    if (match < 0) return;
+    pairedBefore.set(index, match);
+    usedBefore.add(match);
+    relabelled.add(index);
+  });
+  const boundaries = afterBoundaries.map((boundary, index) => {
+    const match = pairedBefore.get(index);
+    if (match === void 0) return ADDED;
+    const old = beforeBoundaries[match];
+    const fields = [];
+    if (relabelled.has(index)) text3(fields, "label", old.label, boundary.label);
+    text3(fields, "kind", old.kind, boundary.kind);
+    if (!sameSet(mapIds(old.wraps), new Set(boundary.wraps))) fields.push({ field: "members" });
+    return relabelled.has(index) ? { status: "renamed", fields } : changedOrNot(fields);
+  });
+  const afterKeyOf = new Map([...pairedBefore].map(([index, match]) => [beforeKeys[match], afterKeys[index]]));
+  const boundariesOf = (list, keys, rename, id) => new Set(list.flatMap((boundary, index) => boundary.wraps.includes(id) ? [rename(keys[index])] : []));
+  const keptIds = new Set([...touched].map((id) => renamed.get(id) ?? id));
+  const boxes = after.components.map((box) => {
+    const older = olderOf.get(box.id);
+    const old = older === void 0 ? void 0 : olderBox.get(older);
+    if (old === void 0) return ADDED;
+    const fields = [];
+    text3(fields, "id", old.id, box.id);
+    text3(fields, "label", old.label, box.label);
+    text3(fields, "sublabel", old.sublabel, box.sublabel);
+    text3(fields, "tag", old.tag, box.tag);
+    text3(fields, "type", old.type, box.type);
+    if (!sameSet(files(old), files(box))) fields.push({ field: "sources" });
+    const was = boundariesOf(beforeBoundaries, beforeKeys, (key) => afterKeyOf.get(key) ?? `\0${key}`, old.id);
+    if (!sameSet(was, boundariesOf(afterBoundaries, afterKeys, (key) => key, box.id))) fields.push({ field: "boundary" });
+    if (fields.length === 0 && keptIds.has(box.id)) return { status: "kept", fields };
+    return changedOrNot(fields);
+  });
+  const end = (id) => renamed.get(id) ?? `\0${id}`;
+  const beforeArrowKeys = uniqueKeys(before.connections, (arrow) => `${end(arrow.from)}\0${end(arrow.to)}`);
+  const beforeArrowIndex = new Map(beforeArrowKeys.map((key, index) => [key, index]));
+  const matchedArrows = /* @__PURE__ */ new Set();
+  const arrows = uniqueKeys(after.connections, (arrow) => `${arrow.from}\0${arrow.to}`).map((key, index) => {
+    const match = beforeArrowIndex.get(key);
+    if (match === void 0) return ADDED;
+    matchedArrows.add(match);
+    const old = before.connections[match];
+    const arrow = after.connections[index];
+    const fields = [];
+    text3(fields, "label", old.label, arrow.label);
+    text3(fields, "variant", old.variant ?? "default", arrow.variant ?? "default");
+    return changedOrNot(fields);
+  });
+  const labelOf = (id) => olderBox.get(id)?.label ?? id;
+  const removed = {
+    boxes: before.components.filter((box) => !renamed.has(box.id)).map((box) => ({ id: box.id, label: box.label })),
+    arrows: before.connections.filter((_, index) => !matchedArrows.has(index)).map((arrow) => ({ name: `${labelOf(arrow.from)} \u2192 ${labelOf(arrow.to)}${arrow.label ? ` (${arrow.label})` : ""}` })),
+    boundaries: beforeBoundaries.filter((_, index) => !usedBefore.has(index)).map((boundary) => ({ label: boundary.label }))
+  };
+  const all = [...boxes, ...arrows, ...boundaries];
   return {
-    boxes: {
-      added: after.components.filter((box) => !matchedNew.has(box.id)).map((box) => box.id),
-      removed: before.components.filter((box) => !renamed.has(box.id)).map((box) => ({ id: box.id, label: box.label })),
-      relabelled
-    },
-    arrows: {
-      added: after.connections.flatMap((arrow, index) => oldArrows.has(key(arrow.from, arrow.to)) ? [] : [index]),
-      removed: [...oldArrows].filter(([arrowKey]) => !newKeys.has(arrowKey)).map(([arrowKey, arrow]) => {
-        const [from, to] = arrowKey.split("\0");
-        return { from, to, ...arrow.label ? { label: arrow.label } : {} };
-      }),
-      relabelled: after.connections.flatMap((arrow, index) => {
-        const was = oldArrows.get(key(arrow.from, arrow.to));
-        return was !== void 0 && (was.label ?? "") !== (arrow.label ?? "") ? [{ index, was: was.label ?? "" }] : [];
-      })
+    boxes,
+    arrows,
+    boundaries,
+    removed,
+    counts: {
+      added: all.filter((entry) => entry.status === "added").length,
+      removed: removed.boxes.length + removed.arrows.length + removed.boundaries.length,
+      changed: all.filter((entry) => entry.status === "changed" || entry.status === "renamed").length
     }
   };
 }
 function diffSummary(diff) {
-  const plural2 = (count3, one, many) => `${count3} ${count3 === 1 ? one : many}`;
-  return [
-    `${plural2(diff.boxes.added.length, "box", "boxes")} added`,
-    `${diff.boxes.removed.length} removed`,
-    `${diff.boxes.relabelled.length} relabelled`,
-    `${plural2(diff.arrows.added.length, "arrow", "arrows")} added`,
-    `${diff.arrows.removed.length} removed`
-  ].join(" \xB7 ");
+  return `${diff.counts.added} added \xB7 ${diff.counts.removed} removed \xB7 ${diff.counts.changed} changed`;
 }
 
 // packages/core/model/lineage.ts
@@ -10045,53 +10122,53 @@ function sections(diff) {
   return out;
 }
 function collectChanges(input2) {
-  const files = [];
+  const files2 = [];
   const known = /* @__PURE__ */ new Set();
-  for (const text3 of sections(input2.diff)) {
-    const change = parseDiff(text3)[0];
+  for (const text4 of sections(input2.diff)) {
+    const change = parseDiff(text4)[0];
     if (change === void 0) continue;
     const entry = change.status === "renamed" ? { status: "renamed", path: change.path, oldPath: change.oldPath } : { status: change.status, path: change.path };
     if (paths(entry).some(isOwnOutput)) continue;
     paths(entry).forEach((path2) => known.add(path2));
-    if (paths(entry).some(isDenied)) files.push(nameOnly(entry, "on the deny list; content not shown"));
-    else if (/^(Binary files .* differ|GIT binary patch)$/m.test(text3)) files.push(nameOnly(entry, "binary; content not shown"));
-    else files.push({ entry, text: text3 });
+    if (paths(entry).some(isDenied)) files2.push(nameOnly(entry, "on the deny list; content not shown"));
+    else if (/^(Binary files .* differ|GIT binary patch)$/m.test(text4)) files2.push(nameOnly(entry, "binary; content not shown"));
+    else files2.push({ entry, text: text4 });
   }
   for (const path2 of input2.untracked) {
     if (isOwnOutput(path2) || known.has(path2)) continue;
     known.add(path2);
     const content = isDenied(path2) ? null : input2.readUntracked(path2);
-    files.push(content === null ? nameOnly({ status: "added", path: path2 }, "untracked; content not shown") : addedFile(path2, content));
+    files2.push(content === null ? nameOnly({ status: "added", path: path2 }, "untracked; content not shown") : addedFile(path2, content));
   }
   for (const dirty of input2.previousDirty) {
     const below = dirty.endsWith("/") ? [...input2.cited].filter((path2) => path2.startsWith(dirty)).sort() : [dirty];
     for (const path2 of below) {
       if (isOwnOutput(path2) || known.has(path2)) continue;
       known.add(path2);
-      files.push(nameOnly({ status: input2.exists(path2) ? "modified" : "deleted", path: path2 }, "uncommitted when the base map was made; read the current file"));
+      files2.push(nameOnly({ status: input2.exists(path2) ? "modified" : "deleted", path: path2 }, "uncommitted when the base map was made; read the current file"));
     }
   }
-  return files;
+  return files2;
 }
-function groupByBox(components2, files) {
+function groupByBox(components2, files2) {
   const touched = [];
   const untouched = [];
   const cited = /* @__PURE__ */ new Set();
   for (const component of components2) {
     const own = new Set(component.sources.map((source) => source.path));
     own.forEach((path2) => cited.add(path2));
-    const mine = files.filter((file) => paths(file.entry).some((path2) => own.has(path2)));
+    const mine = files2.filter((file) => paths(file.entry).some((path2) => own.has(path2)));
     if (mine.length === 0) untouched.push({ id: component.id, label: component.label });
     else touched.push({ id: component.id, label: component.label, files: mine });
   }
-  const uncited = files.filter((file) => !paths(file.entry).some((path2) => cited.has(path2))).map((file) => file.entry);
+  const uncited = files2.filter((file) => !paths(file.entry).some((path2) => cited.has(path2))).map((file) => file.entry);
   return { touched, untouched, uncited };
 }
-function fence(text3, lang = "") {
+function fence(text4, lang = "") {
   let ticks = "```";
-  while (text3.includes(ticks)) ticks += "`";
+  while (text4.includes(ticks)) ticks += "`";
   return `${ticks}${lang}
-${text3}${text3.endsWith("\n") || text3 === "" ? "" : "\n"}${ticks}
+${text4}${text4.endsWith("\n") || text4 === "" ? "" : "\n"}${ticks}
 `;
 }
 var name = (entry) => entry.oldPath === void 0 ? `${entry.status} ${entry.path}` : `${entry.status} ${entry.oldPath} \u2192 ${entry.path}`;
@@ -10189,7 +10266,7 @@ function planRefresh(root, run2, globs = []) {
   if (diff === null || git2 === null) return { mode: "regenerate", reason: "base-unreachable", focus };
   const boxes = components(readJsonFile((0, import_node_path8.join)(runDir, CANDIDATE_FILE)));
   const cited = new Set(boxes.flatMap((box) => box.sources.map((source) => source.path)));
-  const files = collectChanges({
+  const files2 = collectChanges({
     diff,
     untracked: untrackedFiles(root),
     previousDirty: previous?.dirty ?? [],
@@ -10204,7 +10281,7 @@ function planRefresh(root, run2, globs = []) {
       }
     }
   }).filter((file) => inScope(file.entry.path, globs) || file.entry.oldPath !== void 0 && inScope(file.entry.oldPath, globs));
-  const map = groupByBox(boxes, files);
+  const map = groupByBox(boxes, files2);
   const change = renderChange(base, git2.head, map);
   if (new TextEncoder().encode(change).length > MAX_CHANGE_BYTES) return { mode: "regenerate", reason: "change-too-large", focus };
   const lineage = {

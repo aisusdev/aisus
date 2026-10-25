@@ -133,7 +133,7 @@ export class Review implements vscode.Disposable {
       onAction(vscode.window.showErrorMessage(`Cannot read the base map ${base} at ${mergeBase.slice(0, 7)}.`, "Compare With…"), "Compare With…", compareMapsCommand);
       return;
     }
-    panel.showCompare({ against: `the base map at ${mergeBase.slice(0, 7)}`, diff: diffMaps(parsed.diagram, shown) });
+    panel.showCompare({ kind: "fixed", against: `the base map at ${mergeBase.slice(0, 7)}`, diff: diffMaps(parsed.diagram, shown) });
   }
 
   /** PRC-03 "Update map for this branch": a refresh of the reviewed map limited to its candidates and stale boxes. */

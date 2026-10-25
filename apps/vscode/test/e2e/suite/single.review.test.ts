@@ -151,7 +151,7 @@ suite("PRC-02 Review changes", () => {
     await hook.postFromHome({ type: "compareBase" });
     const compare = hook.panelCompare();
     assert.match(compare?.against ?? "", /^the base map at [0-9a-f]{7}$/);
-    assert.deepEqual(compare?.diff.boxes.added, ["payments"]);
+    assert.deepEqual(compare?.diff.boxes.map((entry) => entry.status), ["unchanged", "added"]);
     assert.equal(hook.panelState().file, join(root, ".archify", BRANCH, "candidate.json"));
 
     const opened = nextTerminal();

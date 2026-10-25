@@ -14,24 +14,24 @@ Where this differs from the reference the owner named:
 - `mapping.md` is not written. The refresh's JSON already lists the boxes to re-examine and the uncovered files.
 - Removed boxes and arrows are no longer drawn as see-through ghosts. They are listed in the panel, and Open baseline shows them in place. Drawing them moved the rest of the map.
 
-| File or unit | Change | Estimate |
-|---|---|---|
-| `packages/core/model/lineage.ts` (new) | The `lineage.json` and `changes.json` types, reading and writing them, the redraw decision with its reasons, and the newest earlier map of the same focus | +190 |
-| `packages/core/model/changeMap.ts` (new) | Groups the change since the base revision by box. Untracked files count as added, and files uncommitted at the base map as modified. Files on the deny list, binary files and `.archify/` appear by name only or not at all. Renders `change.md` and builds `changes.json` | +200 |
-| `packages/core/model/git.ts` | Whether a commit is an ancestor of HEAD, a commit's subject and date, and the change since a revision with three lines of context | +35 |
-| `packages/core/agent/refresh-facts.ts` | Decides the mode, writes the three files and prints `mode`, `reason` and `changeFile`. It stops before making a run folder when a redraw is due | +55 / -5 |
-| `packages/core/agent/repo-facts.ts` | Records the earlier map of the same focus in `lineage.json` and prints it as `previous` | +30 |
-| `packages/core/model/matchIds.ts`, `packages/core/agent/match-ids.ts` (new), `esbuild.mjs` | Id matching by cited files, one to one, best match first, and the script that rewrites the draft | +200 |
-| `skills/aisus-refresh/SKILL.md`, `skills/aisus-architecture/SKILL.md`, `packages/core/model/agents.ts` | Read `change.md` and stop when a redraw is due. Run `match-ids.mjs` when there is an earlier map. Allow the new script | +30 / -6 |
-| `packages/core/model/diff.ts` | Each box, arrow and boundary gets a status (added, changed, renamed or kept) with the fields that changed. Boundaries are compared too. Boxes still pair by cited files when their ids differ | +160 / -90 |
-| `packages/core/model/comparison.ts` (new) | The comparison's context: both commits, the warnings, whether it is approximate, and whether the kept boxes and uncited files apply | +140 |
-| `packages/core/model/tolerant.ts` | A connection keeps its `id` | +2 |
-| `packages/core/model/messages.ts` | The compare message carries the context and the recorded change. New webview messages for Compare with…, Open baseline, Swap and opening an uncited file | +20 / -3 |
-| `apps/vscode/src/compare.ts`, `panel.ts` | The default comparison from `lineage.json` when a map is shown. Compare with… gains tags and No comparison. Open baseline and Swap | +140 / -25 |
-| `apps/vscode/src/refresh.ts`, `apps/action/src/refresh.ts` | Launch Generate, or report the reason, when a redraw is due | +35 |
-| `apps/vscode/src/review.ts`, `apps/cloud/src/lib/mapPage.ts` | Follow the new diff | ±10 |
-| `packages/viewer/changes.ts` (new), `viewer.ts`, `styles.css` | The header and the Changes panel, the marks and the toggle. The compare bar and the ghosts of removed boxes go | +420 / -70 |
-| `docs/spec-v0.3.md`, `docs/adr/0068-…` (new), `docs/architecture.md`, `docs/messages.md`, `README.md` | FRS-05 and FRS-07 amended, FRS-08 to FRS-10 added, and an ADR for the two new run files | +170 / -10 |
+| File or unit | Change | Estimate | Built |
+|---|---|---|---|
+| `packages/core/model/lineage.ts` (new) | The `lineage.json` and `changes.json` types, reading and writing them, the redraw decision with its reasons, and the newest earlier map of the same focus | +190 | +264 |
+| `packages/core/model/changeMap.ts` (new) | Groups the change since the base revision by box. Untracked files count as added, and files uncommitted at the base map as modified. Files on the deny list, binary files and `.archify/` appear by name only or not at all. Renders `change.md` and builds `changes.json` | +200 | +149 |
+| `packages/core/model/git.ts` | Whether a commit is an ancestor of HEAD, a commit's subject and date, and the change since a revision with three lines of context | +35 | +23 |
+| `packages/core/agent/refresh-facts.ts` | Decides the mode, writes the three files and prints `mode`, `reason` and `changeFile`. It stops before making a run folder when a redraw is due | +55 / -5 | +23 / -9 |
+| `packages/core/agent/repo-facts.ts` | Records the earlier map of the same focus in `lineage.json` and prints it as `previous` | +30 | +27 / -2 |
+| `packages/core/model/matchIds.ts`, `packages/core/agent/match-ids.ts` (new), `esbuild.mjs` | Id matching by cited files, one to one, best match first, and the script that rewrites the draft | +200 | +171 / -1 |
+| `skills/aisus-refresh/SKILL.md`, `skills/aisus-architecture/SKILL.md`, `packages/core/model/agents.ts` | Read `change.md` and stop when a redraw is due. Run `match-ids.mjs` when there is an earlier map. Allow the new script | +30 / -6 | +19 / -6 |
+| `packages/core/model/diff.ts` | Each box, arrow and boundary gets a status (added, changed, renamed or kept) with the fields that changed. Boundaries are compared too. Boxes still pair by cited files when their ids differ | +160 / -90 | +166 / -56 |
+| `packages/core/model/comparison.ts` (new) | The comparison's context: both commits, the warnings, whether it is approximate, and whether the kept boxes and uncited files apply | +140 | +120 |
+| `packages/core/model/tolerant.ts` | A connection keeps its `id` | +2 | unchanged |
+| `packages/core/model/messages.ts` | The compare message carries the context and the recorded change. New webview messages for Compare with…, Open baseline, Swap and opening an uncited file | +20 / -3 | +23 / -4 |
+| `apps/vscode/src/compare.ts`, `panel.ts` | The default comparison from `lineage.json` when a map is shown. Compare with… gains tags and No comparison. Open baseline and Swap | +140 / -25 | +165 / -33 |
+| `apps/vscode/src/refresh.ts`, `apps/action/src/refresh.ts` | Launch Generate, or report the reason, when a redraw is due | +35 | +13 / -4 |
+| `apps/vscode/src/review.ts`, `apps/cloud/src/lib/mapPage.ts` | Follow the new diff | ±10 | +2 / -2 |
+| `packages/viewer/changes.ts` (new), `viewer.ts`, `styles.css` | The header and the Changes panel, the marks and the toggle. The compare bar and the ghosts of removed boxes go | +420 / -70 | +447 / -70 |
+| `docs/spec-v0.3.md`, `docs/adr/0068-…` (new), `docs/architecture.md`, `docs/messages.md`, `README.md` | FRS-05 and FRS-07 amended, FRS-08 to FRS-10 added, and an ADR for the two new run files | +170 / -10 | +86 / -7 |
 
 Tests, from the ACs of FRS-08 to FRS-10:
 - `[unit]` The redraw decision gives each reason in order. The change map adds both paths of a rename, takes untracked files and files uncommitted at the base map, shows deny-listed files by name only, and leaves `.archify/` out.
@@ -43,7 +43,13 @@ Tests, from the ACs of FRS-08 to FRS-10:
 
 - [x] **FRS-08 Recorded change** `[unit]` `[e2e]` — 2026-10-25: `packages/core/model/lineage.ts`, `changeMap.ts`, three git readers, `refresh-facts.ts`, the refresh skill's steps 2 and 4, and the redirect in `apps/vscode/src/refresh.ts` and the Action. Tests: `lineage.test.ts` (7: the decision's reasons and order; the change map's statuses, names-only files, uncommitted-at-base files, grouping and its two renderings), `refreshFacts.test.ts` (3 new: a redraw makes no run folder, an update writes the three files, the sixth update is a full drawing), `actionRefresh.test.ts` (1 new), `single.refresh.test.ts` (1 new: a map due a full drawing is drawn again with its focus). The refresh and review e2e fixtures record their revision now, because an update needs one.
 - [x] **FRS-09 Ids across a redraw** `[unit]` — 2026-10-25: `packages/core/model/matchIds.ts`, `packages/core/agent/match-ids.ts`, `repo-facts.ts` and the architecture skill's step 5. Tests: `matchIds.test.ts` (3: best pair first, one to one, under the threshold left alone, arrows and boundaries following; a reused id renamed; the script rewriting the draft and refusing one without components), `repoFacts.test.ts` (2 new: the newest map of the same focus continued, a due drawing's reason, a drill-down continuing nothing). The first repo-facts test now expects `previous` and `lineage.json`.
-- [ ] **FRS-10 Changes panel** `[unit]` `[dom]` `[e2e]`
+- [x] **FRS-10 Changes panel** `[unit]` `[dom]` `[e2e]` — 2026-10-25: `packages/core/model/diff.ts`, `comparison.ts`, `messages.ts`, `apps/vscode/src/compare.ts`, `panel.ts`, `packages/viewer/changes.ts`, `viewer.ts` and `styles.css`. Tests: `diff.test.ts` (3: statuses and changed fields, boxes paired by cited files and arrows by their ends, kept boxes and renamed boundaries), `comparison.test.ts` (5: each warning, an approximate comparison across a redraw, kept boxes only against the run this one updated, the picker's tags), `main.test.ts` (5 for FRS-07 and FRS-10: the header and marks, each panel section, a row that focuses its element, the toggle, a cleared comparison on an empty map), `single.compare.test.ts` (3: a refreshed map opens compared with its base map, Open baseline, Swap). The review e2e test expects the new header. Each test failed under a deliberate break. Rendered with Playwright at 1280 and 800 px wide: the default comparison, one with warnings, the toggle off, and the narrow panel.
+
+Where the build differs from the proposal:
+- The Action reports why a redraw is due rather than launching Generate. It has no agent to launch one with.
+- The canvas narrows beside the Changes panel and refits, so the panel covers no box.
+- aisus cloud sends the diff without context. It has no run folders to read `lineage.json` from.
+- `tolerant.ts` was left as it was. Arrows already pair by their ends.
 
 ## Sidebar home proposal (owner request, 2026-10-25)
 
@@ -897,6 +903,7 @@ The owner then asked that aisus be tied to nothing outside itself. The repositor
 ## Log
 
 - 2026-10-25 — The home's rows start with an icon each, at the owner's request: a speech bubble, a diff page, a light bulb, a bug and a folded map. They are inline SVG line drawings in `--vscode-icon-foreground`, so the change adds no dependency. A Bug hunt row with a long status now shortens the status rather than its label. Checked at 300 px in a dark and a light theme.
+- 2026-10-25 — FRS-08 to FRS-10: a refresh records the change it worked from, a redraw keeps the earlier ids, and the map shows the Changes panel. Gates: `npm run check` exit 0 (1274 passed, 1 skipped); `npm run test:e2e` exit 0 on VS Code 1.126.0 and 1.141.0 (single 95, empty 3, multi 2 each); the cloud's test (55 passed), typecheck and build exit 0, because the viewer is shared.
 - 2026-10-25 — The sidebar is a home with pages (variant A of three mockups), replacing the Map, Ask, Review and Learn tabs. Gates: typecheck exit 0; `npm run check` exit 0 (1249 passed, 1 skipped); `npm run test:e2e` exit 0 on VS Code 1.126.0 and 1.141.0 (single 91, empty 3, multi 2 each). Each of 7 deliberate breaks failed a test: freshness kept in Needs a look, Setup not leading while failing, Refresh never offered, no focus on Back, a run not opening the home, Escape ignored, and the ⋯ row always open. Rendered at 300 px in a dark theme: the home with changed boxes, with none, without a map, with Setup failing and with a bug hunt running, and the Review, Maps, Ask and Check my understanding pages.
 - 2026-10-25 — Two problems found during the layout work, left as they are. The cloud's image answers 500 on `/docs`, because it copies neither `README.md` nor `docs/`; the commit before the layout work does the same, so aisus.dev likely serves no docs pages. SKL-02's e2e test "Tour opens each stop's code beside the map" fails now and then waiting for the first stop's lines to be selected: once in two runs before the layout work and twice in five after it, and it passed alone each time it was rerun.
 - 2026-10-25 — Four e2e tests failed on any machine with a real agent CLI installed: three Codex launches in FR-GEN-01 and the Devin learning session's happy path. Each test stubs one agent in front of the inherited PATH. The extension found the real `claude` as well and asked which agent to use, and no test answered. VS Code under test now gets a PATH without the folders that hold `claude`, `codex` or `devin`, with links to `git` and `node`. It also starts with `--force-disable-user-env`, because on macOS VS Code otherwise adds the login shell's PATH back. `npm run test:e2e` exit 0 on VS Code 1.126.0 and 1.141.0 (single 91, empty 3, multi 2 each), which also covers the 1.141.0 rerun the sidebar tabs waited for.

@@ -1,6 +1,8 @@
 // Messages between the extension host and the webviews (FR-VIEW-04). Types only.
 import type { HealthItem, HealthKind } from "./health";
+import type { ComparisonContext } from "./comparison";
 import type { MapDiff } from "./diff";
+import type { RunChanges } from "./lineage";
 import type { FeedItem, StreamUsage } from "./agentStream/feed";
 import type { Block, Span } from "./ask";
 import type { RunStatus } from "./agentStream/tracker";
@@ -26,8 +28,8 @@ export type HostMessage =
   | { type: "changes"; overlay: ChangeOverlay | null }
   /** PRC-02: new box candidates drawn as dashed ghost boxes, and PRC-06's new arrows as dashed ghost arrows; never written. */
   | { type: "ghosts"; ghosts: Ghost[]; arrows?: GhostArrow[] }
-  /** FRS-07: the shown map compared with an older one, or `null` to clear. */
-  | { type: "compare"; compare: { against: string; diff: MapDiff } | null }
+  /** FRS-07, FRS-10: the shown map compared with an earlier one, or `null` for no comparison. */
+  | { type: "compare"; compare: Comparison | null }
   /** ARC-03: each box's heat level (0 to 4) and tooltip line, and whether the Hotspots toggle shows them. */
   | { type: "hotspots"; boxes: Record<string, { level: number; note: string }>; shown: boolean }
   /** ARC-01: imports that break the rules, as red arrows between the boxes, labelled with the rules. */
@@ -47,6 +49,19 @@ export type HostMessage =
 
 /** The formats Save Image writes (VWR-06). */
 export type ImageFormat = "svg" | "png";
+
+/** The shown map compared with an earlier one (FRS-07, FRS-10). */
+export interface Comparison {
+  /** How the header names the earlier map when there is no context. */
+  against: string;
+  diff: MapDiff;
+  /** The commits, warnings and what applies, when the host knows both run folders. */
+  context?: ComparisonContext;
+  /** The shown run's recorded change, when `context.keptAvailable`. */
+  changes?: RunChanges;
+  /** Whether the marks and the Changes panel show; the Changes toggle flips it. */
+  shown: boolean;
+}
 
 /** A new box candidate on the map (PRC-02). */
 export interface Ghost {
@@ -77,8 +92,12 @@ export type WebviewMessage =
   | { type: "setFollow"; on: boolean }
   | { type: "mapFolder" }
   | { type: "clearChanges" }
-  /** FRS-07: the compare bar's Clear. */
-  | { type: "clearCompare" }
+  /** FRS-10: Compare with…, Open baseline, Swap, the Changes toggle, and a changed file no box cites. */
+  | { type: "compareWith" }
+  | { type: "openBaseline" }
+  | { type: "swap" }
+  | { type: "showChanges"; on: boolean }
+  | { type: "openFile"; path: string }
   | { type: "refresh" }
   /** SKL-02: the tour showed stop `index`, or its citation was clicked. */
   | { type: "tourStop"; index: number }

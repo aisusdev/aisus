@@ -49,7 +49,7 @@ export function mapPageData(repo: Repository, map: UploadRow, check: UploadRow |
   }
   const shown = readDiagram(doc);
   const older = against === undefined ? null : readDiagram(mapOf(against) ?? {});
-  if (shown.ok && older !== null && older.ok) messages.push({ type: "compare", compare: { against: mapName(against!), diff: diffMaps(older.diagram, shown.diagram) } });
+  if (shown.ok && older !== null && older.ok) messages.push({ type: "compare", compare: { against: mapName(against!), diff: diffMaps(older.diagram, shown.diagram), shown: true } });
   const tour = readTour(payload(map).sidecars?.tour);
   if (tour !== null) messages.push({ type: "tour", stops: tour });
   return {

@@ -25,6 +25,9 @@ const BROWSER_SAFE_MODEL: Record<string, true> = {
   "packages/core/model/delta.ts": true,
   "packages/core/model/deltaMarkdown.ts": true,
   "packages/core/model/changeMap.ts": true,
+  "packages/core/model/comparison.ts": true,
+  "packages/core/model/matchIds.ts": true,
+  "packages/core/model/diff.ts": true,
 };
 const NODE_MODEL: Record<string, true> = {
   "packages/core/model/citations.ts": true,

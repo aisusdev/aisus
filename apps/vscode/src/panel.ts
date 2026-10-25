@@ -5,7 +5,7 @@ import { basename, dirname, isAbsolute, join, relative, sep } from "node:path";
 import * as vscode from "vscode";
 import { citingBoxes } from "@aisus/core/model/citing";
 import { freshnessHeader } from "@aisus/core/model/home";
-import type { ChangeOverlay, Ghost, GhostArrow, HostMessage, ImageFormat, WebviewMessage } from "@aisus/core/model/messages";
+import type { ChangeOverlay, Comparison, Ghost, GhostArrow, HostMessage, ImageFormat, WebviewMessage } from "@aisus/core/model/messages";
 import { AUDIT_FILE } from "@aisus/core/model/audit";
 import type { MapDiff } from "@aisus/core/model/diff";
 import { EVIDENCE_FILE } from "@aisus/core/model/evidence";
@@ -20,10 +20,14 @@ import { violationArrows, type RulesService } from "./rules";
 import { parseDiagram, type ViewDiagram } from "@aisus/core/model/tolerant";
 import { changedBoxes, type FreshnessService } from "./freshness";
 import { webviewHtml } from "./html";
+import { buildComparison, compareMapsCommand, defaultBaseline, openBaseline, swapComparison } from "./compare";
 import { openSource, openSourceRef } from "./navigate";
 import { onAction } from "./notify";
 
 export const VIEW_TYPE = "aisus.architecture";
+
+/** Where the shown map's comparison comes from (FRS-10). */
+export type CompareSource = { kind: "default" } | { kind: "file"; file: string } | { kind: "none" } | { kind: "fixed"; against: string; diff: MapDiff };
 
 /** What the panel currently shows: a diagram, or an empty state with a message and maybe an action. */
 type Shown = { kind: "diagram"; doc: unknown; diagram: ViewDiagram } | { kind: "empty"; message: string; action?: "mapFolder" };
@@ -75,8 +79,13 @@ export class ArchitecturePanel {
   /** New box candidates drawn as ghost boxes (PRC-02), cleared with the overlay. */
   private ghosts: Ghost[] = [];
   private ghostArrows: GhostArrow[] = [];
-  /** FRS-07: the shown map compared with another, until cleared or another file is shown. */
-  private compare: { against: string; diff: MapDiff } | null = null;
+  /**
+   * FRS-10: where the comparison comes from until another file is shown: the run's earlier map by
+   * default, a chosen map, none, or one compared elsewhere (PRC-03).
+   */
+  private compare: CompareSource = { kind: "default" };
+  /** FRS-10: the Changes toggle, kept while the window lasts. */
+  private static changesShown = true;
   /** Watches the shown map's evidence.json and audit.json (ACC-03), and its tour.json (SKL-02). */
   private sidecars: { dir: string; watcher: vscode.FileSystemWatcher } | undefined;
   /** SKL-02: the shown map's tour, or `null` when it has none. */
@@ -103,19 +112,28 @@ export class ArchitecturePanel {
     void this.panel.webview.postMessage(message);
   }
 
-  /** Compares the shown map with `against`'s, or clears the comparison for `null` (FRS-07). */
-  showCompare(compare: { against: string; diff: MapDiff } | null): void {
-    this.compare = compare;
+  /** Compares the shown map as `source` says (FRS-07, FRS-10). */
+  showCompare(source: CompareSource): void {
+    this.compare = source;
     this.sendCompare();
   }
 
-  /** The comparison on the shown map, for the tests. */
-  get comparison(): { against: string; diff: MapDiff } | null {
-    return this.compare;
+  /** The earlier map the shown one is compared with, when it is a file. */
+  baselineFile(): string | null {
+    if (this.compare.kind === "file") return this.compare.file;
+    return this.compare.kind === "default" && this.file !== "" ? defaultBaseline(this.root, this.file) : null;
+  }
+
+  /** The comparison on the shown map, also for the tests. */
+  get comparison(): Comparison | null {
+    if (this.shown.kind !== "diagram") return null;
+    if (this.compare.kind === "fixed") return { against: this.compare.against, diff: this.compare.diff, shown: ArchitecturePanel.changesShown };
+    const baseline = this.baselineFile();
+    return baseline === null ? null : buildComparison(this.root, this.file, baseline, ArchitecturePanel.changesShown);
   }
 
   private sendCompare(): void {
-    const message: HostMessage = { type: "compare", compare: this.compare };
+    const message: HostMessage = { type: "compare", compare: this.comparison };
     void this.panel.webview.postMessage(message);
   }
 
@@ -247,7 +265,7 @@ export class ArchitecturePanel {
     if (file !== this.file) {
       this.changes = null;
       this.ghosts = [];
-      this.compare = null;
+      this.compare = { kind: "default" };
     }
     this.root = root;
     this.file = file;
@@ -497,8 +515,21 @@ export class ArchitecturePanel {
       case "clearChanges":
         this.showChanges(null);
         return;
-      case "clearCompare":
-        this.showCompare(null);
+      case "compareWith":
+        await compareMapsCommand();
+        return;
+      case "openBaseline":
+        openBaseline();
+        return;
+      case "swap":
+        swapComparison();
+        return;
+      case "showChanges":
+        ArchitecturePanel.changesShown = message.on;
+        this.sendCompare();
+        return;
+      case "openFile":
+        await openSourceRef(this.root, { path: message.path }, this.panel.viewColumn);
         return;
       case "refresh":
         await vscode.commands.executeCommand("aisus.refreshArchitecture");

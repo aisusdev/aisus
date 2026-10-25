@@ -138,22 +138,26 @@ body {
   display: none;
 }
 
-/* Compare (FRS-07): added boxes and arrows outlined, the older map's removed ones see-through, the summary on top */
+/* Compare (FRS-07, FRS-10): new elements in green, changed ones in yellow, kept boxes in purple,
+   each with its word above its top left corner; the header on top and the Changes panel on the right */
 
-.node--added .node__box {
+.node--added .node__box,
+.boundary--added .boundary__box {
   stroke: var(--aisus-green);
   stroke-width: 3px;
 }
 
-.node--removed .node__box {
-  fill: none;
-  stroke: var(--aisus-muted);
-  stroke-dasharray: 6 4;
+.node--changed .node__box,
+.boundary--changed .boundary__box,
+.boundary--renamed .boundary__box {
+  stroke: var(--aisus-yellow);
+  stroke-width: 3px;
 }
 
-.node--removed .node__label,
-.node--removed .node__sublabel {
-  fill: var(--aisus-muted);
+.node--kept .node__box {
+  stroke: var(--aisus-purple);
+  stroke-width: 2px;
+  stroke-dasharray: 4 3;
 }
 
 .edge--added .edge__line {
@@ -164,13 +168,34 @@ body {
   fill: var(--aisus-green);
 }
 
-.edge--removed .edge__line {
-  stroke: var(--aisus-muted);
+.edge--changed .edge__line {
+  stroke: var(--aisus-yellow);
 }
 
-.edge--removed .edge__head,
-.edge-label.edge--removed {
-  fill: var(--aisus-muted);
+.edge--changed .edge__head {
+  fill: var(--aisus-yellow);
+}
+
+.compare-mark {
+  font-weight: 700;
+  paint-order: stroke;
+  stroke: var(--aisus-background);
+  stroke-width: 3px;
+}
+
+.node--added .compare-mark,
+.boundary--added .compare-mark {
+  fill: var(--aisus-green);
+}
+
+.node--changed .compare-mark,
+.boundary--changed .compare-mark,
+.boundary--renamed .compare-mark {
+  fill: var(--aisus-yellow);
+}
+
+.node--kept .compare-mark {
+  fill: var(--aisus-purple);
 }
 
 .compare {
@@ -186,7 +211,126 @@ body {
   box-shadow: 0 2px 8px var(--aisus-shadow);
 }
 
-.app--empty .compare {
+.compare__strip {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 10px;
+}
+
+.compare__hash {
+  font-family: var(--aisus-mono-font-family);
+}
+
+.compare__count--added {
+  color: var(--aisus-green);
+}
+
+.compare__count--removed {
+  color: var(--aisus-red);
+}
+
+.compare__count--changed {
+  color: var(--aisus-yellow);
+}
+
+.compare__approximate {
+  padding: 0 6px;
+  border: 1px solid var(--aisus-muted);
+  border-radius: 8px;
+  color: var(--aisus-muted);
+}
+
+.compare__toggle[aria-pressed="true"] {
+  background: var(--aisus-toggle-background);
+  color: var(--aisus-toggle-foreground);
+}
+
+.compare__warning {
+  margin-top: 4px;
+  color: var(--aisus-orange);
+}
+
+.changes-panel {
+  position: absolute;
+  top: 48px;
+  right: 8px;
+  bottom: 8px;
+  box-sizing: border-box;
+  width: min(320px, 40%);
+  overflow: auto;
+  padding: 8px 12px;
+  background: var(--aisus-widget-background);
+  border: 1px solid var(--aisus-widget-border);
+  border-radius: 4px;
+  box-shadow: 0 2px 8px var(--aisus-shadow);
+}
+
+.changes-panel__title,
+.changes-panel__heading {
+  margin: 8px 0 4px;
+  font-size: inherit;
+  font-weight: 600;
+}
+
+.changes-panel__title {
+  margin-top: 0;
+}
+
+.changes-panel__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.changes-panel__item {
+  display: block;
+  width: 100%;
+  padding: 3px 4px;
+  border: 0;
+  border-radius: 3px;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+}
+
+button.changes-panel__item {
+  cursor: pointer;
+}
+
+button.changes-panel__item:hover {
+  background: var(--aisus-hover);
+}
+
+button.changes-panel__item:focus-visible {
+  outline: 1px solid var(--aisus-accent);
+}
+
+.changes-panel__kind,
+.changes-panel__fields {
+  color: var(--aisus-muted);
+}
+
+.changes-panel__file {
+  font-family: var(--aisus-mono-font-family);
+}
+
+.changes-panel__baseline {
+  margin-top: 4px;
+}
+
+.app--with-panel .canvas {
+  width: calc(100% - min(320px, 40%) - 16px);
+}
+
+.app--with-panel .compare {
+  left: calc((100% - min(320px, 40%) - 16px) / 2);
+  max-width: calc(100% - min(320px, 40%) - 64px);
+}
+
+.app--empty .compare,
+.app--empty .changes-panel {
   display: none;
 }
 

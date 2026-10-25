@@ -1,9 +1,13 @@
-// FRS-07: what changed between two maps. Boxes match by id, or, when an id changed, by citing mostly
-// the same files; arrows match by their two ends after that. Browser-safe.
+// FRS-07, FRS-10: what changed between two maps, element by element. Boxes match by id, or, when an
+// id changed, by citing mostly the same files. Arrows match by their two ends after that, and
+// boundaries by label, with a relabelled boundary matched by its members. Browser-safe.
 
 interface Box {
   id: string;
   label: string;
+  sublabel?: string;
+  tag?: string;
+  type?: string;
   sources?: readonly { path: string }[];
 }
 
@@ -11,43 +15,88 @@ interface Arrow {
   from: string;
   to: string;
   label?: string;
+  variant?: string;
+}
+
+interface Boundary {
+  kind?: string;
+  label: string;
+  wraps: readonly string[];
+}
+
+interface MapLike {
+  components: readonly Box[];
+  connections: readonly Arrow[];
+  boundaries?: readonly Boundary[];
+}
+
+/** `kept` marks a box whose cited code changed but which the update left as it was. */
+export type ElementStatus = "added" | "changed" | "renamed" | "kept" | "unchanged";
+
+export type FieldChange = { field: "id" | "label" | "sublabel" | "tag" | "type" | "variant" | "kind"; before: string | null; after: string | null } | { field: "sources" | "boundary" | "members" };
+
+export interface ElementDiff {
+  status: ElementStatus;
+  /** The fields that changed, in a fixed order; empty unless changed or renamed. */
+  fields: FieldChange[];
 }
 
 export interface MapDiff {
-  boxes: {
-    /** Ids in the newer map. */
-    added: string[];
-    /** Boxes of the older map that are gone. */
-    removed: { id: string; label: string }[];
-    /** The newer id, with the older id and label it had. */
-    relabelled: { id: string; was: string; label: string }[];
-  };
-  arrows: {
-    /** Indices of the newer map's connections. */
-    added: number[];
-    /** The older map's arrows that are gone, with their ends as the newer map names them where it can. */
-    removed: { from: string; to: string; label?: string }[];
-    /** Indices of the newer map's connections whose label changed, with the older label. */
-    relabelled: { index: number; was: string }[];
-  };
+  /** Aligned with the newer map's components, connections and boundaries. */
+  boxes: ElementDiff[];
+  arrows: ElementDiff[];
+  boundaries: ElementDiff[];
+  /** The older map's elements that are gone, named as the older map names them. */
+  removed: { boxes: { id: string; label: string }[]; arrows: { name: string }[]; boundaries: { label: string }[] };
+  /** A renamed boundary counts as changed, and a kept box does not count. */
+  counts: { added: number; removed: number; changed: number };
 }
 
 /** At least half of the two boxes' cited files in common. */
 const SAME_FILES = 0.5;
 
+const UNCHANGED: ElementDiff = { status: "unchanged", fields: [] };
+const ADDED: ElementDiff = { status: "added", fields: [] };
+
+const files = (box: Box): Set<string> => new Set((box.sources ?? []).map((source) => source.path));
+
 function overlap(a: Box, b: Box): number {
-  const left = new Set((a.sources ?? []).map((source) => source.path));
-  const right = new Set((b.sources ?? []).map((source) => source.path));
+  const left = files(a);
+  const right = files(b);
   const shared = [...left].filter((path) => right.has(path)).length;
   const union = new Set([...left, ...right]).size;
   return union === 0 ? 0 : shared / union;
 }
 
-/** How `after` differs from `before`. */
-export function diffMaps(before: { components: readonly Box[]; connections: readonly Arrow[] }, after: { components: readonly Box[]; connections: readonly Arrow[] }): MapDiff {
+function sameSet(a: ReadonlySet<string>, b: ReadonlySet<string>): boolean {
+  return a.size === b.size && [...a].every((item) => b.has(item));
+}
+
+function text(fields: FieldChange[], field: "id" | "label" | "sublabel" | "tag" | "type" | "variant" | "kind", before: string | undefined, after: string | undefined): void {
+  if ((before ?? null) !== (after ?? null)) fields.push({ field, before: before ?? null, after: after ?? null });
+}
+
+const changedOrNot = (fields: FieldChange[]): ElementDiff => (fields.length === 0 ? UNCHANGED : { status: "changed", fields });
+
+/** Keys in document order; a repeated key gets `#2`, `#3` after the first. */
+function uniqueKeys<T>(items: readonly T[], keyOf: (item: T) => string): string[] {
+  const seen = new Map<string, number>();
+  return items.map((item) => {
+    const key = keyOf(item);
+    const n = (seen.get(key) ?? 0) + 1;
+    seen.set(key, n);
+    return n === 1 ? key : `${key}#${n}`;
+  });
+}
+
+/**
+ * How `after` differs from `before`. `touched` holds the older map's ids of boxes whose cited code
+ * changed (FRS-08); an unchanged box among them is marked kept.
+ */
+export function diffMaps(before: MapLike, after: MapLike, touched: ReadonlySet<string> = new Set()): MapDiff {
+  // Older id to newer id: the same id, or a box citing mostly the same files.
   const newIds = new Set(after.components.map((box) => box.id));
   const oldIds = new Set(before.components.map((box) => box.id));
-  // Older id to newer id: the same id, or a box citing mostly the same files.
   const renamed = new Map<string, string>();
   for (const box of before.components) if (newIds.has(box.id)) renamed.set(box.id, box.id);
   const unmatchedNew = after.components.filter((box) => !oldIds.has(box.id));
@@ -59,43 +108,104 @@ export function diffMaps(before: { components: readonly Box[]; connections: read
     }
     if (best !== null) renamed.set(box.id, best.id);
   }
-  const matchedNew = new Set(renamed.values());
-  const newLabel = new Map(after.components.map((box) => [box.id, box.label]));
-  const relabelled = before.components
-    .filter((box) => renamed.has(box.id) && (renamed.get(box.id) !== box.id || newLabel.get(box.id) !== box.label))
-    .map((box) => ({ id: renamed.get(box.id)!, was: box.id, label: box.label }));
+  const olderOf = new Map([...renamed].map(([older, newer]) => [newer, older]));
+  const olderBox = new Map(before.components.map((box) => [box.id, box]));
 
-  const key = (from: string, to: string): string => `${from}\0${to}`;
-  const oldArrows = new Map(before.connections.map((arrow) => [key(renamed.get(arrow.from) ?? arrow.from, renamed.get(arrow.to) ?? arrow.to), arrow]));
-  const newKeys = new Set(after.connections.map((arrow) => key(arrow.from, arrow.to)));
+  // Boundaries first: their matching decides each box's boundary set.
+  const beforeBoundaries = before.boundaries ?? [];
+  const afterBoundaries = after.boundaries ?? [];
+  const mapIds = (ids: readonly string[]): Set<string> => new Set(ids.map((id) => renamed.get(id) ?? `\0${id}`));
+  const beforeKeys = uniqueKeys(beforeBoundaries, (boundary) => boundary.label);
+  const afterKeys = uniqueKeys(afterBoundaries, (boundary) => boundary.label);
+  const beforeIndex = new Map(beforeKeys.map((key, index) => [key, index]));
+  const pairedBefore = new Map<number, number>();
+  const usedBefore = new Set<number>();
+  afterKeys.forEach((key, index) => {
+    const match = beforeIndex.get(key);
+    if (match !== undefined) {
+      pairedBefore.set(index, match);
+      usedBefore.add(match);
+    }
+  });
+  const relabelled = new Set<number>();
+  afterBoundaries.forEach((boundary, index) => {
+    if (pairedBefore.has(index)) return;
+    const members = new Set(boundary.wraps);
+    const match = beforeBoundaries.findIndex((old, k) => !usedBefore.has(k) && sameSet(mapIds(old.wraps), members));
+    if (match < 0) return;
+    pairedBefore.set(index, match);
+    usedBefore.add(match);
+    relabelled.add(index);
+  });
+  const boundaries = afterBoundaries.map((boundary, index): ElementDiff => {
+    const match = pairedBefore.get(index);
+    if (match === undefined) return ADDED;
+    const old = beforeBoundaries[match]!;
+    const fields: FieldChange[] = [];
+    if (relabelled.has(index)) text(fields, "label", old.label, boundary.label);
+    text(fields, "kind", old.kind, boundary.kind);
+    if (!sameSet(mapIds(old.wraps), new Set(boundary.wraps))) fields.push({ field: "members" });
+    return relabelled.has(index) ? { status: "renamed", fields } : changedOrNot(fields);
+  });
+  const afterKeyOf = new Map([...pairedBefore].map(([index, match]) => [beforeKeys[match]!, afterKeys[index]!]));
+  const boundariesOf = (list: readonly Boundary[], keys: readonly string[], rename: (key: string) => string, id: string): Set<string> =>
+    new Set(list.flatMap((boundary, index) => (boundary.wraps.includes(id) ? [rename(keys[index]!)] : [])));
+
+  const keptIds = new Set([...touched].map((id) => renamed.get(id) ?? id));
+  const boxes = after.components.map((box): ElementDiff => {
+    const older = olderOf.get(box.id);
+    const old = older === undefined ? undefined : olderBox.get(older);
+    if (old === undefined) return ADDED;
+    const fields: FieldChange[] = [];
+    text(fields, "id", old.id, box.id);
+    text(fields, "label", old.label, box.label);
+    text(fields, "sublabel", old.sublabel, box.sublabel);
+    text(fields, "tag", old.tag, box.tag);
+    text(fields, "type", old.type, box.type);
+    if (!sameSet(files(old), files(box))) fields.push({ field: "sources" });
+    const was = boundariesOf(beforeBoundaries, beforeKeys, (key) => afterKeyOf.get(key) ?? `\0${key}`, old.id);
+    if (!sameSet(was, boundariesOf(afterBoundaries, afterKeys, (key) => key, box.id))) fields.push({ field: "boundary" });
+    if (fields.length === 0 && keptIds.has(box.id)) return { status: "kept", fields };
+    return changedOrNot(fields);
+  });
+
+  const end = (id: string): string => renamed.get(id) ?? `\0${id}`;
+  const beforeArrowKeys = uniqueKeys(before.connections, (arrow) => `${end(arrow.from)}\0${end(arrow.to)}`);
+  const beforeArrowIndex = new Map(beforeArrowKeys.map((key, index) => [key, index]));
+  const matchedArrows = new Set<number>();
+  const arrows = uniqueKeys(after.connections, (arrow) => `${arrow.from}\0${arrow.to}`).map((key, index): ElementDiff => {
+    const match = beforeArrowIndex.get(key);
+    if (match === undefined) return ADDED;
+    matchedArrows.add(match);
+    const old = before.connections[match]!;
+    const arrow = after.connections[index]!;
+    const fields: FieldChange[] = [];
+    text(fields, "label", old.label, arrow.label);
+    text(fields, "variant", old.variant ?? "default", arrow.variant ?? "default");
+    return changedOrNot(fields);
+  });
+
+  const labelOf = (id: string): string => olderBox.get(id)?.label ?? id;
+  const removed = {
+    boxes: before.components.filter((box) => !renamed.has(box.id)).map((box) => ({ id: box.id, label: box.label })),
+    arrows: before.connections.filter((_, index) => !matchedArrows.has(index)).map((arrow) => ({ name: `${labelOf(arrow.from)} → ${labelOf(arrow.to)}${arrow.label ? ` (${arrow.label})` : ""}` })),
+    boundaries: beforeBoundaries.filter((_, index) => !usedBefore.has(index)).map((boundary) => ({ label: boundary.label })),
+  };
+  const all = [...boxes, ...arrows, ...boundaries];
   return {
-    boxes: {
-      added: after.components.filter((box) => !matchedNew.has(box.id)).map((box) => box.id),
-      removed: before.components.filter((box) => !renamed.has(box.id)).map((box) => ({ id: box.id, label: box.label })),
-      relabelled,
-    },
-    arrows: {
-      added: after.connections.flatMap((arrow, index) => (oldArrows.has(key(arrow.from, arrow.to)) ? [] : [index])),
-      removed: [...oldArrows].filter(([arrowKey]) => !newKeys.has(arrowKey)).map(([arrowKey, arrow]) => {
-        const [from, to] = arrowKey.split("\0") as [string, string];
-        return { from, to, ...(arrow.label ? { label: arrow.label } : {}) };
-      }),
-      relabelled: after.connections.flatMap((arrow, index) => {
-        const was = oldArrows.get(key(arrow.from, arrow.to));
-        return was !== undefined && (was.label ?? "") !== (arrow.label ?? "") ? [{ index, was: was.label ?? "" }] : [];
-      }),
+    boxes,
+    arrows,
+    boundaries,
+    removed,
+    counts: {
+      added: all.filter((entry) => entry.status === "added").length,
+      removed: removed.boxes.length + removed.arrows.length + removed.boundaries.length,
+      changed: all.filter((entry) => entry.status === "changed" || entry.status === "renamed").length,
     },
   };
 }
 
-/** "2 boxes added · 1 removed · 1 relabelled · 3 arrows added · 1 removed". */
+/** "2 added · 1 removed · 3 changed". */
 export function diffSummary(diff: MapDiff): string {
-  const plural = (count: number, one: string, many: string): string => `${count} ${count === 1 ? one : many}`;
-  return [
-    `${plural(diff.boxes.added.length, "box", "boxes")} added`,
-    `${diff.boxes.removed.length} removed`,
-    `${diff.boxes.relabelled.length} relabelled`,
-    `${plural(diff.arrows.added.length, "arrow", "arrows")} added`,
-    `${diff.arrows.removed.length} removed`,
-  ].join(" · ");
+  return `${diff.counts.added} added · ${diff.counts.removed} removed · ${diff.counts.changed} changed`;
 }
