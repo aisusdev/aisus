@@ -2,9 +2,12 @@
 // (FR-RF-01): creates the run folder with its run.json (CST-04) and prints where the draft goes
 // (ADR 0018), with the repository's size (CST-01), the estimate for each agent (CST-03) and the read
 // budget for its tier (CST-05). With `--parent`, the run is a drill-down of that map (VWR-05).
+// FRS-09: otherwise it records the newest earlier map with the same focus in `lineage.json`, and
+// prints its candidate as `previous` for match-ids.mjs.
 import { existsSync } from "node:fs";
 import { basename, join } from "node:path";
-import { collectGitFacts } from "../model/git";
+import { collectGitFacts, commitInfo } from "../model/git";
+import { LINEAGE_FILE, planRefresh, previousMap, writeRunFile, type Lineage } from "../model/lineage";
 import { skillEstimates } from "../model/estimate";
 import { READ_BUDGET, repoSize, sizeFacts } from "../model/repoSize";
 import { ARCHIFY_DIR, CANDIDATE_FILE, createRunFolder, DRAFT_FILE, parseRunFolderName, runTimestamp, slugify } from "../model/runFolder";
@@ -34,10 +37,31 @@ function main(args: string[]): number {
   }
   // Git facts come first, so the new run folder is not among the dirty paths.
   const git = collectGitFacts(root);
+  const slug = slugify(focus, basename(root));
+  const previous = parent === null ? previousMap(root, slug) : null;
+  let reason: Lineage["reason"] = "no-previous";
+  if (previous !== null) {
+    const plan = planRefresh(root, previous);
+    reason = plan.mode === "update" ? "requested" : plan.reason;
+  }
+  const lineage: Lineage = {
+    schema: 1,
+    mode: "regenerate",
+    reason,
+    previousRun: previous,
+    baseRevision: null,
+    revision: git?.head ?? null,
+    baseCommit: null,
+    headCommit: git === null ? null : commitInfo(root, git.head),
+    dirty: git?.dirty ?? [],
+    dirtyCount: git?.dirtyCount ?? 0,
+    updatesSinceRegeneration: 0,
+  };
   let run: string;
   try {
-    run = createRunFolder(root, slugify(focus, basename(root)), runTimestamp(new Date()));
+    run = createRunFolder(root, slug, runTimestamp(new Date()));
     writeRunRecord(root, join(root, ARCHIFY_DIR, run), newRunRecord({ focus, skillVersion: SKILL_VERSION, ...(parent === null ? {} : { kind: "drill" as const, parent }) }));
+    writeRunFile(root, join(root, ARCHIFY_DIR, run), LINEAGE_FILE, lineage);
   } catch (error) {
     process.stderr.write(`repo-facts.mjs: ${(error as Error).message}\n`);
     return 2;
@@ -47,6 +71,7 @@ function main(args: string[]): number {
     root,
     runFolder: `${ARCHIFY_DIR}/${run}`,
     draft: `${ARCHIFY_DIR}/${run}/${DRAFT_FILE}`,
+    previous: previous === null ? null : `${ARCHIFY_DIR}/${previous}/${CANDIDATE_FILE}`,
     git: git && { head: git.head, origin: git.origin, dirtyCount: git.dirtyCount, dirty: git.dirty },
     size,
     estimate: skillEstimates(sizeFacts(size), "full"),

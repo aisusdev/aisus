@@ -3,7 +3,7 @@ name: aisus-architecture
 description: Generate an Archify architecture diagram of this repository for the aisus VS Code viewer. Invoke manually with an optional focus.
 triggers: [user]
 disable-model-invocation: true
-allowed-tools: Read Grep Glob Bash(node ${CLAUDE_SKILL_DIR}/scripts/repo-facts.mjs *) Bash(node ${CLAUDE_SKILL_DIR}/scripts/validate.mjs *) Bash(node ${CLAUDE_SKILL_DIR}/scripts/render-html.mjs *)
+allowed-tools: Read Grep Glob Bash(node ${CLAUDE_SKILL_DIR}/scripts/repo-facts.mjs *) Bash(node ${CLAUDE_SKILL_DIR}/scripts/match-ids.mjs *) Bash(node ${CLAUDE_SKILL_DIR}/scripts/validate.mjs *) Bash(node ${CLAUDE_SKILL_DIR}/scripts/render-html.mjs *)
 ---
 
 # aisus architecture diagram
@@ -31,7 +31,7 @@ Run, from the repository root:
 node ${CLAUDE_SKILL_DIR}/scripts/repo-facts.mjs --focus "<focus>"
 ```
 
-Omit `--focus "<focus>"` entirely when the focus is empty. For a box drawn in detail, add `--parent <run folder>` after it, so the new map records which map it came from. The script prints one JSON object. Keep its `runFolder`, `draft`, `git` and `budget` values; `git` lists uncommitted paths whose line numbers may still change. If it exits non-zero, stop and report its stderr.
+Omit `--focus "<focus>"` entirely when the focus is empty. For a box drawn in detail, add `--parent <run folder>` after it, so the new map records which map it came from. The script prints one JSON object. Keep its `runFolder`, `draft`, `previous`, `git` and `budget` values; `previous` is the earlier map with the same focus, or `null`; `git` lists uncommitted paths whose line numbers may still change. If it exits non-zero, stop and report its stderr.
 
 Before you go on, tell the user the estimate in one line. Use `estimate.claude.text` if you are Claude Code, and `estimate.codex.text` otherwise.
 
@@ -56,6 +56,14 @@ Never open, search or cite these paths (any folder depth, any letter case):
 ## 5. Write the draft
 
 Write the complete diagram as JSON to the `draft` path from step 2. Write nothing else, anywhere: no other files, no edits to existing files.
+
+If `previous` is not `null`, run, from the repository root:
+
+```sh
+node ${CLAUDE_SKILL_DIR}/scripts/match-ids.mjs <draft> --previous <previous>
+```
+
+It rewrites the draft in place, giving each box that matches a box of the earlier map that box's id, so the two maps can be compared. Do not open the earlier map yourself. If it exits 2, go on to step 6, whose validator says what is wrong with the draft.
 
 ## 6. Validate and repair
 

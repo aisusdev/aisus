@@ -9689,7 +9689,7 @@ var import_node_path9 = require("node:path");
 
 // packages/core/model/agents.ts
 var SKILL_SCRIPTS = {
-  "aisus-architecture": ["repo-facts.mjs", "validate.mjs", "render-html.mjs"],
+  "aisus-architecture": ["repo-facts.mjs", "match-ids.mjs", "validate.mjs", "render-html.mjs"],
   "aisus-refresh": ["refresh-facts.mjs", "validate.mjs", "render-html.mjs"],
   "aisus-audit": ["audit-record.mjs"],
   "aisus-tour": ["tour-record.mjs"]

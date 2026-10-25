@@ -41,7 +41,7 @@ describe("SAF-04 launch arguments", () => {
     expect(forbiddenIn(argv)).toEqual([]);
   });
 
-  test("UI-02 Claude Code runs headless with exactly the generate tools and dontAsk", () => {
+  test("UI-02 FRS-09 Claude Code runs headless with exactly the generate tools and dontAsk", () => {
     const argv = headlessArgs("claude", "/aisus-architecture auth", { skillDir: "/h/.claude/skills/aisus-architecture" });
     expect(argv).toEqual([
       "-p",
@@ -56,6 +56,7 @@ describe("SAF-04 launch arguments", () => {
       "Grep",
       "Glob",
       "Bash(node /h/.claude/skills/aisus-architecture/scripts/repo-facts.mjs *)",
+      "Bash(node /h/.claude/skills/aisus-architecture/scripts/match-ids.mjs *)",
       "Bash(node /h/.claude/skills/aisus-architecture/scripts/validate.mjs *)",
       "Bash(node /h/.claude/skills/aisus-architecture/scripts/render-html.mjs *)",
       "Edit(./.archify/**)",

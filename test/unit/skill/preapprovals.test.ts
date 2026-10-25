@@ -8,7 +8,7 @@ import { repoRoot } from "../support/sourceScan";
 const SKILLS = ["aisus-architecture", "aisus-audit", "aisus-bugfix", "aisus-refresh", "aisus-tour"];
 
 /** Scripts whose every argument is data the script validates. */
-const DATA_ONLY_SCRIPTS = /^Bash\(node \S+\/scripts\/(repo-facts|refresh-facts|validate|render-html|session|audit-record|tour-record)\.mjs( \*)?\)$/;
+const DATA_ONLY_SCRIPTS = /^Bash\(node \S+\/scripts\/(repo-facts|refresh-facts|match-ids|validate|render-html|session|audit-record|tour-record)\.mjs( \*)?\)$/;
 
 /** The `allowed-tools` entries that are edit tools or Bash rules reaching anything but a data-only script. */
 function unsafeRules(allowedTools: string): string[] {

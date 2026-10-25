@@ -29,7 +29,7 @@ export type SkillName = "aisus-architecture" | "aisus-refresh" | "aisus-audit" |
 
 /** The scripts each skill runs, which its Bash rules name exactly. */
 export const SKILL_SCRIPTS: Readonly<Record<SkillName, readonly string[]>> = {
-  "aisus-architecture": ["repo-facts.mjs", "validate.mjs", "render-html.mjs"],
+  "aisus-architecture": ["repo-facts.mjs", "match-ids.mjs", "validate.mjs", "render-html.mjs"],
   "aisus-refresh": ["refresh-facts.mjs", "validate.mjs", "render-html.mjs"],
   "aisus-audit": ["audit-record.mjs"],
   "aisus-tour": ["tour-record.mjs"],

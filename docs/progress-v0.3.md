@@ -42,7 +42,7 @@ Tests, from the ACs of FRS-08 to FRS-10:
 - `[e2e]` A refreshed map opens compared with its base map, and Swap and Open baseline show the base map.
 
 - [x] **FRS-08 Recorded change** `[unit]` `[e2e]` — 2026-10-25: `packages/core/model/lineage.ts`, `changeMap.ts`, three git readers, `refresh-facts.ts`, the refresh skill's steps 2 and 4, and the redirect in `apps/vscode/src/refresh.ts` and the Action. Tests: `lineage.test.ts` (7: the decision's reasons and order; the change map's statuses, names-only files, uncommitted-at-base files, grouping and its two renderings), `refreshFacts.test.ts` (3 new: a redraw makes no run folder, an update writes the three files, the sixth update is a full drawing), `actionRefresh.test.ts` (1 new), `single.refresh.test.ts` (1 new: a map due a full drawing is drawn again with its focus). The refresh and review e2e fixtures record their revision now, because an update needs one.
-- [ ] **FRS-09 Ids across a redraw** `[unit]`
+- [x] **FRS-09 Ids across a redraw** `[unit]` — 2026-10-25: `packages/core/model/matchIds.ts`, `packages/core/agent/match-ids.ts`, `repo-facts.ts` and the architecture skill's step 5. Tests: `matchIds.test.ts` (3: best pair first, one to one, under the threshold left alone, arrows and boundaries following; a reused id renamed; the script rewriting the draft and refusing one without components), `repoFacts.test.ts` (2 new: the newest map of the same focus continued, a due drawing's reason, a drill-down continuing nothing). The first repo-facts test now expects `previous` and `lineage.json`.
 - [ ] **FRS-10 Changes panel** `[unit]` `[dom]` `[e2e]`
 
 ## Sidebar home proposal (owner request, 2026-10-25)

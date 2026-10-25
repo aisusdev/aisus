@@ -38,7 +38,7 @@ describe("FR-SKL-01 skill frontmatter", () => {
       triggers: "[user]",
       "disable-model-invocation": "true",
       "allowed-tools":
-        "Read Grep Glob Bash(node ${CLAUDE_SKILL_DIR}/scripts/repo-facts.mjs *) Bash(node ${CLAUDE_SKILL_DIR}/scripts/validate.mjs *) Bash(node ${CLAUDE_SKILL_DIR}/scripts/render-html.mjs *)",
+        "Read Grep Glob Bash(node ${CLAUDE_SKILL_DIR}/scripts/repo-facts.mjs *) Bash(node ${CLAUDE_SKILL_DIR}/scripts/match-ids.mjs *) Bash(node ${CLAUDE_SKILL_DIR}/scripts/validate.mjs *) Bash(node ${CLAUDE_SKILL_DIR}/scripts/render-html.mjs *)",
     });
   });
 
@@ -110,7 +110,7 @@ describe("CST-03 cost before every run", () => {
 describe("CST-05 exploration budget", () => {
   test("the architecture skill keeps to repo-facts' budget and names each tier's", () => {
     const text = read("SKILL.md");
-    expect(text).toContain("Keep its `runFolder`, `draft`, `git` and `budget` values");
+    expect(text).toContain("Keep its `runFolder`, `draft`, `previous`, `git` and `budget` values");
     expect(text).toContain("Keep to `budget` reads and searches in total. It is 25 for a repository of tier S, 45 for tier M and 70 for tier L");
     expect(text).toContain("When the budget is spent, stop exploring and write the draft");
   });

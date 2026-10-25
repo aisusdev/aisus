@@ -10,19 +10,19 @@ import { envWithoutGit, git, gitRepo, put, runScript, tempDir } from "../support
 const RUN_NAME = /^architecture-([a-z0-9-]+)-(\d{8}-\d{6})(-\d+)?$/;
 
 describe("FR-RF-01 repo-facts CLI", () => {
-  test("CST-04 CST-01 CST-03 CST-05 creates the run folder with run.json and prints root, runFolder, draft, git, size, estimate and budget", () => {
+  test("CST-04 CST-01 CST-03 CST-05 FRS-09 creates the run folder with run.json and lineage.json and prints root, runFolder, draft, previous, git, size, estimate and budget", () => {
     const root = tempDir();
     const run = runScript("repo-facts", ["--focus", "Payment service: retries & queues"], { cwd: root, env: envWithoutGit() });
     expect(run.status).toBe(0);
     expect(run.stderr).toBe("");
     const facts = run.json();
-    expect(Object.keys(facts)).toEqual(["root", "runFolder", "draft", "git", "size", "estimate", "budget"]);
+    expect(Object.keys(facts)).toEqual(["root", "runFolder", "draft", "previous", "git", "size", "estimate", "budget"]);
     expect(facts.root).toBe(root);
     const name = facts.runFolder.replace(/^\.archify\//, "");
     expect(name).toMatch(RUN_NAME);
     expect(RUN_NAME.exec(name)![1]).toBe("payment-service-retries-queues");
     expect(facts.draft).toBe(`${facts.runFolder}/draft.json`);
-    expect(readdirSync(join(root, facts.runFolder))).toEqual(["run.json"]);
+    expect(readdirSync(join(root, facts.runFolder)).sort()).toEqual(["lineage.json", "run.json"]);
     expect(JSON.parse(readFileSync(join(root, facts.runFolder, "run.json"), "utf8"))).toMatchObject({
       schema: 1,
       kind: "full",
@@ -114,5 +114,44 @@ describe("FR-RF-01 repo-facts CLI", () => {
     const run = runScript("repo-facts", [], { cwd: root });
     expect(run.status).toBe(2);
     expect(run.stdout).toBe("");
+  });
+});
+
+describe("FRS-09 the earlier map of the same focus", () => {
+  /** An accepted map with `focus`, drawn by repo-facts and validate like a run. */
+  function accepted(root: string, focus: string): string {
+    const facts = runScript("repo-facts", ["--focus", focus], { cwd: root }).json();
+    put(root, facts.draft, JSON.stringify({ meta: { title: "App" }, components: [{ id: "api", type: "backend", label: "API", sources: [{ path: "src/app.ts" }] }] }));
+    expect(runScript("validate", [facts.draft], { cwd: root }).status).toBe(0);
+    return facts.runFolder.replace(".archify/", "");
+  }
+
+  test("a run records the newest accepted map with its focus as the run it continues, and prints its candidate", () => {
+    const root = gitRepo({ "src/app.ts": "export {};\n" });
+    const first = runScript("repo-facts", ["--focus", "payments"], { cwd: root }).json();
+    expect(first.previous).toBeNull();
+    expect(JSON.parse(readFileSync(join(root, first.runFolder, "lineage.json"), "utf8"))).toMatchObject({ mode: "regenerate", reason: "no-previous", previousRun: null, revision: git(root, "rev-parse", "HEAD").trim(), updatesSinceRegeneration: 0 });
+
+    const older = accepted(root, "payments");
+    const newer = accepted(root, "payments");
+    accepted(root, "billing");
+    const draftOnly = runScript("repo-facts", ["--focus", "payments"], { cwd: root }).json();
+    expect(draftOnly.runFolder > `.archify/${newer}`).toBe(true);
+    expect(older < newer).toBe(true);
+
+    const facts = runScript("repo-facts", ["--focus", "payments"], { cwd: root }).json();
+    expect(facts.previous).toBe(`.archify/${newer}/candidate.json`);
+    expect(JSON.parse(readFileSync(join(root, facts.runFolder, "lineage.json"), "utf8"))).toMatchObject({ mode: "regenerate", reason: "requested", previousRun: newer });
+  });
+
+  test("a map due a full drawing names its reason, and a drill-down continues no map", () => {
+    const root = gitRepo({ "src/app.ts": "export {};\n" });
+    const map = accepted(root, "payments");
+    const lineageFile = join(root, ".archify", map, "lineage.json");
+    writeFileSync(lineageFile, JSON.stringify({ ...JSON.parse(readFileSync(lineageFile, "utf8")), updatesSinceRegeneration: 5 }));
+    const facts = runScript("repo-facts", ["--focus", "payments"], { cwd: root }).json();
+    expect(JSON.parse(readFileSync(join(root, facts.runFolder, "lineage.json"), "utf8"))).toMatchObject({ reason: "scheduled", previousRun: map });
+    const drill = runScript("repo-facts", ["--focus", "payments", "--parent", map], { cwd: root }).json();
+    expect(drill.previous).toBeNull();
   });
 });

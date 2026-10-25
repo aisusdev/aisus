@@ -31,7 +31,7 @@ async function dryRun(args: string[], env: NodeJS.ProcessEnv): Promise<{ code: n
   return { code, text, json: JSON.parse(text.slice(text.indexOf("{"))) as DryRun };
 }
 
-test("CST-06 a dry run prints the argv and the whole environment of each run, isolated, and starts nothing", async () => {
+test("CST-06 FRS-09 a dry run prints the argv and the whole environment of each run, isolated, and starts nothing", async () => {
   const { env, bin, cache } = benchEnv({ AISUS_BENCH_ANTHROPIC_API_KEY: "sk-ant-test" });
   const { code, json } = await dryRun(["--agent", "claude", "--repo", "ab3", "--kind", "full"], env);
   expect(code).toBe(0);
@@ -54,6 +54,7 @@ test("CST-06 a dry run prints the argv and the whole environment of each run, is
     "Grep",
     "Glob",
     `Bash(node ${skill}/repo-facts.mjs *)`,
+    `Bash(node ${skill}/match-ids.mjs *)`,
     `Bash(node ${skill}/validate.mjs *)`,
     `Bash(node ${skill}/render-html.mjs *)`,
     "Edit(./.archify/**)",

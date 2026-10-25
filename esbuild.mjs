@@ -30,6 +30,7 @@ const common = {
 const SCRIPT_ENTRIES = {
   "repo-facts": "packages/core/agent/repo-facts.ts",
   "refresh-facts": "packages/core/agent/refresh-facts.ts",
+  "match-ids": "packages/core/agent/match-ids.ts",
   "render-html": "packages/core/agent/render-html.ts",
   validate: "packages/core/agent/validate.ts",
   session: "packages/core/agent/session.ts",
@@ -161,7 +162,7 @@ export async function buildSkillsAndCli(out) {
   const results = [];
   // Static skill files (SKILL.md, agents/, references/) ship as-is.
   cpSync(join(root, "skills"), join(out, "skills"), { recursive: true });
-  results.push(await buildScripts(join(out, "skills/aisus-architecture/scripts"), ["repo-facts", "validate", "render-html"]));
+  results.push(await buildScripts(join(out, "skills/aisus-architecture/scripts"), ["repo-facts", "match-ids", "validate", "render-html"]));
   results.push(await buildScripts(join(out, "skills/aisus-bugfix/scripts"), ["session", "session-hook"]));
   // The refresh skill reads the same format reference as the architecture skill (FRS-05).
   cpSync(join(root, "skills/aisus-architecture/references"), join(out, "skills/aisus-refresh/references"), { recursive: true });

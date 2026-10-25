@@ -8,7 +8,7 @@ import { TEST_DIST } from "../support/buildScripts";
 import { repoRoot } from "../support/sourceScan";
 
 const SCRIPTS: Record<string, string[]> = {
-  "aisus-architecture": ["render-html.mjs", "repo-facts.mjs", "validate.mjs"],
+  "aisus-architecture": ["match-ids.mjs", "render-html.mjs", "repo-facts.mjs", "validate.mjs"],
   "aisus-audit": ["audit-record.mjs"],
   "aisus-bugfix": ["session-hook.mjs", "session.mjs"],
   "aisus-refresh": ["refresh-facts.mjs", "render-html.mjs", "validate.mjs"],
