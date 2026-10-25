@@ -1,5 +1,33 @@
 # Progress (v0.3)
 
+## Sidebar home proposal (owner request, 2026-10-25)
+
+The owner found the tabbed sidebar cluttered and chose variant A of three mockups: a status home with pages to click into, and no tabs. The home shows what the folder needs now. Every other feature stays one click away on its own page, with a back button.
+
+- **Home.** The header holds the folder, or its picker, and the agent dropdown. Below it come the run card while a run goes, then the current map card with its title, its status line and one filled button: "Refresh N boxes" when boxes changed, otherwise Open. Without a map, the composer takes the card's place under "Map this folder".
+- **Needs a look.** This lists only the Health lines that ask for attention, each opening its view. The freshness line is left out, because the map card already says it.
+- **Do.** This holds one row per page: Ask about the code, Review changes, Check my understanding and Maps (n). A Bug hunt row starts a learning session, or opens the running one and shows its step and score.
+- **Setup.** Setup is one collapsed line at the foot of the home. While a check fails, it moves to the top of the home and opens.
+- **Pages.** Ask, Review (Review changes, Rules and Hotspots), Learn (Practice and its log) and Maps (every map, each with a ⋯ that shows Refresh, Export page, Create tour and Delete, then New map with the composer and the run mode). Back or Escape returns home.
+- **Opening a page.** Work that starts anywhere opens the page that shows it: a run opens the home, an answer opens Ask and an explain-back opens Learn. The chosen page is kept while the view is hidden.
+
+| File or unit | Change | Estimate | Built |
+|---|---|---|---|
+| `packages/viewer/home.ts` | The tab strip becomes a home page and four pages with a back row. It adds the map card, Needs a look, the Do list and the ⋯ row on each map. The agent dropdown moves to the header. The composer and Setup move between the home and the pages. The Learning session section becomes the Bug hunt row | +200 / -150 | +173 / -115 |
+| `packages/viewer/sidebar.ts` | Keeps the page rather than the tab | ±6 | +4 / -4 |
+| `packages/viewer/sidebar.css` | Styles for the map card, the list rows, the back row and the ⋯ row. The tab styles go | +110 / -50 | +188 / -43 |
+| `test/dom/sidebar.test.ts` | The tab tests become page tests. The tests that read the header's status, the Learning session and the Health section follow their new places | +60 / -50 | +74 / -39 |
+| `docs/spec-v0.3.md` | UI-01's top-to-bottom list becomes the home and its pages. The table in §2 follows | +15 / -12 | +21 / -16, and README +3 / -3 |
+
+Tests, from UI-01's AC (the sidebar renders its states): the home shows the map card with Refresh when boxes changed and Open otherwise, and the composer without a map; Needs a look lists only the lines that need attention, without freshness; each Do row opens its page and Back or Escape returns home; a run, an answer and an explain-back each open their page; Setup moves to the top of the home and opens while a check fails; the ⋯ row shows each map's actions.
+
+Built on 2026-10-25. Where the build differs:
+
+- The pages are titled like the rows that open them: Ask about the code, Review changes, Check my understanding and Maps. The sections on those pages lost the titles that repeated the page's own.
+- The home's rows are rebuilt only when they change, so a focused row keeps its focus when a new state arrives on a save.
+- The stylesheet is larger than estimated, because the map card, the rows, the back button and the ⋯ row each need focus, hover and narrow-width rules.
+- The README's sidebar row and its Health and Practice lines follow the new places.
+
 ## Folder layout proposal (owner request, 2026-10-25)
 
 The owner chose a layout with shared code under `packages/` and one folder per shipped thing under `apps/`. `kerk/` stays at the root. Shared code is imported by package name through npm workspaces, so `../../src/model/maps` becomes `@aisus/core/model/maps`. Each move is its own commit, with every gate green.
@@ -823,6 +851,7 @@ The owner then asked that aisus be tied to nothing outside itself. The repositor
 
 ## Log
 
+- 2026-10-25 — The sidebar is a home with pages (variant A of three mockups), replacing the Map, Ask, Review and Learn tabs. Gates: typecheck exit 0; `npm run check` exit 0 (1249 passed, 1 skipped); `npm run test:e2e` exit 0 on VS Code 1.126.0 and 1.141.0 (single 91, empty 3, multi 2 each). Each of 7 deliberate breaks failed a test: freshness kept in Needs a look, Setup not leading while failing, Refresh never offered, no focus on Back, a run not opening the home, Escape ignored, and the ⋯ row always open. Rendered at 300 px in a dark theme: the home with changed boxes, with none, without a map, with Setup failing and with a bug hunt running, and the Review, Maps, Ask and Check my understanding pages.
 - 2026-10-25 — Two problems found during the layout work, left as they are. The cloud's image answers 500 on `/docs`, because it copies neither `README.md` nor `docs/`; the commit before the layout work does the same, so aisus.dev likely serves no docs pages. SKL-02's e2e test "Tour opens each stop's code beside the map" fails now and then waiting for the first stop's lines to be selected: once in two runs before the layout work and twice in five after it, and it passed alone each time it was rerun.
 - 2026-10-25 — Four e2e tests failed on any machine with a real agent CLI installed: three Codex launches in FR-GEN-01 and the Devin learning session's happy path. Each test stubs one agent in front of the inherited PATH. The extension found the real `claude` as well and asked which agent to use, and no test answered. VS Code under test now gets a PATH without the folders that hold `claude`, `codex` or `devin`, with links to `git` and `node`. It also starts with `--force-disable-user-env`, because on macOS VS Code otherwise adds the login shell's PATH back. `npm run test:e2e` exit 0 on VS Code 1.126.0 and 1.141.0 (single 91, empty 3, multi 2 each), which also covers the 1.141.0 rerun the sidebar tabs waited for.
 - 2026-10-25 — On macOS the e2e runs opened a "keychain not found" dialog. `@vscode/test-electron` passes `extensionTestsEnv` to the whole VS Code process, so VS Code itself ran with the temporary `HOME`, where macOS has no keychain. The runner now starts VS Code with `--use-inmemory-secretstorage` and `--use-mock-keychain` and keeps the temporary `HOME`. The single scenario on VS Code 1.126.0 then ran in 43 s with 87 passing, against 2 to 4 minutes and 62 to 82 passing before. Four tests still fail, as they did on the untouched tree: three Codex launches in FR-GEN-01 and the Devin learning session's happy path.

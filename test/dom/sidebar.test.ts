@@ -81,9 +81,10 @@ function click(label: string): void {
 }
 
 describe("UI-01 sidebar states", () => {
-  test("empty: no map yet, the composer and its notes, and Generate posts the typed focus", () => {
+  test("empty: the home asks to map the folder, with the composer and its notes, and Generate posts the typed focus", () => {
     home.render(state({ composer: { ...state().composer, notes: ["Installs the aisus-architecture skill in ~/.claude/skills/."] } }));
-    expect(text(".header__status")).toEqual(["No map yet"]);
+    expect(text("#page-home .current .section__title")).toEqual(["Map this folder"]);
+    expect(container.querySelector("#page-home .composer")).not.toBeNull();
     expect(text(".composer__note")).toEqual(["Installs the aisus-architecture skill in ~/.claude/skills/."]);
     expect(container.querySelector(".maps")).toBeNull();
     container.querySelector<HTMLTextAreaElement>(".composer__focus")!.value = "payment flow";
@@ -98,9 +99,18 @@ describe("UI-01 sidebar states", () => {
     expect(container.querySelector<HTMLTextAreaElement>(".composer__focus")!.value).toBe("half typed");
   });
 
-  test("maps: newest first with focus, agent, age and boxes; Open, Refresh and Delete post the file", () => {
+  test("maps: newest first with focus, agent, age and boxes; the title opens, and ⋯ shows Refresh and Delete, which post the file", () => {
     home.render(state({ maps: [map({ focus: "payments" }), map({ title: null, runFolder: "architecture-old-20261001-090000", file: "/r/old.json", agent: null, boxes: 1, createdAt: "2026-10-01T09:00:00Z" })] }));
-    expect(text(".header__status")).toEqual(["Map from 2 days ago · 16 boxes"]);
+    expect(text(".current__status")).toEqual(["Map from 2 days ago · 16 boxes"]);
+    const more = container.querySelector<HTMLButtonElement>(".map__more")!;
+    const actions = (): HTMLElement => container.querySelector<HTMLElement>(".map__actions")!;
+    expect(actions().hidden).toBe(true);
+    more.click();
+    expect(actions().hidden).toBe(false);
+    expect(more.getAttribute("aria-expanded")).toBe("true");
+    expect(text(".map:first-child .map__actions button")).toEqual(["Refresh", "Export page", "Create tour", "Delete"]);
+    home.render(state({ maps: [map({ focus: "payments" }), map({ title: null, runFolder: "architecture-old-20261001-090000", file: "/r/old.json", agent: null, boxes: 1, createdAt: "2026-10-01T09:00:00Z" })] }));
+    expect(actions().hidden).toBe(false);
     expect(text(".map__title")).toEqual(["aisus", "architecture-old-20261001-090000"]);
     expect(text(".map__meta")).toEqual(["payments · Claude Code · 2 days ago · 16 boxes", "17 days ago · 1 box"]);
     click("Delete");
@@ -151,12 +161,12 @@ describe("UI-01 sidebar states", () => {
     expect(text(".setup > summary")).toEqual(["Setup · checking…"]);
   });
 
-  test("session active: phase, step and score with Open session; otherwise Start", () => {
+  test("session active: the Bug hunt row shows phase, step and score and opens the session; otherwise it starts one", () => {
     home.render(state());
-    click("Start learning session");
+    container.querySelector<HTMLButtonElement>(".row--hunt")!.click();
     home.render(state({ session: { phase: "hunting", stepIndex: 1, stepsTotal: 4, score: 30 } }));
     expect(text(".learning__status")).toEqual(["Hunting · Step 2 of 4 · Score 30"]);
-    click("Open session");
+    container.querySelector<HTMLButtonElement>(".row--hunt")!.click();
     expect(posted).toEqual([{ type: "startLearning" }, { type: "openSession" }]);
   });
 
@@ -185,41 +195,67 @@ describe("UI-01 sidebar states", () => {
   });
 });
 
-describe("UI-01 tabs", () => {
-  const shown = (): string[] => [...container.querySelectorAll<HTMLElement>(".panel")].filter((panel) => !panel.hidden).map((panel) => panel.id);
-  const tab = (id: string): HTMLElement => container.querySelector<HTMLElement>(`[data-tab="${id}"]`)!;
+describe("UI-01 home and pages", () => {
+  const shown = (): string[] => [...container.querySelectorAll<HTMLElement>(".page")].filter((page) => !page.hidden).map((page) => page.id);
+  const row = (page: string): HTMLButtonElement => container.querySelector<HTMLButtonElement>(`.do [data-page="${page}"]`)!;
 
-  test("Map, Ask, Review and Learn each show their own sections, and the arrow keys move between them", () => {
-    home.render(state({ maps: [map({})] }));
-    expect(text("[role=tab]")).toEqual(["Map", "Ask", "Review", "Learn"]);
-    expect(shown()).toEqual(["panel-map"]);
-    expect(container.querySelector("#panel-map .composer")).not.toBeNull();
-    expect(container.querySelector("#panel-ask .ask")).not.toBeNull();
-    expect(container.querySelector("#panel-review .review")).not.toBeNull();
-    expect(container.querySelector("#panel-learn .practice")).not.toBeNull();
-    tab("review").click();
-    expect(shown()).toEqual(["panel-review"]);
-    expect(tab("review").getAttribute("aria-selected")).toBe("true");
-    tab("review").dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowRight" }));
-    expect(shown()).toEqual(["panel-learn"]);
-    tab("learn").dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowRight" }));
-    expect(shown()).toEqual(["panel-map"]);
-    home.render(state({ maps: [map({})] }));
-    expect(shown()).toEqual(["panel-map"]);
+  test("the map card offers Refresh when boxes changed, and Open as its one filled button otherwise", () => {
+    home.render(state({ maps: [map({ changed: 3 })] }));
+    expect(text(".current__status")).toEqual(["Map from 2 days ago · 16 boxes · 3 changed"]);
+    expect(text(".current .button--primary")).toEqual(["Refresh 3 boxes"]);
+    click("Refresh 3 boxes");
+    home.render(state({ maps: [map({ changed: 0 })] }));
+    expect(text(".current .button--primary")).toEqual(["Open"]);
+    expect(text(".current .button")).toEqual(["Open"]);
+    click("Open");
+    expect(posted).toEqual([
+      { type: "refreshMap", file: map({}).file },
+      { type: "openMap", file: map({}).file },
+    ]);
   });
 
-  test("Setup sits above the tabs only while a check fails", () => {
+  test("each row opens its page with the sections it holds, and Back or Escape returns home", () => {
+    home.render(state({ maps: [map({})] }));
+    expect(shown()).toEqual(["page-home"]);
+    expect(text(".do .row__label")).toEqual(["Ask about the code", "Review changes", "Check my understanding", "Bug hunt", "Maps"]);
+    for (const [page, part] of [["ask", ".ask"], ["review", ".review"], ["learn", ".practice"], ["maps", ".maps"]] as const) {
+      row(page).click();
+      expect(shown()).toEqual([`page-${page}`]);
+      expect(container.querySelector(`#page-${page} ${part}`)).not.toBeNull();
+      expect(document.activeElement).toBe(container.querySelector(`#page-${page} .page__back`));
+      if (page === "review") container.querySelector<HTMLElement>(`#page-${page} .page__back`)!.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true }));
+      else container.querySelector<HTMLButtonElement>(`#page-${page} .page__back`)!.click();
+      expect(shown()).toEqual(["page-home"]);
+      expect(document.activeElement).toBe(row(page));
+    }
+    expect(container.querySelector("#page-maps .new-map .composer")).not.toBeNull();
+    row("ask").click();
+    home.render(state({ maps: [map({})] }));
+    expect(shown()).toEqual(["page-ask"]);
+  });
+
+  test("without a map, the home has no Review or Maps row", () => {
+    home.render(state());
+    expect(text(".do .row__label")).toEqual(["Ask about the code", "Check my understanding", "Bug hunt"]);
+  });
+
+  test("Setup leads the home, open, only while a check fails", () => {
     home.render(state({ setup: [{ id: "node", ok: false, detail: "Node not found" }] }));
-    expect(container.querySelector(".setup")!.nextElementSibling?.className).toBe("tabs");
+    expect(container.querySelector("#page-home")!.firstElementChild?.classList.contains("setup")).toBe(true);
     home.render(state());
-    expect(container.querySelector(".setup")!.closest(".panel")?.id).toBe("panel-map");
+    expect(container.querySelector("#page-home")!.lastElementChild?.classList.contains("setup")).toBe(true);
   });
 
-  test("a run that starts opens the Map tab", () => {
-    home.render(state());
-    tab("learn").click();
-    home.render(state({ run: run({}) }));
-    expect(shown()).toEqual(["panel-map"]);
+  test("a run opens the home, an answer opens Ask and an explain-back opens Learn", () => {
+    home.render(state({ maps: [map({})] }));
+    row("learn").click();
+    home.render(state({ maps: [map({})], run: run({}) }));
+    expect(shown()).toEqual(["page-home"]);
+    const turn = { question: "How?", blocks: [], status: "running" as const, error: null, agent: "Claude Code", usage: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 }, costUsd: null };
+    home.render(state({ maps: [map({})], ask: { blocked: null, turns: [turn], estimate: null, confirm: false } }));
+    expect(shown()).toEqual(["page-ask"]);
+    home.render(state({ maps: [map({})], practice: { blocked: null, estimate: null, confirm: false, check: { scope: "This branch", status: "running", error: null, questions: [] }, log: [] } }));
+    expect(shown()).toEqual(["page-learn"]);
   });
 });
 
@@ -379,7 +415,7 @@ describe("ARC-03 Hotspots", () => {
 });
 
 describe("ARC-05 Health", () => {
-  test("each line shows, the ones that need a look stand out, and a click opens its view", () => {
+  test("the home lists only the lines that need a look, without freshness, which the map card says, and a click opens its view", () => {
     home.render(state({
       maps: [map({})],
       health: [
@@ -389,11 +425,10 @@ describe("ARC-05 Health", () => {
         { kind: "hotspot", text: "API changed most, with 9 commits in the last 90 days.", attention: false },
       ],
     }));
-    expect(text(".health__open")).toEqual(["3 of 16 boxes changed since the map.", "Every changed line since the map is in a box.", "1 import breaks a rule.", "API changed most, with 9 commits in the last 90 days."]);
-    expect([...container.querySelectorAll(".health__item")].map((item) => item.classList.contains("health__item--attention"))).toEqual([true, false, true, false]);
-    for (const label of ["3 of 16 boxes changed since the map.", "Every changed line since the map is in a box.", "1 import breaks a rule.", "API changed most, with 9 commits in the last 90 days."]) click(label);
-    expect(posted).toEqual(["freshness", "uncovered", "violations", "hotspot"].map((item) => ({ type: "openHealth", item })));
-    home.render(state({ maps: [map({})], health: null }));
+    expect(text("#page-home .health__open")).toEqual(["1 import breaks a rule."]);
+    click("1 import breaks a rule.");
+    expect(posted).toEqual([{ type: "openHealth", item: "violations" }]);
+    home.render(state({ maps: [map({})], health: [{ kind: "uncovered", text: "Every changed line since the map is in a box.", attention: false }] }));
     expect(container.querySelector(".health")).toBeNull();
   });
 });

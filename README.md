@@ -76,7 +76,7 @@ Every command is also in the Command Palette under "aisus".
 | Place | What's there |
 |---|---|
 | Activity Bar | The aisus icon, which opens the sidebar |
-| Sidebar | The folder and its map status, the composer (focus, agent, run mode and Generate), the live run, your maps, Review changes, the setup checklist, Practice, learning sessions and Ask |
+| Sidebar | A home with the folder and agent, the live run, the newest map with its one next step, what needs a look and the setup checklist. Its rows open Ask about the code, Review changes, Check my understanding, Bug hunt and your maps, where New map holds the composer |
 | Sidebar title bar | Refresh and Check Setup |
 | Editor title, any file | Show in Map |
 | Editor title, map | Refresh Architecture, Show Changes on Diagram, Export Page, Audit Map, Show Hotspots and Tour, with Compare With…, Write Architecture Notes for Agents, Create Tour and Save Image in its menu |
@@ -105,12 +105,12 @@ Every command is also in the Command Palette under "aisus".
 - **Tour** in the map's title bar plays the map's tour. Each stop marks a box, opens its code beside the map, explains it and asks a question, and **Show answer** gives the answer. **Create tour** in the maps list asks your agent to write one.
 - **Audit Map** asks your agent to check each box against its cited code. Doubtful boxes are drawn dotted, and arrows with no import evidence grey and dashed. **Hide Checks** in the map's title bar hides them.
 - **This Box Is Wrong…** on a box saves your note beside the map and offers to refresh that box.
-- **Health** at the top of the sidebar says whether boxes changed since the map, how many changed lines no box covers, whether any import breaks a rule, and which box changes most. Each line opens its view.
+- **Needs a look** on the sidebar's home says how many changed lines no box covers and whether any import breaks a rule. Each line opens its view. The map card above it says how many boxes changed since the map.
 - **Review changes** in the sidebar compares a branch with its base. When the branch has its own newer map, **Compare with base map** draws what changed, and **Update map for this branch** refreshes the map for the new folders and changed boxes the review found.
 - **Compare With…** in the map's title-bar menu draws what changed since another map. New boxes and arrows are outlined, and removed ones are drawn see-through. aisus cloud's map history offers the same.
 - **Write Architecture Notes for Agents** puts the map's boxes, arrows and rules into `AGENTS.md`, between aisus's markers, so coding agents follow the architecture. It writes `CLAUDE.md` too when that file does not import `AGENTS.md`. Your own text stays as it is, and each file shows as a diff first.
 - **Show Hotspots** in the map's title bar tints each box by how often its code changed over the last 90 days (`aisus.hotspots.days`). The tooltip gives the commits, lines changed and number of authors, and the sidebar lists the five busiest boxes.
-- **Practice** in the sidebar checks your understanding of this branch's changes, the uncommitted changes or a box. Your agent asks three questions, and grades each answer with a link to the code. The expected answers never reach the sidebar, and the results stay in VS Code's storage for the workspace. Below them, the section lists your finished bug hunts, explain-backs and tours, with their dates.
+- **Check my understanding** in the sidebar checks your understanding of this branch's changes, the uncommitted changes or a box. Your agent asks three questions, and grades each answer with a link to the code. The expected answers never reach the sidebar, and the results stay in VS Code's storage for the workspace. Below them, the page lists your finished bug hunts, explain-backs and tours, with their dates.
 - **Rules** in `aisus.config.json` say which boxes may import which. An import that breaks one shows in the Problems panel at its line, as a red arrow on the map, and in the pull request check. Right-click an arrow to forbid it or a box to limit who imports it, or use Suggest rules in the sidebar. Every change to the file shows as a diff first.
 
 ## Commit your map

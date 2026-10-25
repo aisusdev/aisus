@@ -109,14 +109,14 @@ Every command remains in the Command Palette, but none needs it (UI-01 AC). Item
 | Place | What's there |
 |---|---|
 | Activity Bar (left) | The aisus icon, which opens the aisus sidebar |
-| Sidebar | Folder and map status · composer (focus, agent, run mode, Generate) · live run card · maps list · Review changes · setup checklist · learning session · Ask chat; later Rules, Health and Practice |
+| Sidebar | Home: folder and agent · live run card · map card · Needs a look · rows to Ask, Review changes, Check my understanding, Bug hunt and Maps · setup checklist. Each row opens its page |
 | Sidebar title bar | Refresh list, Check setup |
 | Editor title (top right), any file | "Show in Map" |
 | Editor title (top right), map panel | Refresh, Show changes, Export page; later Checks, Hotspots, Tour, Find, Save image |
 | Status bar | `aisus` · `aisus: generating 1:32` · `aisus: 3 changed` |
 | Explorer right-click | "Map this folder with aisus", "Show in architecture map" |
 | Box right-click | Open code · Refresh this box; later Map this box in detail · This box is wrong… · rule actions · Check my understanding |
-| Maps list item | Open · Refresh · Export page · Delete; later Compare with… · Create tour · Share |
+| Maps list item | The title opens the map · ⋯ shows Refresh · Export page · Create tour · Delete; later Compare with… · Share |
 | Pull request comment (GitHub) | Delta report, Mermaid diagram, pass/fail check |
 | aisus cloud | `/<owner>/<repo>` map pages · `/<owner>/<repo>/pull/<n>` PR pages · public site and gallery; later the team dashboard |
 
@@ -232,20 +232,25 @@ AC: the manifest field and git argv `[unit]`; with `core.fsmonitor` set in `.git
 
 ### D2 The product in VS Code
 
-**UI-01 aisus sidebar.** `contributes.viewsContainers.activitybar` adds an aisus container with a monochrome icon (`apps/vscode/media/aisus.svg`). It holds one webview view, `aisus.home`, bundled as `dist/sidebar.js` under the same CSP rules as the map panel. Top to bottom:
+**UI-01 aisus sidebar.** `contributes.viewsContainers.activitybar` adds an aisus container with a monochrome icon (`apps/vscode/media/aisus.svg`). It holds one webview view, `aisus.home`, bundled as `dist/sidebar.js` under the same CSP rules as the map panel. It shows a home page, and the home's rows open the other pages. Each page starts with a back button, and Escape also returns home.
 
-1. **Header.** The folder, with a picker when the workspace has several, and the map status: "Map from 2 days ago · 16 boxes", or "No map yet".
-2. **Composer.**
+1. **Header.** The folder, with a picker when the workspace has several, and the agent dropdown listing the agents found on PATH.
+2. **Home.** Top to bottom:
+   - **Run card.** The current run (UI-02, CST-04).
+   - **Map card.** The newest map's title, which opens it, and its status: "Map from 2 days ago · 16 boxes · 3 changed". Its one filled button is "Refresh 3 boxes" when boxes changed, and Open otherwise. Without a map, the composer takes its place under "Map this folder".
+   - **Needs a look.** The Health lines that ask for attention (ARC-05), each opening its view. The freshness line is left out, because the map card says it.
+   - **Rows.** Ask about the code, Review changes, Check my understanding, Bug hunt and Maps, with the number of maps. Review changes and Maps show once a map exists. Bug hunt starts a learning session, or opens the running one and shows its phase, step k of n and score.
+   - **Setup.** SET-02's checklist, as one folded line at the foot. While a check fails, it leads the home and opens.
+3. **Ask about the code.** UI-06.
+4. **Review changes.** Review changes (PRC-02), Rules (ARC-02) and Hotspots (ARC-03).
+5. **Check my understanding.** The explain-back and its log (SKL-01, SKL-03).
+6. **Maps.** Every candidate in the folder, newest first, with the main map (PRC-01) marked: title, focus, agent, date, box count and freshness badge. The title opens the map. A ⋯ button shows the other actions in place: Refresh, Export page, Create tour and Delete (asks first). Below the list, New map holds the composer.
    - A text box: "What should the map focus on? (optional)".
-   - An agent dropdown listing the agents found on PATH.
    - A run-mode toggle ("In sidebar", which is UI-02, or "In terminal"), stored in `aisus.runMode`.
    - A Generate button.
    - One line under the button for what the click will do: the skill install (SET-01), the first-run data note, and the estimate once CST-03 exists.
-3. **Run card.** The current run (UI-02, CST-04).
-4. **Maps.** Every candidate in the folder, newest first, with the main map (PRC-01) marked: title, focus, agent, date, box count and freshness badge. Click opens the map. Item actions: Open, Refresh, Export page, Delete (asks first).
-5. **Sections added by later features:** Review changes (PRC-02), Ask (UI-06), and the iterate track's sections.
-6. **Setup.** SET-02's checklist: expanded when a check fails, collapsed otherwise.
-7. **Learning session.** When a session is active: phase, step k of n, score and "Open session". Otherwise "Start learning session".
+
+Work that starts anywhere opens the page that shows it. A run opens the home, an answer opens Ask and an explain-back opens Check my understanding. The chosen page is kept while the view is hidden.
 
 Host↔sidebar messages are typed in `packages/core/model/messages.ts`.
 
@@ -280,7 +285,7 @@ AC: contributions and `when` clauses `[unit]`; Show in Map highlights the citing
 
 AC: contributions `[unit]`; context data per box `[dom]`; the folder action launches with that focus `[e2e]`.
 
-**UI-06 Ask about the map.** A chat box at the bottom of the sidebar asks the user's agent about the repository, with the shown map as the guide.
+**UI-06 Ask about the map.** A chat box on the sidebar's Ask about the code page asks the user's agent about the repository, with the shown map as the guide.
 - **Prompt.** It names the candidate's path, tells the agent to read it first, answer from the cited code, and cite `path:line` for every claim.
 - **Claude Code:** `claude -p "<prompt>" --output-format stream-json --verbose --permission-mode dontAsk --allowedTools Read,Grep,Glob`. Follow-ups resume with `--resume <session_id>`.
 - **Codex:** `codex exec --json --sandbox read-only "<prompt>"`, one question per run.
@@ -628,7 +633,7 @@ Every config write shows a diff preview first. AC: `[dom]` `[unit]` `[e2e]`.
 
 **ARC-04 Architecture notes for agents.** `aisus: Write Architecture Notes for Agents` writes a managed block (`<!-- aisus:architecture:start -->` … `end`) into `AGENTS.md`: the boxes with their roles and paths, the arrows, and the rules in plain language. When `CLAUDE.md` exists without an `@AGENTS.md` import, the block goes there too. A diff preview comes before every write. AC: an idempotent merge, with user text untouched `[unit]`; `[e2e]`.
 
-**ARC-05 Architecture health.** The sidebar's "Health" section shows freshness, uncovered changed lines since the map, open violations and the top hotspot, each opening its view. AC: `[unit]` `[dom]`.
+**ARC-05 Architecture health.** The sidebar's "Needs a look" list shows uncovered changed lines since the map and open violations when they ask for attention, each opening its view. The map card shows freshness, and Hotspots shows the busiest boxes. AC: `[unit]` `[dom]`.
 
 **PRC-03 Branch maps.** When the branch has an accepted map newer than the main map at the merge-base, Review offers "Compare with base map" (FRS-07). "Update map for this branch" runs FRS-05 with `--paths` set to every candidate and stale box. AC: `[e2e]`.
 
@@ -636,7 +641,7 @@ Every config write shows a diff preview first. AC: `[dom]` `[unit]` `[e2e]`.
 
 ### I4 Skill retention
 
-**SKL-01 Explain-back.** The sidebar's "Practice" section, and `aisus: Check My Understanding`, offer three scopes: this branch's changes, uncommitted changes, or a box. It uses UI-06's read-only agent.
+**SKL-01 Explain-back.** The sidebar's "Check my understanding" page, and `aisus: Check My Understanding`, offer three scopes: this branch's changes, uncommitted changes, or a box. It uses UI-06's read-only agent.
 1. A generation call returns three questions, each with an answer key and a `path:line`, validated by `packages/core/model/practice.ts`.
 2. Only the questions reach the sidebar. The keys stay in the extension host.
 3. For each answer, a grading call returns `correct`, `partial` or `wrong`, with one sentence and a link to the code.
@@ -645,7 +650,7 @@ Results stay in workspace state and are never uploaded. AC: prompts and schema `
 
 **SKL-02 Guided tours.** The skill `aisus-tour` writes `tour.json` through `tour-record.mjs`: 4–12 ordered stops, each with `component`, `title`, `explanation` (at most 400 characters), `question`, `answer` and `citation`, all validated. The map's title-bar "Tour" plays it: it highlights the box, opens its code beside, explains, asks, and lets the user reveal the answer. Tours are committed with the map, and the cloud plays them on map pages. AC: recorder `[unit]`; player `[dom]`; `[e2e]`.
 
-**SKL-03 Practice log.** The "Practice" section lists bug-hunt sessions, explain-back scores and finished tours, with dates. Local and private. AC: `[unit]` `[dom]`.
+**SKL-03 Practice log.** The "Check my understanding" page lists bug-hunt sessions, explain-back scores and finished tours, with dates. Local and private. AC: `[unit]` `[dom]`.
 
 **LRN-01 Learning sessions on Claude Code and Codex.** Start Learning offers Claude Code and Codex as well as Devin. Hunt-phase hooks follow SAF-06's lifecycle:
 - **Claude Code:** PreToolUse in `.claude/settings.local.json`, matcher `Edit|Write|NotebookEdit|Agent`. Exit 2 blocks.

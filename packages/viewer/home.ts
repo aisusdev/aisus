@@ -1,5 +1,5 @@
-// The aisus sidebar's DOM (UI-01) is a header, the Map, Ask, Review and Learn tabs, and Setup above the tabs
-// while a check fails. It is built from the HomeState the host sends, and every string goes in as text.
+// The aisus sidebar's DOM (UI-01) is a header and a home page whose rows open the Ask, Review, Learn and
+// Maps pages. It is built from the HomeState the host sends, and every string goes in as text.
 // The composer's text box persists across states. Typing survives updates.
 import { mapStatus, relativeAge, runFigures, tokenCount } from "@aisus/core/model/home";
 import type { AskTurn, AskView, HomeState, HomeWebviewMessage, MapItem, PracticeQuestionView, PracticeView, ReviewView, RunCard } from "@aisus/core/model/messages";
@@ -25,7 +25,7 @@ function button(label: string, className: string, onClick: () => void): HTMLButt
 
 function section(title: string, className: string): HTMLElement {
   const node = el("section", `section ${className}`);
-  node.append(el("h2", "section__title", title));
+  if (title !== "") node.append(el("h2", "section__title", title));
   return node;
 }
 
@@ -57,19 +57,20 @@ export function phaseLine(run: RunCard): string | null {
   }
 }
 
-/** The sidebar's tabs, in order, with what each one says. */
-export const TABS = [
-  ["map", "Map"],
-  ["ask", "Ask"],
-  ["review", "Review"],
-  ["learn", "Learn"],
+/** The sidebar's pages: the home, and the pages its rows open, each with its title. */
+export const PAGES = [
+  ["home", "aisus"],
+  ["ask", "Ask about the code"],
+  ["review", "Review changes"],
+  ["learn", "Check my understanding"],
+  ["maps", "Maps"],
 ] as const;
-export type Tab = (typeof TABS)[number][0];
+export type Page = (typeof PAGES)[number][0];
 
-/** Where the chosen tab is kept while the view is hidden. */
-export interface TabStore {
-  get(): Tab | null;
-  set(tab: Tab): void;
+/** Where the chosen page is kept while the view is hidden. */
+export interface PageStore {
+  get(): Page | null;
+  set(page: Page): void;
 }
 
 export interface Home {
@@ -79,9 +80,9 @@ export interface Home {
 }
 
 /** Builds the sidebar in `container`. `now` gives the host's clock. */
-export function createHome(container: HTMLElement, post: Post, now: () => Date = () => new Date(), store: TabStore | null = null): Home {
+export function createHome(container: HTMLElement, post: Post, now: () => Date = () => new Date(), store: PageStore | null = null): Home {
   const header = el("header", "header");
-  const composer = el("section", "section composer");
+  const composer = el("div", "composer");
   const focus = el("textarea", "composer__focus");
   focus.rows = 2;
   focus.placeholder = "Focus (optional)";
@@ -108,20 +109,24 @@ export function createHome(container: HTMLElement, post: Post, now: () => Date =
     if (event.key === "Enter" && (event.metaKey || event.ctrlKey) && !generate.disabled) generate.click();
   });
   const runSlot = el("div", "run-slot");
+  const currentSlot = el("div", "current-slot");
+  const attentionSlot = el("div", "attention-slot");
+  const doSlot = el("div", "do-slot");
   const maps = el("div", "maps-slot");
+  // The maps whose ⋯ row is open, kept across states.
+  const expanded = new Set<string>();
+  const newMap = section("New map", "new-map");
   const reviewSlot = el("div", "review-slot");
   const rulesSlot = el("div", "rules-slot");
   const hotspotsSlot = el("div", "hotspots-slot");
-  const healthSlot = el("div", "health-slot");
   const setup = el("details", "section setup");
-  const session = el("div", "session-slot");
   // SKL-01: rebuilt only when the practice view changes, so an answer being typed keeps its box.
   const practiceSlot = el("div", "practice-slot");
   let practiceKey = "";
   let practiceArmed: string | null = null;
   const drafts = new Map<string, string>();
   // UI-06: the Ask chat sits at the bottom; its text box persists like the composer's.
-  const askSection = section("Ask", "ask");
+  const askSection = section("", "ask");
   const askTurns = el("div", "ask__turns");
   const askNote = el("p", "ask__note");
   const askEstimate = el("p", "ask__estimate");
@@ -151,59 +156,49 @@ export function createHome(container: HTMLElement, post: Post, now: () => Date =
   question.addEventListener("keydown", (event) => {
     if (event.key === "Enter" && (event.metaKey || event.ctrlKey) && !askButton.disabled) askButton.click();
   });
-  // The tab strip follows the WAI-ARIA tabs pattern, and each panel keeps its elements between states.
-  const tablist = el("div", "tabs");
-  tablist.setAttribute("role", "tablist");
-  tablist.setAttribute("aria-label", "aisus");
-  const panels = new Map<Tab, HTMLElement>();
-  const tabs = new Map<Tab, HTMLElement>();
-  for (const [id, label] of TABS) {
-    const tab = el("div", "tab", label);
-    tab.id = `tab-${id}`;
-    tab.dataset["tab"] = id;
-    tab.setAttribute("role", "tab");
-    tab.setAttribute("aria-controls", `panel-${id}`);
-    tab.addEventListener("click", () => selectTab(id, true));
-    tab.addEventListener("keydown", (event) => {
-      const index = TABS.findIndex(([entry]) => entry === id);
-      const next = event.key === "ArrowRight" ? index + 1 : event.key === "ArrowLeft" ? index - 1 : event.key === "Home" ? 0 : event.key === "End" ? TABS.length - 1 : null;
-      if (next === null) return;
-      event.preventDefault();
-      selectTab(TABS[(next + TABS.length) % TABS.length]![0], true);
-    });
-    tabs.set(id, tab);
-    tablist.append(tab);
-    const panel = el("div", `panel panel--${id}`);
-    panel.id = `panel-${id}`;
-    panel.setAttribute("role", "tabpanel");
-    panel.setAttribute("aria-labelledby", tab.id);
-    panels.set(id, panel);
-  }
-  panels.get("map")!.append(composer, runSlot, maps, setup);
-  panels.get("ask")!.append(askSection);
-  panels.get("review")!.append(healthSlot, reviewSlot, rulesSlot, hotspotsSlot);
-  panels.get("learn")!.append(practiceSlot, session);
-  container.append(header, tablist, ...panels.values());
-  let selected: Tab = "map";
-
-  function selectTab(id: Tab, focusTab = false): void {
-    selected = id;
-    for (const [entry, tab] of tabs) {
-      const on = entry === id;
-      tab.classList.toggle("tab--on", on);
-      tab.setAttribute("aria-selected", String(on));
-      tab.tabIndex = on ? 0 : -1;
-      panels.get(entry)!.hidden = !on;
+  // Each page keeps its elements between states. Every page but the home opens with a back button.
+  const pages = new Map<Page, HTMLElement>();
+  const backs = new Map<Page, HTMLButtonElement>();
+  for (const [id, title] of PAGES) {
+    const page = el("div", `page page--${id}`);
+    page.id = `page-${id}`;
+    if (id !== "home") {
+      const back = button(title, "page__back", () => showPage("home", true));
+      back.setAttribute("aria-label", `Back from ${title}`);
+      backs.set(id, back);
+      page.append(back);
     }
-    if (focusTab) tabs.get(id)!.focus();
+    pages.set(id, page);
+  }
+  pages.get("home")!.append(runSlot, currentSlot, attentionSlot, doSlot, setup);
+  pages.get("ask")!.append(askSection);
+  pages.get("review")!.append(reviewSlot, rulesSlot, hotspotsSlot);
+  pages.get("learn")!.append(practiceSlot);
+  pages.get("maps")!.append(maps, newMap);
+  container.append(header, ...pages.values());
+  container.addEventListener("keydown", (event) => {
+    const typing = event.target instanceof HTMLTextAreaElement || event.target instanceof HTMLInputElement;
+    if (event.key === "Escape" && selected !== "home" && !typing) showPage("home", true);
+  });
+  let selected: Page = "home";
+
+  /** Shows `id`. With `moveFocus`, focus goes to the page's back button, or home to the row that opened the page. */
+  function showPage(id: Page, moveFocus = false): void {
+    const from = selected;
+    selected = id;
+    for (const [entry, page] of pages) page.hidden = entry !== id;
     store?.set(id);
+    if (!moveFocus) return;
+    if (id === "home") doSlot.querySelector<HTMLElement>(`[data-page="${from}"]`)?.focus();
+    else backs.get(id)?.focus();
   }
   const stored = store?.get() ?? null;
-  selectTab(TABS.some(([entry]) => entry === stored) && stored !== null ? stored : "map");
+  showPage(PAGES.some(([entry]) => entry === stored) && stored !== null ? stored : "home");
 
   let current: HomeState | null = null;
   let figures: HTMLElement | null = null;
   let setupFailing: boolean | null = null;
+  let doKey = "";
 
   function renderHeader(state: HomeState): void {
     header.replaceChildren();
@@ -225,15 +220,9 @@ export function createHome(container: HTMLElement, post: Post, now: () => Date =
     } else {
       header.append(el("div", "header__folder", state.folders[0]?.name ?? ""));
     }
-    header.append(el("div", "header__status", mapStatus(state.maps, now())));
-  }
-
-  function renderComposer(state: HomeState): void {
-    controls.replaceChildren();
-    const running = state.run?.status === "running";
-    focus.disabled = state.root === null;
+    // Ask, Review, Explain back and Refresh all use the chosen agent, so it sits in the header.
     if (state.composer.agents.length === 0) {
-      controls.append(el("span", "composer__none", "No agent found."));
+      header.append(el("span", "composer__none", "No agent found."));
     } else {
       const agent = el("select", "composer__agent");
       agent.setAttribute("aria-label", "Agent");
@@ -244,8 +233,14 @@ export function createHome(container: HTMLElement, post: Post, now: () => Date =
         agent.append(option);
       }
       agent.addEventListener("change", () => post({ type: "setAgent", agent: agent.value === "codex" || agent.value === "devin" ? agent.value : "claude" }));
-      controls.append(agent);
+      header.append(agent);
     }
+  }
+
+  function renderComposer(state: HomeState): void {
+    controls.replaceChildren();
+    const running = state.run?.status === "running";
+    focus.disabled = state.root === null;
     const mode = el("div", "toggle");
     mode.setAttribute("role", "group");
     mode.setAttribute("aria-label", "Run mode");
@@ -305,22 +300,110 @@ export function createHome(container: HTMLElement, post: Post, now: () => Date =
     ].filter(
       (part): part is string => part !== null && part !== "",
     );
+    // The title opens the map. The ⋯ button shows the rest of its actions in place.
     const actions = el("div", "map__actions");
+    actions.id = `map-actions-${item.runFolder}`;
+    actions.hidden = !expanded.has(item.file);
     actions.append(
-      button("Open", "link", () => post({ type: "openMap", file: item.file })),
       button("Refresh", "link", () => post({ type: "refreshMap", file: item.file })),
       button("Export page", "link", () => post({ type: "exportMap", file: item.file })),
       button("Create tour", "link", () => post({ type: "createTour", file: item.file })),
       button("Delete", "link link--danger", () => post({ type: "deleteMap", file: item.file })),
     );
-    entry.append(open, el("div", "map__meta", meta.join(" · ")), actions);
+    const more = button("⋯", "map__more", () => {
+      if (expanded.has(item.file)) expanded.delete(item.file);
+      else expanded.add(item.file);
+      actions.hidden = !expanded.has(item.file);
+      more.setAttribute("aria-expanded", String(!actions.hidden));
+    });
+    more.setAttribute("aria-label", `More actions for ${item.title ?? item.runFolder}`);
+    more.setAttribute("aria-controls", actions.id);
+    more.setAttribute("aria-expanded", String(!actions.hidden));
+    const top = el("div", "map__top");
+    top.append(open, more);
+    entry.append(top, el("div", "map__meta", meta.join(" · ")), actions);
     return entry;
+  }
+
+  /** The home's first card: the newest map with one filled button, or the composer when there is no map. */
+  function renderCurrent(state: HomeState): void {
+    currentSlot.replaceChildren();
+    const newest = state.maps[0];
+    if (newest === undefined) {
+      const intro = section("Map this folder", "current current--empty");
+      intro.append(composer);
+      currentSlot.append(intro);
+      return;
+    }
+    newMap.append(composer);
+    const card = el("section", "current");
+    const title = button(newest.title ?? newest.runFolder, "current__title", () => post({ type: "openMap", file: newest.file }));
+    title.title = newest.runFolder;
+    const changed = newest.changed ?? 0;
+    const actions = el("div", "current__actions");
+    if (changed > 0) {
+      actions.append(
+        button(`Refresh ${changed} box${changed === 1 ? "" : "es"}`, "button button--primary", () => post({ type: "refreshMap", file: newest.file })),
+        button("Open", "button", () => post({ type: "openMap", file: newest.file })),
+      );
+    } else {
+      actions.append(button("Open", "button button--primary", () => post({ type: "openMap", file: newest.file })));
+    }
+    card.append(title, el("div", `current__status${changed > 0 ? " current__status--changed" : ""}`, mapStatus(state.maps, now())), actions);
+    currentSlot.append(card);
+  }
+
+  /** ARC-05: the Health lines that need a look, each opening its view. The map card already says what changed. */
+  function renderAttention(state: HomeState): void {
+    attentionSlot.replaceChildren();
+    const items = (state.health ?? []).filter((item) => item.attention && item.kind !== "freshness");
+    if (state.root === null || state.maps.length === 0 || items.length === 0) return;
+    const block = section("Needs a look", "health");
+    const list = el("ul", "rows health__list");
+    for (const item of items) {
+      const entry = el("li", "health__item health__item--attention");
+      entry.append(button(item.text, "row health__open", () => post({ type: "openHealth", item: item.kind })));
+      list.append(entry);
+    }
+    block.append(list);
+    attentionSlot.append(block);
+  }
+
+  /** The home's list of what else there is to do. Each row opens its page, and Bug hunt starts or opens a session. */
+  function renderDo(state: HomeState): void {
+    const hasMap = state.maps.length > 0;
+    const session = state.session;
+    const hunt = session === null ? "" : `${session.phase[0]?.toUpperCase() ?? ""}${session.phase.slice(1)}${session.stepsTotal > 0 ? ` · Step ${Math.min(session.stepIndex + 1, session.stepsTotal)} of ${session.stepsTotal}` : ""} · Score ${session.score}`;
+    // The rows are rebuilt only when they change, so a focused row keeps its focus across states.
+    const key = JSON.stringify([state.root, hasMap && state.maps.length, hunt]);
+    if (key === doKey) return;
+    doKey = key;
+    doSlot.replaceChildren();
+    if (state.root === null) return;
+    const list = el("ul", "rows do");
+    const row = (label: string, meta: string, onClick: () => void, page: Page | null): void => {
+      const entry = button("", page === null ? "row row--hunt" : "row", onClick);
+      entry.append(el("span", "row__label", label));
+      if (meta !== "") entry.append(el("span", page === null ? "row__meta learning__status" : "row__meta", meta));
+      if (page !== null) entry.dataset["page"] = page;
+      const item = el("li");
+      item.append(entry);
+      list.append(item);
+    };
+    const open = (page: Page) => () => showPage(page, true);
+    const title = (page: Page): string => PAGES.find(([id]) => id === page)![1];
+    row(title("ask"), "", open("ask"), "ask");
+    if (hasMap) row(title("review"), "", open("review"), "review");
+    row(title("learn"), "", open("learn"), "learn");
+    row("Bug hunt", hunt, () => post(session === null ? { type: "startLearning" } : { type: "openSession" }), null);
+    if (hasMap) row(title("maps"), String(state.maps.length), open("maps"), "maps");
+    doSlot.append(list);
   }
 
   function renderMaps(items: MapItem[]): void {
     maps.replaceChildren();
     if (items.length === 0) return;
-    const list = section("Maps", "maps");
+    const list = section("", "maps");
     const entries = el("ul", "maps__list");
     for (const item of items) entries.append(mapEntry(item));
     list.append(entries);
@@ -347,21 +430,6 @@ export function createHome(container: HTMLElement, post: Post, now: () => Date =
     rulesSlot.append(block);
   }
 
-  /** ARC-05: the Health section, each line opening its view. */
-  function renderHealth(state: HomeState): void {
-    healthSlot.replaceChildren();
-    if (state.root === null || state.health === null || state.maps.length === 0) return;
-    const block = section("Health", "health");
-    const list = el("ul", "health__list");
-    for (const item of state.health) {
-      const entry = el("li", `health__item${item.attention ? " health__item--attention" : ""}`);
-      entry.append(button(item.text, "link health__open", () => post({ type: "openHealth", item: item.kind })));
-      list.append(entry);
-    }
-    block.append(list);
-    healthSlot.append(block);
-  }
-
   /** ARC-03: the five most changed boxes over the window. */
   function renderHotspots(state: HomeState): void {
     hotspotsSlot.replaceChildren();
@@ -380,7 +448,7 @@ export function createHome(container: HTMLElement, post: Post, now: () => Date =
   function renderReview(state: HomeState): void {
     reviewSlot.replaceChildren();
     if (state.root === null || state.maps.length === 0) return;
-    const block = section("Review changes", "review");
+    const block = section("", "review");
     block.append(button("Review changes…", "button", () => post({ type: "review" })));
     const review: ReviewView | null = state.review;
     if (review?.error) block.append(el("p", "review__error", review.error));
@@ -431,24 +499,12 @@ export function createHome(container: HTMLElement, post: Post, now: () => Date =
       }
       setup.append(list, button("Check again", "link", () => post({ type: "checkSetup" })));
     }
-    if (failing) tablist.before(setup);
-    else panels.get("map")!.append(setup);
+    // While a check fails, Setup leads the home, open. Otherwise it is one folded line at the foot.
+    const home = pages.get("home")!;
+    if (failing) home.prepend(setup);
+    else home.append(setup);
     if (checks !== null && failing !== setupFailing) setup.open = failing;
     if (checks !== null) setupFailing = failing;
-  }
-
-  function renderSession(state: HomeState): void {
-    session.replaceChildren();
-    if (state.root === null) return;
-    const block = section("Learning session", "learning");
-    if (state.session === null) {
-      block.append(button("Start learning session", "button", () => post({ type: "startLearning" })));
-    } else {
-      const { phase, stepIndex, stepsTotal, score } = state.session;
-      const step = stepsTotal > 0 ? ` · Step ${Math.min(stepIndex + 1, stepsTotal)} of ${stepsTotal}` : "";
-      block.append(el("div", "learning__status", `${phase[0]?.toUpperCase() ?? ""}${phase.slice(1)}${step} · Score ${score}`), button("Open session", "button", () => post({ type: "openSession" })));
-    }
-    session.append(block);
   }
 
   function practiceQuestion(scope: string, entry: PracticeQuestionView, index: number, busy: boolean): HTMLElement {
@@ -487,7 +543,7 @@ export function createHome(container: HTMLElement, post: Post, now: () => Date =
     practiceKey = key;
     practiceSlot.replaceChildren();
     if (root === null) return;
-    const block = section("Practice", "practice");
+    const block = section("", "practice");
     const check = view.check;
     const busy = check !== null && (check.status === "running" || check.questions.some((entry) => entry.status === "grading"));
     if (!view.confirm) practiceArmed = null;
@@ -562,26 +618,28 @@ export function createHome(container: HTMLElement, post: Post, now: () => Date =
 
   return {
     render(state) {
-      // Work that starts anywhere opens the tab that shows it.
+      // Work that starts anywhere opens the page that shows it.
       const started = (was: boolean | undefined, now: boolean): boolean => now && was !== true;
       const prev = current;
-      if (started(prev?.run?.status === "running", state.run?.status === "running")) selectTab("map");
-      else if (started(prev?.ask.turns.at(-1)?.status === "running", state.ask.turns.at(-1)?.status === "running")) selectTab("ask");
-      else if (started(prev?.practice.check?.status === "running", state.practice.check?.status === "running")) selectTab("learn");
+      if (started(prev?.run?.status === "running", state.run?.status === "running")) showPage("home");
+      else if (started(prev?.ask.turns.at(-1)?.status === "running", state.ask.turns.at(-1)?.status === "running")) showPage("ask");
+      else if (started(prev?.practice.check?.status === "running", state.practice.check?.status === "running")) showPage("learn");
       current = state;
       renderHeader(state);
-      tablist.hidden = state.root === null;
-      if (state.root === null && selected !== "map") selectTab("map");
+      if (state.root === null && selected !== "home") showPage("home");
+      // A page that needs a map goes home when the last map goes.
+      if (state.maps.length === 0 && (selected === "review" || selected === "maps")) showPage("home");
       renderComposer(state);
       renderRun(state.run);
+      renderCurrent(state);
+      renderAttention(state);
+      renderDo(state);
       renderMaps(state.maps);
       renderReview(state);
       renderRules(state);
       renderHotspots(state);
-      renderHealth(state);
       renderSetup(state.setup);
       renderPractice(state.root, state.practice);
-      renderSession(state);
       renderAsk(state.ask);
     },
     tick() {
