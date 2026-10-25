@@ -1,7 +1,7 @@
 // UI-06: renders an answer's blocks as DOM nodes. Text only ever goes in as text; citations and
 // box names become buttons that ask the host, which checks them again.
-import type { Block, Span } from "../src/model/ask";
-import type { HomeWebviewMessage } from "../src/model/messages";
+import type { Block, Span } from "@aisus/core/model/ask";
+import type { HomeWebviewMessage } from "@aisus/core/model/messages";
 
 /** One span as a DOM node; a citation or box name becomes a button that asks the host. */
 export function spanNode(span: Span, post: (message: HomeWebviewMessage) => void): Node {

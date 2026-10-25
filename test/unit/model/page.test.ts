@@ -1,7 +1,7 @@
 // RCH-01: the page embeds the map as escaped JSON and allows only its own inline script and style.
 import { createHash } from "node:crypto";
 import { describe, expect, test } from "vitest";
-import { escapeJson, pageOutput, renderPage } from "../../../src/model/page";
+import { escapeJson, pageOutput, renderPage } from "@aisus/core/model/page";
 
 const ASSETS = { script: "console.log('viewer')", style: "body{margin:0}" };
 const HOSTILE = "</script><img src=x onerror=alert(1)>\u2028&";

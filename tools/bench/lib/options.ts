@@ -1,6 +1,6 @@
 // CST-06: the bench commands' options.
-import type { EstimateAgent } from "../../../src/model/estimate";
-import type { BenchKind } from "../../../src/model/fit";
+import type { EstimateAgent } from "@aisus/core/model/estimate";
+import type { BenchKind } from "@aisus/core/model/fit";
 import { DEFAULT_CAP_USD } from "./plan";
 
 export const BENCH_KINDS: readonly BenchKind[] = ["full", "refresh", "audit", "baseline", "assisted"];

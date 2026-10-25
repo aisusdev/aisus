@@ -7452,15 +7452,15 @@ var require__ = __commonJS({
   }
 });
 
-// src/agent/validate.ts
+// packages/core/agent/validate.ts
 import { readFileSync as readFileSync6 } from "node:fs";
 import { dirname as dirname4, join as join9 } from "node:path";
 
-// src/model/citations.ts
+// packages/core/model/citations.ts
 import { closeSync, openSync, readSync, realpathSync, statSync } from "node:fs";
 import { join, sep } from "node:path";
 
-// src/model/citationPath.ts
+// packages/core/model/citationPath.ts
 var MAX_PATH_LENGTH = 240;
 function citationPathOk(path) {
   if (path.length === 0 || path.length > MAX_PATH_LENGTH) return false;
@@ -7469,7 +7469,7 @@ function citationPathOk(path) {
   return path.split("/").every((segment) => segment !== "" && segment !== "." && segment !== "..");
 }
 
-// src/model/deny.ts
+// packages/core/model/deny.ts
 var DENIED_NAMES = [".git", ".archify", ".npmrc", ".pypirc", ".netrc"];
 var ENV_EXCEPTIONS = [".env.example", ".env.sample"];
 var DENIED_PREFIXES = ["id_rsa", "id_ed25519"];
@@ -7486,7 +7486,7 @@ function isDenied(path) {
   return path.split("/").some(segmentDenied);
 }
 
-// src/model/citations.ts
+// packages/core/model/citations.ts
 var MAX_CITED_BYTES = 2 * 1024 * 1024;
 var BINARY_SNIFF_BYTES = 8 * 1024;
 function countLines(bytes) {
@@ -7602,7 +7602,7 @@ function checkCitations(doc, root) {
   return issues;
 }
 
-// src/model/confine.ts
+// packages/core/model/confine.ts
 import { lstatSync, realpathSync as realpathSync2 } from "node:fs";
 import { dirname, isAbsolute, relative } from "node:path";
 function isWithin(parentReal, childReal) {
@@ -7633,7 +7633,7 @@ function assertWritable(root, path) {
   assertNotLink(path);
 }
 
-// src/model/ownership.ts
+// packages/core/model/ownership.ts
 var Ownership = class {
   byFile = /* @__PURE__ */ new Map();
   byDir = /* @__PURE__ */ new Map();
@@ -7677,7 +7677,7 @@ function add(map, key, id) {
   map.set(key, set);
 }
 
-// src/model/evidence/paths.ts
+// packages/core/model/evidence/paths.ts
 function joinPath(dir, rel) {
   const parts = dir === "" ? [] : dir.split("/");
   for (const part of rel.split("/")) {
@@ -7709,7 +7709,7 @@ var ImportSet = class {
   }
 };
 
-// src/model/evidence/java.ts
+// packages/core/model/evidence/java.ts
 var PACKAGE = /^\s*package\s+([\w.]+)\s*;/m;
 var IMPORT = /^\s*import\s+(static\s+)?([\w.]+?)(\.\*)?\s*;/gm;
 var baseName = (path) => path.slice(path.lastIndexOf("/") + 1).replace(/\.java$/, "");
@@ -7758,7 +7758,7 @@ function javaImports(file, text, index) {
   return found.refs();
 }
 
-// src/model/evidence/python.ts
+// packages/core/model/evidence/python.ts
 var IMPORT2 = /^[ \t]*import[ \t]+([\w.]+(?:[ \t]+as[ \t]+\w+)?(?:[ \t]*,[ \t]*[\w.]+(?:[ \t]+as[ \t]+\w+)?)*)/gm;
 var FROM = /^[ \t]*from[ \t]+(\.*)([\w.]*)[ \t]+import[ \t]+(\([^)]*\)|[^\n#]+)/gm;
 function dotted(path, root) {
@@ -7821,7 +7821,7 @@ function pythonImports(file, text, index) {
   return found.refs();
 }
 
-// src/model/evidence/typescript.ts
+// packages/core/model/evidence/typescript.ts
 var SPECIFIERS = [
   /\bimport\s+(?:type\s+)?(?:[\w$*{}\s,]+?\s+from\s+)?["']([^"'\n]+)["']/g,
   /\bexport\s+(?:type\s+)?(?:\*(?:\s+as\s+[\w$]+)?|\{[^}]*\})\s+from\s+["']([^"'\n]+)["']/g,
@@ -7899,7 +7899,7 @@ function typescriptImports(file, text, files, configFor) {
   return found.refs();
 }
 
-// src/model/evidence/graph.ts
+// packages/core/model/evidence/graph.ts
 var MISSING_EDGE_LINKS = 3;
 var PROTOCOL = /\b(https?|rest|grpc|rpc|graphql|websockets?|ws|sql|queries|queue[sd]?|kafka|amqp|mqtt|pub\/?sub|events?|webhooks?|smtp|ipc|postmessage|messages?|stream(s|ing)?|sse|tcp|udp)\b/i;
 function importLanguage(path) {
@@ -8008,7 +8008,7 @@ function checkImports(components, connections, links) {
   return findings;
 }
 
-// src/model/evidence.ts
+// packages/core/model/evidence.ts
 var EVIDENCE_FILE = "evidence.json";
 var MAX_DECLARATION_LINES = 3;
 var DECLARATION = /^(export\s+)?(default\s+)?((abstract|public|private|protected|internal|static|final|sealed|open|data|async|pub|readonly|declare)\s+)*(class|interface|type|enum|struct|trait|protocol|module|namespace|function|func|fn|def|const|let|var|val|import|from|package|use|record|object|impl|mod)\b/;
@@ -8051,15 +8051,15 @@ function checkEvidence(components, read, imports) {
   return { schema: 1, findings };
 }
 
-// src/model/repoSize.ts
+// packages/core/model/repoSize.ts
 import { lstatSync as lstatSync2, readdirSync, readFileSync } from "node:fs";
 import { join as join3 } from "node:path";
 
-// src/model/git.ts
+// packages/core/model/git.ts
 import { spawnSync } from "node:child_process";
 import { realpathSync as realpathSync3 } from "node:fs";
 
-// src/model/which.ts
+// packages/core/model/which.ts
 import { accessSync, constants, statSync as statSync2 } from "node:fs";
 import { delimiter, join as join2, posix, win32 } from "node:path";
 function isExecutableFile(path, platform) {
@@ -8085,7 +8085,7 @@ function findOnPath(cli, env, platform = process.platform) {
   return void 0;
 }
 
-// src/model/git.ts
+// packages/core/model/git.ts
 var MAX_DIRTY_PATHS = 200;
 var GIT_PREFIX = ["-c", "core.fsmonitor=false", "--no-optional-locks"];
 var GIT_READS = {
@@ -8190,7 +8190,7 @@ function generatedFiles(root, paths, env = process.env) {
   return marked;
 }
 
-// src/model/repoSize.ts
+// packages/core/model/repoSize.ts
 var SKIPPED_DIRS = [".git", "node_modules", "vendor", "dist", "build", "target", "out", ".aisus"];
 var MAX_FILE_BYTES = 1024 * 1024;
 var BINARY = new Set(
@@ -8233,12 +8233,12 @@ function listFiles(root, env = process.env) {
   return { listing: tracked === null ? "walk" : "git", files: generated.size === 0 ? kept : kept.filter((path) => !generated.has(path)) };
 }
 
-// src/model/fingerprints.ts
+// packages/core/model/fingerprints.ts
 import { createHash } from "node:crypto";
 import { readFileSync as readFileSync3 } from "node:fs";
 import { join as join6 } from "node:path";
 
-// src/model/session.ts
+// packages/core/model/session.ts
 import {
   appendFileSync,
   closeSync as closeSync3,
@@ -8253,7 +8253,7 @@ import {
 } from "node:fs";
 import { dirname as dirname3, join as join5 } from "node:path";
 
-// src/model/runFolder.ts
+// packages/core/model/runFolder.ts
 import { closeSync as closeSync2, fsyncSync, mkdirSync, openSync as openSync2, realpathSync as realpathSync4, renameSync, rmSync, statSync as statSync3, unlinkSync, writeSync } from "node:fs";
 import { basename, dirname as dirname2, join as join4, resolve, sep as sep2 } from "node:path";
 var ARCHIFY_DIR = ".archify";
@@ -8302,7 +8302,7 @@ function publishCandidate(draft, content) {
   unlinkSync(draft);
 }
 
-// src/model/session.ts
+// packages/core/model/session.ts
 var STALE_IDLE_MS = 24 * 60 * 60 * 1e3;
 function writeAtomic(path, content) {
   const temp = join5(dirname3(path), `.tmp-${process.pid}-${Date.now()}`);
@@ -8325,7 +8325,7 @@ function writeJson(path, value) {
 `);
 }
 
-// src/model/fingerprints.ts
+// packages/core/model/fingerprints.ts
 var FINGERPRINTS_FILE = "fingerprints.json";
 function gitBlobId(bytes) {
   return createHash("sha1").update(`blob ${bytes.length}\0`).update(bytes).digest("hex");
@@ -8369,11 +8369,11 @@ function writeFingerprints(root, runDir, prints) {
   writeJson(path, prints);
 }
 
-// src/model/runRecord.ts
+// packages/core/model/runRecord.ts
 import { readdirSync as readdirSync2, readFileSync as readFileSync4 } from "node:fs";
 import { join as join7 } from "node:path";
 
-// src/model/types.ts
+// packages/core/model/types.ts
 function isJsonObject(value) {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
@@ -8385,7 +8385,7 @@ function stringifyDocument(value) {
 `;
 }
 
-// src/model/runRecord.ts
+// packages/core/model/runRecord.ts
 var RUN_FILE = "run.json";
 function newRunRecord(fields, now = /* @__PURE__ */ new Date()) {
   return {
@@ -8420,7 +8420,7 @@ function updateRunRecord(root, runDir, patch, fallback) {
   return next;
 }
 
-// src/model/checks.ts
+// packages/core/model/checks.ts
 function boundaryRelation(a, b) {
   let shared = 0;
   for (const id of a) if (b.has(id)) shared += 1;
@@ -8511,10 +8511,10 @@ function semanticChecks(doc) {
   return issues;
 }
 
-// src/model/schema.ts
+// packages/core/model/schema.ts
 var import__ = __toESM(require__());
 
-// src/model/schemas/architecture.schema.json
+// packages/core/model/schemas/architecture.schema.json
 var architecture_schema_default = {
   $schema: "https://json-schema.org/draft/2020-12/schema",
   $id: "https://github.com/tt-a1i/archify/schemas/architecture.schema.json",
@@ -8668,7 +8668,7 @@ var architecture_schema_default = {
   }
 };
 
-// src/model/schemas/common.schema.json
+// packages/core/model/schemas/common.schema.json
 var common_schema_default = {
   $schema: "https://json-schema.org/draft/2020-12/schema",
   $id: "https://github.com/tt-a1i/archify/schemas/common.schema.json",
@@ -8851,7 +8851,7 @@ var common_schema_default = {
   }
 };
 
-// src/model/schema.ts
+// packages/core/model/schema.ts
 var compiled;
 function validator() {
   if (!compiled) {
@@ -8882,7 +8882,7 @@ function validateArchitecture(value) {
   return validate(value) ? [] : (validate.errors ?? []).map(toIssue);
 }
 
-// src/model/secrets.ts
+// packages/core/model/secrets.ts
 var PATTERNS = [
   { kind: "private key", pattern: /-----BEGIN [A-Z ]*PRIVATE KEY-----/ },
   { kind: "GitHub token", pattern: /\b(gh[pousr]_[A-Za-z0-9]{20,}|github_pat_[A-Za-z0-9_]{20,})/ },
@@ -8924,7 +8924,7 @@ function findSecrets(value, pointer = "") {
   return [];
 }
 
-// src/model/submission.ts
+// packages/core/model/submission.ts
 var META_DROPS = ["viewBox", "views", "animation", "translations", "visual_preset", "engineering_profile"];
 var COMPONENT_DROPS = ["pos", "size", "row", "col", "icon", "brand"];
 var CONNECTION_DROPS = ["fromSide", "toSide", "route", "via", "labelAt", "labelDx", "labelDy", "labelSegment", "width"];
@@ -8973,7 +8973,7 @@ function checkSubmission(value, app, checkCitations2) {
   return { removed, errors: [...semanticChecks(doc), ...findSecrets(doc), ...checkCitations2(doc)] };
 }
 
-// src/model/staleness.ts
+// packages/core/model/staleness.ts
 import { readFileSync as readFileSync5 } from "node:fs";
 import { join as join8 } from "node:path";
 function fileReader(root) {
@@ -8986,7 +8986,7 @@ function fileReader(root) {
   };
 }
 
-// src/agent/validate.ts
+// packages/core/agent/validate.ts
 var MAX_LISTED_ERRORS = 50;
 var HINT = "Fix exactly these errors and run the validator again.";
 function listErrors(errors) {

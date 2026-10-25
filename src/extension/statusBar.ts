@@ -1,7 +1,7 @@
 // UI-04: one right-aligned status bar item. "aisus" when idle, the run's clock while one goes,
 // and the shown map's changed boxes once the change overlay reports them. A click opens the sidebar.
 import * as vscode from "vscode";
-import { statusText } from "../model/home";
+import { statusText } from "@aisus/core/model/home";
 import type { Runs } from "./runs";
 
 export class StatusItem implements vscode.Disposable {

@@ -2,8 +2,8 @@
 // eval:check-truth`. No command runs from here, so either command can import it.
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import { globToRegExp } from "../../../src/model/refresh";
-import type { Truth } from "../../../src/model/score";
+import { globToRegExp } from "@aisus/core/model/refresh";
+import type { Truth } from "@aisus/core/model/score";
 import type { CorpusEntry } from "../../bench/lib/corpus";
 
 /** The ground truth of `repo`, or `null`. */

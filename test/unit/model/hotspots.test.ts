@@ -2,8 +2,8 @@
 // box over the window, with older commits left out.
 import { spawnSync } from "node:child_process";
 import { expect, test } from "vitest";
-import { changeLog } from "../../../src/model/git";
-import { hotspotNote, hotspots } from "../../../src/model/hotspots";
+import { changeLog } from "@aisus/core/model/git";
+import { hotspotNote, hotspots } from "@aisus/core/model/hotspots";
 import { git, gitRepo, put } from "../support/temp";
 
 /** Commits everything as `email`, `daysAgo` days back. */

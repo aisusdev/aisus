@@ -1,10 +1,10 @@
 // The aisus sidebar's DOM (UI-01) is a header, the Map, Ask, Review and Learn tabs, and Setup above the tabs
 // while a check fails. It is built from the HomeState the host sends, and every string goes in as text.
 // The composer's text box persists across states. Typing survives updates.
-import { mapStatus, relativeAge, runFigures, tokenCount } from "../src/model/home";
-import type { AskTurn, AskView, HomeState, HomeWebviewMessage, MapItem, PracticeQuestionView, PracticeView, ReviewView, RunCard } from "../src/model/messages";
-import type { Grade } from "../src/model/practice";
-import type { Check } from "../src/model/preflight";
+import { mapStatus, relativeAge, runFigures, tokenCount } from "@aisus/core/model/home";
+import type { AskTurn, AskView, HomeState, HomeWebviewMessage, MapItem, PracticeQuestionView, PracticeView, ReviewView, RunCard } from "@aisus/core/model/messages";
+import type { Grade } from "@aisus/core/model/practice";
+import type { Check } from "@aisus/core/model/preflight";
 import { renderAnswer, spanNode } from "./answer";
 
 export type Post = (message: HomeWebviewMessage) => void;

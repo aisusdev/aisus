@@ -2,8 +2,8 @@
 import { writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { expect, test } from "vitest";
-import { fingerprint, gitBlobId, hashLines, normalizedLines } from "../../../src/model/fingerprints";
-import type { ArchifyDoc } from "../../../src/model/types";
+import { fingerprint, gitBlobId, hashLines, normalizedLines } from "@aisus/core/model/fingerprints";
+import type { ArchifyDoc } from "@aisus/core/model/types";
 import { git, put, tempDir } from "../support/temp";
 
 test("FRS-01 blob equals git hash-object --no-filters, whatever the line endings or bytes", () => {

@@ -3,8 +3,8 @@
 // worker code, which the build embeds as __AISUS_LAYOUT_WORKER__. The CSP allows exactly
 // `worker-src blob:` for them.
 import ELK from "elkjs/lib/elk-api.js";
-import { runElk, type Direction, type ElkEngine } from "../src/layout/elk";
-import type { RunElk } from "../src/layout/scene";
+import { runElk, type Direction, type ElkEngine } from "@aisus/core/layout/elk";
+import type { RunElk } from "@aisus/core/layout/scene";
 
 declare const __AISUS_LAYOUT_WORKER__: string | undefined;
 

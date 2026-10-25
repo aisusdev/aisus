@@ -3,8 +3,8 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, test, vi } from "vitest";
-import { layoutDiagram } from "../../src/layout/layout";
-import type { HostMessage, WebviewMessage } from "../../src/model/messages";
+import { layoutDiagram } from "@aisus/core/layout/layout";
+import type { HostMessage, WebviewMessage } from "@aisus/core/model/messages";
 import { useHost } from "../../webview/bridge";
 import { DARK, LIGHT, standaloneHost } from "../../webview/hosts/standalone";
 import { VSCODE_TOKENS, vscodeHost } from "../../webview/hosts/vscode";
@@ -13,7 +13,7 @@ import { repoRoot } from "../unit/support/sourceScan";
 import { archifyFixtures } from "../unit/support/fixtures";
 import { gridScene } from "./support/scene";
 
-vi.mock("../../src/layout/layout", () => ({ layoutDiagram: vi.fn() }));
+vi.mock("@aisus/core/layout/layout", () => ({ layoutDiagram: vi.fn() }));
 
 vi.hoisted(() => {
   vi.spyOn(Element.prototype, "getBoundingClientRect").mockReturnValue(new DOMRect(0, 0, 800, 600));

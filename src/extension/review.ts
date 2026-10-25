@@ -4,15 +4,15 @@
 // Add to map (a refresh limited to its folder) and Ignore (a config change shown as a diff first).
 import { basename, dirname, join } from "node:path";
 import * as vscode from "vscode";
-import { rangeOf } from "../model/changes";
-import { mainMap, runCheck, type CheckReport } from "../model/check";
-import { CONFIG_FILE, withIgnored } from "../model/config";
-import { baseMap, branchPaths, newerRun } from "../model/branchMaps";
-import { diffMaps } from "../model/diff";
-import { defaultBranch, fileAt } from "../model/git";
-import { parseDiagram } from "../model/tolerant";
-import type { ReviewView } from "../model/messages";
-import { ARCHIFY_DIR, CANDIDATE_FILE } from "../model/runFolder";
+import { rangeOf } from "@aisus/core/model/changes";
+import { mainMap, runCheck, type CheckReport } from "@aisus/core/model/check";
+import { CONFIG_FILE, withIgnored } from "@aisus/core/model/config";
+import { baseMap, branchPaths, newerRun } from "@aisus/core/model/branchMaps";
+import { diffMaps } from "@aisus/core/model/diff";
+import { defaultBranch, fileAt } from "@aisus/core/model/git";
+import { parseDiagram } from "@aisus/core/model/tolerant";
+import type { ReviewView } from "@aisus/core/model/messages";
+import { ARCHIFY_DIR, CANDIDATE_FILE } from "@aisus/core/model/runFolder";
 import { chosenAgent, foundAgents } from "./generate";
 import { compareMapsCommand, readMap } from "./compare";
 import { onAction, openFolder } from "./notify";

@@ -2,8 +2,8 @@
 // prototype's model/tests/citations.rs, repo/tests/citations.rs and repo/tests/text.rs).
 import { symlinkSync } from "node:fs";
 import { describe, expect, test } from "vitest";
-import { checkCitations, citationPathOk, countLines, MAX_CITED_BYTES } from "../../../src/model/citations";
-import type { ArchifyDoc, SourceRef } from "../../../src/model/types";
+import { checkCitations, citationPathOk, countLines, MAX_CITED_BYTES } from "@aisus/core/model/citations";
+import type { ArchifyDoc, SourceRef } from "@aisus/core/model/types";
 import { put, tempDir } from "../support/temp";
 
 function doc(sources: SourceRef[]): ArchifyDoc {

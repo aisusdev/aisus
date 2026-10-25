@@ -2,7 +2,7 @@
 // dialog says. The file's extension picks the format.
 import { dirname, extname, join } from "node:path";
 import * as vscode from "vscode";
-import type { ImageFormat } from "../model/messages";
+import type { ImageFormat } from "@aisus/core/model/messages";
 import { onAction } from "./notify";
 import { ArchitecturePanel } from "./panel";
 

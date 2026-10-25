@@ -1,9 +1,9 @@
 // SKL-03: the practice log lists finished bug hunts, fully graded explain-backs and finished tours,
 // newest first with their dates.
 import { expect, test } from "vitest";
-import type { LeaderboardEntry } from "../../../src/model/leaderboard";
-import type { PracticeCheck } from "../../../src/model/practice";
-import { practiceLog } from "../../../src/model/practiceLog";
+import type { LeaderboardEntry } from "@aisus/core/model/leaderboard";
+import type { PracticeCheck } from "@aisus/core/model/practice";
+import { practiceLog } from "@aisus/core/model/practiceLog";
 
 function hunt(fields: Partial<LeaderboardEntry>): LeaderboardEntry {
   return { run: "bugfix-demo-20261018-120000", mode: "bugfix", status: "completed", score: 30, bugs: 2, found: 2, fixed: 2, hintCost: 0, startedAt: "2026-10-18T12:00:00Z", endedAt: "2026-10-18T12:40:00Z", ...fields };

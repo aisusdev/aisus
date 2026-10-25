@@ -1,7 +1,7 @@
 // SKL-02: the tour player on the map. Each stop highlights its box, asks the host to open the cited
 // code, explains, asks its question, and shows the answer when asked. Every string goes in as text.
-import type { WebviewMessage } from "../src/model/messages";
-import type { TourStop } from "../src/model/tour";
+import type { WebviewMessage } from "@aisus/core/model/messages";
+import type { TourStop } from "@aisus/core/model/tour";
 
 function el<K extends keyof HTMLElementTagNameMap>(tag: K, className: string, text = ""): HTMLElementTagNameMap[K] {
   const node = document.createElement(tag);

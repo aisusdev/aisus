@@ -1,11 +1,11 @@
 // CST-06: the prompt, arguments and environment of a bench run. Arguments are the sidebar's own
 // (UI-02, SAF-04); the environment holds only PATH, the isolated home and the bench API key.
 import { join } from "node:path";
-import { headlessArgs, SKILL_SCRIPTS, skillPrompt, type SkillName } from "../../../src/extension/agents";
-import { askPrompt } from "../../../src/model/ask";
-import type { EstimateAgent } from "../../../src/model/estimate";
-import type { BenchKind } from "../../../src/model/fit";
-import { refreshArgs } from "../../../src/model/refresh";
+import { headlessArgs, SKILL_SCRIPTS, skillPrompt, type SkillName } from "@aisus/core/model/agents";
+import { askPrompt } from "@aisus/core/model/ask";
+import type { EstimateAgent } from "@aisus/core/model/estimate";
+import type { BenchKind } from "@aisus/core/model/fit";
+import { refreshArgs } from "@aisus/core/model/refresh";
 
 /** Where each agent's bench key comes from, and the variable the agent reads it from. */
 export const BENCH_KEYS: Record<EstimateAgent, { from: string; to: string }> = {

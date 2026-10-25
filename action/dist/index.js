@@ -7510,11 +7510,11 @@ async function actionsOidcToken(env, fetcher = fetch) {
   return value;
 }
 
-// src/model/check.ts
+// packages/core/model/check.ts
 var import_node_fs7 = require("node:fs");
 var import_node_path6 = require("node:path");
 
-// src/model/changes.ts
+// packages/core/model/changes.ts
 var REVISION_PATTERN = /^(?!-)[A-Za-z0-9._/~^@{}-]+$/;
 function unquotePath(raw) {
   if (!raw.startsWith('"')) return raw;
@@ -7626,7 +7626,7 @@ function markChanges(components, changes) {
   return { strong, weak, uncovered };
 }
 
-// src/model/ownership.ts
+// packages/core/model/ownership.ts
 var Ownership = class {
   byFile = /* @__PURE__ */ new Map();
   byDir = /* @__PURE__ */ new Map();
@@ -7670,7 +7670,7 @@ function add(map, key, id) {
   map.set(key, set);
 }
 
-// src/model/refresh.ts
+// packages/core/model/refresh.ts
 function globToRegExp(glob) {
   let pattern = "";
   for (let i = 0; i < glob.length; i++) {
@@ -7693,7 +7693,7 @@ function refreshArgs(run2, paths = []) {
   return tokens.length === 0 ? `--from ${run2}` : `--from ${run2} --paths ${tokens.join(" ")}`;
 }
 
-// src/model/rules.ts
+// packages/core/model/rules.ts
 var RULE_KINDS = ["forbid", "only-via", "isolated"];
 var PATH_PREFIX = "path:";
 var isRecord = (value) => typeof value === "object" && value !== null && !Array.isArray(value);
@@ -7757,7 +7757,7 @@ function checkRules(rules, components, refs) {
   return violations;
 }
 
-// src/model/types.ts
+// packages/core/model/types.ts
 function isJsonObject(value) {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
@@ -7765,7 +7765,7 @@ function pointerToken(token) {
   return token.replace(/~/g, "~0").replace(/\//g, "~1");
 }
 
-// src/model/config.ts
+// packages/core/model/config.ts
 var CONFIG_FILE = "aisus.config.json";
 var FAIL_ON = ["stale", "new-box", "new-arrow", "violation"];
 function strings(value) {
@@ -7792,7 +7792,7 @@ function readConfig(value) {
   return errors.length === 0 ? { ok: true, config: value } : { ok: false, errors };
 }
 
-// src/model/delta.ts
+// packages/core/model/delta.ts
 var CANDIDATE_LINES = 200;
 var CANDIDATE_FILES = 3;
 var SOURCE_EXTENSIONS = new Set(
@@ -7894,11 +7894,11 @@ function verdict(report, failOn) {
   return { result: reasons.length === 0 ? "pass" : "fail", reasons };
 }
 
-// src/model/discovery.ts
+// packages/core/model/discovery.ts
 var import_node_fs = require("node:fs");
 var import_node_path = require("node:path");
 
-// src/model/runFolder.ts
+// packages/core/model/runFolder.ts
 var ARCHIFY_DIR = ".archify";
 var CANDIDATE_FILE = "candidate.json";
 var RUN_NAME_PATTERN = /^([a-z0-9]+)-(.+)-(\d{8}-\d{6})(?:-(\d+))?$/;
@@ -7913,7 +7913,7 @@ function parseRunFolderName(name) {
   return { slug: parsed.slug, timestamp: parsed.timestamp, n: parsed.n };
 }
 
-// src/model/discovery.ts
+// packages/core/model/discovery.ts
 function compareCandidates(a, b) {
   const ra = parseRunFolderName(a.runFolder);
   const rb = parseRunFolderName(b.runFolder);
@@ -7950,7 +7950,7 @@ function listCandidates(root) {
   return candidates.sort(compareCandidates);
 }
 
-// src/model/evidence/paths.ts
+// packages/core/model/evidence/paths.ts
 function joinPath(dir, rel) {
   const parts = dir === "" ? [] : dir.split("/");
   for (const part of rel.split("/")) {
@@ -7982,7 +7982,7 @@ var ImportSet = class {
   }
 };
 
-// src/model/evidence/java.ts
+// packages/core/model/evidence/java.ts
 var PACKAGE = /^\s*package\s+([\w.]+)\s*;/m;
 var IMPORT = /^\s*import\s+(static\s+)?([\w.]+?)(\.\*)?\s*;/gm;
 var baseName = (path2) => path2.slice(path2.lastIndexOf("/") + 1).replace(/\.java$/, "");
@@ -8031,7 +8031,7 @@ function javaImports(file, text3, index) {
   return found.refs();
 }
 
-// src/model/evidence/python.ts
+// packages/core/model/evidence/python.ts
 var IMPORT2 = /^[ \t]*import[ \t]+([\w.]+(?:[ \t]+as[ \t]+\w+)?(?:[ \t]*,[ \t]*[\w.]+(?:[ \t]+as[ \t]+\w+)?)*)/gm;
 var FROM = /^[ \t]*from[ \t]+(\.*)([\w.]*)[ \t]+import[ \t]+(\([^)]*\)|[^\n#]+)/gm;
 function dotted(path2, root) {
@@ -8094,7 +8094,7 @@ function pythonImports(file, text3, index) {
   return found.refs();
 }
 
-// src/model/evidence/typescript.ts
+// packages/core/model/evidence/typescript.ts
 var SPECIFIERS = [
   /\bimport\s+(?:type\s+)?(?:[\w$*{}\s,]+?\s+from\s+)?["']([^"'\n]+)["']/g,
   /\bexport\s+(?:type\s+)?(?:\*(?:\s+as\s+[\w$]+)?|\{[^}]*\})\s+from\s+["']([^"'\n]+)["']/g,
@@ -8172,7 +8172,7 @@ function typescriptImports(file, text3, files, configFor) {
   return found.refs();
 }
 
-// src/model/evidence/graph.ts
+// packages/core/model/evidence/graph.ts
 function importLanguage(path2) {
   if (path2.endsWith(".java")) return "java";
   if (/\.py$/.test(path2)) return "python";
@@ -8208,11 +8208,11 @@ function importResolver(files, read) {
   };
 }
 
-// src/model/git.ts
+// packages/core/model/git.ts
 var import_node_child_process = require("node:child_process");
 var import_node_fs3 = require("node:fs");
 
-// src/model/which.ts
+// packages/core/model/which.ts
 var import_node_fs2 = require("node:fs");
 var import_node_path2 = require("node:path");
 function isExecutableFile(path2, platform) {
@@ -8238,7 +8238,7 @@ function findOnPath(cli, env, platform = process.platform) {
   return void 0;
 }
 
-// src/model/git.ts
+// packages/core/model/git.ts
 var MAX_DIRTY_PATHS = 200;
 var GIT_PREFIX = ["-c", "core.fsmonitor=false", "--no-optional-locks"];
 var GIT_READS = {
@@ -8385,11 +8385,11 @@ function filesAt(root, revision, dir, env = process.env) {
   return (output ?? "").split("\0").filter((path2) => path2 !== "");
 }
 
-// src/model/repoSize.ts
+// packages/core/model/repoSize.ts
 var import_node_fs4 = require("node:fs");
 var import_node_path3 = require("node:path");
 
-// src/model/deny.ts
+// packages/core/model/deny.ts
 var DENIED_NAMES = [".git", ".archify", ".npmrc", ".pypirc", ".netrc"];
 var ENV_EXCEPTIONS = [".env.example", ".env.sample"];
 var DENIED_PREFIXES = ["id_rsa", "id_ed25519"];
@@ -8406,7 +8406,7 @@ function isDenied(path2) {
   return path2.split("/").some(segmentDenied);
 }
 
-// src/model/repoSize.ts
+// packages/core/model/repoSize.ts
 var SKIPPED_DIRS = [".git", "node_modules", "vendor", "dist", "build", "target", "out", ".aisus"];
 var MAX_FILE_BYTES = 1024 * 1024;
 var BINARY = new Set(
@@ -8449,14 +8449,14 @@ function listFiles(root, env = process.env) {
   return { listing: tracked === null ? "walk" : "git", files: generated.size === 0 ? kept : kept.filter((path2) => !generated.has(path2)) };
 }
 
-// src/model/runRecord.ts
+// packages/core/model/runRecord.ts
 var import_node_fs5 = require("node:fs");
 var import_node_path4 = require("node:path");
 
-// src/model/session.ts
+// packages/core/model/session.ts
 var STALE_IDLE_MS = 24 * 60 * 60 * 1e3;
 
-// src/model/runRecord.ts
+// packages/core/model/runRecord.ts
 var RUN_FILE = "run.json";
 function readRunRecord(runDir) {
   try {
@@ -8484,11 +8484,11 @@ function newRunSince(root, before) {
   return found;
 }
 
-// src/model/staleness.ts
+// packages/core/model/staleness.ts
 var import_node_fs6 = require("node:fs");
 var import_node_path5 = require("node:path");
 
-// src/model/fingerprints.ts
+// packages/core/model/fingerprints.ts
 var import_node_crypto = require("node:crypto");
 var FINGERPRINTS_FILE = "fingerprints.json";
 function gitBlobId(bytes) {
@@ -8504,7 +8504,7 @@ function looseLines(lines) {
   return lines.map((line) => line.trimStart());
 }
 
-// src/model/staleness.ts
+// packages/core/model/staleness.ts
 var ORDER = ["fresh", "unknown", "moved", "edited", "missing"];
 function readFingerprints(runDir) {
   try {
@@ -8573,7 +8573,7 @@ function fileReader(root) {
   };
 }
 
-// src/model/tolerant.ts
+// packages/core/model/tolerant.ts
 var COMPONENT_TYPES = ["frontend", "backend", "database", "cloud", "security", "messagebus", "external"];
 var VARIANTS = ["default", "emphasis", "security", "dashed"];
 function isObj(value) {
@@ -8713,7 +8713,7 @@ function readDiagram(value) {
   return { ok: true, diagram, skipped: skipped2 };
 }
 
-// src/model/check.ts
+// packages/core/model/check.ts
 function loadConfig(root) {
   let text3;
   try {
@@ -8825,7 +8825,7 @@ function runCheck(options) {
   return { ok: true, diagram, report: { map: run2, base, head: head ?? null, mergeBase: shared, ...delta, ...outcome } };
 }
 
-// src/model/deltaMarkdown.ts
+// packages/core/model/deltaMarkdown.ts
 var COMMENT_MARKER = "<!-- aisus-check -->";
 function escapeMarkdown(text3) {
   return text3.replace(/([\\`*_{}[\]()#+!~-])/g, "\\$1").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/\|/g, "&#124;").replace(/\r?\n/g, " ");
@@ -8919,13 +8919,13 @@ function deltaMermaid(report, diagram) {
   return lines.join("\n");
 }
 
-// src/model/upload.ts
+// packages/core/model/upload.ts
 var import__2 = __toESM(require__());
 
-// src/model/schema.ts
+// packages/core/model/schema.ts
 var import__ = __toESM(require__());
 
-// src/model/schemas/architecture.schema.json
+// packages/core/model/schemas/architecture.schema.json
 var architecture_schema_default = {
   $schema: "https://json-schema.org/draft/2020-12/schema",
   $id: "https://github.com/tt-a1i/archify/schemas/architecture.schema.json",
@@ -9079,7 +9079,7 @@ var architecture_schema_default = {
   }
 };
 
-// src/model/schemas/common.schema.json
+// packages/core/model/schemas/common.schema.json
 var common_schema_default = {
   $schema: "https://json-schema.org/draft/2020-12/schema",
   $id: "https://github.com/tt-a1i/archify/schemas/common.schema.json",
@@ -9262,7 +9262,7 @@ var common_schema_default = {
   }
 };
 
-// src/model/schema.ts
+// packages/core/model/schema.ts
 var compiled;
 function validator() {
   if (!compiled) {
@@ -9293,7 +9293,7 @@ function validateArchitecture(value) {
   return validate(value) ? [] : (validate.errors ?? []).map(toIssue);
 }
 
-// src/model/schemas/upload.schema.json
+// packages/core/model/schemas/upload.schema.json
 var upload_schema_default = {
   $schema: "https://json-schema.org/draft/2020-12/schema",
   $id: "https://aisus.dev/schemas/upload.schema.json",
@@ -9586,7 +9586,7 @@ var upload_schema_default = {
   }
 };
 
-// src/model/secrets.ts
+// packages/core/model/secrets.ts
 var PATTERNS = [
   { kind: "private key", pattern: /-----BEGIN [A-Z ]*PRIVATE KEY-----/ },
   { kind: "GitHub token", pattern: /\b(gh[pousr]_[A-Za-z0-9]{20,}|github_pat_[A-Za-z0-9_]{20,})/ },
@@ -9628,7 +9628,7 @@ function findSecrets(value, pointer = "") {
   return [];
 }
 
-// src/model/upload.ts
+// packages/core/model/upload.ts
 var MAX_UPLOAD_BYTES = 1024 * 1024;
 var compiled2;
 function validator2() {
@@ -9667,7 +9667,7 @@ var import_node_fs9 = require("node:fs");
 var import_node_os = require("node:os");
 var import_node_path8 = require("node:path");
 
-// src/extension/agents.ts
+// packages/core/model/agents.ts
 var SKILL_SCRIPTS = {
   "aisus-architecture": ["repo-facts.mjs", "validate.mjs", "render-html.mjs"],
   "aisus-refresh": ["refresh-facts.mjs", "validate.mjs", "render-html.mjs"],
@@ -9693,7 +9693,7 @@ function skillPrompt(cli, skill, args) {
   return trimmed === "" ? invoke : `${invoke} ${trimmed}`;
 }
 
-// src/model/agentHome.ts
+// packages/core/model/agentHome.ts
 var import_node_fs8 = require("node:fs");
 var import_node_path7 = require("node:path");
 function agentHome(home, agent, skill) {
@@ -9713,7 +9713,7 @@ function agentHomePreview(home, agent) {
   return agent === "claude" ? { CLAUDE_CONFIG_DIR: (0, import_node_path7.join)(home, ".claude") } : { CODEX_HOME: (0, import_node_path7.join)(home, ".codex") };
 }
 
-// src/model/agentStream/feed.ts
+// packages/core/model/agentStream/feed.ts
 var NO_USAGE = { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 };
 function clip(text3, max = 120) {
   const flat = text3.replace(/\s+/g, " ").trim();
@@ -9742,7 +9742,7 @@ function validatorItem(output) {
   return null;
 }
 
-// src/model/agentStream/claude.ts
+// packages/core/model/agentStream/claude.ts
 function record(value) {
   return typeof value === "object" && value !== null && !Array.isArray(value) ? value : {};
 }
@@ -9843,7 +9843,7 @@ function claudeParser() {
   };
 }
 
-// src/model/agentStream/codex.ts
+// packages/core/model/agentStream/codex.ts
 function record2(value) {
   return typeof value === "object" && value !== null && !Array.isArray(value) ? value : {};
 }
@@ -9903,7 +9903,7 @@ function codexParser() {
   };
 }
 
-// src/model/agentStream/summary.ts
+// packages/core/model/agentStream/summary.ts
 function summarizeStream(transcript, parser) {
   const summary = { usage: { ...NO_USAGE }, costUsd: null, reads: 0, searches: 0, writes: 0, validations: 0, ok: null, denials: [], answer: "" };
   for (const line of transcript.split("\n")) {
@@ -9927,14 +9927,14 @@ function summarizeStream(transcript, parser) {
   return summary;
 }
 
-// src/model/branchMaps.ts
+// packages/core/model/branchMaps.ts
 function branchPaths(report, components) {
   const boxes = new Set([...report.stale, ...report.gone].map((box) => box.id));
   const cited = components.filter((component) => boxes.has(component.id)).flatMap((component) => (component.sources ?? []).map((source) => source.path));
   return [.../* @__PURE__ */ new Set([...report.candidates.map((candidate) => candidate.dir), ...cited])].sort();
 }
 
-// src/model/diff.ts
+// packages/core/model/diff.ts
 var SAME_FILES = 0.5;
 function overlap(a, b) {
   const left = new Set((a.sources ?? []).map((source) => source.path));

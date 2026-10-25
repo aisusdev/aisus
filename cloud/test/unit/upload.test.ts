@@ -2,7 +2,7 @@
 // Actions OIDC token or a hashed per-repository token.
 import { eq } from "drizzle-orm";
 import { afterEach, beforeEach, describe, expect, test } from "vitest";
-import { checkUpload as validateUpload } from "../../../src/model/upload";
+import { checkUpload as validateUpload } from "@aisus/core/model/upload";
 import { POST } from "../../src/app/api/v1/uploads/route";
 import { openDatabase, type Database } from "../../src/db/client";
 import { tokens, uploads } from "../../src/db/schema";

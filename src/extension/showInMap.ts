@@ -2,7 +2,7 @@
 // Explorer or an empty map, and Open code from a box's context menu.
 import { relative, sep } from "node:path";
 import * as vscode from "vscode";
-import { listCandidates } from "../model/discovery";
+import { listCandidates } from "@aisus/core/model/discovery";
 import { confirmAndLaunch, generateTask } from "./generate";
 import { onAction, openFolder } from "./notify";
 import { ArchitecturePanel } from "./panel";

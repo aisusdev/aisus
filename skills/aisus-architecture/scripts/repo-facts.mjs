@@ -1,12 +1,12 @@
-// src/agent/repo-facts.ts
+// packages/core/agent/repo-facts.ts
 import { existsSync as existsSync2 } from "node:fs";
 import { basename as basename2, join as join6 } from "node:path";
 
-// src/model/git.ts
+// packages/core/model/git.ts
 import { spawnSync } from "node:child_process";
 import { realpathSync } from "node:fs";
 
-// src/model/which.ts
+// packages/core/model/which.ts
 import { accessSync, constants, statSync } from "node:fs";
 import { delimiter, join, posix, win32 } from "node:path";
 function isExecutableFile(path, platform) {
@@ -32,7 +32,7 @@ function findOnPath(cli, env, platform = process.platform) {
   return void 0;
 }
 
-// src/model/git.ts
+// packages/core/model/git.ts
 var MAX_DIRTY_PATHS = 200;
 var GIT_PREFIX = ["-c", "core.fsmonitor=false", "--no-optional-locks"];
 var GIT_READS = {
@@ -129,7 +129,7 @@ function generatedFiles(root, paths, env = process.env) {
   return marked;
 }
 
-// src/model/coefficients.json
+// packages/core/model/coefficients.json
 var coefficients_default = {
   basis: "provisional",
   fittedAt: null,
@@ -198,7 +198,7 @@ var coefficients_default = {
   }
 };
 
-// src/model/pricing.json
+// packages/core/model/pricing.json
 var pricing_default = {
   asOf: "2026-10-18",
   unit: "USD per million tokens",
@@ -213,7 +213,7 @@ var pricing_default = {
   ]
 };
 
-// src/model/estimate.ts
+// packages/core/model/estimate.ts
 var COEFFICIENTS = coefficients_default;
 var PRICING = pricing_default;
 function estimate(size, agent, kind, table = COEFFICIENTS) {
@@ -253,11 +253,11 @@ function skillEstimates(size, kind) {
   return { claude: entry("claude"), codex: entry("codex") };
 }
 
-// src/model/repoSize.ts
+// packages/core/model/repoSize.ts
 import { lstatSync, readdirSync, readFileSync } from "node:fs";
 import { join as join2 } from "node:path";
 
-// src/model/deny.ts
+// packages/core/model/deny.ts
 var DENIED_NAMES = [".git", ".archify", ".npmrc", ".pypirc", ".netrc"];
 var ENV_EXCEPTIONS = [".env.example", ".env.sample"];
 var DENIED_PREFIXES = ["id_rsa", "id_ed25519"];
@@ -274,7 +274,7 @@ function isDenied(path) {
   return path.split("/").some(segmentDenied);
 }
 
-// src/model/repoSize.ts
+// packages/core/model/repoSize.ts
 var SKIPPED_DIRS = [".git", "node_modules", "vendor", "dist", "build", "target", "out", ".aisus"];
 var COUNT_LIMIT = 2e3;
 var MAX_FILE_BYTES = 1024 * 1024;
@@ -463,7 +463,7 @@ function repoSize(root, env = process.env, limit = COUNT_LIMIT) {
   return { listing, files, counted, lines: { total, test, nonTest: total - test }, languages: sorted, tier: tierOf(total - test) };
 }
 
-// src/model/runFolder.ts
+// packages/core/model/runFolder.ts
 import { closeSync, fsyncSync, mkdirSync, openSync, realpathSync as realpathSync2, renameSync, rmSync, statSync as statSync2, unlinkSync, writeSync } from "node:fs";
 import { basename, dirname, join as join3, resolve, sep } from "node:path";
 var ARCHIFY_DIR = ".archify";
@@ -531,10 +531,10 @@ function createRunFolder(root, slug, timestamp, options = {}) {
   throw new Error(`can't create ${dir}/${base}: too many folders with that name`);
 }
 
-// src/model/runRecord.ts
+// packages/core/model/runRecord.ts
 import { join as join5 } from "node:path";
 
-// src/model/confine.ts
+// packages/core/model/confine.ts
 import { lstatSync as lstatSync2, realpathSync as realpathSync3 } from "node:fs";
 import { dirname as dirname2, isAbsolute, relative } from "node:path";
 function isWithin(parentReal, childReal) {
@@ -565,7 +565,7 @@ function assertWritable(root, path) {
   assertNotLink(path);
 }
 
-// src/model/session.ts
+// packages/core/model/session.ts
 import {
   appendFileSync,
   closeSync as closeSync2,
@@ -601,7 +601,7 @@ function writeJson(path, value) {
 `);
 }
 
-// src/model/runRecord.ts
+// packages/core/model/runRecord.ts
 var RUN_FILE = "run.json";
 function newRunRecord(fields, now = /* @__PURE__ */ new Date()) {
   return {
@@ -623,7 +623,7 @@ function writeRunRecord(root, runDir, record) {
   writeJson(path, record);
 }
 
-// src/agent/repo-facts.ts
+// packages/core/agent/repo-facts.ts
 var SKILL_VERSION = "0.3.0";
 var USAGE = "repo-facts.mjs: usage: node repo-facts.mjs [--focus <text>] [--parent <run>]\n";
 function main(args) {

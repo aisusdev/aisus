@@ -17,8 +17,8 @@ flowchart LR
     host["install, generate, open, panel,<br/>navigate, watcher"]
   end
   web["Webview: webview/<br/>render, viewport, tooltip"]
-  model["src/model/"]
-  layout["src/layout/<br/>ViewDiagram → Scene (elkjs)"]
+  model["packages/core/model/"]
+  layout["packages/core/layout/<br/>ViewDiagram → Scene (elkjs)"]
   disk[(".archify/&lt;run&gt;/<br/>draft.json → candidate.json")]
 
   agent -- "runs" --> rf
@@ -36,7 +36,7 @@ flowchart LR
 
 ## Modules
 
-### `src/model/`
+### `packages/core/model/`
 
 Pure TypeScript shared by the scripts, the extension host and the webview. No `vscode` import anywhere.
 
@@ -93,8 +93,15 @@ Pure TypeScript shared by the scripts, the extension host and the webview. No `v
 | `delta.ts`, `deltaMarkdown.ts` | PRC-01: `deltaReport` (touched, stale, uncovered, candidates, gone, and PRC-06's `arrows`: `NewArrow {from, to, links}` for import links the diff added between boxes with no arrow either way; a group of uncovered files is also a candidate when its files import each other more than any one box's files), `verdict` (`new-arrow` and `violation` too), and ARC-01's `violations`: rule violations in the imports the diff added, `isSourceFile`, `isTestFile`; `deltaMarkdown`, `deltaSummary`, `deltaMermaid`, `escapeMarkdown`, `COMMENT_MARKER`. | none (browser-safe) |
 | `branchMaps.ts` | PRC-03: `baseMap(root, revision)` (the newest accepted map with an empty focus at that revision, from `git ls-tree`), `newerRun(a, b)` by run folder timestamp, `branchPaths(report, components)` (each candidate's folder and each stale or gone box's cited files). | `git.ts`, `runFolder.ts` |
 | `check.ts` | PRC-01: `runCheck` gathers the config, the map (`mainMap`), the diff from the merge-base, the code at the head, the candidate facts and each changed source file's imports at the merge base and the head through one `importResolver` over the head's files (PRC-06), then calls `deltaReport`; `loadConfig`. | `node:fs`, `node:path` |
+| `agents.ts` | No `vscode`: the two agents, `agentPrompt` and `skillPrompt` (`/<skill> …`, `$<skill> …`), `SKILL_SCRIPTS`, `headlessArgs` (UI-02, UI-06: exact tools and `dontAsk` for Claude Code, a sandbox for Codex, never a permission-skipping flag), `findOnPath` (PATH, PATHEXT). |
 
-### `src/agent/`
+### `packages/core/install/`
+
+| File | Responsibility |
+|---|---|
+| `skillFiles.ts` | No `vscode`: `skillBase(scope, root)` (the user's home by default or the repository, `aisus.skillScope`, spec v0.3 SET-01); `SKILL_NAMES` (`aisus-architecture` + `aisus-bugfix`), target paths, `skillInstalled`, `writeSkill` (remove both targets, copy to `.agents`, relative `dir`/`junction` link from `.claude`, copy on link failure) ([ADR 0006](adr/0006-install-skill-into-agents-with-claude-symlink.md)). |
+
+### `packages/core/agent/`
 
 CLI entry points bundled by `esbuild.mjs` into `dist/skills/<skill>/scripts/*.mjs` (ESM, platform node, target node18, dependencies inlined; [ADR 0007](adr/0007-validator-as-dependency-free-node-bundles.md)).
 
@@ -137,19 +144,17 @@ The learning-session skill ([ADRs 0029–0036](adr/0029-learning-modes-in-one-ag
 | `extension.ts` | `activate()` (on `onStartupFinished` and on the five contributed commands) starts the `CandidateWatcher` and `SessionWatcher`, registers the commands and returns the e2e test hook `{panelState(), postFromWebview(msg), sessionPanelState(), postFromSessionWebview(msg)}` (FR-TEST-01, [ADR 0026](adr/0026-activate-test-hook-and-happy-dom-tests.md)). |
 | `folders.ts` | `pickRepoRoot()`: the only folder, a QuickPick of folders, or "Open a folder first." with Open Folder… (FR-WS-01). |
 | `notify.ts` | SET-04: `onAction(shown, action, run)` runs a notification's action once chosen, while the code that showed it carries on. `openFolder()` is the action of the errors that need a folder. Every notification is listed in `docs/messages.md`, and each error and warning offers exactly one action. `test/unit/messages.test.ts` scans `src/` for `show{Information,Warning,Error}Message` calls, reads each message and its actions from the call, and matches them with that table. |
-| `skillFiles.ts` | No `vscode`: `skillBase(scope, root)` (the user's home by default or the repository, `aisus.skillScope`, spec v0.3 SET-01); `SKILL_NAMES` (`aisus-architecture` + `aisus-bugfix`), target paths, `skillInstalled`, `writeSkill` (remove both targets, copy to `.agents`, relative `dir`/`junction` link from `.claude`, copy on link failure) ([ADR 0006](adr/0006-install-skill-into-agents-with-claude-symlink.md)). |
 | `install.ts` | `installSkill()`: modal overwrite question, `writeSkill` for both skills, success notification; `ensureSessionAssets` (hooks merge + `.git/info/exclude` lines) runs at session launch, not at install (spec v0.3 SAF-06) (FR-INS-01, [ADR 0036](adr/0036-session-install-skills-and-managed-hooks.md)). |
 | `scope.ts` | `configuredScope()`: the `aisus.skillScope` setting, `user` by default (SET-01). |
 | `integrity.ts` (extension) | `ensureSkillIntact`: before Generate and Start Learning, a changed or missing skill offers Reinstall; other differing copies warn for Claude Code and block Codex and Devin until removed (spec v0.3 SAF-01). |
 | `hooksFiles.ts` | No `vscode`: `aisusHooks` (the managed block), `mergeHooks`/`removeHooks` — a hook object is aisus's iff its `command` contains `.agents/skills/aisus-`; strip ours, append fresh, never overwrite user entries; `removeHooksWhenIdle` removes them once `.aisus/active` is gone; `ensureGitExclude` appends `.aisus/`, `.archify/**/draft.json` and `.archify/**/*.html` to `.git/info/exclude` (spec v0.3 SAF-06; [ADR 0036](adr/0036-session-install-skills-and-managed-hooks.md), [ADR 0040](adr/0040-hooks-merge-panel-read-side-and-devin-detection.md)). |
 | `devin.ts` | No `vscode`: `findDevinCli` — PATH (`findOnPath`), then `~/.local/share/devin/cli/current/bin/devin`, then the Devin Desktop bundle; `devinPromptArgs` (`--` + prompt) ([ADR 0040](adr/0040-hooks-merge-panel-read-side-and-devin-detection.md)). |
-| `usageLog.ts` | SET-05: with `aisus.usageLog` on, `countUsage(event)` adds one to the day's count in global state under `aisus.usageLog` as `{schema: 1, days: {"YYYY-MM-DD": {<event>: n}}}`, for 90 days, from the fixed `USAGE_EVENTS` in `src/model/usageLog.ts`. Counted commands and sidebar actions call it. Export Usage Log saves it through a save dialog, and Clear Usage Log deletes it. |
+| `usageLog.ts` | SET-05: with `aisus.usageLog` on, `countUsage(event)` adds one to the day's count in global state under `aisus.usageLog` as `{schema: 1, days: {"YYYY-MM-DD": {<event>: n}}}`, for 90 days, from the fixed `USAGE_EVENTS` in `packages/core/model/usageLog.ts`. Counted commands and sidebar actions call it. Export Usage Log saves it through a save dialog, and Clear Usage Log deletes it. |
 | `removeAisus.ts` | SAF-08: `aisus: Remove aisus from This Folder` removes the repository's skills, the hook entries of all three agents, the `.git/info/exclude` lines and the ARC-04 block in `AGENTS.md` and `CLAUDE.md` after one modal; deletes `.archify/`, `.aisus/` and `aisus.config.json` after a second; and offers to remove the per-user skills. |
 | `learn.ts` | `aisus: Start Learning Session`: folder → install offer → mode QuickPick → task input → `ensureSessionAssets` → `devin -- "/aisus-bugfix <task>"` terminal → `SessionPanel.show` ([ADR 0020](adr/0020-launch-agent-terminal-with-shellpath-and-shellargs.md), [ADR 0036](adr/0036-session-install-skills-and-managed-hooks.md)). |
 | `sessionFiles.ts` | No `vscode`: `listSessionRuns` (`.aisus/` run folders with a `session.json`, newest first), `readSessionSnapshot` (active-else-newest shown run + the leaderboard; `session.json` + `events.jsonl` only — never `manifest.json`) ([ADR 0040](adr/0040-hooks-merge-panel-read-side-and-devin-detection.md)). |
 | `sessionPanel.ts` | `SessionPanel`: one `WebviewPanel` (`aisus.session`) per window, posts `session` views built from `readSessionSnapshot` + `serverNow`; re-sends on `ready`/visible/`reload` ([ADR 0034](adr/0034-sustain-folder-layout-and-session-state-files.md)). |
 | `sessionWatcher.ts` | `SessionWatcher`: per-folder `FileSystemWatcher`s on `.aisus/active` and `.aisus/*/session.json` through `ChangeBatch`; every change reloads the open panel — no notifications ([ADR 0040](adr/0040-hooks-merge-panel-read-side-and-devin-detection.md)). |
-| `agents.ts` | No `vscode`: the two agents, `agentPrompt` and `skillPrompt` (`/<skill> …`, `$<skill> …`), `SKILL_SCRIPTS`, `headlessArgs` (UI-02, UI-06: exact tools and `dontAsk` for Claude Code, a sandbox for Codex, never a permission-skipping flag), `findOnPath` (PATH, PATHEXT). |
 | `open.ts` | `Open Architecture` (newest candidate, or "No architecture diagram yet." with "Generate") and `Open Architecture File…` (candidates + "Browse…") (FR-VIEW-01). |
 | `panel.ts` | `ArchitecturePanel`: one `WebviewPanel` (`aisus.architecture`) per window, `ViewColumn.Active` without visible editors else `Beside`, `retainContextWhenHidden: false`; reads the file, tolerant-parses it, sets the title, posts `load`/`empty`; re-sends on `ready` and when visible (FR-VIEW-04, [ADR 0011](adr/0011-webview-panel-viewer-with-code-beside.md), [ADR 0025](adr/0025-viewer-details-not-fixed-by-the-spec.md)). Since v0.3 it also holds the highlight and Follow editor (UI-03), the focused box (UI-06), freshness with moved lines (FRS-03), the change overlay (FRS-04) and ghost boxes (PRC-02), and opens a folder without a map with "Map this folder". |
 | `html.ts` | No `vscode`: `webviewCsp`, `webviewHtml` (CSP meta, stylesheet link, one nonce'd script) (NFR-SEC-01). |
@@ -189,7 +194,7 @@ The learning-session skill ([ADRs 0029–0036](adr/0029-learning-modes-in-one-ag
 
 The GitHub Action ([ADR 0053](adr/0053-the-check-runs-as-a-javascript-action.md), [ADR 0058](adr/0058-the-action-updates-the-map-only-when-asked.md)): `action.yml` (inputs `fail-on`, `map`, `comment`, `upload`, `refresh`, `github-token`; output `result`), `src/refresh.ts` (PRC-05: `refreshDecision`, `refreshCommand`, `runRefresh` and the comment's Map update lines), `src/main.ts` (`runAction`: `runCheck` from `origin/<base_ref>` to `HEAD`, one comment marked `<!-- aisus-check -->` with the markdown and `deltaMermaid`, the job result from `fail-on`), `src/github.ts` (`GitHubClient` over the REST API, the only network use in `action/src/`), `src/index.ts` (entry). With `upload: true` and `cloud-url`, it also sends the check and its map to aisus cloud through `src/cloud/client.ts`, signed by the job's OIDC token, and links the pull request page in the comment (CLD-09). `node esbuild.mjs --action` writes the committed `dist/index.js`; CI rebuilds and compares it.
 
-### `src/layout/`
+### `packages/core/layout/`
 
 Browser-safe; runs in the webview, whose ELK runs in two Web Workers from a Blob URL ([ADR 0064](adr/0064-layout-runs-in-web-workers-from-blob-urls.md)). Entry `layout.ts › layoutDiagram(diagram, {measure, viewport, run}) → Promise<Scene>` (types in `scene.ts`), where `run(input, direction)` is `workerRunner()` from `webview/layoutWorkers.ts` on a page and `runInThread` from `elkInThread.ts` in Node.
 
@@ -230,9 +235,9 @@ Bundled into `dist/webview.js` (IIFE, browser, minified, elkjs included) and `di
 
 Enforced by `test/unit/boundaries.test.ts` (NFR-QUAL-03):
 
-* `src/model/` imports no `vscode` and nothing outside `src/model/` (plus `ajv` in `schema.ts`). Only the modules listed as Node modules in `test/unit/boundaries.test.ts` may import `node:fs`, `node:path`, `node:child_process` or `node:crypto`; the browser-safe ones listed there import no Node built-in, because the webviews and the diagram page bundle them.
-* `src/layout/` is browser-safe and may import only `src/model/` and elkjs.
-* `src/agent/`, `src/cli/`, `src/extension/`, `webview/` and `action/src/` sit on top of `model` and `layout`. No module in `src/` or `webview/` makes network requests; in `action/src/` only `github.ts` does, and only `refresh.ts` starts a program, for the opt-in map update (`test/unit/noNetwork.test.ts`, NFR-SEC-02, PRC-04, [ADR 0058](adr/0058-the-action-updates-the-map-only-when-asked.md)).
+* `packages/core/model/` imports no `vscode` and nothing outside `packages/core/model/` (plus `ajv` in `schema.ts`). Only the modules listed as Node modules in `test/unit/boundaries.test.ts` may import `node:fs`, `node:path`, `node:child_process` or `node:crypto`; the browser-safe ones listed there import no Node built-in, because the webviews and the diagram page bundle them.
+* `packages/core/layout/` is browser-safe and may import only `packages/core/model/` and elkjs.
+* `packages/core/agent/`, `src/cli/`, `src/extension/`, `webview/` and `action/src/` sit on top of `model` and `layout`. No module in `src/` or `webview/` makes network requests; in `action/src/` only `github.ts` does, and only `refresh.ts` starts a program, for the opt-in map update (`test/unit/noNetwork.test.ts`, NFR-SEC-02, PRC-04, [ADR 0058](adr/0058-the-action-updates-the-map-only-when-asked.md)).
 
 ## Flows
 
@@ -453,7 +458,7 @@ Export and audit (CLD-13): `GET /api/v1/account/export` downloads `{exportedAt, 
 | `dist/cli/aisus.mjs` | The core CLI (RCH-03). |
 | `action/dist/index.js` | The committed Action bundle (PRC-04). |
 | `dist/session-webview.js`, `dist/session-webview.css` | Session-panel bundle and stylesheet; `localResourceRoots` is `dist/` for both panels. |
-| `out/bench/` | `node esbuild.mjs --bench` builds each `tools/bench/*.ts` into `<name>.mjs`: `npm run bench` runs `bench.mjs`, `npm run bench:plan` runs `plan.mjs`, and `npm run bench:fit` runs `fit.mjs`, which reads `tools/bench/results/` and writes `src/model/coefficients.json` (CST-02, CST-06). Never packaged. |
+| `out/bench/` | `node esbuild.mjs --bench` builds each `tools/bench/*.ts` into `<name>.mjs`: `npm run bench` runs `bench.mjs`, `npm run bench:plan` runs `plan.mjs`, and `npm run bench:fit` runs `fit.mjs`, which reads `tools/bench/results/` and writes `packages/core/model/coefficients.json` (CST-02, CST-06). Never packaged. |
 | `tools/eval/ground-truth/<id>.json` | ACC-04: one hand-written `Truth` per corpus repository, from its architecture document at the corpus's pinned commit. `npm run eval` scores a map (`--map`, `--truth`) or every accepted full bench run; `npm run eval:check-truth` checks ids, edges, groups, the revision and every glob against the bench's cached clone. |
 | `tools/bench/results/<run>/` | One bench run (CST-06, gitignored): `result.json` (`BenchRecord`: `BenchResult`'s agent, kind, accepted, size and usage, plus run, repo, revision, runFolder, tier, tokens, costUsd, model, wallMs, validatorRuns, reads, searches, exitCode, startedAt, and question, answer or injectionFollowed where they apply), `transcript.jsonl`, and the run folder's `candidate.json`, `run.json`, `fingerprints.json` and `evidence.json`. |
 | `out/e2e/`, `out/test-scripts/`, `out/test-dist/` | Test builds (gitignored, never packaged): the e2e suite (scenarios `single`, `empty`, `multi`, each in its own VS Code launch), and the script bundles the unit tests run ([ADR 0016](adr/0016-build-test-and-docs-check-harness.md)). |

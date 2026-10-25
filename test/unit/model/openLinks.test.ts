@@ -1,6 +1,6 @@
 // RCH-01: the page's open targets build editor, GitHub and copy links only for citable paths.
 import { describe, expect, test } from "vitest";
-import { availableTargets, linkablePath, openLink, type LinkContext } from "../../../src/model/openLinks";
+import { availableTargets, linkablePath, openLink, type LinkContext } from "@aisus/core/model/openLinks";
 
 const LOCAL: LinkContext = {
   root: "/home/me/my repo",

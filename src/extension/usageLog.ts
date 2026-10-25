@@ -2,7 +2,7 @@
 // action adds one to its count for the day, in VS Code's storage on this machine. Export Usage Log
 // saves the log through a save dialog, and Clear Usage Log deletes it.
 import * as vscode from "vscode";
-import { emptyUsageLog, recordUsage, usageExport, type UsageEvent, type UsageLog } from "../model/usageLog";
+import { emptyUsageLog, recordUsage, usageExport, type UsageEvent, type UsageLog } from "@aisus/core/model/usageLog";
 
 const LOG_KEY = "aisus.usageLog";
 

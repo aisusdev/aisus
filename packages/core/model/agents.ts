@@ -1,7 +1,7 @@
 // Agent launch details for `aisus: Generate Architecture` (FR-GEN-01). No `vscode` import,
-// so the prompt format is unit-tested in Node. The PATH lookup lives in `src/model/which.ts`.
-import type { ComposerCli } from "../model/messages";
-export { findOnPath } from "../model/which";
+// so the prompt format is unit-tested in Node. The PATH lookup lives in `which.ts`.
+import type { ComposerCli } from "./messages";
+export { findOnPath } from "./which";
 
 export interface Agent {
   /** QuickPick label and terminal name suffix. */

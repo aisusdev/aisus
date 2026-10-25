@@ -1,8 +1,8 @@
 // `aisus: Open Architecture` and `aisus: Open Architecture File…` (FR-VIEW-01, FR-VIEW-02).
 import { readFileSync } from "node:fs";
 import * as vscode from "vscode";
-import { listCandidates, repoRootFor } from "../model/discovery";
-import { parseDiagram } from "../model/tolerant";
+import { listCandidates, repoRootFor } from "@aisus/core/model/discovery";
+import { parseDiagram } from "@aisus/core/model/tolerant";
 import { pickRepoRoot } from "./folders";
 import { ArchitecturePanel } from "./panel";
 

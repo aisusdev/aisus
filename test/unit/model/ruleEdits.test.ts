@@ -1,8 +1,8 @@
 // ARC-02: the rules each map action writes, unique ids when added to a config, and suggestions for
 // box pairs whose code shares no import.
 import { expect, test } from "vitest";
-import { forbidRule, onlyFromRule, suggestRules, SUGGESTED_REASON, throughRule, withRules } from "../../../src/model/ruleEdits";
-import { readRules } from "../../../src/model/rules";
+import { forbidRule, onlyFromRule, suggestRules, SUGGESTED_REASON, throughRule, withRules } from "@aisus/core/model/ruleEdits";
+import { readRules } from "@aisus/core/model/rules";
 
 test("ARC-02 each map action writes its kind of rule, and each passes the config check", () => {
   const rules = [forbidRule("api", "store", "Through the repository."), onlyFromRule("store", ["api", "jobs"], "Only these."), throughRule("store", "repo", "One door.")];

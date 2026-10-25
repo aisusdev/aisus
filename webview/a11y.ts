@@ -1,8 +1,8 @@
 // VWR-04: the map for the keyboard and for screen readers. Each box's accessible name says what it
 // is and which code it opens; a visually hidden list names every box and arrow, and its buttons
 // open the code as a click on the box does.
-import type { WebviewMessage } from "../src/model/messages";
-import type { ViewComponent, ViewDiagram } from "../src/model/tolerant";
+import type { WebviewMessage } from "@aisus/core/model/messages";
+import type { ViewComponent, ViewDiagram } from "@aisus/core/model/tolerant";
 
 function cite(source: ViewComponent["sources"][number]): string {
   return `${source.path}${source.line === undefined ? "" : `:${source.line}${source.end_line === undefined ? "" : `-${source.end_line}`}`}`;

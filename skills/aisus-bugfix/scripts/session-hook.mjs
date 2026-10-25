@@ -1,8 +1,8 @@
-// src/agent/session-hook.ts
+// packages/core/agent/session-hook.ts
 import { existsSync as existsSync2, readFileSync as readFileSync2 } from "node:fs";
 import { dirname as dirname2, join as join2 } from "node:path";
 
-// src/model/session.ts
+// packages/core/model/session.ts
 import {
   appendFileSync,
   closeSync,
@@ -17,7 +17,7 @@ import {
 } from "node:fs";
 import { dirname, join } from "node:path";
 
-// src/model/runFolder.ts
+// packages/core/model/runFolder.ts
 var RUN_NAME_PATTERN = /^([a-z0-9]+)-(.+)-(\d{8}-\d{6})(?:-(\d+))?$/;
 function parseRunName(name) {
   const match = RUN_NAME_PATTERN.exec(name);
@@ -25,7 +25,7 @@ function parseRunName(name) {
   return { prefix: match[1], slug: match[2], timestamp: match[3], n: match[4] === void 0 ? 1 : Number(match[4]) };
 }
 
-// src/model/session.ts
+// packages/core/model/session.ts
 var AISUS_DIR = ".aisus";
 var ACTIVE_FILE = "active";
 var SESSION_FILE = "session.json";
@@ -88,7 +88,7 @@ function activeRun(root) {
   }
 }
 
-// src/agent/session-hook.ts
+// packages/core/agent/session-hook.ts
 var BLOCKED_TOOLS = /* @__PURE__ */ new Set(["edit", "write", "apply_patch", "notebook_edit", "run_subagent", "Edit", "Write", "NotebookEdit", "Agent"]);
 function projectRoot(payload) {
   const named = process.env["DEVIN_PROJECT_DIR"] || process.env["CLAUDE_PROJECT_DIR"];

@@ -3,7 +3,7 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { expect, test } from "vitest";
-import { SIDEBAR_ACTIONS } from "../../src/model/home";
+import { SIDEBAR_ACTIONS } from "@aisus/core/model/home";
 import { repoRoot } from "./support/sourceScan";
 
 test("SAF-07 aisus declares no support for untrusted workspaces", () => {

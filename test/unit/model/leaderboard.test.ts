@@ -2,8 +2,8 @@
 // aggregation behind the session panel's local leaderboard — reads events.jsonl and
 // session.json only, never manifest.json.
 import { describe, expect, test } from "vitest";
-import { leaderboardEntry, parseLedger, rankLeaderboard, type LedgerEvent } from "../../../src/model/leaderboard";
-import type { SessionState } from "../../../src/model/session";
+import { leaderboardEntry, parseLedger, rankLeaderboard, type LedgerEvent } from "@aisus/core/model/leaderboard";
+import type { SessionState } from "@aisus/core/model/session";
 
 const RUN = "bugfix-demo-20250101-000000";
 

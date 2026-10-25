@@ -2,8 +2,8 @@
 // is unit-tested in Node. Checked on click only, never on load (ADR 0012).
 import { realpathSync } from "node:fs";
 import { join } from "node:path";
-import { citationPathOk, probeFile } from "../model/citations";
-import type { SourceRef } from "../model/types";
+import { citationPathOk, probeFile } from "@aisus/core/model/citations";
+import type { SourceRef } from "@aisus/core/model/types";
 
 /** 1-based inclusive line range to select. */
 export interface LineRange {

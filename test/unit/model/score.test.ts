@@ -1,6 +1,6 @@
 // ACC-04: the eval scorer on maps with known scores.
 import { expect, test } from "vitest";
-import { score, type ScoredMap, type Truth } from "../../../src/model/score";
+import { score, type ScoredMap, type Truth } from "@aisus/core/model/score";
 
 const TRUTH: Truth = {
   repo: "shop",

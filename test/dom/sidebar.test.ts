@@ -1,9 +1,9 @@
 // UI-01, SET-02, UI-02, CST-04, UI-06: the sidebar renders each state from the HomeState it is sent.
 import { beforeEach, describe, expect, test } from "vitest";
-import { parseAnswer } from "../../src/model/ask";
-import { checkView, type PracticeCheck } from "../../src/model/practice";
-import type { HomeState, HomeWebviewMessage, MapItem, RunCard } from "../../src/model/messages";
-import type { Check } from "../../src/model/preflight";
+import { parseAnswer } from "@aisus/core/model/ask";
+import { checkView, type PracticeCheck } from "@aisus/core/model/practice";
+import type { HomeState, HomeWebviewMessage, MapItem, RunCard } from "@aisus/core/model/messages";
+import type { Check } from "@aisus/core/model/preflight";
 import { createHome, phaseLine, type Home } from "../../webview/home";
 
 const NOW = new Date("2026-10-18T12:00:00Z");

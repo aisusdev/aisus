@@ -5,11 +5,11 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { actionsOidcToken, postUpload } from "../../src/cloud/client";
-import { runCheck } from "../../src/model/check";
-import { FAIL_ON, type FailOn } from "../../src/model/config";
-import { COMMENT_MARKER, deltaMarkdown, deltaMermaid } from "../../src/model/deltaMarkdown";
-import { collectGitFacts } from "../../src/model/git";
-import { checkPayload, checkUpload } from "../../src/model/upload";
+import { runCheck } from "@aisus/core/model/check";
+import { FAIL_ON, type FailOn } from "@aisus/core/model/config";
+import { COMMENT_MARKER, deltaMarkdown, deltaMermaid } from "@aisus/core/model/deltaMarkdown";
+import { collectGitFacts } from "@aisus/core/model/git";
+import { checkPayload, checkUpload } from "@aisus/core/model/upload";
 import type { GitHubClient } from "./github";
 import { refreshDecision, refreshLines, runRefresh } from "./refresh";
 

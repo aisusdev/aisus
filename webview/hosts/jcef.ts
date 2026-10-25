@@ -2,7 +2,7 @@
 // `window.aisusPost(json)` before the viewer's script, which hands a message to Kotlin through a
 // JBCefJSQuery, and sets `window.aisusDark` from the IDE's theme. The plugin sends its messages by
 // calling `window.aisusReceive(message)`.
-import type { HostMessage, WebviewMessage } from "../../src/model/messages";
+import type { HostMessage, WebviewMessage } from "@aisus/core/model/messages";
 import { applyTokens, type Host } from "../bridge";
 import { DARK, LIGHT } from "./standalone";
 

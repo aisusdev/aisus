@@ -1,7 +1,7 @@
 // UI-03: Show in Map highlights the boxes citing the active file.
 import { expect, test } from "vitest";
-import { citingBoxes, normalizeRel } from "../../../src/model/citing";
-import type { ViewDiagram } from "../../../src/model/tolerant";
+import { citingBoxes, normalizeRel } from "@aisus/core/model/citing";
+import type { ViewDiagram } from "@aisus/core/model/tolerant";
 
 const DIAGRAM: ViewDiagram = {
   components: [

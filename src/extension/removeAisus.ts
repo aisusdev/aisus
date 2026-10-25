@@ -6,14 +6,14 @@ import { existsSync, lstatSync, readFileSync, realpathSync, rmSync, writeFileSyn
 import { homedir } from "node:os";
 import { dirname, join } from "node:path";
 import * as vscode from "vscode";
-import { removeNotes, NOTES_START } from "../model/agentNotes";
-import { CONFIG_FILE } from "../model/config";
-import { assertWritable, isWithin } from "../model/confine";
-import { ARCHIFY_DIR } from "../model/runFolder";
-import { AISUS_DIR } from "../model/session";
+import { removeNotes, NOTES_START } from "@aisus/core/model/agentNotes";
+import { CONFIG_FILE } from "@aisus/core/model/config";
+import { assertWritable, isWithin } from "@aisus/core/model/confine";
+import { ARCHIFY_DIR } from "@aisus/core/model/runFolder";
+import { AISUS_DIR } from "@aisus/core/model/session";
 import { pickRepoRoot } from "./folders";
 import { removeAgentHooks, removeGitExclude, removeHooks } from "./hooksFiles";
-import { SKILL_NAMES, skillInstalled, skillTargets } from "./skillFiles";
+import { SKILL_NAMES, skillInstalled, skillTargets } from "@aisus/core/install/skillFiles";
 
 /** The files whose aisus block goes (ARC-04). */
 const NOTES_FILES = ["AGENTS.md", "CLAUDE.md"];

@@ -5,8 +5,8 @@ import { mkdirSync, rmSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import * as vscode from "vscode";
 import type { TestHook } from "../../../src/extension/extension";
-import { fingerprint, writeFingerprints } from "../../../src/model/fingerprints";
-import type { ArchifyDoc } from "../../../src/model/types";
+import { fingerprint, writeFingerprints } from "@aisus/core/model/fingerprints";
+import type { ArchifyDoc } from "@aisus/core/model/types";
 import { setup, suite, suiteSetup, teardown, test } from "../tdd";
 import { pause } from "../until";
 

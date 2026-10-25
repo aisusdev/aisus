@@ -13,11 +13,11 @@ This guide is for the agent that takes over aisus. Read AGENTS.md first, because
 ## Unfinished work, in order
 
 1. **The toolkit cut.** Read the section "A toolkit for sustainable development" in `docs/progress-v0.3.md`. Its two proposal tables are approved. Nothing from them is built yet.
-   - Maps move from the old map folder (the constant in `src/model/runFolder.ts`) to `.aisus/maps/<run>/`, and learning sessions move to `.aisus/sessions/<run>/`.
+   - Maps move from the old map folder (the constant in `packages/core/model/runFolder.ts`) to `.aisus/maps/<run>/`, and learning sessions move to `.aisus/sessions/<run>/`.
    - The git exclude lines aisus writes change to match. A plain `.aisus/` line written earlier must go, because it would hide committed maps.
    - Skills installed into a repository become real copies in `.agents/skills/` and `.claude/skills/`, with no symbolic link.
    - Every link names `aisusdev/aisus`.
-   - Every file copied from the open-source project named in `THIRD_PARTY_NOTICES.md` gets replaced with aisus's own: the two map schemas in `src/model/schemas/` (`architecture` and `common`), every fixture under `fixtures/`, `skills/aisus-architecture/references/example.json`, and both skills' format guides under `references/`.
+   - Every file copied from the open-source project named in `THIRD_PARTY_NOTICES.md` gets replaced with aisus's own: the two map schemas in `packages/core/model/schemas/` (`architecture` and `common`), every fixture under `fixtures/`, `skills/aisus-architecture/references/example.json`, and both skills' format guides under `references/`.
    - Write the schemas clean-room. One agent describes the format's fields from the current schemas and validator, in its own words. A second agent writes new schemas from that description without opening the old files. A script then checks that the new and old schemas accept and refuse the same documents.
    - Write the new fixtures as invented systems with the same coverage as the old ones: nesting, wide graphs, Japanese and Korean labels, portrait cards, first drafts, a base and head pair, and a skill run. First list what every test reads from every fixture.
    - Once nothing copied remains, remove that project's section from `THIRD_PARTY_NOTICES.md` and from `tools/scripts/notices.mjs`.
@@ -62,7 +62,7 @@ All gates are listed under "Gates" in AGENTS.md. In practice they are:
 
 ### The VS Code extension
 
-- The code is in `src/extension/` (the host), `src/model/` and `src/layout/` (shared logic) and `webview/` (the sidebar and the map panel).
+- The code is in `src/extension/` (the host), `packages/core/model/` and `packages/core/layout/` (shared logic) and `webview/` (the sidebar and the map panel).
 - Tests live in `test/unit/`, `test/dom/` and `test/e2e/`. The e2e suite downloads VS Code 1.126.0 and 1.141.0 into `.vscode-test/`. Unset `ELECTRON_RUN_AS_NODE` before running it.
 - `npm run package` builds the `.vsix`. Users get it from a release.
 - Every user-facing message is listed in `docs/messages.md`. Keep that file in step with the code.

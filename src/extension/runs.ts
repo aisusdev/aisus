@@ -3,14 +3,14 @@
 import { existsSync } from "node:fs";
 import { join } from "node:path";
 import * as vscode from "vscode";
-import type { StreamParser } from "../model/agentStream/feed";
-import type { RunState } from "../model/agentStream/tracker";
-import type { RunEstimate } from "../model/estimate";
-import type { ComposerCli, RunCard, RunMode } from "../model/messages";
-import { CANDIDATE_FILE } from "../model/runFolder";
+import type { StreamParser } from "@aisus/core/model/agentStream/feed";
+import type { RunState } from "@aisus/core/model/agentStream/tracker";
+import type { RunEstimate } from "@aisus/core/model/estimate";
+import type { ComposerCli, RunCard, RunMode } from "@aisus/core/model/messages";
+import { CANDIDATE_FILE } from "@aisus/core/model/runFolder";
 import type { LaunchTask } from "./generate";
 import { onAction } from "./notify";
-import { newRunRecord, newRunSince, RUN_FILE, runFolderNames, updateRunRecord } from "../model/runRecord";
+import { newRunRecord, newRunSince, RUN_FILE, runFolderNames, updateRunRecord } from "@aisus/core/model/runRecord";
 import { ArchitecturePanel } from "./panel";
 import { startHeadless, type HeadlessRun } from "./runner";
 

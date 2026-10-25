@@ -1,9 +1,9 @@
 // FRS-04: `aisus: Show Changes on Diagram` and the map's title-bar button. The user picks a
 // scope; git's diff marks the boxes it touches on the shown map.
 import * as vscode from "vscode";
-import { markChanges, parseDiff, rangeOf, type FileChange } from "../model/changes";
-import { listCandidates } from "../model/discovery";
-import { diffFor, type ChangeScope } from "../model/git";
+import { markChanges, parseDiff, rangeOf, type FileChange } from "@aisus/core/model/changes";
+import { listCandidates } from "@aisus/core/model/discovery";
+import { diffFor, type ChangeScope } from "@aisus/core/model/git";
 import { pickRepoRoot } from "./folders";
 import { onAction } from "./notify";
 import { ArchitecturePanel } from "./panel";

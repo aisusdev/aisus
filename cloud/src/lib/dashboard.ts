@@ -1,7 +1,7 @@
 // CLD-05: the team dashboard at /<org>. Every figure is per repository, from its main map and its
 // checks: nothing here reads or returns who wrote, pushed or reviewed anything.
 import { and, asc, desc, eq, gte } from "drizzle-orm";
-import type { CheckReport } from "../../../src/model/check";
+import type { CheckReport } from "@aisus/core/model/check";
 import type { Database } from "../db/client";
 import { repositories, uploads } from "../db/schema";
 import { checkAccess, type SignedIn } from "./access";

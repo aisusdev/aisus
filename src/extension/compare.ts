@@ -3,9 +3,9 @@
 import { readFileSync } from "node:fs";
 import { basename, dirname } from "node:path";
 import * as vscode from "vscode";
-import { diffMaps } from "../model/diff";
-import { listCandidates } from "../model/discovery";
-import { parseDiagram, type ViewDiagram } from "../model/tolerant";
+import { diffMaps } from "@aisus/core/model/diff";
+import { listCandidates } from "@aisus/core/model/discovery";
+import { parseDiagram, type ViewDiagram } from "@aisus/core/model/tolerant";
 import { onAction } from "./notify";
 import { ArchitecturePanel } from "./panel";
 

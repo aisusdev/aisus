@@ -2,7 +2,7 @@
 import { existsSync, lstatSync, readFileSync, readlinkSync, symlinkSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, test } from "vitest";
-import { skillInstalled, skillTargets, writeSkill } from "../../../src/extension/skillFiles";
+import { skillInstalled, skillTargets, writeSkill } from "@aisus/core/install/skillFiles";
 import { put, tempDir } from "../support/temp";
 
 function source(): string {

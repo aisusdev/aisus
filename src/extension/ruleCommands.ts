@@ -2,10 +2,10 @@
 // write shows its diff and waits for a yes.
 import { basename, dirname } from "node:path";
 import * as vscode from "vscode";
-import { CONFIG_FILE } from "../model/config";
-import { importLinks } from "../model/evidence/graph";
-import { forbidRule, onlyFromRule, suggestRules, throughRule, withRules } from "../model/ruleEdits";
-import { readRules, type Rule } from "../model/rules";
+import { CONFIG_FILE } from "@aisus/core/model/config";
+import { importLinks } from "@aisus/core/model/evidence/graph";
+import { forbidRule, onlyFromRule, suggestRules, throughRule, withRules } from "@aisus/core/model/ruleEdits";
+import { readRules, type Rule } from "@aisus/core/model/rules";
 import { ArchitecturePanel } from "./panel";
 import { configFile, configText, confirmWrite } from "./previewWrite";
 import { ruleSourceFiles, rulesMap, textReader, type RulesService } from "./rules";

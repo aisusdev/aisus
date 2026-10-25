@@ -1,8 +1,8 @@
 // ARC-04: the agents' notes block, merged into AGENTS.md and CLAUDE.md idempotently with the
 // people's own text untouched.
 import { expect, test } from "vitest";
-import { claudeNeedsNotes, mergeNotes, notesBlock, NOTES_END, NOTES_START } from "../../../src/model/agentNotes";
-import type { Rule } from "../../../src/model/rules";
+import { claudeNeedsNotes, mergeNotes, notesBlock, NOTES_END, NOTES_START } from "@aisus/core/model/agentNotes";
+import type { Rule } from "@aisus/core/model/rules";
 
 const MAP = {
   run: "architecture-shop-20261019-120000",

@@ -3,8 +3,8 @@
 import { readFileSync } from "node:fs";
 import { basename, dirname } from "node:path";
 import * as vscode from "vscode";
-import { repoRootFor } from "../model/discovery";
-import { parseDiagram } from "../model/tolerant";
+import { repoRootFor } from "@aisus/core/model/discovery";
+import { parseDiagram } from "@aisus/core/model/tolerant";
 import { confirmAndLaunch, type LaunchTask } from "./generate";
 import { ArchitecturePanel } from "./panel";
 import type { Runs } from "./runs";

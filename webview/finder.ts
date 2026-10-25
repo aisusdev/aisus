@@ -1,7 +1,7 @@
 // VWR-03: the map's finder. Find, `/` or Ctrl/⌘+F opens it; typing marks the boxes whose label,
 // sublabel or cited path contains the text, and dims the rest; Enter centres and zooms on the
 // current match, the arrow keys move between matches, and Escape closes it.
-import type { ViewDiagram } from "../src/model/tolerant";
+import type { ViewDiagram } from "@aisus/core/model/tolerant";
 
 /** What the finder needs from the viewer: marking boxes and centring on one. */
 export interface FinderHost {

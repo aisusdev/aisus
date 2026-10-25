@@ -2,7 +2,7 @@
 // and the element it mounts in. Every string reaches the page as escaped JSON or text. The bundle
 // starts after React has hydrated the page, so the map it draws stays in place.
 import Script from "next/script";
-import { escapeJson, type PageData } from "../../../src/model/page";
+import { escapeJson, type PageData } from "@aisus/core/model/page";
 
 export function MapViewer({ data }: { data: PageData }) {
   return (

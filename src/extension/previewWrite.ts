@@ -2,8 +2,8 @@
 import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import * as vscode from "vscode";
-import { CONFIG_FILE, readConfig, type AisusConfig } from "../model/config";
-import { assertWritable } from "../model/confine";
+import { CONFIG_FILE, readConfig, type AisusConfig } from "@aisus/core/model/config";
+import { assertWritable } from "@aisus/core/model/confine";
 import { onAction } from "./notify";
 
 export const PREVIEW_SCHEME = "aisus-preview";

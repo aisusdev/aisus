@@ -1,11 +1,11 @@
 // FR-VIEW-05: the SVG drawn for a scene has one element per node, edge and boundary, with the
 // classes the theme colours hang on, and text placed inside the boxes the layout sized.
 import { describe, expect, test } from "vitest";
-import { autoNodeSize } from "../../src/layout/measure";
-import type { Scene } from "../../src/layout/scene";
-import { parseDiagram } from "../../src/model/tolerant";
-import type { ViewDiagram } from "../../src/model/tolerant";
-import type { BoundaryKind, ComponentType, Variant } from "../../src/model/types";
+import { autoNodeSize } from "@aisus/core/layout/measure";
+import type { Scene } from "@aisus/core/layout/scene";
+import { parseDiagram } from "@aisus/core/model/tolerant";
+import type { ViewDiagram } from "@aisus/core/model/tolerant";
+import type { BoundaryKind, ComponentType, Variant } from "@aisus/core/model/types";
 import { archifyFixtures } from "../unit/support/fixtures";
 import { renderScene } from "../../webview/render";
 import { contentGroup, fixedMeasure, gridScene } from "./support/scene";

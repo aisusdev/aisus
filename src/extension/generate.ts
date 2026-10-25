@@ -3,10 +3,10 @@
 // notes in one modal. The run streams into the sidebar or runs in a terminal (ADR 0020).
 import { join } from "node:path";
 import * as vscode from "vscode";
-import { claudeParser } from "../model/agentStream/claude";
-import { codexParser } from "../model/agentStream/codex";
-import type { ComposerAgent, ComposerCli, RunMode } from "../model/messages";
-import { agentLaunchArgs, AGENTS, findOnPath, headlessArgs, SKILL_SCRIPTS, skillPrompt, type Agent, type SkillName } from "./agents";
+import { claudeParser } from "@aisus/core/model/agentStream/claude";
+import { codexParser } from "@aisus/core/model/agentStream/codex";
+import type { ComposerAgent, ComposerCli, RunMode } from "@aisus/core/model/messages";
+import { agentLaunchArgs, AGENTS, findOnPath, headlessArgs, SKILL_SCRIPTS, skillPrompt, type Agent, type SkillName } from "@aisus/core/model/agents";
 import { devinPromptArgs, findDevinCli } from "./devin";
 import { estimateKind, launchEstimate } from "./estimates";
 import { pickRepoRoot } from "./folders";
@@ -16,7 +16,7 @@ import { onAction } from "./notify";
 import { canRunHeadless } from "./runner";
 import type { Runs } from "./runs";
 import { configuredScope } from "./scope";
-import { skillBase } from "./skillFiles";
+import { skillBase } from "@aisus/core/install/skillFiles";
 
 const LAST_AGENT_KEY = "aisus.lastAgent";
 const DATA_NOTE_KEY = "aisus.dataNoteShown";

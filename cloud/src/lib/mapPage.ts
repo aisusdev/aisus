@@ -1,13 +1,13 @@
 // CLD-03 and CLD-04: what the viewer gets on a cloud page. Boxes open GitHub at the map's commit;
 // freshness comes from the latest check, and a pull request page adds its overlay and candidates.
 // FRS-07: a map page can also compare its map with an earlier one, and SKL-02 plays its tour.
-import type { CheckReport } from "../../../src/model/check";
-import { diffMaps } from "../../../src/model/diff";
-import { readDiagram } from "../../../src/model/tolerant";
-import { readTour } from "../../../src/model/tour";
-import { freshnessHeader } from "../../../src/model/home";
-import type { HostMessage } from "../../../src/model/messages";
-import type { PageData } from "../../../src/model/page";
+import type { CheckReport } from "@aisus/core/model/check";
+import { diffMaps } from "@aisus/core/model/diff";
+import { readDiagram } from "@aisus/core/model/tolerant";
+import { readTour } from "@aisus/core/model/tour";
+import { freshnessHeader } from "@aisus/core/model/home";
+import type { HostMessage } from "@aisus/core/model/messages";
+import type { PageData } from "@aisus/core/model/page";
 import type { Repository, UploadRow } from "./store";
 
 interface MapPayload {

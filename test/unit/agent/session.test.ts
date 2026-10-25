@@ -3,7 +3,7 @@
 import { existsSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, test } from "vitest";
-import type { ManifestBug } from "../../../src/model/session";
+import type { ManifestBug } from "@aisus/core/model/session";
 import { gitRepo, put, runScript, type SessionReport, tempDir } from "../support/temp";
 
 const SUM_BELOW = [

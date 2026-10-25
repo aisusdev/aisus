@@ -1,7 +1,7 @@
 // UI-06: answers render as plain DOM; citations and box names are buttons that ask the host.
 import { expect, test } from "vitest";
-import { parseAnswer } from "../../src/model/ask";
-import type { HomeWebviewMessage } from "../../src/model/messages";
+import { parseAnswer } from "@aisus/core/model/ask";
+import type { HomeWebviewMessage } from "@aisus/core/model/messages";
 import { renderAnswer } from "../../webview/answer";
 
 const HOSTILE = '<img src=x onerror="alert(1)"><script>alert(2)</script><a href="javascript:alert(3)">x</a>';

@@ -3,7 +3,7 @@
 import { readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import * as vscode from "vscode";
-import { assertWritable } from "../model/confine";
+import { assertWritable } from "@aisus/core/model/confine";
 import { onAction } from "./notify";
 import { ArchitecturePanel } from "./panel";
 import { refreshBoxCommand } from "./refresh";

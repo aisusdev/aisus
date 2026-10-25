@@ -2,8 +2,8 @@
 import { writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, test } from "vitest";
-import { markChanges, parseDiff, rangeOf, unquotePath } from "../../../src/model/changes";
-import { diffFor } from "../../../src/model/git";
+import { markChanges, parseDiff, rangeOf, unquotePath } from "@aisus/core/model/changes";
+import { diffFor } from "@aisus/core/model/git";
 import { git, gitRepo, put } from "../support/temp";
 
 const DIFF = [

@@ -4,9 +4,9 @@
 // entries and, after a 300 ms pause in events, tells listeners.
 import { basename, dirname, relative, sep } from "node:path";
 import * as vscode from "vscode";
-import { FINGERPRINTS_FILE } from "../model/fingerprints";
-import { renamesSince } from "../model/git";
-import { fileReader, mapFreshness, readFingerprints, type MapFreshness } from "../model/staleness";
+import { FINGERPRINTS_FILE } from "@aisus/core/model/fingerprints";
+import { renamesSince } from "@aisus/core/model/git";
+import { fileReader, mapFreshness, readFingerprints, type MapFreshness } from "@aisus/core/model/staleness";
 import { DEBOUNCE_MS } from "./watchLogic";
 
 /** Boxes that need a look: edited or missing. */

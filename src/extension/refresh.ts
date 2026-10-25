@@ -4,10 +4,10 @@
 import { readFileSync } from "node:fs";
 import { basename, dirname } from "node:path";
 import * as vscode from "vscode";
-import type { ComposerCli } from "../model/messages";
-import { repoRootFor } from "../model/discovery";
-import { refreshArgs } from "../model/refresh";
-import { parseDiagram } from "../model/tolerant";
+import type { ComposerCli } from "@aisus/core/model/messages";
+import { repoRootFor } from "@aisus/core/model/discovery";
+import { refreshArgs } from "@aisus/core/model/refresh";
+import { parseDiagram } from "@aisus/core/model/tolerant";
 import { confirmAndLaunch, generateArchitectureCommand, type LaunchTask } from "./generate";
 import { ArchitecturePanel } from "./panel";
 import type { Runs } from "./runs";

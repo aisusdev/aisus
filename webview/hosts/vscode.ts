@@ -1,6 +1,6 @@
 // VWR-01: the viewer inside a VS Code webview. Tokens follow the editor's theme variables, and
 // messages go through the webview API.
-import type { WebviewMessage } from "../../src/model/messages";
+import type { WebviewMessage } from "@aisus/core/model/messages";
 import { applyTokens, type Host } from "../bridge";
 
 declare function acquireVsCodeApi(): { postMessage(message: WebviewMessage): void };

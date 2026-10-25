@@ -1,6 +1,6 @@
 // FRS-07: boxes and arrows added, removed and relabelled between two maps.
 import { expect, test } from "vitest";
-import { diffMaps, diffSummary } from "../../../src/model/diff";
+import { diffMaps, diffSummary } from "@aisus/core/model/diff";
 
 const BEFORE = {
   components: [

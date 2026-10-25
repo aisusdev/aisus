@@ -25,14 +25,14 @@ const common = {
 
 /** The script entry points, emitted as `<name>.mjs`. @type {Record<string, string>} */
 const SCRIPT_ENTRIES = {
-  "repo-facts": "src/agent/repo-facts.ts",
-  "refresh-facts": "src/agent/refresh-facts.ts",
-  "render-html": "src/agent/render-html.ts",
-  validate: "src/agent/validate.ts",
-  session: "src/agent/session.ts",
-  "session-hook": "src/agent/session-hook.ts",
-  "audit-record": "src/agent/audit-record.ts",
-  "tour-record": "src/agent/tour-record.ts",
+  "repo-facts": "packages/core/agent/repo-facts.ts",
+  "refresh-facts": "packages/core/agent/refresh-facts.ts",
+  "render-html": "packages/core/agent/render-html.ts",
+  validate: "packages/core/agent/validate.ts",
+  session: "packages/core/agent/session.ts",
+  "session-hook": "packages/core/agent/session-hook.ts",
+  "audit-record": "packages/core/agent/audit-record.ts",
+  "tour-record": "packages/core/agent/tour-record.ts",
 };
 
 /**
@@ -118,7 +118,7 @@ function writeBundleInputs(metafiles) {
 
 /**
  * SHA-256 of every file below `dir`, keyed by `/`-separated relative path, with links marked
- * `link`. It matches `hashTree` in src/model/integrity.ts, and the e2e smoke test checks that.
+ * `link`. It matches `hashTree` in packages/core/model/integrity.ts, and the e2e smoke test checks that.
  * @param {string} dir
  * @param {string} [prefix]
  * @returns {Record<string, string>}

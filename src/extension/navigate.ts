@@ -1,7 +1,7 @@
 // Opening the code behind a diagram node (FR-NAV-01..03, ADR 0011).
 import * as vscode from "vscode";
-import type { ViewComponent } from "../model/tolerant";
-import type { SourceRef } from "../model/types";
+import type { ViewComponent } from "@aisus/core/model/tolerant";
+import type { SourceRef } from "@aisus/core/model/types";
 import { onAction } from "./notify";
 import { resolveSource } from "./sourceTarget";
 

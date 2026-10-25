@@ -1,12 +1,12 @@
 // RCH-01: the generated page has exactly one executable script whatever the labels say, and its
 // script draws the map offline and copies a clicked citation.
 import { describe, expect, test, vi } from "vitest";
-import type { PageData } from "../../src/model/page";
-import { escapeJson, renderPage } from "../../src/model/page";
+import type { PageData } from "@aisus/core/model/page";
+import { escapeJson, renderPage } from "@aisus/core/model/page";
 
 // VWR-02: pages lay out in Web Workers, which happy-dom lacks; here ELK runs in the thread instead.
 vi.mock("../../webview/layoutWorkers", async () => {
-  const { runInThread } = await import("../../src/layout/elkInThread");
+  const { runInThread } = await import("@aisus/core/layout/elkInThread");
   return { workerRunner: () => runInThread };
 });
 

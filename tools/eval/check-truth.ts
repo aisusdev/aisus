@@ -8,7 +8,7 @@ import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { readCorpus, type CorpusEntry } from "../bench/lib/corpus";
 import { benchCache, cloneSource, mirrorPath } from "../bench/lib/isolate";
-import { findOnPath } from "../../src/model/which";
+import { findOnPath } from "@aisus/core/model/which";
 import { readTruth, structureProblems, unmatchedGlobs } from "./lib/truth";
 
 function git(cwd: string, args: string[]): string | null {

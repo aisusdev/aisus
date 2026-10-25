@@ -1,8 +1,8 @@
-// src/agent/refresh-facts.ts
+// packages/core/agent/refresh-facts.ts
 import { readdirSync as readdirSync3, readFileSync as readFileSync5, realpathSync as realpathSync3, statSync as statSync3, writeFileSync } from "node:fs";
 import { basename as basename2, join as join7 } from "node:path";
 
-// src/model/confine.ts
+// packages/core/model/confine.ts
 import { lstatSync, realpathSync } from "node:fs";
 import { dirname, isAbsolute, relative } from "node:path";
 function isWithin(parentReal, childReal) {
@@ -33,14 +33,14 @@ function assertWritable(root, path) {
   assertNotLink(path);
 }
 
-// src/model/staleness.ts
+// packages/core/model/staleness.ts
 import { readFileSync as readFileSync2 } from "node:fs";
 import { join as join3 } from "node:path";
 
-// src/model/fingerprints.ts
+// packages/core/model/fingerprints.ts
 import { createHash } from "node:crypto";
 
-// src/model/session.ts
+// packages/core/model/session.ts
 import {
   appendFileSync,
   closeSync as closeSync2,
@@ -55,7 +55,7 @@ import {
 } from "node:fs";
 import { dirname as dirname3, join as join2 } from "node:path";
 
-// src/model/runFolder.ts
+// packages/core/model/runFolder.ts
 import { closeSync, fsyncSync, mkdirSync, openSync, realpathSync as realpathSync2, renameSync, rmSync, statSync, unlinkSync, writeSync } from "node:fs";
 import { basename, dirname as dirname2, join, resolve, sep } from "node:path";
 var ARCHIFY_DIR = ".archify";
@@ -118,7 +118,7 @@ function createRunFolder(root, slug, timestamp, options = {}) {
   throw new Error(`can't create ${dir}/${base}: too many folders with that name`);
 }
 
-// src/model/session.ts
+// packages/core/model/session.ts
 var STALE_IDLE_MS = 24 * 60 * 60 * 1e3;
 function writeAtomic(path, content) {
   const temp = join2(dirname3(path), `.tmp-${process.pid}-${Date.now()}`);
@@ -141,7 +141,7 @@ function writeJson(path, value) {
 `);
 }
 
-// src/model/fingerprints.ts
+// packages/core/model/fingerprints.ts
 var FINGERPRINTS_FILE = "fingerprints.json";
 function gitBlobId(bytes) {
   return createHash("sha1").update(`blob ${bytes.length}\0`).update(bytes).digest("hex");
@@ -156,7 +156,7 @@ function looseLines(lines) {
   return lines.map((line) => line.trimStart());
 }
 
-// src/model/types.ts
+// packages/core/model/types.ts
 function isJsonObject(value) {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
@@ -164,7 +164,7 @@ function pointerToken(token) {
   return token.replace(/~/g, "~0").replace(/\//g, "~1");
 }
 
-// src/model/staleness.ts
+// packages/core/model/staleness.ts
 var ORDER = ["fresh", "unknown", "moved", "edited", "missing"];
 function readFingerprints(runDir) {
   try {
@@ -233,7 +233,7 @@ function fileReader(root) {
   };
 }
 
-// src/model/coefficients.json
+// packages/core/model/coefficients.json
 var coefficients_default = {
   basis: "provisional",
   fittedAt: null,
@@ -302,7 +302,7 @@ var coefficients_default = {
   }
 };
 
-// src/model/pricing.json
+// packages/core/model/pricing.json
 var pricing_default = {
   asOf: "2026-10-18",
   unit: "USD per million tokens",
@@ -317,7 +317,7 @@ var pricing_default = {
   ]
 };
 
-// src/model/estimate.ts
+// packages/core/model/estimate.ts
 var COEFFICIENTS = coefficients_default;
 var PRICING = pricing_default;
 function estimate(size, agent, kind, table = COEFFICIENTS) {
@@ -357,13 +357,13 @@ function skillEstimates(size, kind) {
   return { claude: entry("claude"), codex: entry("codex") };
 }
 
-// src/model/git.ts
+// packages/core/model/git.ts
 import { spawnSync } from "node:child_process";
 
-// src/model/changes.ts
+// packages/core/model/changes.ts
 var REVISION_PATTERN = /^(?!-)[A-Za-z0-9._/~^@{}-]+$/;
 
-// src/model/which.ts
+// packages/core/model/which.ts
 import { accessSync, constants, statSync as statSync2 } from "node:fs";
 import { delimiter, join as join4, posix, win32 } from "node:path";
 function isExecutableFile(path, platform) {
@@ -389,7 +389,7 @@ function findOnPath(cli, env, platform = process.platform) {
   return void 0;
 }
 
-// src/model/git.ts
+// packages/core/model/git.ts
 var GIT_PREFIX = ["-c", "core.fsmonitor=false", "--no-optional-locks"];
 var GIT_READS = {
   topLevel: [...GIT_PREFIX, "rev-parse", "--show-toplevel"],
@@ -490,7 +490,7 @@ function foldersAt(root, revision, env = process.env) {
   return output === null ? null : new Set(output.split("\0").filter((name) => name !== ""));
 }
 
-// src/model/refresh.ts
+// packages/core/model/refresh.ts
 function globToRegExp(glob) {
   let pattern = "";
   for (let i = 0; i < glob.length; i++) {
@@ -517,11 +517,11 @@ function refreshReport(inputs) {
   return { stale, boxes, changes, uncovered: changes.filter((change) => !change.covered).map((change) => change.path), newFolders };
 }
 
-// src/model/repoSize.ts
+// packages/core/model/repoSize.ts
 import { lstatSync as lstatSync2, readdirSync, readFileSync as readFileSync3 } from "node:fs";
 import { join as join5 } from "node:path";
 
-// src/model/deny.ts
+// packages/core/model/deny.ts
 var DENIED_NAMES = [".git", ".archify", ".npmrc", ".pypirc", ".netrc"];
 var ENV_EXCEPTIONS = [".env.example", ".env.sample"];
 var DENIED_PREFIXES = ["id_rsa", "id_ed25519"];
@@ -538,7 +538,7 @@ function isDenied(path) {
   return path.split("/").some(segmentDenied);
 }
 
-// src/model/repoSize.ts
+// packages/core/model/repoSize.ts
 var SKIPPED_DIRS = [".git", "node_modules", "vendor", "dist", "build", "target", "out", ".aisus"];
 var COUNT_LIMIT = 2e3;
 var MAX_FILE_BYTES = 1024 * 1024;
@@ -726,7 +726,7 @@ function repoSize(root, env = process.env, limit = COUNT_LIMIT) {
   return { listing, files, counted, lines: { total, test, nonTest: total - test }, languages: sorted, tier: tierOf(total - test) };
 }
 
-// src/model/runRecord.ts
+// packages/core/model/runRecord.ts
 import { readdirSync as readdirSync2, readFileSync as readFileSync4 } from "node:fs";
 import { join as join6 } from "node:path";
 var RUN_FILE = "run.json";
@@ -758,7 +758,7 @@ function writeRunRecord(root, runDir, record) {
   writeJson(path, record);
 }
 
-// src/model/submission.ts
+// packages/core/model/submission.ts
 var META_DROPS = ["viewBox", "views", "animation", "translations", "visual_preset", "engineering_profile"];
 var COMPONENT_DROPS = ["pos", "size", "row", "col", "icon", "brand"];
 var CONNECTION_DROPS = ["fromSide", "toSide", "route", "via", "labelAt", "labelDx", "labelDy", "labelSegment", "width"];
@@ -790,7 +790,7 @@ function stripAppOwned(value) {
   return copy;
 }
 
-// src/agent/refresh-facts.ts
+// packages/core/agent/refresh-facts.ts
 var SKILL_VERSION = "0.3.0";
 var NOT_SOURCE = /* @__PURE__ */ new Set(["node_modules", "dist", "out", "build", "coverage", "target", "vendor"]);
 var USAGE = "usage: node refresh-facts.mjs --from <run> [--paths <glob>\u2026]";

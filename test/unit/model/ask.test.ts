@@ -1,6 +1,6 @@
 // UI-06: the Ask prompt, and the answer's structure, citations and box links.
 import { describe, expect, test } from "vitest";
-import { askPrompt, citesOf, inlineSpans, keepCites, parseAnswer } from "../../../src/model/ask";
+import { askPrompt, citesOf, inlineSpans, keepCites, parseAnswer } from "@aisus/core/model/ask";
 
 const BOXES = [
   { id: "panel", label: "Architecture panel" },

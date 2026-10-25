@@ -1,7 +1,7 @@
 // CST-03 with CLD-09: a run.json the extension recorded, estimate included, still uploads; the upload
 // stays closed to anything else.
 import { expect, test } from "vitest";
-import { checkUpload, mapPayload } from "../../../src/model/upload";
+import { checkUpload, mapPayload } from "@aisus/core/model/upload";
 
 const MAP = { schema_version: 1, diagram_type: "architecture", meta: { title: "Shop", output: ".archify/architecture-shop-20261018-120000/shop.html" }, components: [{ id: "api", type: "backend", label: "API" }] };
 const RECORD = {

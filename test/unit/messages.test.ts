@@ -76,11 +76,11 @@ function literal(arg: string): string | null {
   return null;
 }
 
-/** Every notification call under `src/`. */
+/** Every notification call under `src/` and `packages/core/`. */
 function shownMessages(): { shown: Shown[]; problems: string[] } {
   const shown: Shown[] = [];
   const problems: string[] = [];
-  for (const file of sourceFiles("src")) {
+  for (const file of [...sourceFiles("src"), ...sourceFiles("packages/core")]) {
     const source = readFileSync(join(repoRoot, file), "utf8");
     for (const match of source.matchAll(/\bshow(Information|Warning|Error)Message\b/g)) {
       const where = `${file}:${source.slice(0, match.index).split("\n").length}`;

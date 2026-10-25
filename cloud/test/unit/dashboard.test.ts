@@ -5,7 +5,7 @@ import { openDatabase, type Database } from "../../src/db/client";
 import { uploads } from "../../src/db/schema";
 import { dashboardRepo } from "../../src/lib/dashboard";
 import { saveUpload, upsertRepository, type Repository } from "../../src/lib/store";
-import { UPLOAD_SCHEMA } from "../../../src/model/upload";
+import { UPLOAD_SCHEMA } from "@aisus/core/model/upload";
 import { COMMIT, MAP } from "../support/fixtures";
 
 const NOW = new Date("2026-10-19T12:00:00Z");

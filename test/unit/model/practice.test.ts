@@ -1,6 +1,6 @@
 // SKL-01: the explain-back prompts, and the checks on the questions and grades the agent returns.
 import { describe, expect, test } from "vitest";
-import { changedFiles, gradePrompt, parseGrade, parseQuestions, questionsPrompt } from "../../../src/model/practice";
+import { changedFiles, gradePrompt, parseGrade, parseQuestions, questionsPrompt } from "@aisus/core/model/practice";
 
 const DIFF = [
   "diff --git a/src/pay.ts b/src/pay.ts",

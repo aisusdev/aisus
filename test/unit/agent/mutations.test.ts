@@ -1,6 +1,6 @@
 // The mutation engine's rule tables and line targeting (ADR 0031, ADR 0038).
 import { describe, expect, test } from "vitest";
-import { bugStillPresent, hunkCount, mutateLine, mutateText } from "../../../src/agent/modes/bugfix/mutations";
+import { bugStillPresent, hunkCount, mutateLine, mutateText } from "@aisus/core/agent/modes/bugfix/mutations";
 
 describe("mutateLine off-by-one", () => {
   test.each([

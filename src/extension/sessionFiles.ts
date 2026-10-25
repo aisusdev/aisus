@@ -3,9 +3,9 @@
 // is never opened (the webview trust boundary of ADR 0034). No `vscode` import.
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
-import { leaderboardEntry, parseLedger, rankLeaderboard, type LeaderboardEntry, type LedgerEvent } from "../model/leaderboard";
-import { parseRunName, type RunName } from "../model/runFolder";
-import { ACTIVE_FILE, activeRun, checkSession, EVENTS_FILE, SESSION_FILE, AISUS_DIR, type SessionState } from "../model/session";
+import { leaderboardEntry, parseLedger, rankLeaderboard, type LeaderboardEntry, type LedgerEvent } from "@aisus/core/model/leaderboard";
+import { parseRunName, type RunName } from "@aisus/core/model/runFolder";
+import { ACTIVE_FILE, activeRun, checkSession, EVENTS_FILE, SESSION_FILE, AISUS_DIR, type SessionState } from "@aisus/core/model/session";
 
 /** `.aisus` run folders holding a `session.json`, newest timestamp (then `-N`) first. */
 export function listSessionRuns(root: string): string[] {

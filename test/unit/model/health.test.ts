@@ -1,6 +1,6 @@
 // ARC-05: the Health section's four lines, and the changed lines since the map that no box covers.
 import { expect, test } from "vitest";
-import { healthItems, uncoveredLines } from "../../../src/model/health";
+import { healthItems, uncoveredLines } from "@aisus/core/model/health";
 
 test("ARC-05 changed lines no box owns are counted from the diff and new files, tests and other files left out", () => {
   const components = [{ id: "api", sources: [{ path: "src/api/handler.ts" }] }];

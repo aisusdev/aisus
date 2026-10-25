@@ -1,8 +1,8 @@
 // FR-LAY-01 mode selection and grid conversion; FR-LAY-02 node sizing.
 import { describe, expect, test } from "vitest";
-import { autoNodeSize } from "../../../src/layout/measure";
-import { authoredRects } from "../../../src/layout/mode";
-import { readDiagram } from "../../../src/model/tolerant";
+import { autoNodeSize } from "@aisus/core/layout/measure";
+import { authoredRects } from "@aisus/core/layout/mode";
+import { readDiagram } from "@aisus/core/model/tolerant";
 import { archifyFixtures } from "../support/fixtures";
 import { comp, diagramOf, fixedAdvance, lay, rectOf } from "./helpers";
 

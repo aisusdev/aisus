@@ -2,15 +2,15 @@
 // fits on a new file, keeps the viewport on a reload of the same file and shows empty states.
 // The layout is mocked with the hand-built grid scene so this tests the wiring only.
 import { beforeEach, describe, expect, test, vi } from "vitest";
-import { layoutDiagram } from "../../src/layout/layout";
-import type { Scene } from "../../src/layout/scene";
-import type { HostMessage, WebviewMessage } from "../../src/model/messages";
+import { layoutDiagram } from "@aisus/core/layout/layout";
+import type { Scene } from "@aisus/core/layout/scene";
+import type { HostMessage, WebviewMessage } from "@aisus/core/model/messages";
 import { fitView } from "../../webview/viewport";
-import { uncertainty } from "../../src/model/uncertainty";
-import { diffMaps } from "../../src/model/diff";
+import { uncertainty } from "@aisus/core/model/uncertainty";
+import { diffMaps } from "@aisus/core/model/diff";
 import { gridScene } from "./support/scene";
 
-vi.mock("../../src/layout/layout", () => ({ layoutDiagram: vi.fn() }));
+vi.mock("@aisus/core/layout/layout", () => ({ layoutDiagram: vi.fn() }));
 
 // webview/main.ts runs on import: the VS Code API, panel size and canvas must be stubbed first.
 const { posted, fonts } = vi.hoisted(() => {

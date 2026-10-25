@@ -6,8 +6,8 @@
 // runs a `.agents/skills/aisus-*` script are touched, so user entries always survive.
 import { existsSync, lstatSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
-import { assertWritable } from "../model/confine";
-import { writeJson } from "../model/session";
+import { assertWritable } from "@aisus/core/model/confine";
+import { writeJson } from "@aisus/core/model/session";
 
 export const DEVIN_HOOKS_FILE = join(".devin", "hooks.v1.json");
 /** LRN-01: the files whose `hooks` object holds Claude Code's and Codex's hunt hook, relative to the repository. */

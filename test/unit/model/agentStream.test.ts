@@ -2,10 +2,10 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, test } from "vitest";
-import { claudeParser } from "../../../src/model/agentStream/claude";
-import { codexParser } from "../../../src/model/agentStream/codex";
-import type { StreamParser, StreamUpdate } from "../../../src/model/agentStream/feed";
-import { FEED_LIMIT, RunTracker } from "../../../src/model/agentStream/tracker";
+import { claudeParser } from "@aisus/core/model/agentStream/claude";
+import { codexParser } from "@aisus/core/model/agentStream/codex";
+import type { StreamParser, StreamUpdate } from "@aisus/core/model/agentStream/feed";
+import { FEED_LIMIT, RunTracker } from "@aisus/core/model/agentStream/tracker";
 import { repoRoot } from "../support/sourceScan";
 
 function replay(parser: StreamParser, fixture: string): StreamUpdate[] {

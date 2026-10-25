@@ -2,7 +2,7 @@
 import { chmodSync, existsSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, test } from "vitest";
-import { collectGitFacts, GIT_READS, parsePorcelainZ, repositoryFromGit, sanitizeOrigin } from "../../../src/model/git";
+import { collectGitFacts, GIT_READS, parsePorcelainZ, repositoryFromGit, sanitizeOrigin } from "@aisus/core/model/git";
 import { git, gitRepo, put, tempDir } from "../support/temp";
 
 const files = { "a.txt": "a\n", "b.txt": "b\n", "sub/c.txt": "c\n" };

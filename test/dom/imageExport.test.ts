@@ -1,7 +1,7 @@
 // VWR-06: Save Image draws the shown map as an SVG that carries its theme colours, or paints it onto
 // a canvas for a PNG at twice its size.
 import { afterEach, describe, expect, test, vi } from "vitest";
-import type { ViewDiagram } from "../../src/model/tolerant";
+import type { ViewDiagram } from "@aisus/core/model/tolerant";
 import { mapPng, mapSvg } from "../../webview/imageExport";
 import { renderScene } from "../../webview/render";
 import { contentGroup, fixedMeasure, gridScene } from "./support/scene";

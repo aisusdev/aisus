@@ -1,6 +1,6 @@
 // CLD-02: POST /api/v1/uploads. Authenticated by a GitHub Actions OIDC token for the repository or
 // by the repository's upload token; the body must pass checkUpload and stay under 1 MiB.
-import { checkUpload, MAX_UPLOAD_BYTES, type Upload } from "../../../../../../src/model/upload";
+import { checkUpload, MAX_UPLOAD_BYTES, type Upload } from "@aisus/core/model/upload";
 import { planOfRepository } from "../../../../lib/billing";
 import { verifyOidc } from "../../../../lib/oidc";
 import { siteOf } from "../../../../lib/requests";

@@ -3,11 +3,11 @@
 // the folder, so the skills are installed first when they are missing.
 import { join } from "node:path";
 import * as vscode from "vscode";
-import { copiedPrompt, PROMPT_TARGETS } from "./agents";
+import { copiedPrompt, PROMPT_TARGETS } from "@aisus/core/model/agents";
 import { pickRepoRoot } from "./folders";
 import { installSkill } from "./install";
 import { configuredScope } from "./scope";
-import { skillBase, skillInstalled, skillTargets } from "./skillFiles";
+import { skillBase, skillInstalled, skillTargets } from "@aisus/core/install/skillFiles";
 
 /** Asks which agent, then copies the Generate prompt with `focus` for it. */
 export async function copyPromptCommand(extensionUri: vscode.Uri, root: string, focus: string): Promise<void> {

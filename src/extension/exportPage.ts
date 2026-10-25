@@ -3,11 +3,11 @@
 import { readFileSync, writeFileSync } from "node:fs";
 import { basename, dirname, join } from "node:path";
 import * as vscode from "vscode";
-import { assertWritable } from "../model/confine";
-import { repoRootFor } from "../model/discovery";
-import { pageOutput, renderPage } from "../model/page";
-import { readDiagram } from "../model/tolerant";
-import { isJsonObject, type Repository } from "../model/types";
+import { assertWritable } from "@aisus/core/model/confine";
+import { repoRootFor } from "@aisus/core/model/discovery";
+import { pageOutput, renderPage } from "@aisus/core/model/page";
+import { readDiagram } from "@aisus/core/model/tolerant";
+import { isJsonObject, type Repository } from "@aisus/core/model/types";
 import { onAction } from "./notify";
 import { ArchitecturePanel } from "./panel";
 

@@ -5,10 +5,10 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { expect, test } from "vitest";
 import { main as bench } from "../../../tools/bench/bench";
-import { summarizeStream } from "../../../src/model/agentStream/summary";
+import { summarizeStream } from "@aisus/core/model/agentStream/summary";
 import { main as plan } from "../../../tools/bench/plan";
-import { claudeParser } from "../../../src/model/agentStream/claude";
-import { codexParser } from "../../../src/model/agentStream/codex";
+import { claudeParser } from "@aisus/core/model/agentStream/claude";
+import { codexParser } from "@aisus/core/model/agentStream/codex";
 import { put, tempDir } from "../support/temp";
 import { repoRoot } from "../support/sourceScan";
 

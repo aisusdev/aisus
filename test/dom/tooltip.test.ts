@@ -1,7 +1,7 @@
 // FR-VIEW-07: hover delay, contents, stay/hide rules and source clicks of the node tooltip.
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
-import type { WebviewMessage } from "../../src/model/messages";
-import type { ViewDiagram } from "../../src/model/tolerant";
+import type { WebviewMessage } from "@aisus/core/model/messages";
+import type { ViewDiagram } from "@aisus/core/model/tolerant";
 import { renderScene } from "../../webview/render";
 import { HIDE_DELAY_MS, SHOW_DELAY_MS, TooltipController, formatSource } from "../../webview/tooltip";
 import { fixedMeasure, gridScene } from "./support/scene";

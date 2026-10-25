@@ -1,8 +1,8 @@
 // Node tooltip (FR-VIEW-07): shown after hovering a node for 300 ms, kept while the pointer is over
 // the node or the tooltip, hidden 200 ms after leaving both. Source entries post `openSource`.
-import type { ViewDiagram } from "../src/model/tolerant";
-import type { WebviewMessage } from "../src/model/messages";
-import type { SourceRef } from "../src/model/types";
+import type { ViewDiagram } from "@aisus/core/model/tolerant";
+import type { WebviewMessage } from "@aisus/core/model/messages";
+import type { SourceRef } from "@aisus/core/model/types";
 
 export const SHOW_DELAY_MS = 300;
 export const HIDE_DELAY_MS = 200;

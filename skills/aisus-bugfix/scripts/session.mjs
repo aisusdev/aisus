@@ -1,9 +1,9 @@
-// src/agent/session.ts
+// packages/core/agent/session.ts
 import { spawnSync as spawnSync2 } from "node:child_process";
 import { existsSync as existsSync2, readFileSync as readFileSync3, realpathSync as realpathSync4, statSync as statSync3, unlinkSync as unlinkSync2, writeFileSync as writeFileSync2 } from "node:fs";
 import { basename as basename2, join as join4, relative as relative2, resolve as resolve2, sep as sep2 } from "node:path";
 
-// src/model/deny.ts
+// packages/core/model/deny.ts
 var DENIED_NAMES = [".git", ".archify", ".npmrc", ".pypirc", ".netrc"];
 var ENV_EXCEPTIONS = [".env.example", ".env.sample"];
 var DENIED_PREFIXES = ["id_rsa", "id_ed25519"];
@@ -20,11 +20,11 @@ function isDenied(path) {
   return path.split("/").some(segmentDenied);
 }
 
-// src/model/git.ts
+// packages/core/model/git.ts
 import { spawnSync } from "node:child_process";
 import { realpathSync } from "node:fs";
 
-// src/model/which.ts
+// packages/core/model/which.ts
 import { accessSync, constants, statSync } from "node:fs";
 import { delimiter, join, posix, win32 } from "node:path";
 function isExecutableFile(path, platform) {
@@ -50,7 +50,7 @@ function findOnPath(cli, env, platform = process.platform) {
   return void 0;
 }
 
-// src/model/git.ts
+// packages/core/model/git.ts
 var MAX_DIRTY_PATHS = 200;
 var GIT_PREFIX = ["-c", "core.fsmonitor=false", "--no-optional-locks"];
 var GIT_READS = {
@@ -119,7 +119,7 @@ function collectGitFacts(root2, env = process.env) {
   };
 }
 
-// src/model/runFolder.ts
+// packages/core/model/runFolder.ts
 import { closeSync, fsyncSync, mkdirSync, openSync, realpathSync as realpathSync2, renameSync, rmSync, statSync as statSync2, unlinkSync, writeSync } from "node:fs";
 import { basename, dirname, join as join2, resolve, sep } from "node:path";
 var ARCHIFY_DIR = ".archify";
@@ -180,7 +180,7 @@ function createRunFolder(root2, slug, timestamp, options = {}) {
   throw new Error(`can't create ${dir}/${base}: too many folders with that name`);
 }
 
-// src/model/session.ts
+// packages/core/model/session.ts
 import {
   appendFileSync,
   closeSync as closeSync2,
@@ -195,7 +195,7 @@ import {
 } from "node:fs";
 import { dirname as dirname3, join as join3 } from "node:path";
 
-// src/model/confine.ts
+// packages/core/model/confine.ts
 import { lstatSync, realpathSync as realpathSync3 } from "node:fs";
 import { dirname as dirname2, isAbsolute, relative } from "node:path";
 function isWithin(parentReal, childReal) {
@@ -226,7 +226,7 @@ function assertWritable(root2, path) {
   assertNotLink(path);
 }
 
-// src/model/session.ts
+// packages/core/model/session.ts
 var AISUS_DIR = ".aisus";
 var ACTIVE_FILE = "active";
 var SESSION_FILE = "session.json";
@@ -392,7 +392,7 @@ function runExists(root2, run2) {
   return existsSync(join3(root2, AISUS_DIR, run2));
 }
 
-// src/agent/modes/bugfix/mutations.ts
+// packages/core/agent/modes/bugfix/mutations.ts
 import { readFileSync as readFileSync2, writeFileSync } from "node:fs";
 function codeMask(line) {
   const mask = new Array(line.length).fill(true);
@@ -566,7 +566,7 @@ function restoreHunk(text, bug) {
   return lines.join("\n");
 }
 
-// src/agent/session.ts
+// packages/core/agent/session.ts
 var USAGE = `usage: node session.mjs <command>
   init --mode bugfix [--name <text>]     start a session, take the .aisus/active lock
   plan --steps '<json>'                  record the plan: [{"title":\u2026,"files":[\u2026]}] or ["\u2026"]

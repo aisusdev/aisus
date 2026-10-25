@@ -1,8 +1,8 @@
-import { runInThread } from "../../../src/layout/elkInThread";
-import { layoutDiagram } from "../../../src/layout/layout";
-import type { MeasureText, Point, Rect, Scene } from "../../../src/layout/scene";
-import { readDiagram } from "../../../src/model/tolerant";
-import type { ViewDiagram } from "../../../src/model/tolerant";
+import { runInThread } from "@aisus/core/layout/elkInThread";
+import { layoutDiagram } from "@aisus/core/layout/layout";
+import type { MeasureText, Point, Rect, Scene } from "@aisus/core/layout/scene";
+import { readDiagram } from "@aisus/core/model/tolerant";
+import type { ViewDiagram } from "@aisus/core/model/tolerant";
 
 /** JetBrains Mono metrics: 0.6 em advance per character, 1.32 em line height. */
 export const fixedAdvance: MeasureText = (text, sizePx) => ({ width: [...text].length * 0.6 * sizePx, height: 1.32 * sizePx });

@@ -4,8 +4,8 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, test } from "vitest";
-import { skillEstimates } from "../../../src/model/estimate";
-import { repoSize, sizeFacts } from "../../../src/model/repoSize";
+import { skillEstimates } from "@aisus/core/model/estimate";
+import { repoSize, sizeFacts } from "@aisus/core/model/repoSize";
 import { git, gitRepo, put, runScript } from "../support/temp";
 
 const SOURCE = ["import x from 'x';", "", "export function handle(req) {", "  const body = parse(req);", "  return save(body);", "}", ""].join("\n");

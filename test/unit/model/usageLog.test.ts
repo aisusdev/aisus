@@ -1,6 +1,6 @@
 // SET-05: the usage log counts a fixed set of actions per day, keeps 90 days, and holds nothing else.
 import { expect, test } from "vitest";
-import { emptyUsageLog, recordUsage, USAGE_DAYS, usageExport } from "../../../src/model/usageLog";
+import { emptyUsageLog, recordUsage, USAGE_DAYS, usageExport } from "@aisus/core/model/usageLog";
 
 test("SET-05 each listed action is counted on its day, and anything else is not recorded", () => {
   let log = emptyUsageLog();

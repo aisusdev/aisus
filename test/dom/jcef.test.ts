@@ -1,7 +1,7 @@
 // IDE-01: the viewer's JCEF host hands each viewer message to the plugin as JSON through
 // `aisusPost`, delivers the plugin's messages from `aisusReceive`, and takes the IDE's palette.
 import { describe, expect, test } from "vitest";
-import type { HostMessage, WebviewMessage } from "../../src/model/messages";
+import type { HostMessage, WebviewMessage } from "@aisus/core/model/messages";
 import { jcefHost, type JcefWindow } from "../../webview/hosts/jcef";
 import { DARK, LIGHT } from "../../webview/hosts/standalone";
 

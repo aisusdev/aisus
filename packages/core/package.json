@@ -1,0 +1,14 @@
+{
+  "name": "@aisus/core",
+  "version": "0.3.0",
+  "private": true,
+  "description": "aisus's shared logic: the map model, its layout and the skill scripts.",
+  "exports": {
+    "./*.json": "./*.json",
+    "./*": "./*.ts"
+  },
+  "dependencies": {
+    "ajv": "8.20.0",
+    "elkjs": "0.12.0"
+  }
+}

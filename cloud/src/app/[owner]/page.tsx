@@ -2,7 +2,7 @@
 // map's age, its freshness, uncovered files and open violations from the latest check, the boxes
 // pull requests touch most, a trend over recent checks, and recent pull requests. Nothing is per person.
 import { redirect } from "next/navigation";
-import { relativeAge } from "../../../../src/model/home";
+import { relativeAge } from "@aisus/core/model/home";
 import { planOfAccount } from "../../lib/billing";
 import { dashboardFor, TREND_CHECKS, type DashboardRepo } from "../../lib/dashboard";
 import { services } from "../../lib/services";

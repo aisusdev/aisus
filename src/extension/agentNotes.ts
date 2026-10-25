@@ -3,11 +3,11 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import * as vscode from "vscode";
-import { claudeNeedsNotes, mergeNotes, notesBlock } from "../model/agentNotes";
-import { loadConfig } from "../model/check";
-import { readRules } from "../model/rules";
-import { ARCHIFY_DIR, CANDIDATE_FILE } from "../model/runFolder";
-import { readDiagram } from "../model/tolerant";
+import { claudeNeedsNotes, mergeNotes, notesBlock } from "@aisus/core/model/agentNotes";
+import { loadConfig } from "@aisus/core/model/check";
+import { readRules } from "@aisus/core/model/rules";
+import { ARCHIFY_DIR, CANDIDATE_FILE } from "@aisus/core/model/runFolder";
+import { readDiagram } from "@aisus/core/model/tolerant";
 import { pickRepoRoot } from "./folders";
 import { confirmWrite } from "./previewWrite";
 import { rulesMap } from "./rules";

@@ -5,7 +5,7 @@
 import { existsSync } from "node:fs";
 import { basename, dirname, join, sep } from "node:path";
 import * as vscode from "vscode";
-import { listCandidates } from "../model/discovery";
+import { listCandidates } from "@aisus/core/model/discovery";
 import { ArchitecturePanel } from "./panel";
 import { candidateOf, ChangeBatch, DELETED_MESSAGE, noteCandidate, watchAction } from "./watchLogic";
 

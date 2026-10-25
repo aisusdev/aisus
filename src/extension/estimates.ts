@@ -1,9 +1,9 @@
 // CST-03: the estimate every token-spending action shows, from the folder's size (CST-01). Sizes
 // are cached per folder for a minute, since the sidebar asks on every change.
 import * as vscode from "vscode";
-import { runEstimate, type EstimateAgent, type EstimateKind, type RunEstimate } from "../model/estimate";
-import { repoSize, sizeFacts, type RepoSize } from "../model/repoSize";
-import type { SkillName } from "./agents";
+import { runEstimate, type EstimateAgent, type EstimateKind, type RunEstimate } from "@aisus/core/model/estimate";
+import { repoSize, sizeFacts, type RepoSize } from "@aisus/core/model/repoSize";
+import type { SkillName } from "@aisus/core/model/agents";
 
 /** How long a folder's size is reused. */
 export const SIZE_TTL_MS = 60_000;

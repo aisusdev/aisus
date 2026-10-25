@@ -1,7 +1,7 @@
 // VWR-06: the map as an image, for Save Image. The SVG copies the drawn map with each element's
 // computed colours, strokes and fonts written onto it, on the theme's background. The PNG paints
 // the same boxes, arrows and text onto a canvas. Neither loads anything, so the page's CSP stays.
-import type { Rect } from "../src/layout/scene";
+import type { Rect } from "@aisus/core/layout/scene";
 
 const SVG_NS = "http://www.w3.org/2000/svg";
 /** The computed properties each copied element keeps. */

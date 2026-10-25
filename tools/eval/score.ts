@@ -4,8 +4,8 @@
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { readDiagram } from "../../src/model/tolerant";
-import { score, type Score } from "../../src/model/score";
+import { readDiagram } from "@aisus/core/model/tolerant";
+import { score, type Score } from "@aisus/core/model/score";
 import { readTruth } from "./lib/truth";
 
 export interface Scored {

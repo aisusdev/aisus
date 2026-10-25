@@ -1,6 +1,6 @@
 // VWR-01: the viewer outside VS Code, in the diagram page (RCH-01) and the cloud site. Tokens come
 // from a light and a dark palette that follow the system setting.
-import type { HostMessage, WebviewMessage } from "../../src/model/messages";
+import type { HostMessage, WebviewMessage } from "@aisus/core/model/messages";
 import { applyTokens, type Host } from "../bridge";
 
 const SHARED: Readonly<Record<string, string>> = {

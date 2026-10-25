@@ -1,5 +1,5 @@
 // CLD-08: the privacy page: the "maps, not code" rule and the exact upload schema.
-import { UPLOAD_SCHEMA } from "../../../../src/model/upload";
+import { UPLOAD_SCHEMA } from "@aisus/core/model/upload";
 import { statsWebsite } from "../../lib/stats";
 
 export default function PrivacyPage() {

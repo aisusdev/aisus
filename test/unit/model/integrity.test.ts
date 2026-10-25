@@ -2,7 +2,7 @@
 import { cpSync, mkdirSync, rmSync, symlinkSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, test } from "vitest";
-import { checkSkill, diffSkill, hashTree, LINK_MARK } from "../../../src/model/integrity";
+import { checkSkill, diffSkill, hashTree, LINK_MARK } from "@aisus/core/model/integrity";
 import { put, tempDir } from "../support/temp";
 
 const NAME = "aisus-architecture";

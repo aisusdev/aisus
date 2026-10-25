@@ -1,6 +1,6 @@
 // The `aisus.skillScope` setting (SET-01).
 import * as vscode from "vscode";
-import type { SkillScope } from "./skillFiles";
+import type { SkillScope } from "@aisus/core/install/skillFiles";
 
 /** Where skills install: `user` (the default, nothing added to the repository) or `project`. */
 export function configuredScope(): SkillScope {

@@ -2,10 +2,10 @@
 import { renameSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, test } from "vitest";
-import { fingerprint } from "../../../src/model/fingerprints";
-import { renamesSince } from "../../../src/model/git";
-import { fileReader, mapFreshness } from "../../../src/model/staleness";
-import type { ArchifyDoc } from "../../../src/model/types";
+import { fingerprint } from "@aisus/core/model/fingerprints";
+import { renamesSince } from "@aisus/core/model/git";
+import { fileReader, mapFreshness } from "@aisus/core/model/staleness";
+import type { ArchifyDoc } from "@aisus/core/model/types";
 import { git, gitRepo, put, tempDir } from "../support/temp";
 
 const SOURCE = ["import x from 'x';", "", "export function handle(req) {", "  const body = parse(req);", "  return save(body);", "}", ""].join("\n");

@@ -1,7 +1,7 @@
 // FR-MOD-01 (round-trip) and FR-MOD-02 (schema validation with JSON pointers).
 import { describe, expect, test } from "vitest";
-import { validateArchitecture } from "../../../src/model/schema";
-import { stringifyDocument } from "../../../src/model/types";
+import { validateArchitecture } from "@aisus/core/model/schema";
+import { stringifyDocument } from "@aisus/core/model/types";
 import { archifyFixtures } from "../support/fixtures";
 
 const fixtures = archifyFixtures();

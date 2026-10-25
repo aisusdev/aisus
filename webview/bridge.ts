@@ -1,6 +1,6 @@
 // VWR-01: the viewer reaches the host it runs in only through here. The host is the VS Code
 // webview, the diagram page or the cloud site; each installs itself before the viewer starts.
-import type { HostMessage, WebviewMessage } from "../src/model/messages";
+import type { HostMessage, WebviewMessage } from "@aisus/core/model/messages";
 
 export interface Host {
   post(message: WebviewMessage): void;

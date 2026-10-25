@@ -1,8 +1,8 @@
 // ARC-03: hotspots for a folder's maps, from git's log over `aisus.hotspots.days`. The log is
 // read at most once a minute per folder.
 import * as vscode from "vscode";
-import { changeLog, type LoggedCommit } from "../model/git";
-import { hotspotNote, hotspots, type BoxHotspot } from "../model/hotspots";
+import { changeLog, type LoggedCommit } from "@aisus/core/model/git";
+import { hotspotNote, hotspots, type BoxHotspot } from "@aisus/core/model/hotspots";
 
 /** How long a folder's log is reused. */
 export const HOTSPOT_TTL_MS = 60_000;

@@ -5,8 +5,8 @@ import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { expect, test } from "vitest";
 import { runFit } from "../../../tools/bench/fit";
-import { COEFFICIENTS, dollars, ESTIMATE_AGENTS, ESTIMATE_KINDS, estimate, estimateText, modelPrice, PRICING, priceRange, runEstimate, skillEstimates, tokenAmount, type Coefficients, type TokenMix } from "../../../src/model/estimate";
-import type { BenchResult } from "../../../src/model/fit";
+import { COEFFICIENTS, dollars, ESTIMATE_AGENTS, ESTIMATE_KINDS, estimate, estimateText, modelPrice, PRICING, priceRange, runEstimate, skillEstimates, tokenAmount, type Coefficients, type TokenMix } from "@aisus/core/model/estimate";
+import type { BenchResult } from "@aisus/core/model/fit";
 import { tempDir } from "../support/temp";
 
 test("CST-02 estimates grow with size for every agent and kind, and stay provisional until fitted", () => {

@@ -3,8 +3,8 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, test } from "vitest";
-import { mutateText } from "../../../src/agent/modes/bugfix/mutations";
-import type { MutationKind } from "../../../src/model/session";
+import { mutateText } from "@aisus/core/agent/modes/bugfix/mutations";
+import type { MutationKind } from "@aisus/core/model/session";
 import { repoRoot } from "../support/sourceScan";
 import { put, runScript, tempDir } from "../support/temp";
 

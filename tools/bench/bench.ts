@@ -5,7 +5,7 @@
 import { join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { tmpdir } from "node:os";
-import { findOnPath } from "../../src/model/which";
+import { findOnPath } from "@aisus/core/model/which";
 import { readCorpus } from "./lib/corpus";
 import { AGENT_CONFIG, agentHomePreview, benchCache, cloneSource, mirrorPath } from "./lib/isolate";
 import { benchArgs, benchEnv, benchPrompt, benchSkill, redactEnv } from "./lib/launch";

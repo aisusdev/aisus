@@ -2,7 +2,7 @@
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { expect, test, vi } from "vitest";
-import { claudeParser } from "../../../src/model/agentStream/claude";
+import { claudeParser } from "@aisus/core/model/agentStream/claude";
 import { canRunHeadless, startHeadless } from "../../../src/extension/runner";
 import { tempDir } from "../support/temp";
 

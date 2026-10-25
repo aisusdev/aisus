@@ -3,15 +3,15 @@
 import { readFileSync } from "node:fs";
 import { join, relative, sep } from "node:path";
 import * as vscode from "vscode";
-import { loadConfig, mainMap } from "../model/check";
-import { importLanguage, importRefs } from "../model/evidence/graph";
-import { untrackedFiles } from "../model/git";
-import { Ownership } from "../model/ownership";
-import { isTestPath, listFiles, skipped } from "../model/repoSize";
-import { checkRules, readRules, type Violation } from "../model/rules";
-import { ARCHIFY_DIR, CANDIDATE_FILE } from "../model/runFolder";
-import { fileReader } from "../model/staleness";
-import { readDiagram } from "../model/tolerant";
+import { loadConfig, mainMap } from "@aisus/core/model/check";
+import { importLanguage, importRefs } from "@aisus/core/model/evidence/graph";
+import { untrackedFiles } from "@aisus/core/model/git";
+import { Ownership } from "@aisus/core/model/ownership";
+import { isTestPath, listFiles, skipped } from "@aisus/core/model/repoSize";
+import { checkRules, readRules, type Violation } from "@aisus/core/model/rules";
+import { ARCHIFY_DIR, CANDIDATE_FILE } from "@aisus/core/model/runFolder";
+import { fileReader } from "@aisus/core/model/staleness";
+import { readDiagram } from "@aisus/core/model/tolerant";
 
 /** Wait after the last save before checking again. */
 export const RULES_DEBOUNCE_MS = 300;

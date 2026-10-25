@@ -4,7 +4,7 @@ import { mkdirSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, test } from "vitest";
 import { listSessionRuns, readSessionSnapshot } from "../../../src/extension/sessionFiles";
-import { ACTIVE_FILE, SESSION_FILE, AISUS_DIR } from "../../../src/model/session";
+import { ACTIVE_FILE, SESSION_FILE, AISUS_DIR } from "@aisus/core/model/session";
 import { put, tempDir } from "../support/temp";
 
 const RUN_OLD = "bugfix-alpha-20250101-000000";

@@ -3,7 +3,7 @@
 import { readFileSync } from "node:fs";
 import { Worker as Thread } from "node:worker_threads";
 import { afterAll, expect, test } from "vitest";
-import { layoutDiagram } from "../../../src/layout/layout";
+import { layoutDiagram } from "@aisus/core/layout/layout";
 import { workerRunner } from "../../../webview/layoutWorkers";
 import { comp, diagramOf, fixedAdvance, lay, VIEWPORT } from "./helpers";
 import { BUDGET_FACTOR, checkLayoutBudget, timedMedian } from "./perfBudget";

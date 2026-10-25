@@ -1,6 +1,6 @@
 // FRS-05 and FRS-06: --paths globs, and the arguments Refresh passes to the refresh skill.
 import { expect, test } from "vitest";
-import { globToRegExp, inScope, refreshArgs } from "../../../src/model/refresh";
+import { globToRegExp, inScope, refreshArgs } from "@aisus/core/model/refresh";
 
 test("FRS-05 ** crosses folders, * and ? stay in one, and a folder matches what is below it", () => {
   const globs = ["src/**/*.ts", "lib", "docs/?.md"].map(globToRegExp);

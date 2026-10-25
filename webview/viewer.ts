@@ -1,13 +1,13 @@
 // The map viewer (FR-VIEW-04..07): builds the DOM, lays out, renders and fits each loaded
 // diagram. It talks to whatever hosts it only through the bridge (VWR-01), so the VS Code
 // webview, the diagram page and the cloud site share it.
-import { layoutDiagram } from "../src/layout/layout";
-import type { MeasureText, Scene } from "../src/layout/scene";
-import type { ChangeOverlay, Ghost, GhostArrow, HostMessage } from "../src/model/messages";
-import { NO_IMPORT_EVIDENCE } from "../src/model/uncertainty";
-import { diffSummary, type MapDiff } from "../src/model/diff";
-import type { Freshness } from "../src/model/staleness";
-import { readDiagram, type ViewDiagram } from "../src/model/tolerant";
+import { layoutDiagram } from "@aisus/core/layout/layout";
+import type { MeasureText, Scene } from "@aisus/core/layout/scene";
+import type { ChangeOverlay, Ghost, GhostArrow, HostMessage } from "@aisus/core/model/messages";
+import { NO_IMPORT_EVIDENCE } from "@aisus/core/model/uncertainty";
+import { diffSummary, type MapDiff } from "@aisus/core/model/diff";
+import type { Freshness } from "@aisus/core/model/staleness";
+import { readDiagram, type ViewDiagram } from "@aisus/core/model/tolerant";
 import { onMessage, post } from "./bridge";
 import { NodeClicks } from "./click";
 import { renderScene } from "./render";

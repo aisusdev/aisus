@@ -7452,15 +7452,15 @@ var require__ = __commonJS({
   }
 });
 
-// src/agent/tour-record.ts
+// packages/core/agent/tour-record.ts
 import { readFileSync, rmSync, writeFileSync } from "node:fs";
 import { basename, dirname as dirname2, join as join2, resolve } from "node:path";
 
-// src/model/citations.ts
+// packages/core/model/citations.ts
 import { closeSync, openSync, readSync, realpathSync, statSync } from "node:fs";
 import { join, sep } from "node:path";
 
-// src/model/citationPath.ts
+// packages/core/model/citationPath.ts
 var MAX_PATH_LENGTH = 240;
 function citationPathOk(path) {
   if (path.length === 0 || path.length > MAX_PATH_LENGTH) return false;
@@ -7469,7 +7469,7 @@ function citationPathOk(path) {
   return path.split("/").every((segment) => segment !== "" && segment !== "." && segment !== "..");
 }
 
-// src/model/deny.ts
+// packages/core/model/deny.ts
 var DENIED_NAMES = [".git", ".archify", ".npmrc", ".pypirc", ".netrc"];
 var ENV_EXCEPTIONS = [".env.example", ".env.sample"];
 var DENIED_PREFIXES = ["id_rsa", "id_ed25519"];
@@ -7486,7 +7486,7 @@ function isDenied(path) {
   return path.split("/").some(segmentDenied);
 }
 
-// src/model/citations.ts
+// packages/core/model/citations.ts
 var MAX_CITED_BYTES = 2 * 1024 * 1024;
 var BINARY_SNIFF_BYTES = 8 * 1024;
 function countLines(bytes) {
@@ -7602,7 +7602,7 @@ function checkCitations(doc, root) {
   return issues;
 }
 
-// src/model/confine.ts
+// packages/core/model/confine.ts
 import { lstatSync, realpathSync as realpathSync2 } from "node:fs";
 import { dirname, isAbsolute, relative } from "node:path";
 function isWithin(parentReal, childReal) {
@@ -7633,7 +7633,7 @@ function assertWritable(root, path) {
   assertNotLink(path);
 }
 
-// src/model/runFolder.ts
+// packages/core/model/runFolder.ts
 var ARCHIFY_DIR = ".archify";
 var CANDIDATE_FILE = "candidate.json";
 var RUN_NAME_PATTERN = /^([a-z0-9]+)-(.+)-(\d{8}-\d{6})(?:-(\d+))?$/;
@@ -7648,10 +7648,10 @@ function parseRunFolderName(name) {
   return { slug: parsed.slug, timestamp: parsed.timestamp, n: parsed.n };
 }
 
-// src/model/tour.ts
+// packages/core/model/tour.ts
 var import__ = __toESM(require__());
 
-// src/model/schemas/tour.schema.json
+// packages/core/model/schemas/tour.schema.json
 var tour_schema_default = {
   $schema: "https://json-schema.org/draft/2020-12/schema",
   $id: "https://aisus.dev/schemas/tour-draft.schema.json",
@@ -7690,7 +7690,7 @@ var tour_schema_default = {
   }
 };
 
-// src/model/tour.ts
+// packages/core/model/tour.ts
 var TOUR_FILE = "tour.json";
 var TOUR_DRAFT_FILE = "tour-draft.json";
 var compiled;
@@ -7707,7 +7707,7 @@ function checkTourDraft(value, map) {
   );
 }
 
-// src/agent/tour-record.ts
+// packages/core/agent/tour-record.ts
 var HINT = "Fix each error in tour-draft.json and run tour-record.mjs again.";
 function print(value) {
   process.stdout.write(`${JSON.stringify(value, null, 2)}

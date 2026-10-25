@@ -1,10 +1,10 @@
 // The diagram page's entry point (RCH-01): reads the map from the page's data script, draws it with
 // the standalone host, and opens a clicked citation in the editor, on GitHub or as text to copy.
 // Bundled as dist/page.js and inlined into each page.
-import { availableTargets, openLink, TARGET_LABELS, type LinkContext, type OpenTarget } from "../src/model/openLinks";
-import type { PageData } from "../src/model/page";
-import { readDiagram } from "../src/model/tolerant";
-import type { SourceRef } from "../src/model/types";
+import { availableTargets, openLink, TARGET_LABELS, type LinkContext, type OpenTarget } from "@aisus/core/model/openLinks";
+import type { PageData } from "@aisus/core/model/page";
+import { readDiagram } from "@aisus/core/model/tolerant";
+import type { SourceRef } from "@aisus/core/model/types";
 import { useHost } from "./bridge";
 import { standaloneHost } from "./hosts/standalone";
 import { startViewer } from "./viewer";

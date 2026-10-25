@@ -2,8 +2,8 @@
 // `vscode` import, so spawning, cancelling and parsing are unit-tested against a stub agent.
 import { spawn } from "node:child_process";
 import { extname, join } from "node:path";
-import type { StreamParser } from "../model/agentStream/feed";
-import { RunTracker, type RunState } from "../model/agentStream/tracker";
+import type { StreamParser } from "@aisus/core/model/agentStream/feed";
+import { RunTracker, type RunState } from "@aisus/core/model/agentStream/tracker";
 
 /** How long a cancelled run gets to exit before it is killed outright. */
 export const KILL_GRACE_MS = 3_000;
