@@ -34,7 +34,7 @@ export function confirmAbove(): number {
 
 /** The estimate kind a skill's run spends; an audit reads cited ranges as a refresh does. */
 export function estimateKind(skill: SkillName): EstimateKind {
-  return skill === "aisus-architecture" ? "full" : "refresh";
+  return skill === "aisus-architecture" || skill === "aisus-sequence" ? "full" : "refresh";
 }
 
 /** The estimate of a `kind` run by `agent` in `root`, or `null` when the folder cannot be measured. */

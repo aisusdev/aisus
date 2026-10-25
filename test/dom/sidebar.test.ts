@@ -31,6 +31,7 @@ function state(fields: Partial<HomeState> = {}): HomeState {
     folders: [{ name: "repo", root: "/r" }],
     root: "/r",
     maps: [],
+    sequences: [],
     composer: { agents: [{ cli: "claude", label: "Claude Code", headless: true }], agent: "claude", runMode: "sidebar", notes: [], confirm: false },
     run: null,
     setup: OK_CHECKS,
@@ -544,5 +545,28 @@ describe("SKL-03 Practice log", () => {
     expect(container.querySelector(".practice-log img")).toBeNull();
     home.render(state());
     expect(container.querySelector(".practice-log")).toBeNull();
+  });
+});
+
+describe("SEQ-04 sequence maps on the Maps page", () => {
+  test("Draw a sequence map posts the composer's text as the flow", () => {
+    home.render(state());
+    container.querySelector<HTMLTextAreaElement>(".composer__focus")!.value = "a login request";
+    click("Draw a sequence map");
+    expect(posted).toEqual([{ type: "generateSequence", flow: "a login request" }]);
+  });
+
+  test("a folder with only sequence maps offers Maps, whose Sequence maps section opens, exports and deletes them and counts participants", () => {
+    const sequence = map({ runFolder: "sequence-login-20261016-120000", file: "/r/.archify/sequence-login-20261016-120000/candidate.json", title: "Login", boxes: 3 });
+    home.render(state({ sequences: [sequence] }));
+    const row = container.querySelector<HTMLButtonElement>('.row[data-page="maps"]')!;
+    expect(row.textContent).toContain("1");
+    row.click();
+    expect(text(".maps--sequence .section__title")).toEqual(["Sequence maps"]);
+    expect(text(".map--sequence .map__meta")).toEqual(["Claude Code · 2 days ago · 3 participants"]);
+    expect(text(".map--sequence .map__actions button")).toEqual(["Export page", "Delete"]);
+    container.querySelector<HTMLButtonElement>(".map--sequence .map__title")!.click();
+    expect(posted).toEqual([{ type: "openMap", file: sequence.file }]);
+    expect(container.querySelector(".current--empty")).not.toBeNull();
   });
 });

@@ -72,12 +72,12 @@ test("UI-05 the Explorer maps folders and shows files; boxes open their code", (
   expect(hidden).toEqual(expect.arrayContaining(["aisus.showFileInMap", "aisus.mapFolder", "aisus.openBoxCode"]));
 });
 
-test("FRS-04 Show Changes sits in the map panel's title bar only", () => {
-  expect(manifest.contributes.menus["editor/title"]).toContainEqual({ command: "aisus.showChanges", when: "activeWebviewPanelId == 'aisus.architecture'", group: "navigation@2" });
+test("FRS-04 SEQ-04 Show Changes sits in the map panel's title bar only, and not for a sequence map", () => {
+  expect(manifest.contributes.menus["editor/title"]).toContainEqual({ command: "aisus.showChanges", when: "activeWebviewPanelId == 'aisus.architecture' && !aisus.sequenceShown", group: "navigation@2" });
 });
 
-test("FRS-06 Refresh sits in the map's title bar and in a box's menu", () => {
-  expect(manifest.contributes.menus["editor/title"]).toContainEqual({ command: "aisus.refreshArchitecture", when: "activeWebviewPanelId == 'aisus.architecture'", group: "navigation@1" });
+test("FRS-06 SEQ-04 Refresh sits in the map's title bar, except for a sequence map, and in a box's menu", () => {
+  expect(manifest.contributes.menus["editor/title"]).toContainEqual({ command: "aisus.refreshArchitecture", when: "activeWebviewPanelId == 'aisus.architecture' && !aisus.sequenceShown", group: "navigation@1" });
   expect(manifest.contributes.menus["webview/context"]).toContainEqual({ command: "aisus.refreshBox", when: "webviewId == 'aisus.architecture' && webviewSection == 'box'", group: "navigation@2" });
 });
 

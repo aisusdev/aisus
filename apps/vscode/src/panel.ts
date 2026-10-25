@@ -287,7 +287,8 @@ export class ArchitecturePanel {
       this.fail(name, result.reason);
       return;
     }
-    this.panel.title = `Architecture: ${result.diagram.title ?? basename(this.file)}`;
+    const sequence = result.diagram.sequence !== undefined;
+    this.panel.title = `${sequence ? "Sequence" : "Architecture"}: ${result.diagram.title ?? basename(this.file)}`;
     // The webview gets the parsed JSON only (NFR-SEC-01), never source files.
     this.shown = { kind: "diagram", doc: result.value, diagram: result.diagram };
     this.send();
@@ -308,6 +309,8 @@ export class ArchitecturePanel {
   }
 
   private send(): void {
+    // SEQ-04: the title bar keeps only what works on a sequence map.
+    void vscode.commands.executeCommand("setContext", "aisus.sequenceShown", this.shown.kind === "diagram" && this.shown.diagram.sequence !== undefined);
     const message: HostMessage =
       this.shown.kind === "diagram"
         ? { type: "load", doc: this.shown.doc, file: this.file }

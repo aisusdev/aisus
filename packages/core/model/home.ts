@@ -82,6 +82,7 @@ export const SIDEBAR_ACTIONS: Readonly<Record<string, string>> = {
   practiceStart: "aisus.checkUnderstanding",
   createTour: "aisus.createTour",
   copyPromptFor: "aisus.copyPromptFor",
+  generateSequence: "aisus.generateSequence",
 };
 
 /** The map's freshness header (FRS-03), or `null` when no box changed. */

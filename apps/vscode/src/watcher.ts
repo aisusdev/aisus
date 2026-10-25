@@ -6,6 +6,7 @@ import { existsSync } from "node:fs";
 import { basename, dirname, join, sep } from "node:path";
 import * as vscode from "vscode";
 import { listCandidates } from "@aisus/core/model/discovery";
+import { mapKindOf } from "@aisus/core/model/runFolder";
 import { ArchitecturePanel } from "./panel";
 import { candidateOf, ChangeBatch, DELETED_MESSAGE, noteCandidate, watchAction } from "./watchLogic";
 
@@ -57,7 +58,7 @@ export class CandidateWatcher implements vscode.Disposable {
       const root = folder.uri.fsPath;
       const known = this.known.get(root);
       if (known === undefined) continue;
-      const now = new Set(listCandidates(root).map((candidate) => candidate.file));
+      const now = new Set(listCandidates(root, "all").map((candidate) => candidate.file));
       for (const file of now) if (!known.has(file)) this.batch.add(file, false);
       for (const file of known) if (!now.has(file)) this.batch.add(file, false);
     }
@@ -66,7 +67,7 @@ export class CandidateWatcher implements vscode.Disposable {
   private watch(folders: readonly vscode.WorkspaceFolder[]): void {
     for (const folder of folders) {
       const root = folder.uri.fsPath;
-      this.known.set(root, new Set(listCandidates(root).map((candidate) => candidate.file)));
+      this.known.set(root, new Set(listCandidates(root, "all").map((candidate) => candidate.file)));
       const archify = join(root, ".archify");
       const onEvent = (uri: vscode.Uri): void => {
         const candidate = candidateOf(archify, uri.fsPath, sep);
@@ -86,7 +87,7 @@ export class CandidateWatcher implements vscode.Disposable {
     const root = folder.uri.fsPath;
     const panel = ArchitecturePanel.current;
     const action = watchAction(
-      { file, created, exists: existsSync(file), root, newest: listCandidates(root)[0]?.file },
+      { file, created, exists: existsSync(file), root, newest: listCandidates(root, "all")[0]?.file },
       panel && { root: panel.root, file: panel.file },
     );
     switch (action?.kind) {
@@ -101,7 +102,11 @@ export class CandidateWatcher implements vscode.Disposable {
         return;
       case "notify": {
         if (this.quiet(action.root)) return;
-        const choice = await vscode.window.showInformationMessage(`New architecture diagram: \`${basename(dirname(action.file))}\``, "Open");
+        const run = basename(dirname(action.file));
+        const choice =
+          mapKindOf(run) === "sequence"
+            ? await vscode.window.showInformationMessage(`New sequence map: \`${run}\``, "Open")
+            : await vscode.window.showInformationMessage(`New architecture diagram: \`${run}\``, "Open");
         if (choice === "Open") ArchitecturePanel.show(this.extensionUri, action.root, action.file);
         return;
       }

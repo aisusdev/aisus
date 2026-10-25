@@ -281,6 +281,8 @@ export interface HomeState {
   /** The folder the sidebar works on, or `null` when none is open. */
   root: string | null;
   maps: MapItem[];
+  /** SEQ-04: the folder's sequence maps, newest first; `boxes` counts their participants. */
+  sequences: MapItem[];
   composer: {
     agents: ComposerAgent[];
     /** The remembered agent, or the first one found. */
@@ -316,6 +318,8 @@ export type HomeHostMessage = { type: "state"; state: HomeState };
 export type HomeWebviewMessage =
   | { type: "ready" }
   | { type: "pickFolder"; root: string }
+  /** SEQ-04: Generate Sequence Diagram, with the composer's text as the flow when it holds any. */
+  | { type: "generateSequence"; flow: string }
   | { type: "setAgent"; agent: ComposerCli }
   | { type: "setRunMode"; runMode: RunMode }
   | { type: "generate"; focus: string; confirmed?: boolean }

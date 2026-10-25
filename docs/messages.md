@@ -9,6 +9,7 @@ Every notification aisus shows in VS Code is listed here by ID, with its kind, i
 | map-folder-no-folder | error | Map this folder works on a folder inside an open workspace folder. | Open Folder… |
 | no-map-yet | info | No architecture diagram yet. | Generate |
 | new-map | info | New architecture diagram: `{run}` | Open |
+| new-sequence-map | info | New sequence map: `{run}` | Open |
 | map-unreadable | error | Can't show `{file}`: {reason} | Open File |
 | delete-map | warning | Delete the map in {folder}? | Delete |
 | invalid-source-path | error | Invalid source path: `{path}` | Refresh Map |

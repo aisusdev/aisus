@@ -8,6 +8,7 @@ import { listCandidates } from "@aisus/core/model/discovery";
 import { untrackedFiles, numstatSince } from "@aisus/core/model/git";
 import { healthItems, uncoveredLines, type HealthItem, type HealthKind } from "@aisus/core/model/health";
 import { listMaps } from "@aisus/core/model/maps";
+import type { MapKind } from "@aisus/core/model/runFolder";
 import { ARCHIFY_DIR, CANDIDATE_FILE } from "@aisus/core/model/runFolder";
 import { fileReader, readFingerprints } from "@aisus/core/model/staleness";
 import type { HomeHostMessage, HomeState, HomeWebviewMessage, MapItem, SessionSummary } from "@aisus/core/model/messages";
@@ -140,6 +141,7 @@ export class HomeView implements vscode.WebviewViewProvider, vscode.Disposable {
       folders: (vscode.workspace.workspaceFolders ?? []).map((folder) => ({ name: folder.name, root: folder.uri.fsPath })),
       root,
       maps: root === null ? [] : this.mapsOf(root),
+      sequences: root === null ? [] : this.mapsOf(root, "sequence"),
       composer: { agents, agent, runMode, notes, confirm },
       run: this.runs.current,
       setup: root === this.setupRoot ? this.setup : null,
@@ -202,8 +204,8 @@ export class HomeView implements vscode.WebviewViewProvider, vscode.Disposable {
   }
 
   /** The maps list, each with its changed boxes when it has fingerprints (FRS-03). */
-  private mapsOf(root: string): MapItem[] {
-    return listMaps(root).map((item) => {
+  private mapsOf(root: string, kind: MapKind = "architecture"): MapItem[] {
+    return listMaps(root, kind).map((item) => {
       const state = this.freshness.of(root, item.file);
       return { ...item, changed: state.revision === null && state.citations.length === 0 ? null : changedBoxes(state) };
     });
@@ -334,6 +336,9 @@ export class HomeView implements vscode.WebviewViewProvider, vscode.Disposable {
       case "startLearning":
         await vscode.commands.executeCommand("aisus.startLearning");
         return;
+      case "generateSequence":
+        await vscode.commands.executeCommand("aisus.generateSequence", message.flow);
+        return;
       case "ask":
         if (root !== null) await this.ask.ask(root, message.question, message.confirmed === true);
         return;
@@ -372,7 +377,7 @@ export class HomeView implements vscode.WebviewViewProvider, vscode.Disposable {
 
   /** Only files the maps list offered are opened or deleted. */
   private isCandidate(root: string, file: string): boolean {
-    return listCandidates(root).some((candidate) => candidate.file === file);
+    return listCandidates(root, "all").some((candidate) => candidate.file === file);
   }
 
   private async deleteMap(root: string, file: string): Promise<void> {

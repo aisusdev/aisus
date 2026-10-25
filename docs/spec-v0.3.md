@@ -792,7 +792,7 @@ Participants and messages share one id namespace. The validator rejects duplicat
 
 AC: column widths, activations, self-calls and phases `[unit]`; drawing, clicks and keys `[dom]`.
 
-**SEQ-04 Sequence maps in VS Code.** `aisus: Generate Sequence Diagram` asks for the flow and launches the sequence skill as Generate does. The Maps page lists sequence maps with the number of participants. The map panel opens them, opens cited lines on click, and badges participants and messages whose citations changed, with the freshness header. For a sequence map, the map's title bar keeps only Save Image. Find, Refresh, Compare, Audit, Tour, Checks, Hotspots, the rules and the box and arrow menus stay hidden. AC: a sequence map opens from the Maps page and a click opens the cited lines `[e2e]`.
+**SEQ-04 Sequence maps in VS Code.** `aisus: Generate Sequence Diagram` asks for the flow and launches the sequence skill as Generate does. The Maps page lists sequence maps in their own section, with the number of participants, Export page and Delete. The map panel opens them, opens cited lines on click, and badges participants and messages whose citations changed, with the freshness header. A new sequence map's notification says "New sequence map". For a sequence map, the map's title bar keeps only Export Page and Save Image. Find, Refresh, Compare, Audit, Tour, Checks, Hotspots, the rules and the box and arrow menus stay hidden. AC: a sequence map opens from the Maps page and a click opens the cited lines `[e2e]`.
 
 ## 6. Milestones
 

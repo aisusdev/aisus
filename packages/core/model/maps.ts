@@ -2,13 +2,17 @@
 import { readFileSync } from "node:fs";
 import { dirname } from "node:path";
 import { listCandidates } from "./discovery";
+import type { MapKind } from "./runFolder";
 import type { MapItem } from "./messages";
 import { readRunRecord } from "./runRecord";
 import { parseDiagram } from "./tolerant";
 
-/** Every candidate in `root`, newest first, described for the maps list. */
-export function listMaps(root: string): MapItem[] {
-  return listCandidates(root).map((candidate) => {
+/**
+ * Every candidate of `kind` in `root`, newest first, described for the maps list. A sequence
+ * map's `boxes` counts its participants (SEQ-04).
+ */
+export function listMaps(root: string, kind: MapKind = "architecture"): MapItem[] {
+  return listCandidates(root, kind).map((candidate) => {
     const record = readRunRecord(dirname(candidate.file));
     let title: string | null = null;
     let boxes: number | null = null;
@@ -16,7 +20,7 @@ export function listMaps(root: string): MapItem[] {
       const result = parseDiagram(readFileSync(candidate.file, "utf8"));
       if (result.ok) {
         title = result.diagram.title ?? null;
-        boxes = result.diagram.components.length;
+        boxes = result.diagram.sequence?.participants.length ?? result.diagram.components.length;
       }
     } catch {
       // Unreadable: listed by folder name only.

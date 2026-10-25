@@ -127,7 +127,9 @@ export function createHome(container: HTMLElement, post: Post, now: () => Date =
   const notes = el("div", "composer__notes");
   // RCH-04: the same prompt, for an agent aisus does not launch.
   const copyPrompt = button("Copy prompt for…", "link composer__copy", () => post({ type: "copyPromptFor", focus: focus.value }));
-  composer.append(focus, controls, generate, copyPrompt, notes);
+  // SEQ-04: the same text names the flow a sequence map follows.
+  const drawSequence = button("Draw a sequence map", "link composer__sequence", () => post({ type: "generateSequence", flow: focus.value }));
+  composer.append(focus, controls, generate, copyPrompt, drawSequence, notes);
   focus.addEventListener("keydown", (event) => {
     if (event.key === "Enter" && (event.metaKey || event.ctrlKey) && !generate.disabled) generate.click();
   });
@@ -310,6 +312,23 @@ export function createHome(container: HTMLElement, post: Post, now: () => Date =
     runSlot.append(card);
   }
 
+  /** SEQ-04: a sequence map opens, exports or goes, and counts its participants. */
+  function sequenceEntry(item: MapItem): HTMLElement {
+    const entry = el("li", "map map--sequence");
+    const open = button(item.title ?? item.runFolder, "map__title", () => post({ type: "openMap", file: item.file }));
+    open.title = item.runFolder;
+    const meta = [
+      item.agent,
+      relativeAge(item.createdAt, now()),
+      item.boxes === null ? null : `${item.boxes} participant${item.boxes === 1 ? "" : "s"}`,
+      item.changed !== null && item.changed > 0 ? `${item.changed} changed` : null,
+    ].filter((part): part is string => part !== null && part !== "");
+    const actions = el("div", "map__actions");
+    actions.append(button("Export page", "link", () => post({ type: "exportMap", file: item.file })), button("Delete", "link link--danger", () => post({ type: "deleteMap", file: item.file })));
+    entry.append(open, el("div", "map__meta", meta.join(" · ")), actions);
+    return entry;
+  }
+
   function mapEntry(item: MapItem): HTMLElement {
     const entry = el("li", "map");
     const open = button(item.title ?? item.runFolder, "map__title", () => post({ type: "openMap", file: item.file }));
@@ -398,7 +417,8 @@ export function createHome(container: HTMLElement, post: Post, now: () => Date =
     const session = state.session;
     const hunt = session === null ? "" : `${session.phase[0]?.toUpperCase() ?? ""}${session.phase.slice(1)}${session.stepsTotal > 0 ? ` · Step ${Math.min(session.stepIndex + 1, session.stepsTotal)} of ${session.stepsTotal}` : ""} · Score ${session.score}`;
     // The rows are rebuilt only when they change, so a focused row keeps its focus across states.
-    const key = JSON.stringify([state.root, hasMap && state.maps.length, hunt]);
+    const mapCount = state.maps.length + state.sequences.length;
+    const key = JSON.stringify([state.root, hasMap && state.maps.length, mapCount, hunt]);
     if (key === doKey) return;
     doKey = key;
     doSlot.replaceChildren();
@@ -419,18 +439,26 @@ export function createHome(container: HTMLElement, post: Post, now: () => Date =
     if (hasMap) row(title("review"), "", open("review"), "review");
     row(title("learn"), "", open("learn"), "learn");
     row("Bug hunt", hunt, () => post(session === null ? { type: "startLearning" } : { type: "openSession" }), null);
-    if (hasMap) row(title("maps"), String(state.maps.length), open("maps"), "maps");
+    if (mapCount > 0) row(title("maps"), String(mapCount), open("maps"), "maps");
     doSlot.append(list);
   }
 
-  function renderMaps(items: MapItem[]): void {
+  function renderMaps(items: MapItem[], sequences: MapItem[]): void {
     maps.replaceChildren();
-    if (items.length === 0) return;
-    const list = section("", "maps");
-    const entries = el("ul", "maps__list");
-    for (const item of items) entries.append(mapEntry(item));
-    list.append(entries);
-    maps.append(list);
+    if (items.length > 0) {
+      const list = section("", "maps");
+      const entries = el("ul", "maps__list");
+      for (const item of items) entries.append(mapEntry(item));
+      list.append(entries);
+      maps.append(list);
+    }
+    if (sequences.length > 0) {
+      const list = section("Sequence maps", "maps maps--sequence");
+      const entries = el("ul", "maps__list");
+      for (const item of sequences) entries.append(sequenceEntry(item));
+      list.append(entries);
+      maps.append(list);
+    }
   }
 
   /** ARC-02: the Rules section, each rule with its violations and reason, and Suggest rules. */
@@ -651,13 +679,13 @@ export function createHome(container: HTMLElement, post: Post, now: () => Date =
       renderHeader(state);
       if (state.root === null && selected !== "home") showPage("home");
       // A page that needs a map goes home when the last map goes.
-      if (state.maps.length === 0 && (selected === "review" || selected === "maps")) showPage("home");
+      if ((state.maps.length === 0 && selected === "review") || (state.maps.length + state.sequences.length === 0 && selected === "maps")) showPage("home");
       renderComposer(state);
       renderRun(state.run);
       renderCurrent(state);
       renderAttention(state);
       renderDo(state);
-      renderMaps(state.maps);
+      renderMaps(state.maps, state.sequences);
       renderReview(state);
       renderRules(state);
       renderHotspots(state);

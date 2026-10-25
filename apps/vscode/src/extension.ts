@@ -24,7 +24,7 @@ import { Review } from "./review";
 import { RulesService } from "./rules";
 import { forbidArrowCommand, onlyAllowFromCommand, routeThroughCommand, suggestRulesCommand } from "./ruleCommands";
 import { FreshnessService } from "./freshness";
-import { generateArchitectureCommand, resetDataNote } from "./generate";
+import { generateArchitectureCommand, generateSequenceCommand, resetDataNote } from "./generate";
 import { HOME_VIEW, HomeView } from "./home";
 import { removeHooksWhenIdle } from "./hooksFiles";
 import { installSkillsCommand } from "./install";
@@ -120,6 +120,7 @@ export function activate(context: vscode.ExtensionContext): TestHook {
     vscode.window.registerWebviewViewProvider(HOME_VIEW, home),
     vscode.commands.registerCommand("aisus.installSkills", () => installSkillsCommand(extensionUri)),
     vscode.commands.registerCommand("aisus.generateArchitecture", counted("generate", () => generateArchitectureCommand(context, runs))),
+    vscode.commands.registerCommand("aisus.generateSequence", counted("generate", (flow?: string) => generateSequenceCommand(context, runs, flow))),
     vscode.commands.registerCommand("aisus.openArchitecture", () => openArchitectureCommand(extensionUri)),
     vscode.commands.registerCommand("aisus.openArchitectureFile", () => openArchitectureFileCommand(extensionUri)),
     vscode.commands.registerCommand("aisus.startLearning", counted("learn", () => startLearningSessionCommand(extensionUri))),

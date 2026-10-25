@@ -114,6 +114,11 @@
         "category": "aisus"
       },
       {
+        "command": "aisus.generateSequence",
+        "title": "Generate Sequence Diagram",
+        "category": "aisus"
+      },
+      {
         "command": "aisus.copyPromptFor",
         "title": "Copy Prompt for…",
         "category": "aisus"
@@ -428,12 +433,12 @@
         },
         {
           "command": "aisus.showChanges",
-          "when": "activeWebviewPanelId == 'aisus.architecture'",
+          "when": "activeWebviewPanelId == 'aisus.architecture' && !aisus.sequenceShown",
           "group": "navigation@2"
         },
         {
           "command": "aisus.refreshArchitecture",
-          "when": "activeWebviewPanelId == 'aisus.architecture'",
+          "when": "activeWebviewPanelId == 'aisus.architecture' && !aisus.sequenceShown",
           "group": "navigation@1"
         },
         {
@@ -443,52 +448,52 @@
         },
         {
           "command": "aisus.auditMap",
-          "when": "activeWebviewPanelId == 'aisus.architecture'",
+          "when": "activeWebviewPanelId == 'aisus.architecture' && !aisus.sequenceShown",
           "group": "navigation@4"
         },
         {
           "command": "aisus.hideChecks",
-          "when": "activeWebviewPanelId == 'aisus.architecture' && !aisus.checksHidden",
+          "when": "activeWebviewPanelId == 'aisus.architecture' && !aisus.sequenceShown && !aisus.checksHidden",
           "group": "navigation@5"
         },
         {
           "command": "aisus.showChecks",
-          "when": "activeWebviewPanelId == 'aisus.architecture' && aisus.checksHidden",
+          "when": "activeWebviewPanelId == 'aisus.architecture' && !aisus.sequenceShown && aisus.checksHidden",
           "group": "navigation@5"
         },
         {
           "command": "aisus.showHotspots",
-          "when": "activeWebviewPanelId == 'aisus.architecture' && !aisus.hotspotsShown",
+          "when": "activeWebviewPanelId == 'aisus.architecture' && !aisus.sequenceShown && !aisus.hotspotsShown",
           "group": "navigation@6"
         },
         {
           "command": "aisus.hideHotspots",
-          "when": "activeWebviewPanelId == 'aisus.architecture' && aisus.hotspotsShown",
+          "when": "activeWebviewPanelId == 'aisus.architecture' && !aisus.sequenceShown && aisus.hotspotsShown",
           "group": "navigation@6"
         },
         {
           "command": "aisus.find",
-          "when": "activeWebviewPanelId == 'aisus.architecture'",
+          "when": "activeWebviewPanelId == 'aisus.architecture' && !aisus.sequenceShown",
           "group": "navigation@0"
         },
         {
           "command": "aisus.playTour",
-          "when": "activeWebviewPanelId == 'aisus.architecture'",
+          "when": "activeWebviewPanelId == 'aisus.architecture' && !aisus.sequenceShown",
           "group": "navigation@7"
         },
         {
           "command": "aisus.writeAgentNotes",
-          "when": "activeWebviewPanelId == 'aisus.architecture'",
+          "when": "activeWebviewPanelId == 'aisus.architecture' && !aisus.sequenceShown",
           "group": "z_aisus@1"
         },
         {
           "command": "aisus.createTour",
-          "when": "activeWebviewPanelId == 'aisus.architecture'",
+          "when": "activeWebviewPanelId == 'aisus.architecture' && !aisus.sequenceShown",
           "group": "z_aisus@2"
         },
         {
           "command": "aisus.compareMaps",
-          "when": "activeWebviewPanelId == 'aisus.architecture'",
+          "when": "activeWebviewPanelId == 'aisus.architecture' && !aisus.sequenceShown",
           "group": "z_aisus@0"
         },
         {

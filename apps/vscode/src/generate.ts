@@ -77,6 +77,11 @@ export function generateTask(focus: string): LaunchTask {
   return { skill: "aisus-architecture", args: focus.trim(), title: focus.trim() };
 }
 
+/** SEQ-04: a sequence map of the flow `flow` names. */
+export function sequenceTask(flow: string): LaunchTask {
+  return { skill: "aisus-sequence", args: flow.trim(), title: flow.trim() };
+}
+
 /**
  * What a run of `skill` with `cli` will spend and also do: the estimate (CST-03), installing or
  * repairing the skill, and the first-run data note (SET-03).
@@ -146,6 +151,21 @@ export async function generateArchitectureCommand(context: vscode.ExtensionConte
   const focus = await vscode.window.showInputBox({ prompt: "Focus (optional)" });
   if (focus === undefined) return;
   await confirmAndLaunch(context, runs, folder.uri.fsPath, generateTask(focus));
+}
+
+/**
+ * `aisus: Generate Sequence Diagram`: the flow, which is required and asked for unless the sidebar
+ * passed one, then the agent and notes as {@link confirmAndLaunch} asks.
+ */
+export async function generateSequenceCommand(context: vscode.ExtensionContext, runs: Runs, given = ""): Promise<void> {
+  const folder = await pickRepoRoot();
+  if (!folder) return;
+  const flow = typeof given === "string" && given.trim() !== "" ? given : await vscode.window.showInputBox({
+    prompt: "Flow to follow, such as a login request",
+    validateInput: (value) => (value.trim() === "" ? "Name the flow to follow." : null),
+  });
+  if (flow === undefined) return;
+  await confirmAndLaunch(context, runs, folder.uri.fsPath, sequenceTask(flow));
 }
 
 /**
