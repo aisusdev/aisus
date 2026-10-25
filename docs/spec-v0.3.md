@@ -680,7 +680,7 @@ Prices live in configuration. AC: signed test webhooks and limits `[unit]`; the 
 
 **CLD-10 Self-hosting.** `cloud/Dockerfile` and `infra/local/compose.yaml` run the app with Postgres. Configuration comes from the environment only, and billing is off without Stripe keys. AC: in CI, the image builds and the health endpoint answers. `[ci]`
 
-**CLD-12 Share from the extension.** When `aisus.cloud.enabled` is true (default false), the maps list shows "Share to aisus cloud". It signs in through VS Code's GitHub authentication provider, previews exactly the JSON to send, and asks to confirm. Only `src/cloud/client.ts` may use the network: the no-network test allowlists exactly that file, superseding NFR-SEC-02 for it alone. AC: no other file may use the network, and the payload equals the preview `[unit]`; hidden by default, and against a fake server it sends the preview `[e2e]`.
+**CLD-12 Share from the extension.** When `aisus.cloud.enabled` is true (default false), the maps list shows "Share to aisus cloud". It signs in through VS Code's GitHub authentication provider, previews exactly the JSON to send, and asks to confirm. Only `packages/cloud-client/client.ts` may use the network: the no-network test allowlists exactly that file, superseding NFR-SEC-02 for it alone. AC: no other file may use the network, and the payload equals the preview `[unit]`; hidden by default, and against a fake server it sends the preview `[e2e]`.
 
 **CLD-13 Export and audit.** Owners export all their data as JSON, and see an audit log of uploads (token or OIDC repository, time, size). A daily job enforces each plan's retention. AC: `[unit]` `[web]`.
 

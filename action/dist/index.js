@@ -7486,7 +7486,7 @@ function restClient(api, repository, token) {
 var import_node_fs10 = require("node:fs");
 var import_node_path9 = require("node:path");
 
-// src/cloud/client.ts
+// packages/cloud-client/client.ts
 var CLOUD_AUDIENCE = "aisus-cloud";
 async function postUpload(cloud, bearer, payload, fetcher = fetch) {
   const response = await fetcher(`${cloud.replace(/\/+$/, "")}/api/v1/uploads`, {

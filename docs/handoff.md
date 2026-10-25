@@ -81,7 +81,7 @@ All gates are listed under "Gates" in AGENTS.md. In practice they are:
 
 ### The core CLI
 
-- The CLI lives in `src/cli/`. A release bundles it as `aisus.mjs`, which installs skills, reports staleness, runs pull request checks and publishes to the cloud.
+- The CLI lives in `packages/cli/`. A release bundles it as `aisus.mjs`, which installs skills, reports staleness, runs pull request checks and publishes to the cloud.
 
 ### The GitHub Action
 

@@ -8,6 +8,8 @@ COPY package.json package-lock.json ./
 COPY cloud/package.json cloud/
 COPY packages/core/package.json packages/core/
 COPY packages/viewer/package.json packages/viewer/
+COPY packages/cloud-client/package.json packages/cloud-client/
+COPY packages/cli/package.json packages/cli/
 RUN npm ci
 COPY . .
 RUN npm run -w cloud build && npm prune --omit=dev

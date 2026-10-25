@@ -1,0 +1,12 @@
+{
+  "name": "@aisus/cloud-client",
+  "version": "0.3.0",
+  "private": true,
+  "description": "The client that uploads maps and checks to aisus cloud, used by the CLI and the Action.",
+  "exports": {
+    "./*": "./*.ts"
+  },
+  "dependencies": {
+    "@aisus/core": "0.3.0"
+  }
+}

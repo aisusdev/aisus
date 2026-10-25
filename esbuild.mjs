@@ -170,7 +170,7 @@ export async function buildSkillsAndCli(out) {
   results.push(
     await esbuild.build({
       ...common,
-      entryPoints: [join(root, "src/cli/aisus.ts")],
+      entryPoints: [join(root, "packages/cli/aisus.ts")],
       outfile: join(out, "cli/aisus.mjs"),
       platform: "node",
       format: "esm",

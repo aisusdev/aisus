@@ -2,7 +2,7 @@
 // code with the validator's meaning: 0 done or passed, 1 a finding that fails, 2 a usage or I/O
 // error. The extension, the Action and the IntelliJ plugin call the same model modules.
 import { readFileSync, writeFileSync } from "node:fs";
-import { postUpload } from "../cloud/client";
+import { postUpload } from "@aisus/cloud-client/client";
 import { homedir } from "node:os";
 import { basename, dirname, join } from "node:path";
 import { markChanges, parseDiff, rangeOf, type FileChange } from "@aisus/core/model/changes";

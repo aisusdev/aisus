@@ -4,7 +4,7 @@
 // it run an agent to update the map (PRC-05).
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import { actionsOidcToken, postUpload } from "../../src/cloud/client";
+import { actionsOidcToken, postUpload } from "@aisus/cloud-client/client";
 import { runCheck } from "@aisus/core/model/check";
 import { FAIL_ON, type FailOn } from "@aisus/core/model/config";
 import { COMMENT_MARKER, deltaMarkdown, deltaMermaid } from "@aisus/core/model/deltaMarkdown";
