@@ -7,7 +7,7 @@ import { ESTIMATE_AGENTS, ESTIMATE_KINDS } from "./estimate";
 /** The bench's run kinds (CST-06). */
 export type BenchKind = "full" | "refresh" | "audit" | "baseline" | "assisted";
 
-/** `bench/results/<run>/result.json`, as far as the fit reads it. */
+/** `tools/bench/results/<run>/result.json`, as far as the fit reads it. */
 export interface BenchResult {
   agent: EstimateAgent;
   kind: BenchKind;

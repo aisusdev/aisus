@@ -4,18 +4,31 @@
 
 The owner chose a layout with shared code under `packages/` and one folder per shipped thing under `apps/`. `kerk/` stays at the root. Shared code is imported by package name through npm workspaces, so `../../src/model/maps` becomes `@aisus/core/model/maps`. Each move is its own commit, with every gate green.
 
-| Move | Change | Estimate |
-|---|---|---|
-| `bench/`, `eval/`, `scripts/` to `tools/` | Paths in the npm scripts, `esbuild.mjs`, the tsconfig, `.gitignore` and the scripts' own root lookups | ±40 |
-| `deploy/` to `infra/`, `cloud/docker-compose.yml` to `infra/local/compose.yaml` | `deploy.sh` works in `aisus/infra` on the server. The compose project keeps the name `aisus`, so its volumes and containers carry over | ±30 |
-| `src/model`, `src/layout`, `src/agent` to `packages/core` (`@aisus/core`) | `src/extension/agents.ts` and `skillFiles.ts` join `packages/core/model`, because the CLI, the Action and the bench import them and they use no VS Code API. `ajv` and `elkjs` become core's dependencies. Every import from outside core uses the package name. The cloud's Next build transpiles the package | ±400 import lines, 1 new `package.json` |
-| `webview/` to `packages/viewer` (`@aisus/viewer`) | Build entry points and the DOM tests' imports | ±80 |
-| `src/cloud` to `packages/cloud-client`, `src/cli` to `packages/cli` | Build entry points and imports | ±30 |
-| `cloud/` to `apps/cloud`, `action/` to `apps/action`, `intellij/` to `apps/intellij` | Next's root, the Dockerfile, the compose files, the workflows and the plugin's path to the repository. The Action is used as `aisusdev/aisus/apps/action@<ref>` | ±60 |
-| `src/extension`, `media/`, `.vscodeignore`, `test/e2e` and the manifest to `apps/vscode` | The root `package.json` keeps the workspaces, the shared scripts and the gates. The build writes `apps/vscode/dist`. Packaging copies the README and the notices into the extension folder for vsce | ±150 |
-| `AGENTS.md`, `README.md`, `docs/handoff.md`, `docs/architecture.md`, `docs/spec-v0.3.md` | Current paths. The log, the ADRs and `docs/spec.md` keep the paths of their day | ±80 |
+| Move | Change | Estimate | Built |
+|---|---|---|---|
+| `bench/`, `eval/`, `scripts/` to `tools/` | Paths in the npm scripts, `esbuild.mjs`, the tsconfig, `.gitignore` and the scripts' own root lookups | ±40 | +84 / -84 |
+| `deploy/` to `infra/`, `cloud/docker-compose.yml` to `infra/local/compose.yaml` | `deploy.sh` works in `aisus/infra` on the server. The compose project keeps the name `aisus`, so its volumes and containers carry over | ±30 | +27 / -27 |
+| `src/model`, `src/layout`, `src/agent` to `packages/core` (`@aisus/core`) | `src/extension/agents.ts` and `skillFiles.ts` join `packages/core/model`, because the CLI, the Action and the bench import them and they use no VS Code API. `ajv` and `elkjs` become core's dependencies. Every import from outside core uses the package name. The cloud's Next build transpiles the package | ±400 import lines, 1 new `package.json` | +783 / -754, about 210 of each in the regenerated bundles |
+| `webview/` to `packages/viewer` (`@aisus/viewer`) | Build entry points and the DOM tests' imports | ±80 | +78 / -52 |
+| `src/cloud` to `packages/cloud-client`, `src/cli` to `packages/cli` | Build entry points and imports | ±30 | +66 / -16 |
+| `cloud/` to `apps/cloud`, `action/` to `apps/action`, `intellij/` to `apps/intellij` | Next's root, the Dockerfile, the compose files, the workflows and the plugin's path to the repository. The Action is used as `aisusdev/aisus/apps/action@<ref>` | ±60 | +113 / -112 in three commits |
+| `src/extension`, `media/`, `.vscodeignore`, `test/e2e` and the manifest to `apps/vscode` | The root `package.json` keeps the workspaces, the shared scripts and the gates. The build writes `apps/vscode/dist`. Packaging copies the README and the notices into the extension folder for vsce | ±150 | +701 / -650, most of it the manifest leaving the root `package.json` |
+| `AGENTS.md`, `README.md`, `docs/handoff.md`, `docs/architecture.md`, `docs/spec-v0.3.md` | Current paths. The log, the ADRs and `docs/spec.md` keep the paths of their day | ±80 | in the commits above |
 
 Tests: no new tests. The existing tests that read files by path follow the moves. The scans for network calls, process launches, layer boundaries and messages are checked to read the same number of files before and after each move.
+
+Built on 2026-10-25 in ten commits. Where the build differs:
+
+- `skillFiles.ts` went to `packages/core/install/` rather than `packages/core/model/`, because it installs skills and the model holds no install code. `agents.ts` went to `packages/core/model/` as proposed.
+- The boundaries test gained one case: core may not import another `@aisus/` package. It failed with the rule removed.
+- The e2e suite builds into `apps/vscode/out/e2e`. VS Code gives each extension its own `vscode` API object, chosen by the folder of the calling file. Built outside the extension folder, the tests' stubs of dialogs never reached the extension, and 54 tests timed out.
+- `esbuild.mjs` builds with the repository as its working folder. `npm run package` starts the build from `apps/vscode`, which otherwise rewrote the committed skill scripts with `../../node_modules` paths.
+- The scans for messages and network calls read all of `apps/vscode/src` and `packages/`, which adds the viewer to the message scan.
+- The cloud's image copies `packages/` beside `apps/cloud`, and its build stage copies every workspace's `package.json`.
+- The root `package.json` is `@aisus/workspace`. The extension's manifest is `apps/vscode/package.json`, and `npm run package` copies the README, the notices and any LICENSE into the extension folder while vsce runs, then removes them. The `.vsix` is still written to the root.
+- The Action is used as `<owner>/aisus/apps/action@<ref>`, so a workflow that uses `aisus/action` must change its path.
+
+Gates after the last move: `npm run check` exit 0 (1247 passed, 1 skipped); `npm run test:e2e` exit 0 on VS Code 1.126.0 and 1.141.0 (single 91, empty 3, multi 2 each); cloud typecheck, `vitest` (55), build and `[web]` (14) passed after the cloud's move; the cloud image built and answered `/api/health`; `npm run package` and `npm run build:release` succeeded. `./gradlew test` did not run, because this machine has no Java runtime; the plugin's only path to the repository changed to `../..` and `apps/vscode/dist`.
 
 ## Landing craft pass proposal (2026-10-25)
 
@@ -810,6 +823,7 @@ The owner then asked that aisus be tied to nothing outside itself. The repositor
 
 ## Log
 
+- 2026-10-25 — Two problems found during the layout work, left as they are. The cloud's image answers 500 on `/docs`, because it copies neither `README.md` nor `docs/`; the commit before the layout work does the same, so aisus.dev likely serves no docs pages. SKL-02's e2e test "Tour opens each stop's code beside the map" fails now and then waiting for the first stop's lines to be selected: once in two runs before the layout work and twice in five after it, and it passed alone each time it was rerun.
 - 2026-10-25 — Four e2e tests failed on any machine with a real agent CLI installed: three Codex launches in FR-GEN-01 and the Devin learning session's happy path. Each test stubs one agent in front of the inherited PATH. The extension found the real `claude` as well and asked which agent to use, and no test answered. VS Code under test now gets a PATH without the folders that hold `claude`, `codex` or `devin`, with links to `git` and `node`. It also starts with `--force-disable-user-env`, because on macOS VS Code otherwise adds the login shell's PATH back. `npm run test:e2e` exit 0 on VS Code 1.126.0 and 1.141.0 (single 91, empty 3, multi 2 each), which also covers the 1.141.0 rerun the sidebar tabs waited for.
 - 2026-10-25 — On macOS the e2e runs opened a "keychain not found" dialog. `@vscode/test-electron` passes `extensionTestsEnv` to the whole VS Code process, so VS Code itself ran with the temporary `HOME`, where macOS has no keychain. The runner now starts VS Code with `--use-inmemory-secretstorage` and `--use-mock-keychain` and keeps the temporary `HOME`. The single scenario on VS Code 1.126.0 then ran in 43 s with 87 passing, against 2 to 4 minutes and 62 to 82 passing before. Four tests still fail, as they did on the untouched tree: three Codex launches in FR-GEN-01 and the Devin learning session's happy path.
 - 2026-10-25 — `.agents/setup` prepares Amp orbs for every gate. It installs xvfb and libsecret, nvm with the `.nvmrc` Node, the npm dependencies, Playwright's Chromium and the two e2e VS Code builds. In an orb, a cold run took 51 s and a warm run 1.4 s. From a clean login shell, typecheck, 1,246 unit tests, the single e2e scenario on both VS Code versions and 14 cloud web tests passed. `.gitignore` keeps `.agents/`, so the script is tracked by force, as the repository's skills are.
