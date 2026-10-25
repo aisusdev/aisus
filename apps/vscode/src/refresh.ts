@@ -6,9 +6,10 @@ import { basename, dirname } from "node:path";
 import * as vscode from "vscode";
 import type { ComposerCli } from "@aisus/core/model/messages";
 import { repoRootFor } from "@aisus/core/model/discovery";
-import { refreshArgs } from "@aisus/core/model/refresh";
+import { planRefresh, REDRAW_REASONS } from "@aisus/core/model/lineage";
+import { globToRegExp, refreshArgs } from "@aisus/core/model/refresh";
 import { parseDiagram } from "@aisus/core/model/tolerant";
-import { confirmAndLaunch, generateArchitectureCommand, type LaunchTask } from "./generate";
+import { confirmAndLaunch, generateArchitectureCommand, generateTask, type LaunchTask } from "./generate";
 import { ArchitecturePanel } from "./panel";
 import type { Runs } from "./runs";
 
@@ -38,7 +39,11 @@ export async function refreshArchitectureCommand(context: vscode.ExtensionContex
     return;
   }
   const fallback = panel?.root ?? vscode.workspace.getWorkspaceFolder(vscode.Uri.file(candidate))?.uri.fsPath ?? dirname(candidate);
-  await confirmAndLaunch(context, runs, repoRootFor(candidate, fallback), refreshTask(candidate, paths), preferred);
+  const root = repoRootFor(candidate, fallback);
+  // FRS-08: a map due a full drawing is drawn again with its focus instead.
+  const plan = planRefresh(root, basename(dirname(candidate)), paths.map(globToRegExp));
+  const task = plan.mode === "regenerate" ? { ...generateTask(plan.focus), title: `Full drawing of ${refreshTask(candidate).title.replace(/^Refresh of /, "")}, because ${REDRAW_REASONS[plan.reason]}` } : refreshTask(candidate, paths);
+  await confirmAndLaunch(context, runs, root, task, preferred);
 }
 
 /** "Refresh this box": the shown map's refresh, limited to the files the box cites. */

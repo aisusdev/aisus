@@ -2,7 +2,8 @@
 // and that a fork's pull request is never updated.
 import { join } from "node:path";
 import { expect, test } from "vitest";
-import { refreshCommand, refreshDecision } from "../../apps/action/src/refresh";
+import { refreshCommand, refreshDecision, runRefresh } from "../../apps/action/src/refresh";
+import { gitRepo, put } from "./support/temp";
 
 const HEAD = "a".repeat(40);
 const event = (fields: { fork?: boolean; full?: string; sha?: string } = {}) => ({
@@ -60,4 +61,12 @@ test("PRC-05 the agent runs the sidebar's headless argv for the refresh, in a fr
     args: ["exec", "--json", "--sandbox", "workspace-write", "$aisus-refresh --from architecture-shop-20261019-120000 --paths src/billing"],
     env: { PATH: "/usr/bin", HOME: home, LANG: "C.UTF-8", CODEX_HOME: join(home, ".codex"), OPENAI_API_KEY: "sk-openai", CODEX_API_KEY: "sk-openai" },
   });
+});
+
+test("FRS-08 PRC-05 a map due a full drawing is not updated, and the comment gives the reason", () => {
+  const root = gitRepo({ "src/api/handler.ts": "export {};\n" });
+  const map = "architecture-shop-20261019-120000";
+  put(root, `.archify/${map}/candidate.json`, JSON.stringify({ components: [{ id: "api", label: "API", sources: [{ path: "src/api/handler.ts" }] }] }));
+  const outcome = runRefresh({ root, map, agent: "claude", paths: [], headRef: "feature", skillSource: "/nowhere", env: { PATH: "" } });
+  expect(outcome).toEqual({ ok: false, reason: "the map is due a full drawing, because the commit the map was drawn at is unknown. Run Generate with its focus and commit the new map." });
 });

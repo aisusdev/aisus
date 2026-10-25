@@ -1,17 +1,19 @@
 // `node <skill>/scripts/refresh-facts.mjs --from <run> [--paths <glob>…]`, run with cwd = repo
 // root (FRS-05): reports how the base map compares with the code since it was made, then creates
 // the refresh's run folder with a draft that starts from the base map. Prints the refresh's estimate
-// for each agent (CST-03).
+// for each agent (CST-03). FRS-08: when the map can be updated, the run folder also gets the change it
+// works from; when it must be drawn again, no run folder is made and the reason is printed.
 import { readdirSync, readFileSync, realpathSync, statSync, writeFileSync } from "node:fs";
 import { basename, join } from "node:path";
 import { assertWritable, isWithin } from "../model/confine";
 import { readFingerprints, fileReader, mapFreshness } from "../model/staleness";
 import { skillEstimates } from "../model/estimate";
 import { foldersAt, numstatSince, renamesSince, untrackedFiles } from "../model/git";
+import { CHANGE_FILE, CHANGES_FILE, LINEAGE_FILE, planRefresh, writeRunFile } from "../model/lineage";
 import { globToRegExp, refreshReport } from "../model/refresh";
 import { repoSize, sizeFacts } from "../model/repoSize";
 import { ARCHIFY_DIR, CANDIDATE_FILE, createRunFolder, DRAFT_FILE, runTimestamp, slugify } from "../model/runFolder";
-import { newRunRecord, readRunRecord, writeRunRecord } from "../model/runRecord";
+import { newRunRecord, writeRunRecord } from "../model/runRecord";
 import { stripAppOwned } from "../model/submission";
 import { isJsonObject } from "../model/types";
 
@@ -77,24 +79,29 @@ function main(args: string[]): number {
   }
 
   const globs = parsed.paths.map(globToRegExp);
+  // The plan takes git's facts first, so the new run folder is not among the changes.
+  const plan = planRefresh(root, base, globs);
+  if (plan.mode === "regenerate") {
+    process.stdout.write(`${JSON.stringify({ mode: "regenerate", reason: plan.reason, focus: plan.focus, base: { runFolder: `${ARCHIFY_DIR}/${base}` } }, null, 2)}\n`);
+    return 0;
+  }
   const prints = readFingerprints(baseDir);
-  const revision = prints?.revision ?? null;
-  // Git comes first, so the new run folder is not among the changes.
+  const revision = plan.base;
   const outsideMaps = (path: string): boolean => !path.startsWith(`${ARCHIFY_DIR}/`);
-  const changes = revision === null ? null : (numstatSince(root, revision) ?? []).filter((change) => outsideMaps(change.path));
-  const untracked = revision === null ? [] : untrackedFiles(root).filter(outsideMaps);
-  const freshness = mapFreshness(prints, fileReader(root), revision === null ? new Map() : renamesSince(root, revision));
+  const changes = (numstatSince(root, revision) ?? []).filter((change) => outsideMaps(change.path));
+  const untracked = untrackedFiles(root).filter(outsideMaps);
+  const freshness = mapFreshness(prints, fileReader(root), renamesSince(root, revision));
   const report = refreshReport({
     freshness,
     cited: citedPaths(doc),
     changes,
     untracked,
     foldersNow: topLevelFolders(root),
-    foldersThen: revision === null ? null : foldersAt(root, revision),
+    foldersThen: foldersAt(root, revision),
     globs,
   });
 
-  const focus = readRunRecord(baseDir)?.focus ?? "";
+  const focus = plan.focus;
   let run: string;
   try {
     run = createRunFolder(root, slugify(focus, basename(root)), runTimestamp(new Date()));
@@ -103,15 +110,22 @@ function main(args: string[]): number {
     const draft = join(runDir, DRAFT_FILE);
     assertWritable(root, draft);
     writeFileSync(draft, `${JSON.stringify(stripAppOwned(doc), null, 2)}\n`);
+    writeRunFile(root, runDir, LINEAGE_FILE, plan.lineage);
+    writeRunFile(root, runDir, CHANGES_FILE, plan.changes);
+    assertWritable(root, join(runDir, CHANGE_FILE));
+    writeFileSync(join(runDir, CHANGE_FILE), plan.change);
   } catch (error) {
     return fail((error as Error).message);
   }
 
   const facts = {
+    mode: "update",
+    reason: "update",
     root,
     runFolder: `${ARCHIFY_DIR}/${run}`,
     draft: `${ARCHIFY_DIR}/${run}/${DRAFT_FILE}`,
     base: { runFolder: `${ARCHIFY_DIR}/${base}`, revision, createdAt: prints?.createdAt ?? null, fingerprints: prints !== null },
+    changeFile: `${ARCHIFY_DIR}/${run}/${CHANGE_FILE}`,
     paths: parsed.paths,
     boxes: report.boxes,
     stale: report.stale,

@@ -30,9 +30,14 @@ Run, from the repository root, with the arguments exactly as given:
 node ${CLAUDE_SKILL_DIR}/scripts/refresh-facts.mjs --from <run folder> [--paths <glob> ...]
 ```
 
-The script prints one JSON object and creates a new run folder whose draft starts as a copy of the base map. Keep these values:
+The script prints one JSON object.
+
+If its `mode` is `regenerate`, the map must be drawn again from scratch, and the script made no run folder. Stop, and tell the user the `reason` and that Generate with the focus `focus` draws the map again. Do nothing else.
+
+Otherwise its `mode` is `update`, and it created a new run folder whose draft starts as a copy of the base map. Keep these values:
 
 - `draft`: where the updated diagram goes.
+- `changeFile`: the code change since the base map, as a diff grouped by the boxes whose cited files it touches, followed by the boxes it leaves alone and the changed files no box cites.
 - `boxes`: ids of boxes whose cited code was edited or is gone. Re-examine each of them.
 - `stale`: every citation that is not fresh. A `moved` citation has a `now` value with the path and lines where its code is now.
 - `uncovered`: changed files no box cites.
@@ -49,14 +54,14 @@ Read `${CLAUDE_SKILL_DIR}/references/archify-format.md` completely.
 
 ## 4. Re-examine only what changed
 
-Read the draft first. Then, using your own read and search tools:
+Read the draft and the `changeFile` first. The `changeFile` shows each changed hunk, so read a whole file only when its hunks do not show what the code does now. Then, using your own read and search tools:
 
 - For each `moved` citation, set its `path`, `line` and `end_line` to the `now` values.
 - For each box in `boxes`, read the code its citations point at now. Update its label, sublabel and citations to what the code does today. Remove the box, and the connections that use it, when its code is gone for good.
 - For each file in `uncovered` and each folder in `newFolders`, decide whether it adds behaviour the map should show. Add a box only for a real runtime role, cited at a range that shows the behaviour.
 - With `paths`, change nothing outside that scope.
 
-Keep every other box, connection and boundary exactly as it is, including its `id`. Never open, search or cite `.git/`, `.archify/`, `.env` files (except `.env.example` and `.env.sample`), `.npmrc`, `.pypirc`, `.netrc`, files whose names start with `id_rsa` or `id_ed25519`, or files ending in `.pem`, `.key`, `.p12` or `.pfx`.
+Keep every other box, connection and boundary exactly as it is, including its `id`. Apart from the draft and the `changeFile`, never open, search or cite `.git/`, `.archify/`, `.env` files (except `.env.example` and `.env.sample`), `.npmrc`, `.pypirc`, `.netrc`, files whose names start with `id_rsa` or `id_ed25519`, or files ending in `.pem`, `.key`, `.p12` or `.pfx`.
 
 ## 5. Write the draft
 

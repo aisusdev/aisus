@@ -1,7 +1,7 @@
 // FRS-05: refresh-facts.mjs reports how a map compares with the code since it was made, and
 // creates the refresh's run folder with a draft copied from the map. CST-03: it prints the refresh's
 // estimate.
-import { readFileSync } from "node:fs";
+import { readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, test } from "vitest";
 import { skillEstimates } from "@aisus/core/model/estimate";
@@ -85,12 +85,55 @@ describe("FRS-05 refresh-facts", () => {
     expect(JSON.parse(readFileSync(join(root, facts["runFolder"], "run.json"), "utf8")).paths).toEqual(["src/c.*", "lib"]);
   });
 
-  test("a map without fingerprints or git still starts a refresh, with nothing known", () => {
+  test("FRS-08 a map whose revision is unknown must be drawn again, and gets no run folder", () => {
     const { root, base } = mappedRepo();
     put(root, `.archify/${base}/fingerprints.json`, "not json");
+    rmSync(join(root, `.archify/${base}/lineage.json`), { force: true });
+    const before = readdirSync(join(root, ".archify"));
+    const run = runScript("refresh-facts", ["--from", base], { cwd: root });
+    expect(run.status).toBe(0);
+    expect(run.json()).toEqual({ mode: "regenerate", reason: "no-base-revision", focus: "payments", base: { runFolder: `.archify/${base}` } });
+    expect(readdirSync(join(root, ".archify"))).toEqual(before);
+  });
+
+  test("FRS-08 an update records its lineage and the change it works from", () => {
+    const { root, base } = mappedRepo();
+    const head = git(root, "rev-parse", "HEAD").trim();
+    changeTheCode(root);
     const facts = runScript("refresh-facts", ["--from", base], { cwd: root }).json() as Record<string, any>;
-    expect(facts["base"]).toMatchObject({ revision: null, fingerprints: false });
-    expect([facts["boxes"], facts["changes"], facts["newFolders"]]).toEqual([[], [], []]);
+    expect([facts["mode"], facts["reason"]]).toEqual(["update", "update"]);
+    expect(facts["changeFile"]).toBe(`${facts["runFolder"]}/change.md`);
+    const lineage = JSON.parse(readFileSync(join(root, facts["runFolder"], "lineage.json"), "utf8"));
+    expect(lineage).toMatchObject({ schema: 1, mode: "update", reason: "update", previousRun: base, baseRevision: head, revision: head, baseCommit: { subject: "init" }, headCommit: { subject: "init" }, updatesSinceRegeneration: 1 });
+    expect(lineage.dirty).toEqual(expect.arrayContaining(["src/a.ts", "src/c.ts", "packages/"]));
+    const changes = JSON.parse(readFileSync(join(root, facts["runFolder"], "changes.json"), "utf8"));
+    expect(changes).toEqual({
+      schema: 1,
+      baseRevision: head,
+      revision: head,
+      touched: [{ id: "api", files: [{ status: "modified", path: "src/a.ts" }] }],
+      uncited: [
+        { status: "added", path: "packages/new/index.ts" },
+        { status: "added", path: "src/c.ts" },
+      ],
+    });
+    const change = readFileSync(join(root, facts["changeFile"]), "utf8");
+    expect(change).toContain("### `api` (API)");
+    expect(change).toContain("+  return store(body);");
+    expect(change).toContain("- `docs` (Docs)");
+  });
+
+  test("FRS-08 the update after five in a row is a full drawing instead", () => {
+    const { root, base } = mappedRepo();
+    const facts = runScript("refresh-facts", ["--from", base], { cwd: root }).json() as Record<string, any>;
+    const lineageFile = join(root, facts["runFolder"], "lineage.json");
+    const lineage = JSON.parse(readFileSync(lineageFile, "utf8"));
+    put(root, `${facts["runFolder"]}/candidate.json`, readFileSync(join(root, ".archify", base, "candidate.json"), "utf8"));
+    const next = facts["runFolder"].replace(".archify/", "");
+    writeFileSync(lineageFile, JSON.stringify({ ...lineage, updatesSinceRegeneration: 4 }));
+    expect(runScript("refresh-facts", ["--from", next], { cwd: root }).json()).toMatchObject({ mode: "update" });
+    writeFileSync(lineageFile, JSON.stringify({ ...lineage, updatesSinceRegeneration: 5 }));
+    expect(runScript("refresh-facts", ["--from", next], { cwd: root }).json()).toMatchObject({ mode: "regenerate", reason: "scheduled" });
   });
 
   test.each([

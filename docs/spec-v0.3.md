@@ -90,6 +90,9 @@ aisus pays down three debts that AI-assisted coding creates: **comprehension** (
 | CLD-12 | Share from the extension | Opt-in upload from VS Code, showing exactly what is sent | — | I5 |
 | CLD-13 | Export and audit | Export all data; an upload audit log | — | I5 |
 | FRS-07 | Compare maps | Added, removed and renamed boxes and arrows between two maps | Comprehension | I6 |
+| FRS-08 | Recorded change | A refresh records the code change it worked from, and when the map must be drawn again | Comprehension | I6 |
+| FRS-09 | Ids across a redraw | A redrawn map gives matching boxes their earlier ids | Comprehension | I6 |
+| FRS-10 | Changes panel | A map made from another opens compared with it, with every change listed | Comprehension | I6 |
 | VWR-02 | Layout in workers | Large maps lay out faster and never freeze the panel | — | I6 |
 | VWR-03 | Finder | Find a box by name or file | Comprehension | I6 |
 | VWR-04 | Keyboard and screen readers | Use the map without a mouse | Comprehension | I6 |
@@ -691,7 +694,37 @@ Prices live in configuration. AC: signed test webhooks and limits `[unit]`; the 
 
 ### I6 Polish and reach
 
-**FRS-07 Compare maps.** "Compare with…" picks a second map. `packages/core/model/diff.ts` reports boxes and arrows added, removed and relabelled. The map outlines added boxes and ghosts removed ones. The cloud map pages offer it too. AC: `[unit]` `[dom]`.
+**FRS-07 Compare maps.** "Compare with…" picks a second map. `packages/core/model/diff.ts` reports boxes, arrows and boundaries added, removed and changed, with the fields that changed. Boxes match by id, and a box whose id changed matches the box that cites mostly the same files. The cloud map pages offer it too. FRS-10 draws the result. AC: `[unit]` `[dom]`.
+
+**FRS-08 Recorded change.** `refresh-facts.mjs` first decides whether the base map can be updated. It must be drawn again, with the first reason that applies, when:
+- there is no git repository (`no-git`);
+- the base map's revision is unknown (`no-base-revision`);
+- more than 200 paths were uncommitted when the base map was made (`dirty-baseline`);
+- the base revision is not an ancestor of HEAD, as after a rebase (`base-unreachable`);
+- the base map is the fifth update in a row since the last full drawing (`scheduled`);
+- the change would exceed 2 MiB (`change-too-large`).
+
+A map due a redraw gets no run folder. The script prints `mode: "regenerate"` and the reason, and the skill stops. FRS-06 makes the same decision before it launches, and launches Generate with the base map's focus instead. PRC-05 makes it too, and its comment gives the reason instead of updating the map.
+
+Otherwise the refresh's run folder also gets:
+- `lineage.json`: the mode and reason, the run it continues, the base and current revisions with each commit's subject and date, the paths uncommitted when the run started, and the number of updates since the last full drawing;
+- `changes.json`: for each box of the base map whose cited files changed, those files with their status, and the changed files no box cites;
+- `change.md`: the same change as a unified diff with three lines of context, grouped by box, for the skill to read.
+
+The change runs from the base revision to the working tree. Untracked files count as added, and files uncommitted when the base map was made count as modified. Deny-listed and binary files appear by name only. `.archify/` is left out. AC: the decision's reasons in order, and the grouping `[unit]`; `refresh-facts` on temporary repositories `[unit]`.
+
+**FRS-09 Ids across a redraw.** `repo-facts.mjs` finds the newest accepted map with the same focus, unless the run is a drill-down. It writes `lineage.json` with `mode: "regenerate"`, that map as the run it continues, and as the reason either the FRS-08 reason the map was due a redraw for, `requested` or `no-previous`. It prints that map's candidate as `previous`. After writing the draft, the architecture skill runs `match-ids.mjs <draft> --previous <candidate>`. That script gives each new box the id of the earlier box whose cited files overlap it most, by Jaccard similarity of at least 0.3, one to one with the best pairs first. A new box that reuses an earlier id without matching it gets a fresh id. An arrow between two matched boxes takes the id of the earlier arrow between them. AC: `[unit]`.
+
+**FRS-10 Changes panel.** When the map shown has a `lineage.json` whose earlier run still has a candidate, the map opens compared with that candidate.
+- **Header.** It names the earlier map's commit with its subject and age, the number of files uncommitted at that time, and the shown map's commit. It counts additions, removals and changes, and says "approximate" when a full drawing lies between the two maps. It holds Compare with… and the Changes toggle.
+- **Warnings.** The header warns, without refusing, about a different focus, fewer than 30 % of box ids in common, a different repository, a map outside the shown map's update history, and an earlier map that is newer than the shown one, which offers Swap.
+- **Marks.** New boxes, arrows and boundaries are marked NEW, changed ones CHANGED, and a relabelled boundary RENAMED. After an update, boxes whose cited code changed but which the refresh left as they were are marked KEPT. Removed elements are not drawn.
+- **Panel.** A panel on the right lists Added, Removed (with Open baseline), Changed (with each changed field), Code changed, kept and Not in any component. Clicking an entry zooms to it, and clicking a file opens it. The last two sections need the shown map's `changes.json` and its own earlier run.
+- **Toggle.** The Changes toggle hides or shows the marks and the panel, and is kept while the panel is open.
+- **Compare with….** It lists the folder's other maps, tagged previous, newer, different focus or outside update history, and No comparison.
+- **Open baseline and Swap.** Open baseline shows the earlier map in the panel. Swap shows it compared with the map shown before.
+
+Supersedes FRS-07's ghosts of removed boxes. AC: the context's warnings and approximate flag `[unit]`; the header, marks, panel and toggle `[dom]`; a refreshed map opens compared with its base, and Swap and Open baseline show the base `[e2e]`.
 
 **VWR-02 Layout in workers.** Layout runs in Web Workers started from Blob URLs. The CSP gains exactly `worker-src blob:`, superseding NFR-SEC-01's CSP string and ADR 0010. RIGHT and DOWN run in parallel. ADR 0023's choice of direction stays the same. AC: layouts identical to in-thread results `[unit]`; the 60/120 median under 1 s on CI ubuntu `[ci]`.
 
@@ -745,7 +778,7 @@ AC: bridge, argv and CLI-call tests, plus `verifyPlugin` `[jvm]`; on AB3, genera
 | I3 Architecture guardrails | ARC-01..05, PRC-03, PRC-05 | Rule violations show on the map, in Problems and in PR checks |
 | I4 Skill retention | SKL-01..03, LRN-01, LRN-02 | Explain-back, tours and sessions on every agent work |
 | I5 Cloud for teams | CLD-05..07, CLD-10, CLD-12, CLD-13 | Dashboard, billing and self-hosting work |
-| I6 Polish and reach | FRS-07, VWR-02..06, RCH-04, SET-04, SET-05, SAF-08, ENG-03 | Gates green |
+| I6 Polish and reach | FRS-07..10, VWR-02..06, RCH-04, SET-04, SET-05, SAF-08, ENG-03 | Gates green |
 | I7 IntelliJ plugin | IDE-01 | The plugin opens cited lines on AB3 |
 
 ## 7. Process

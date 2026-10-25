@@ -71,3 +71,4 @@ Decisions for Sustain in [MADR 4.0](https://adr.github.io/madr/) format; the pro
 | [0065](0065-devin-joins-the-composer-and-other-agents-get-copied-prompts.md) | Devin joins the composer, and other agents get copied prompts | accepted | 2026-10-19 |
 | [0066](0066-the-product-is-named-aisus.md) | The product is named aisus | accepted | 2026-10-24 |
 | [0067](0067-plans-are-free-pro-and-team.md) | Plans are Free, Pro and Team | accepted | 2026-10-24 |
+| [0068](0068-a-run-records-its-lineage-and-the-change-it-worked-from.md) | A run records its lineage and the change it worked from | accepted | 2026-10-25 |

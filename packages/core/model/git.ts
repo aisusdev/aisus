@@ -317,6 +317,29 @@ export function diffBetween(root: string, from: string, to: string | null, env: 
   return run(program, root, [...GIT_PREFIX, ...DIFF_FLAGS, from, ...(to === null ? [] : [to]), "--"]);
 }
 
+/** The change from `revision` to the working tree, with three lines of context, for an update's `change.md` (FRS-08). */
+export function contextDiffSince(root: string, revision: string, env: NodeJS.ProcessEnv = process.env): string | null {
+  const program = gitProgram(env);
+  if (program === undefined || !REVISION_PATTERN.test(revision)) return null;
+  return run(program, root, [...GIT_PREFIX, ...DIFF_FLAGS.map((flag) => (flag === "--unified=0" ? "--unified=3" : flag)), revision, "--"]);
+}
+
+/** Whether `revision` is HEAD or one of its ancestors. */
+export function isAncestorOfHead(root: string, revision: string, env: NodeJS.ProcessEnv = process.env): boolean {
+  const program = gitProgram(env);
+  if (program === undefined || !REVISION_PATTERN.test(revision)) return false;
+  return run(program, root, [...GIT_PREFIX, "merge-base", "--is-ancestor", revision, "HEAD"]) !== null;
+}
+
+/** A commit's subject and committer date, or `null` when git cannot tell. */
+export function commitInfo(root: string, revision: string, env: NodeJS.ProcessEnv = process.env): { subject: string; committedAt: string } | null {
+  const program = gitProgram(env);
+  if (program === undefined || !REVISION_PATTERN.test(revision)) return null;
+  const output = run(program, root, [...GIT_PREFIX, "log", "-1", "--format=%cI%x00%s", revision, "--"]);
+  const at = output?.indexOf("\0") ?? -1;
+  return output === null || output === undefined || at < 0 ? null : { committedAt: output.slice(0, at), subject: output.slice(at + 1).trim() };
+}
+
 /** A file's bytes at `revision`, or `null` when it is not there. */
 export function fileAt(root: string, revision: string, path: string, env: NodeJS.ProcessEnv = process.env): Buffer | null {
   const program = gitProgram(env);

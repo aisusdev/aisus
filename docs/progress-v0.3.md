@@ -1,5 +1,50 @@
 # Progress (v0.3)
 
+## Change history proposal (owner request, 2026-10-25)
+
+The owner asked that the map show what changed between two maps the way an update run knows it, rather than by comparing two finished maps afterwards. Three features do it, FRS-08 to FRS-10 in the spec.
+
+- **FRS-08 The change a refresh worked from.** `refresh-facts.mjs` decides whether the map can be updated or must be drawn again. When it can be updated, it writes `lineage.json`, `changes.json` and `change.md` into the new run folder. `change.md` holds the code change since the base map, grouped by the boxes whose cited files it touches. The refresh skill reads it in place of rereading each changed file. When a full redraw is due, the script makes no run folder and names the reason, The extension then launches Generate instead of Refresh, and the Action names the reason in its comment.
+- **FRS-09 Ids that survive a redraw.** `repo-facts.mjs` finds the newest map with the same focus and records it in `lineage.json`. After writing the draft, the architecture skill runs `match-ids.mjs`, which gives each new box the id of the old box that cites mostly the same files. A comparison across a redraw then matches boxes by id.
+- **FRS-10 The Changes panel.** A map made from another opens compared with it. A header names both commits, counts what was added, removed and changed, and warns when the comparison is doubtful. Boxes, arrows and boundaries are marked NEW, CHANGED, RENAMED or KEPT. A panel on the right lists every change and what changed in it, plus the boxes whose code changed but which the refresh kept, and the changed files no box cites. Clicking an entry zooms to it.
+
+Where this differs from the reference the owner named:
+- aisus keeps Generate and Refresh as two skills. The decision to redraw lives in shared code that both the skill script and the extension call.
+- aisus shows one map panel per window (ADR 0011). Open baseline therefore shows the older map in that panel, and Swap shows it compared with the map it came from.
+- `mapping.md` is not written. The refresh's JSON already lists the boxes to re-examine and the uncovered files.
+- Removed boxes and arrows are no longer drawn as see-through ghosts. They are listed in the panel, and Open baseline shows them in place. Drawing them moved the rest of the map.
+
+| File or unit | Change | Estimate |
+|---|---|---|
+| `packages/core/model/lineage.ts` (new) | The `lineage.json` and `changes.json` types, reading and writing them, the redraw decision with its reasons, and the newest earlier map of the same focus | +190 |
+| `packages/core/model/changeMap.ts` (new) | Groups the change since the base revision by box. Untracked files count as added, and files uncommitted at the base map as modified. Files on the deny list, binary files and `.archify/` appear by name only or not at all. Renders `change.md` and builds `changes.json` | +200 |
+| `packages/core/model/git.ts` | Whether a commit is an ancestor of HEAD, a commit's subject and date, and the change since a revision with three lines of context | +35 |
+| `packages/core/agent/refresh-facts.ts` | Decides the mode, writes the three files and prints `mode`, `reason` and `changeFile`. It stops before making a run folder when a redraw is due | +55 / -5 |
+| `packages/core/agent/repo-facts.ts` | Records the earlier map of the same focus in `lineage.json` and prints it as `previous` | +30 |
+| `packages/core/model/matchIds.ts`, `packages/core/agent/match-ids.ts` (new), `esbuild.mjs` | Id matching by cited files, one to one, best match first, and the script that rewrites the draft | +200 |
+| `skills/aisus-refresh/SKILL.md`, `skills/aisus-architecture/SKILL.md`, `packages/core/model/agents.ts` | Read `change.md` and stop when a redraw is due. Run `match-ids.mjs` when there is an earlier map. Allow the new script | +30 / -6 |
+| `packages/core/model/diff.ts` | Each box, arrow and boundary gets a status (added, changed, renamed or kept) with the fields that changed. Boundaries are compared too. Boxes still pair by cited files when their ids differ | +160 / -90 |
+| `packages/core/model/comparison.ts` (new) | The comparison's context: both commits, the warnings, whether it is approximate, and whether the kept boxes and uncited files apply | +140 |
+| `packages/core/model/tolerant.ts` | A connection keeps its `id` | +2 |
+| `packages/core/model/messages.ts` | The compare message carries the context and the recorded change. New webview messages for Compare with…, Open baseline, Swap and opening an uncited file | +20 / -3 |
+| `apps/vscode/src/compare.ts`, `panel.ts` | The default comparison from `lineage.json` when a map is shown. Compare with… gains tags and No comparison. Open baseline and Swap | +140 / -25 |
+| `apps/vscode/src/refresh.ts`, `apps/action/src/refresh.ts` | Launch Generate, or report the reason, when a redraw is due | +35 |
+| `apps/vscode/src/review.ts`, `apps/cloud/src/lib/mapPage.ts` | Follow the new diff | ±10 |
+| `packages/viewer/changes.ts` (new), `viewer.ts`, `styles.css` | The header and the Changes panel, the marks and the toggle. The compare bar and the ghosts of removed boxes go | +420 / -70 |
+| `docs/spec-v0.3.md`, `docs/adr/0068-…` (new), `docs/architecture.md`, `docs/messages.md`, `README.md` | FRS-05 and FRS-07 amended, FRS-08 to FRS-10 added, and an ADR for the two new run files | +170 / -10 |
+
+Tests, from the ACs of FRS-08 to FRS-10:
+- `[unit]` The redraw decision gives each reason in order. The change map adds both paths of a rename, takes untracked files and files uncommitted at the base map, shows deny-listed files by name only, and leaves `.archify/` out.
+- `[unit]` On a temporary repository, `refresh-facts.mjs` writes the three files, and makes no run folder after five updates in a row. `repo-facts.mjs` records the earlier map of the same focus.
+- `[unit]` Id matching pairs one to one, best match first, and ignores pairs under the threshold. A new box that reuses an old id gets a fresh one. Arrows between matched boxes keep their ids.
+- `[unit]` The diff reports changed fields and renamed boundaries. The comparison warns for each doubtful case, and calls a comparison across a redraw approximate.
+- `[dom]` The header, the marks, each panel section, a click that zooms, and the toggle that hides the marks and the panel.
+- `[e2e]` A refreshed map opens compared with its base map, and Swap and Open baseline show the base map.
+
+- [x] **FRS-08 Recorded change** `[unit]` `[e2e]` — 2026-10-25: `packages/core/model/lineage.ts`, `changeMap.ts`, three git readers, `refresh-facts.ts`, the refresh skill's steps 2 and 4, and the redirect in `apps/vscode/src/refresh.ts` and the Action. Tests: `lineage.test.ts` (7: the decision's reasons and order; the change map's statuses, names-only files, uncommitted-at-base files, grouping and its two renderings), `refreshFacts.test.ts` (3 new: a redraw makes no run folder, an update writes the three files, the sixth update is a full drawing), `actionRefresh.test.ts` (1 new), `single.refresh.test.ts` (1 new: a map due a full drawing is drawn again with its focus). The refresh and review e2e fixtures record their revision now, because an update needs one.
+- [ ] **FRS-09 Ids across a redraw** `[unit]`
+- [ ] **FRS-10 Changes panel** `[unit]` `[dom]` `[e2e]`
+
 ## Sidebar home proposal (owner request, 2026-10-25)
 
 The owner found the tabbed sidebar cluttered and chose variant A of three mockups: a status home with pages to click into, and no tabs. The home shows what the folder needs now. Every other feature stays one click away on its own page, with a back button.

@@ -24,6 +24,7 @@ const BROWSER_SAFE_MODEL: Record<string, true> = {
   "packages/core/model/ownership.ts": true,
   "packages/core/model/delta.ts": true,
   "packages/core/model/deltaMarkdown.ts": true,
+  "packages/core/model/changeMap.ts": true,
 };
 const NODE_MODEL: Record<string, true> = {
   "packages/core/model/citations.ts": true,
@@ -43,6 +44,7 @@ const NODE_MODEL: Record<string, true> = {
   "packages/core/model/check.ts": true,
   "packages/core/model/repoSize.ts": true,
   "packages/core/model/agentHome.ts": true,
+  "packages/core/model/lineage.ts": true,
 };
 const NODE_ALLOWED: Record<string, true> = {
   "node:fs": true,

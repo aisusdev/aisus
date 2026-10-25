@@ -14,7 +14,8 @@ import { summarizeStream } from "@aisus/core/model/agentStream/summary";
 import { branchPaths } from "@aisus/core/model/branchMaps";
 import type { DeltaReport } from "@aisus/core/model/delta";
 import { diffMaps, diffSummary } from "@aisus/core/model/diff";
-import { refreshArgs } from "@aisus/core/model/refresh";
+import { planRefresh, REDRAW_REASONS } from "@aisus/core/model/lineage";
+import { globToRegExp, refreshArgs } from "@aisus/core/model/refresh";
 import { ARCHIFY_DIR, CANDIDATE_FILE } from "@aisus/core/model/runFolder";
 import { newRunSince, runFolderNames } from "@aisus/core/model/runRecord";
 import { readDiagram } from "@aisus/core/model/tolerant";
@@ -80,6 +81,9 @@ function git(root: string, args: string[]): string | null {
 
 /** Runs the update, commits the new run folder and pushes it to `headRef`. */
 export function runRefresh(input: { root: string; map: string; agent: RefreshAgent; paths: readonly string[]; headRef: string; skillSource: string; env: NodeJS.ProcessEnv }): RefreshOutcome {
+  // FRS-08: a map due a full drawing is not updated here.
+  const plan = planRefresh(input.root, input.map, input.paths.map(globToRegExp));
+  if (plan.mode === "regenerate") return { ok: false, reason: `the map is due a full drawing, because ${REDRAW_REASONS[plan.reason]}. Run Generate with its focus and commit the new map.` };
   const binary = findOnPath(input.agent, input.env);
   if (binary === undefined) return { ok: false, reason: `refresh: ${input.agent} needs the ${input.agent} CLI on PATH; install it in an earlier step.` };
   const home = mkdtempSync(join(tmpdir(), "aisus-refresh-"));

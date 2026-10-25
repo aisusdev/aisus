@@ -25,6 +25,14 @@ function git(root: string, ...args: string[]): void {
   if (result.status !== 0) throw new Error(`git ${args.join(" ")}: ${result.stderr}`);
 }
 
+/** Records `run` as drawn at HEAD, so a refresh can update it (FRS-08). */
+function drawnAtHead(root: string, run: string, updates = 0): void {
+  const head = spawnSync("git", ["rev-parse", "HEAD"], { cwd: root, encoding: "utf8" }).stdout.trim();
+  const lineage = { schema: 1, mode: "regenerate", reason: "no-previous", previousRun: null, baseRevision: null, revision: head, baseCommit: null, headCommit: null, dirty: [], dirtyCount: 0, updatesSinceRegeneration: updates };
+  mkdirSync(join(root, ".archify", run), { recursive: true });
+  writeFileSync(join(root, ".archify", run, "lineage.json"), JSON.stringify(lineage));
+}
+
 function nextTerminal(): Promise<vscode.Terminal> {
   const { promise, resolve } = Promise.withResolvers<vscode.Terminal>();
   const subscription = vscode.window.onDidOpenTerminal((terminal) => {
@@ -65,6 +73,7 @@ suite("PRC-02 Review changes", () => {
     git(root, "init", "-q");
     git(root, "add", "-f", ".");
     git(root, "commit", "-qm", "map");
+    drawnAtHead(root, RUN);
     git(root, "checkout", "-qb", "feature");
     for (const name of ["a", "b", "c"]) write(root, `src/payments/${name}.ts`, `export const ${name} = 1;\n`);
     git(root, "add", ".");
@@ -133,6 +142,7 @@ suite("PRC-02 Review changes", () => {
     for (const name of ["a", "b", "c"]) write(root, `src/billing/${name}.ts`, `export const ${name} = 1;\n`);
     git(root, "add", "-f", ".");
     git(root, "commit", "-qm", "branch map");
+    drawnAtHead(root, BRANCH);
     await reviewBranch();
     assert.equal(hook.reviewReport()!.map, BRANCH);
     const review = hook.homeState().state?.review;

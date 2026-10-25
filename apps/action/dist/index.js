@@ -191,9 +191,9 @@ var require_scope = __commonJS({
     exports2.ValueScope = exports2.ValueScopeName = exports2.Scope = exports2.varKinds = exports2.UsedValueState = void 0;
     var code_1 = require_code();
     var ValueError = class extends Error {
-      constructor(name) {
-        super(`CodeGen: "code" for ${name} not defined`);
-        this.value = name.value;
+      constructor(name2) {
+        super(`CodeGen: "code" for ${name2} not defined`);
+        this.value = name2.value;
       }
     };
     var UsedValueState;
@@ -260,8 +260,8 @@ var require_scope = __commonJS({
         var _a;
         if (value.ref === void 0)
           throw new Error("CodeGen: ref must be passed in value");
-        const name = this.toName(nameOrPrefix);
-        const { prefix } = name;
+        const name2 = this.toName(nameOrPrefix);
+        const { prefix } = name2;
         const valueKey = (_a = value.key) !== null && _a !== void 0 ? _a : value.ref;
         let vs = this._values[prefix];
         if (vs) {
@@ -271,12 +271,12 @@ var require_scope = __commonJS({
         } else {
           vs = this._values[prefix] = /* @__PURE__ */ new Map();
         }
-        vs.set(valueKey, name);
+        vs.set(valueKey, name2);
         const s = this._scope[prefix] || (this._scope[prefix] = []);
         const itemIndex = s.length;
         s[itemIndex] = value.ref;
-        name.setValue(value, { property: prefix, itemIndex });
-        return name;
+        name2.setValue(value, { property: prefix, itemIndex });
+        return name2;
       }
       getValue(prefix, keyOrRef) {
         const vs = this._values[prefix];
@@ -285,17 +285,17 @@ var require_scope = __commonJS({
         return vs.get(keyOrRef);
       }
       scopeRefs(scopeName, values = this._values) {
-        return this._reduceValues(values, (name) => {
-          if (name.scopePath === void 0)
-            throw new Error(`CodeGen: name "${name}" has no value`);
-          return (0, code_1._)`${scopeName}${name.scopePath}`;
+        return this._reduceValues(values, (name2) => {
+          if (name2.scopePath === void 0)
+            throw new Error(`CodeGen: name "${name2}" has no value`);
+          return (0, code_1._)`${scopeName}${name2.scopePath}`;
         });
       }
       scopeCode(values = this._values, usedValues, getCode) {
-        return this._reduceValues(values, (name) => {
-          if (name.value === void 0)
-            throw new Error(`CodeGen: name "${name}" has no value`);
-          return name.value.code;
+        return this._reduceValues(values, (name2) => {
+          if (name2.value === void 0)
+            throw new Error(`CodeGen: name "${name2}" has no value`);
+          return name2.value.code;
         }, usedValues, getCode);
       }
       _reduceValues(values, valueCode, usedValues = {}, getCode) {
@@ -305,20 +305,20 @@ var require_scope = __commonJS({
           if (!vs)
             continue;
           const nameSet = usedValues[prefix] = usedValues[prefix] || /* @__PURE__ */ new Map();
-          vs.forEach((name) => {
-            if (nameSet.has(name))
+          vs.forEach((name2) => {
+            if (nameSet.has(name2))
               return;
-            nameSet.set(name, UsedValueState.Started);
-            let c = valueCode(name);
+            nameSet.set(name2, UsedValueState.Started);
+            let c = valueCode(name2);
             if (c) {
               const def = this.opts.es5 ? exports2.varKinds.var : exports2.varKinds.const;
-              code = (0, code_1._)`${code}${def} ${name} = ${c};${this.opts._n}`;
-            } else if (c = getCode === null || getCode === void 0 ? void 0 : getCode(name)) {
+              code = (0, code_1._)`${code}${def} ${name2} = ${c};${this.opts._n}`;
+            } else if (c = getCode === null || getCode === void 0 ? void 0 : getCode(name2)) {
               code = (0, code_1._)`${code}${c}${this.opts._n}`;
             } else {
-              throw new ValueError(name);
+              throw new ValueError(name2);
             }
-            nameSet.set(name, UsedValueState.Completed);
+            nameSet.set(name2, UsedValueState.Completed);
           });
         }
         return code;
@@ -395,10 +395,10 @@ var require_codegen = __commonJS({
       }
     };
     var Def = class extends Node {
-      constructor(varKind, name, rhs) {
+      constructor(varKind, name2, rhs) {
         super();
         this.varKind = varKind;
-        this.name = name;
+        this.name = name2;
         this.rhs = rhs;
       }
       render({ es5, _n }) {
@@ -618,17 +618,17 @@ var require_codegen = __commonJS({
       }
     };
     var ForRange = class extends For {
-      constructor(varKind, name, from, to) {
+      constructor(varKind, name2, from, to) {
         super();
         this.varKind = varKind;
-        this.name = name;
+        this.name = name2;
         this.from = from;
         this.to = to;
       }
       render(opts) {
         const varKind = opts.es5 ? scope_1.varKinds.var : this.varKind;
-        const { name, from, to } = this;
-        return `for(${varKind} ${name}=${from}; ${name}<${to}; ${name}++)` + super.render(opts);
+        const { name: name2, from, to } = this;
+        return `for(${varKind} ${name2}=${from}; ${name2}<${to}; ${name2}++)` + super.render(opts);
       }
       get names() {
         const names = addExprNames(super.names, this.from);
@@ -636,11 +636,11 @@ var require_codegen = __commonJS({
       }
     };
     var ForIter = class extends For {
-      constructor(loop, varKind, name, iterable) {
+      constructor(loop, varKind, name2, iterable) {
         super();
         this.loop = loop;
         this.varKind = varKind;
-        this.name = name;
+        this.name = name2;
         this.iterable = iterable;
       }
       render(opts) {
@@ -657,9 +657,9 @@ var require_codegen = __commonJS({
       }
     };
     var Func = class extends BlockNode {
-      constructor(name, args, async) {
+      constructor(name2, args, async) {
         super();
-        this.name = name;
+        this.name = name2;
         this.args = args;
         this.async = async;
       }
@@ -746,10 +746,10 @@ var require_codegen = __commonJS({
       }
       // reserves unique name in the external scope and assigns value to it
       scopeValue(prefixOrName, value) {
-        const name = this._extScope.value(prefixOrName, value);
-        const vs = this._values[name.prefix] || (this._values[name.prefix] = /* @__PURE__ */ new Set());
-        vs.add(name);
-        return name;
+        const name2 = this._extScope.value(prefixOrName, value);
+        const vs = this._values[name2.prefix] || (this._values[name2.prefix] = /* @__PURE__ */ new Set());
+        vs.add(name2);
+        return name2;
       }
       getScopeValue(prefix, keyOrRef) {
         return this._extScope.getValue(prefix, keyOrRef);
@@ -763,11 +763,11 @@ var require_codegen = __commonJS({
         return this._extScope.scopeCode(this._values);
       }
       _def(varKind, nameOrPrefix, rhs, constant) {
-        const name = this._scope.toName(nameOrPrefix);
+        const name2 = this._scope.toName(nameOrPrefix);
         if (rhs !== void 0 && constant)
-          this._constants[name.str] = rhs;
-        this._leafNode(new Def(varKind, name, rhs));
-        return name;
+          this._constants[name2.str] = rhs;
+        this._leafNode(new Def(varKind, name2, rhs));
+        return name2;
       }
       // `const` declaration (`var` in es5 mode)
       const(nameOrPrefix, rhs, _constant) {
@@ -848,20 +848,20 @@ var require_codegen = __commonJS({
       }
       // `for` statement for a range of values
       forRange(nameOrPrefix, from, to, forBody, varKind = this.opts.es5 ? scope_1.varKinds.var : scope_1.varKinds.let) {
-        const name = this._scope.toName(nameOrPrefix);
-        return this._for(new ForRange(varKind, name, from, to), () => forBody(name));
+        const name2 = this._scope.toName(nameOrPrefix);
+        return this._for(new ForRange(varKind, name2, from, to), () => forBody(name2));
       }
       // `for-of` statement (in es5 mode replace with a normal for loop)
       forOf(nameOrPrefix, iterable, forBody, varKind = scope_1.varKinds.const) {
-        const name = this._scope.toName(nameOrPrefix);
+        const name2 = this._scope.toName(nameOrPrefix);
         if (this.opts.es5) {
           const arr = iterable instanceof code_1.Name ? iterable : this.var("_arr", iterable);
           return this.forRange("_i", 0, (0, code_1._)`${arr}.length`, (i) => {
-            this.var(name, (0, code_1._)`${arr}[${i}]`);
-            forBody(name);
+            this.var(name2, (0, code_1._)`${arr}[${i}]`);
+            forBody(name2);
           });
         }
-        return this._for(new ForIter("of", varKind, name, iterable), () => forBody(name));
+        return this._for(new ForIter("of", varKind, name2, iterable), () => forBody(name2));
       }
       // `for-in` statement.
       // With option `ownProperties` replaced with a `for-of` loop for object keys
@@ -869,8 +869,8 @@ var require_codegen = __commonJS({
         if (this.opts.ownProperties) {
           return this.forOf(nameOrPrefix, (0, code_1._)`Object.keys(${obj})`, forBody);
         }
-        const name = this._scope.toName(nameOrPrefix);
-        return this._for(new ForIter("in", varKind, name, obj), () => forBody(name));
+        const name2 = this._scope.toName(nameOrPrefix);
+        return this._for(new ForIter("in", varKind, name2, obj), () => forBody(name2));
       }
       // end `for` loop
       endFor() {
@@ -935,8 +935,8 @@ var require_codegen = __commonJS({
         return this;
       }
       // `function` heading (or definition if funcBody is passed)
-      func(name, args = code_1.nil, async, funcBody) {
-        this._blockNode(new Func(name, args, async));
+      func(name2, args = code_1.nil, async, funcBody) {
+        this._blockNode(new Func(name2, args, async));
         if (funcBody)
           this.code(funcBody).endFunc();
         return this;
@@ -3618,10 +3618,10 @@ var require_schemes = __commonJS({
         "urn:uuid"
       ]
     );
-    function isValidSchemeName(name) {
+    function isValidSchemeName(name2) {
       return supportedSchemeNames.indexOf(
         /** @type {*} */
-        name
+        name2
       ) !== -1;
     }
     function wsIsSecure(wsComponent) {
@@ -4612,10 +4612,10 @@ var require_core = __commonJS({
         return this;
       }
       // Add format
-      addFormat(name, format) {
+      addFormat(name2, format) {
         if (typeof format == "string")
           format = new RegExp(format);
-        this.formats[name] = format;
+        this.formats[name2] = format;
         return this;
       }
       errorsText(errors = this.errors, { separator = ", ", dataVar = "data" } = {}) {
@@ -4732,10 +4732,10 @@ var require_core = __commonJS({
           this.addSchema(optsSchemas[key], key);
     }
     function addInitialFormats() {
-      for (const name in this.opts.formats) {
-        const format = this.opts.formats[name];
+      for (const name2 in this.opts.formats) {
+        const format = this.opts.formats[name2];
         if (format)
-          this.addFormat(name, format);
+          this.addFormat(name2, format);
       }
     }
     function addInitialKeywords(defs) {
@@ -7454,7 +7454,7 @@ var require__ = __commonJS({
 });
 
 // apps/action/src/index.ts
-var import_node_fs11 = require("node:fs");
+var import_node_fs12 = require("node:fs");
 
 // apps/action/src/github.ts
 function restClient(api, repository, token) {
@@ -7483,8 +7483,8 @@ function restClient(api, repository, token) {
 }
 
 // apps/action/src/main.ts
-var import_node_fs10 = require("node:fs");
-var import_node_path9 = require("node:path");
+var import_node_fs11 = require("node:fs");
+var import_node_path10 = require("node:path");
 
 // packages/cloud-client/client.ts
 var CLOUD_AUDIENCE = "aisus-cloud";
@@ -7605,12 +7605,12 @@ function sourceTouched(source, change) {
   if (change.hunks.length === 0) return change.status !== "renamed";
   return change.hunks.some((hunk) => touches(hunk, source.line, source.end_line ?? source.line));
 }
-function markChanges(components, changes) {
+function markChanges(components2, changes) {
   const byOldPath = new Map(changes.map((change) => [change.oldPath, change]));
   const cited = /* @__PURE__ */ new Set();
   const strong = [];
   const weak = [];
-  for (const component of components) {
+  for (const component of components2) {
     let mark = null;
     for (const source of component.sources) {
       const change = byOldPath.get(source.path);
@@ -7632,8 +7632,8 @@ var Ownership = class {
   byDir = /* @__PURE__ */ new Map();
   /** Every directory with a cited file somewhere below it. */
   citedBelow = /* @__PURE__ */ new Set();
-  constructor(components) {
-    for (const component of components) {
+  constructor(components2) {
+    for (const component of components2) {
       for (const source of component.sources ?? []) {
         add(this.byFile, source.path, component.id);
         const dir = dirOf(source.path);
@@ -7685,8 +7685,11 @@ function globToRegExp(glob) {
   }
   return new RegExp(`^${pattern}(?:/.*)?$`);
 }
-function refreshArgs(run2, paths = []) {
-  const tokens = paths.flatMap((path2) => {
+function inScope(path2, globs) {
+  return globs.length === 0 || globs.some((glob) => glob.test(path2));
+}
+function refreshArgs(run2, paths2 = []) {
+  const tokens = paths2.flatMap((path2) => {
     if (/^[\w./@+-]+$/.test(path2)) return [path2];
     return /["$`\\]/.test(path2) ? [] : [`"${path2}"`];
   });
@@ -7736,8 +7739,8 @@ function matcher(targets, ownership) {
   const globs = (targets ?? []).filter((target) => target.startsWith(PATH_PREFIX)).map((target) => globToRegExp(target.slice(PATH_PREFIX.length)));
   return (file) => globs.some((glob) => glob.test(file)) || boxes.size > 0 && ownership.owners(file).some((owner) => boxes.has(owner));
 }
-function checkRules(rules, components, refs) {
-  const ownership = new Ownership(components);
+function checkRules(rules, components2, refs) {
+  const ownership = new Ownership(components2);
   const violations = [];
   for (const rule of rules) {
     const from = matcher(rule.from, ownership);
@@ -7806,9 +7809,9 @@ function isSourceFile(path2) {
 function isTestFile(path2) {
   return /(^|\/)(test|tests|__tests__|spec|specs)\//.test(path2) || /\.(test|spec)\.[^./]+$/.test(path2) || /_test\.[^./]+$/.test(path2) || /(^|\/)test_[^/]+$/.test(path2);
 }
-function commonDir(paths) {
-  let dir = dirOf(paths[0]);
-  for (const path2 of paths) while (dir !== "" && path2 !== dir && !path2.startsWith(`${dir}/`)) dir = dirOf(dir);
+function commonDir(paths2) {
+  let dir = dirOf(paths2[0]);
+  for (const path2 of paths2) while (dir !== "" && path2 !== dir && !path2.startsWith(`${dir}/`)) dir = dirOf(dir);
   return dir;
 }
 function deltaReport(inputs) {
@@ -7902,13 +7905,13 @@ var import_node_path = require("node:path");
 var ARCHIFY_DIR = ".archify";
 var CANDIDATE_FILE = "candidate.json";
 var RUN_NAME_PATTERN = /^([a-z0-9]+)-(.+)-(\d{8}-\d{6})(?:-(\d+))?$/;
-function parseRunName(name) {
-  const match = RUN_NAME_PATTERN.exec(name);
+function parseRunName(name2) {
+  const match = RUN_NAME_PATTERN.exec(name2);
   if (!match) return null;
   return { prefix: match[1], slug: match[2], timestamp: match[3], n: match[4] === void 0 ? 1 : Number(match[4]) };
 }
-function parseRunFolderName(name) {
-  const parsed = parseRunName(name);
+function parseRunFolderName(name2) {
+  const parsed = parseRunName(name2);
   if (parsed === null || parsed.prefix !== "architecture") return null;
   return { slug: parsed.slug, timestamp: parsed.timestamp, n: parsed.n };
 }
@@ -8001,15 +8004,15 @@ function javaIndex(files, read) {
 function javaImports(file, text3, index) {
   const found = new ImportSet();
   for (const match of text3.matchAll(IMPORT)) {
-    const [, , name, star] = match;
+    const [, , name2, star] = match;
     const line = lineAt(text3, match.index);
     if (star) {
-      const classFile = index.classes.get(name);
+      const classFile = index.classes.get(name2);
       if (classFile !== void 0) found.add(classFile, line);
-      else for (const member of index.packages.get(name) ?? []) found.add(member, line);
+      else for (const member of index.packages.get(name2) ?? []) found.add(member, line);
       continue;
     }
-    for (let target = name; target !== ""; target = target.includes(".") ? target.slice(0, target.lastIndexOf(".")) : "") {
+    for (let target = name2; target !== ""; target = target.includes(".") ? target.slice(0, target.lastIndexOf(".")) : "") {
       const classFile = index.classes.get(target);
       if (classFile !== void 0) {
         found.add(classFile, line);
@@ -8047,8 +8050,8 @@ function pythonIndex(files) {
     for (let dir = dirOf(file); dir !== "" && set.has(`${dir}/__init__.py`); dir = dirOf(dir)) packageDir = dir;
     const roots = /* @__PURE__ */ new Set(["", "src", packageDir === null ? dirOf(file) : dirOf(packageDir)]);
     for (const root of roots) {
-      const name = dotted(file, root);
-      if (name !== null && name !== "") modules.set(name, [.../* @__PURE__ */ new Set([...modules.get(name) ?? [], file])]);
+      const name2 = dotted(file, root);
+      if (name2 !== null && name2 !== "") modules.set(name2, [.../* @__PURE__ */ new Set([...modules.get(name2) ?? [], file])]);
     }
   }
   return { files: set, modules };
@@ -8057,8 +8060,8 @@ function moduleAt(path2, files) {
   if (path2 === null) return null;
   return [`${path2}.py`, `${path2}/__init__.py`].find((candidate) => files.has(candidate)) ?? null;
 }
-function absolute(name, index) {
-  for (let target = name; target !== ""; target = target.includes(".") ? target.slice(0, target.lastIndexOf(".")) : "") {
+function absolute(name2, index) {
+  for (let target = name2; target !== ""; target = target.includes(".") ? target.slice(0, target.lastIndexOf(".")) : "") {
     const files = index.modules.get(target);
     if (files !== void 0) return files;
   }
@@ -8073,10 +8076,10 @@ function pythonImports(file, text3, index) {
   for (const match of text3.matchAll(FROM)) {
     const [, dots, module2, list] = match;
     const line = lineAt(text3, match.index);
-    const names = list.replace(/[()]/g, "").split(",").map((name) => name.trim().split(/\s+/)[0]).filter((name) => /^\w+$/.test(name));
+    const names = list.replace(/[()]/g, "").split(",").map((name2) => name2.trim().split(/\s+/)[0]).filter((name2) => /^\w+$/.test(name2));
     if (dots === "") {
-      for (const name of names) {
-        const sub = index.modules.get(`${module2}.${name}`);
+      for (const name2 of names) {
+        const sub = index.modules.get(`${module2}.${name2}`);
         if (sub !== void 0) for (const target of sub) found.add(target, line);
         else for (const target of absolute(module2, index)) found.add(target, line);
       }
@@ -8085,8 +8088,8 @@ function pythonImports(file, text3, index) {
     let base = dirOf(file);
     for (let i = 1; i < dots.length && base !== null; i++) base = base === "" ? null : dirOf(base);
     const modulePath = base === null ? null : module2 === "" ? base : joinPath(base, module2.split(".").join("/"));
-    for (const name of names) {
-      const target = moduleAt(modulePath === null ? null : joinPath(modulePath, name), index.files) ?? moduleAt(modulePath, index.files);
+    for (const name2 of names) {
+      const target = moduleAt(modulePath === null ? null : joinPath(modulePath, name2), index.files) ?? moduleAt(modulePath, index.files);
       if (target !== null) found.add(target, line);
     }
   }
@@ -8134,9 +8137,9 @@ function pathConfig(path2, text3) {
   if (options === void 0) return null;
   const dir = dirOf(path2);
   const baseUrl = typeof options.baseUrl === "string" ? joinPath(dir, options.baseUrl) : null;
-  const paths = options.paths !== null && typeof options.paths === "object" ? Object.entries(options.paths).flatMap(([pattern, targets]) => Array.isArray(targets) ? [[pattern, targets.filter((target) => typeof target === "string")]] : []) : [];
-  if (baseUrl === null && paths.length === 0) return null;
-  return { base: baseUrl ?? dir, baseUrl, paths };
+  const paths2 = options.paths !== null && typeof options.paths === "object" ? Object.entries(options.paths).flatMap(([pattern, targets]) => Array.isArray(targets) ? [[pattern, targets.filter((target) => typeof target === "string")]] : []) : [];
+  if (baseUrl === null && paths2.length === 0) return null;
+  return { base: baseUrl ?? dir, baseUrl, paths: paths2 };
 }
 function resolveFile(base, files) {
   if (base === null) return null;
@@ -8188,8 +8191,8 @@ function importResolver(files, read) {
   const configFor = (dir) => {
     if (configs.has(dir)) return configs.get(dir);
     let found = null;
-    for (const name of CONFIG_NAMES) {
-      const path2 = joinPath(dir, name);
+    for (const name2 of CONFIG_NAMES) {
+      const path2 = joinPath(dir, name2);
       const text3 = all.has(path2) ? read(path2) : null;
       if (text3 !== null) {
         found = pathConfig(path2, text3);
@@ -8276,14 +8279,14 @@ function sanitizeOrigin(url) {
 }
 function parsePorcelainZ(output) {
   const fields = output.split("\0");
-  const paths = [];
+  const paths2 = [];
   for (let i = 0; i < fields.length; i += 1) {
     const record3 = fields[i];
     if (record3.length < 4) continue;
-    paths.push(record3.slice(3));
+    paths2.push(record3.slice(3));
     if (/[RC]/.test(record3.slice(0, 2))) i += 1;
   }
-  return paths;
+  return paths2;
 }
 function collectGitFacts(root, env = process.env) {
   const program = gitProgram(env);
@@ -8336,13 +8339,13 @@ function trackedFiles(root, env = process.env) {
   }
   return files;
 }
-function generatedFiles(root, paths, env = process.env) {
+function generatedFiles(root, paths2, env = process.env) {
   const program = gitProgram(env);
-  if (program === void 0 || paths.length === 0) return /* @__PURE__ */ new Set();
+  if (program === void 0 || paths2.length === 0) return /* @__PURE__ */ new Set();
   const result = (0, import_node_child_process.spawnSync)(program, [...GIT_PREFIX, "check-attr", "-z", "--stdin", "linguist-generated", "linguist-vendored"], {
     cwd: root,
     env: { ...process.env, GIT_TERMINAL_PROMPT: "0" },
-    input: paths.join("\0"),
+    input: paths2.join("\0"),
     stdio: ["pipe", "pipe", "ignore"],
     maxBuffer: 64 * 1024 * 1024
   });
@@ -8366,6 +8369,23 @@ function diffBetween(root, from, to, env = process.env) {
   const program = gitProgram(env);
   if (program === void 0 || ![from, ...to === null ? [] : [to]].every((revision) => REVISION_PATTERN.test(revision))) return null;
   return run(program, root, [...GIT_PREFIX, ...DIFF_FLAGS, from, ...to === null ? [] : [to], "--"]);
+}
+function contextDiffSince(root, revision, env = process.env) {
+  const program = gitProgram(env);
+  if (program === void 0 || !REVISION_PATTERN.test(revision)) return null;
+  return run(program, root, [...GIT_PREFIX, ...DIFF_FLAGS.map((flag) => flag === "--unified=0" ? "--unified=3" : flag), revision, "--"]);
+}
+function isAncestorOfHead(root, revision, env = process.env) {
+  const program = gitProgram(env);
+  if (program === void 0 || !REVISION_PATTERN.test(revision)) return false;
+  return run(program, root, [...GIT_PREFIX, "merge-base", "--is-ancestor", revision, "HEAD"]) !== null;
+}
+function commitInfo(root, revision, env = process.env) {
+  const program = gitProgram(env);
+  if (program === void 0 || !REVISION_PATTERN.test(revision)) return null;
+  const output = run(program, root, [...GIT_PREFIX, "log", "-1", "--format=%cI%x00%s", revision, "--"]);
+  const at = output?.indexOf("\0") ?? -1;
+  return output === null || output === void 0 || at < 0 ? null : { committedAt: output.slice(0, at), subject: output.slice(at + 1).trim() };
 }
 function fileAt(root, revision, path2, env = process.env) {
   const program = gitProgram(env);
@@ -8395,12 +8415,12 @@ var ENV_EXCEPTIONS = [".env.example", ".env.sample"];
 var DENIED_PREFIXES = ["id_rsa", "id_ed25519"];
 var DENIED_EXTENSIONS = ["pem", "key", "p12", "pfx"];
 function segmentDenied(segment) {
-  const name = segment.toLowerCase();
-  if (DENIED_NAMES.includes(name)) return true;
-  if (name === ".env" || name.startsWith(".env.") && !ENV_EXCEPTIONS.includes(name)) return true;
-  if (DENIED_PREFIXES.some((prefix) => name.startsWith(prefix))) return true;
-  const dot = name.lastIndexOf(".");
-  return dot >= 0 && DENIED_EXTENSIONS.includes(name.slice(dot + 1));
+  const name2 = segment.toLowerCase();
+  if (DENIED_NAMES.includes(name2)) return true;
+  if (name2 === ".env" || name2.startsWith(".env.") && !ENV_EXCEPTIONS.includes(name2)) return true;
+  if (DENIED_PREFIXES.some((prefix) => name2.startsWith(prefix))) return true;
+  const dot = name2.lastIndexOf(".");
+  return dot >= 0 && DENIED_EXTENSIONS.includes(name2.slice(dot + 1));
 }
 function isDenied(path2) {
   return path2.split("/").some(segmentDenied);
@@ -8416,8 +8436,8 @@ var TEST_DIRS = /* @__PURE__ */ new Set(["test", "tests", "__tests__", "spec", "
 var TEST_FILES = /(\.|_)(test|spec)\.[^./]+$|^test_[^/]+\.py$|(Test|Tests|IT)\.(java|kt|scala)$|_spec\.rb$/;
 function isTestPath(path2) {
   const segments = path2.split("/");
-  const name = segments.pop();
-  return segments.some((segment) => TEST_DIRS.has(segment.toLowerCase())) || TEST_FILES.test(name);
+  const name2 = segments.pop();
+  return segments.some((segment) => TEST_DIRS.has(segment.toLowerCase())) || TEST_FILES.test(name2);
 }
 function skipped(path2) {
   return path2.split("/").some((segment) => SKIPPED_DIRS.includes(segment)) || isDenied(path2);
@@ -8628,7 +8648,7 @@ function readDiagram(value) {
     return { ok: false, reason: "it has no components" };
   }
   const skipped2 = [];
-  const components = [];
+  const components2 = [];
   const ids = /* @__PURE__ */ new Set();
   rawComponents.forEach((raw, i) => {
     const pointer = `/components/${i}`;
@@ -8661,9 +8681,9 @@ function readDiagram(value) {
     if (size) component.size = size;
     if (row !== void 0) component.row = row;
     if (col !== void 0) component.col = col;
-    components.push(component);
+    components2.push(component);
   });
-  if (components.length === 0) return { ok: false, reason: "it has no components with an id" };
+  if (components2.length === 0) return { ok: false, reason: "it has no components with an id" };
   const connections = [];
   const rawConnections = value["connections"];
   if (Array.isArray(rawConnections)) {
@@ -8704,7 +8724,7 @@ function readDiagram(value) {
       boundaries.push({ kind: raw["kind"] === "security-group" ? "security-group" : "region", label: str(raw["label"]) ?? "", wraps });
     });
   }
-  const diagram = { components, connections, boundaries };
+  const diagram = { components: components2, connections, boundaries };
   const meta = value["meta"];
   const title = isObj(meta) ? str(meta["title"]) : void 0;
   if (title) diagram.title = title;
@@ -8750,9 +8770,9 @@ function filesOnDisk(root, dir) {
     } catch {
       return;
     }
-    for (const name of names) {
-      if (name === ".git" || name === "node_modules") continue;
-      const path2 = rel === "" ? name : `${rel}/${name}`;
+    for (const name2 of names) {
+      if (name2 === ".git" || name2 === "node_modules") continue;
+      const path2 = rel === "" ? name2 : `${rel}/${name2}`;
       try {
         if ((0, import_node_fs7.statSync)((0, import_node_path6.join)(root, path2)).isDirectory()) walk2(path2);
         else out.push(path2);
@@ -9663,9 +9683,9 @@ function checkPayload(input2) {
 
 // apps/action/src/refresh.ts
 var import_node_child_process2 = require("node:child_process");
-var import_node_fs9 = require("node:fs");
+var import_node_fs10 = require("node:fs");
 var import_node_os = require("node:os");
-var import_node_path8 = require("node:path");
+var import_node_path9 = require("node:path");
 
 // packages/core/model/agents.ts
 var SKILL_SCRIPTS = {
@@ -9761,9 +9781,9 @@ function usageOf(value) {
     cacheWrite: count(usage["cache_creation_input_tokens"])
   };
 }
-function toolItem(name, input2) {
+function toolItem(name2, input2) {
   const path2 = text(input2["file_path"]) || text(input2["path"]);
-  switch (name) {
+  switch (name2) {
     case "Read":
       return { kind: "read", text: `Reading ${path2}` };
     case "Grep":
@@ -9775,7 +9795,7 @@ function toolItem(name, input2) {
     case "Bash":
       return commandItem(text(input2["command"]));
     default:
-      return { kind: "command", text: `Using ${name}` };
+      return { kind: "command", text: `Using ${name2}` };
   }
 }
 function resultText(content) {
@@ -9928,9 +9948,9 @@ function summarizeStream(transcript, parser) {
 }
 
 // packages/core/model/branchMaps.ts
-function branchPaths(report, components) {
+function branchPaths(report, components2) {
   const boxes = new Set([...report.stale, ...report.gone].map((box) => box.id));
-  const cited = components.filter((component) => boxes.has(component.id)).flatMap((component) => (component.sources ?? []).map((source) => source.path));
+  const cited = components2.filter((component) => boxes.has(component.id)).flatMap((component) => (component.sources ?? []).map((source) => source.path));
   return [.../* @__PURE__ */ new Set([...report.candidates.map((candidate) => candidate.dir), ...cited])].sort();
 }
 
@@ -9993,6 +10013,216 @@ function diffSummary(diff) {
   ].join(" \xB7 ");
 }
 
+// packages/core/model/lineage.ts
+var import_node_fs9 = require("node:fs");
+var import_node_path8 = require("node:path");
+
+// packages/core/model/changeMap.ts
+var OWN_OUTPUT = ".archify";
+var isOwnOutput = (path2) => path2 !== void 0 && (path2 === OWN_OUTPUT || path2.startsWith(`${OWN_OUTPUT}/`));
+var paths = (entry) => entry.oldPath === void 0 ? [entry.path] : [entry.path, entry.oldPath];
+function nameOnly(entry, note) {
+  const name2 = entry.oldPath === void 0 ? entry.path : `${entry.oldPath} \u2192 ${entry.path}`;
+  return { entry, text: `${entry.status} ${name2} (${note})
+` };
+}
+function addedFile(path2, content) {
+  const lines = content.split("\n");
+  if (content.endsWith("\n")) lines.pop();
+  const count3 = content === "" ? 0 : lines.length;
+  const head = [`diff --git a/${path2} b/${path2}`, "new file (untracked)", "--- /dev/null", `+++ b/${path2}`];
+  const body = count3 === 0 ? [] : [`@@ -0,0 +1,${count3} @@`, ...lines.map((line) => `+${line}`)];
+  return { entry: { status: "added", path: path2 }, text: `${[...head, ...body].join("\n")}
+` };
+}
+function sections(diff) {
+  const out = [];
+  for (const line of diff.split("\n")) {
+    if (line.startsWith("diff --git ")) out.push("");
+    if (out.length > 0) out[out.length - 1] += `${line}
+`;
+  }
+  return out;
+}
+function collectChanges(input2) {
+  const files = [];
+  const known = /* @__PURE__ */ new Set();
+  for (const text3 of sections(input2.diff)) {
+    const change = parseDiff(text3)[0];
+    if (change === void 0) continue;
+    const entry = change.status === "renamed" ? { status: "renamed", path: change.path, oldPath: change.oldPath } : { status: change.status, path: change.path };
+    if (paths(entry).some(isOwnOutput)) continue;
+    paths(entry).forEach((path2) => known.add(path2));
+    if (paths(entry).some(isDenied)) files.push(nameOnly(entry, "on the deny list; content not shown"));
+    else if (/^(Binary files .* differ|GIT binary patch)$/m.test(text3)) files.push(nameOnly(entry, "binary; content not shown"));
+    else files.push({ entry, text: text3 });
+  }
+  for (const path2 of input2.untracked) {
+    if (isOwnOutput(path2) || known.has(path2)) continue;
+    known.add(path2);
+    const content = isDenied(path2) ? null : input2.readUntracked(path2);
+    files.push(content === null ? nameOnly({ status: "added", path: path2 }, "untracked; content not shown") : addedFile(path2, content));
+  }
+  for (const dirty of input2.previousDirty) {
+    const below = dirty.endsWith("/") ? [...input2.cited].filter((path2) => path2.startsWith(dirty)).sort() : [dirty];
+    for (const path2 of below) {
+      if (isOwnOutput(path2) || known.has(path2)) continue;
+      known.add(path2);
+      files.push(nameOnly({ status: input2.exists(path2) ? "modified" : "deleted", path: path2 }, "uncommitted when the base map was made; read the current file"));
+    }
+  }
+  return files;
+}
+function groupByBox(components2, files) {
+  const touched = [];
+  const untouched = [];
+  const cited = /* @__PURE__ */ new Set();
+  for (const component of components2) {
+    const own = new Set(component.sources.map((source) => source.path));
+    own.forEach((path2) => cited.add(path2));
+    const mine = files.filter((file) => paths(file.entry).some((path2) => own.has(path2)));
+    if (mine.length === 0) untouched.push({ id: component.id, label: component.label });
+    else touched.push({ id: component.id, label: component.label, files: mine });
+  }
+  const uncited = files.filter((file) => !paths(file.entry).some((path2) => cited.has(path2))).map((file) => file.entry);
+  return { touched, untouched, uncited };
+}
+function fence(text3, lang = "") {
+  let ticks = "```";
+  while (text3.includes(ticks)) ticks += "`";
+  return `${ticks}${lang}
+${text3}${text3.endsWith("\n") || text3 === "" ? "" : "\n"}${ticks}
+`;
+}
+var name = (entry) => entry.oldPath === void 0 ? `${entry.status} ${entry.path}` : `${entry.status} ${entry.oldPath} \u2192 ${entry.path}`;
+function renderChange(base, head, map) {
+  const out = [`# The code change from ${base.slice(0, 7)} to the working tree at ${head.slice(0, 7)}, by box`, "", "## Changed code by box", ""];
+  if (map.touched.length === 0) out.push("No box's cited files changed.", "");
+  for (const box of map.touched) out.push(`### \`${box.id}\` (${box.label})`, "", fence(box.files.map((file) => file.text).join(""), "diff"));
+  out.push("## Boxes whose cited files did not change", "", map.untouched.length === 0 ? "None." : map.untouched.map((box) => `- \`${box.id}\` (${box.label})`).join("\n"), "");
+  out.push("## Changed files no box cites", "", map.uncited.length === 0 ? "None.\n" : fence(map.uncited.map(name).join("\n")));
+  return out.join("\n");
+}
+function runChanges(map, baseRevision, revision) {
+  return {
+    schema: 1,
+    baseRevision,
+    revision,
+    touched: map.touched.map((box) => ({ id: box.id, files: box.files.map((file) => file.entry) })),
+    uncited: map.uncited
+  };
+}
+
+// packages/core/model/lineage.ts
+var LINEAGE_FILE = "lineage.json";
+var MAX_UPDATES = 5;
+var MAX_CHANGE_BYTES = 2 * 1024 * 1024;
+var REDRAW_REASONS = {
+  requested: "a full drawing was asked for",
+  "no-previous": "there is no earlier map with this focus",
+  "no-git": "this folder is not a git repository",
+  "no-base-revision": "the commit the map was drawn at is unknown",
+  "dirty-baseline": "more than 200 files were uncommitted when the map was made",
+  "base-unreachable": "the commit the map was drawn at is no longer in this branch's history",
+  scheduled: "it was updated five times in a row",
+  "change-too-large": "the change since the map is larger than 2 MiB"
+};
+var isCount = (value) => Number.isInteger(value) && value >= 0;
+var isNullableString = (value) => value === null || typeof value === "string";
+function commit(value) {
+  return isJsonObject(value) && typeof value["subject"] === "string" && typeof value["committedAt"] === "string" ? { subject: value["subject"], committedAt: value["committedAt"] } : null;
+}
+function parseLineage(value) {
+  if (!isJsonObject(value) || value["schema"] !== 1 || value["mode"] !== "update" && value["mode"] !== "regenerate") return null;
+  const { reason, previousRun, baseRevision, revision, dirty, dirtyCount, updatesSinceRegeneration } = value;
+  if (typeof reason !== "string" || !isNullableString(previousRun) || !isNullableString(baseRevision) || !isNullableString(revision)) return null;
+  if (!Array.isArray(dirty) || !dirty.every((path2) => typeof path2 === "string") || !isCount(dirtyCount) || !isCount(updatesSinceRegeneration)) return null;
+  return {
+    schema: 1,
+    mode: value["mode"],
+    reason,
+    previousRun,
+    baseRevision,
+    revision,
+    baseCommit: commit(value["baseCommit"]),
+    headCommit: commit(value["headCommit"]),
+    dirty,
+    dirtyCount,
+    updatesSinceRegeneration
+  };
+}
+function readJsonFile(path2) {
+  try {
+    return JSON.parse((0, import_node_fs9.readFileSync)(path2, "utf8"));
+  } catch {
+    return void 0;
+  }
+}
+function readLineage(runDir) {
+  return parseLineage(readJsonFile((0, import_node_path8.join)(runDir, LINEAGE_FILE)));
+}
+function redrawReason(facts) {
+  if (!facts.hasGit) return "no-git";
+  if (facts.base === null) return "no-base-revision";
+  if (facts.previous !== null && facts.previous.dirtyCount > MAX_DIRTY_PATHS) return "dirty-baseline";
+  if (!facts.reachable(facts.base)) return "base-unreachable";
+  if (facts.previous !== null && facts.previous.updatesSinceRegeneration >= MAX_UPDATES) return "scheduled";
+  return null;
+}
+function components(doc) {
+  const list = isJsonObject(doc) && Array.isArray(doc["components"]) ? doc["components"] : [];
+  return list.flatMap((component) => {
+    if (!isJsonObject(component) || typeof component["id"] !== "string") return [];
+    const sources = Array.isArray(component["sources"]) ? component["sources"].filter((source) => isJsonObject(source) && typeof source["path"] === "string") : [];
+    return [{ id: component["id"], label: typeof component["label"] === "string" ? component["label"] : component["id"], sources }];
+  });
+}
+function planRefresh(root, run2, globs = []) {
+  const runDir = (0, import_node_path8.join)(root, ARCHIFY_DIR, run2);
+  const focus = readRunRecord(runDir)?.focus ?? "";
+  const previous = readLineage(runDir);
+  const git2 = collectGitFacts(root);
+  const base = previous?.revision ?? readFingerprints(runDir)?.revision ?? null;
+  const reason = redrawReason({ hasGit: git2 !== null, previous, base, reachable: (revision) => isAncestorOfHead(root, revision) });
+  if (reason !== null) return { mode: "regenerate", reason, focus };
+  const diff = contextDiffSince(root, base);
+  if (diff === null || git2 === null) return { mode: "regenerate", reason: "base-unreachable", focus };
+  const boxes = components(readJsonFile((0, import_node_path8.join)(runDir, CANDIDATE_FILE)));
+  const cited = new Set(boxes.flatMap((box) => box.sources.map((source) => source.path)));
+  const files = collectChanges({
+    diff,
+    untracked: untrackedFiles(root),
+    previousDirty: previous?.dirty ?? [],
+    cited,
+    exists: (path2) => (0, import_node_fs9.existsSync)((0, import_node_path8.join)(root, path2)),
+    readUntracked: (path2) => {
+      try {
+        const bytes = (0, import_node_fs9.readFileSync)((0, import_node_path8.join)(root, path2));
+        return bytes.includes(0) ? null : bytes.toString("utf8");
+      } catch {
+        return null;
+      }
+    }
+  }).filter((file) => inScope(file.entry.path, globs) || file.entry.oldPath !== void 0 && inScope(file.entry.oldPath, globs));
+  const map = groupByBox(boxes, files);
+  const change = renderChange(base, git2.head, map);
+  if (new TextEncoder().encode(change).length > MAX_CHANGE_BYTES) return { mode: "regenerate", reason: "change-too-large", focus };
+  const lineage = {
+    schema: 1,
+    mode: "update",
+    reason: "update",
+    previousRun: run2,
+    baseRevision: base,
+    revision: git2.head,
+    baseCommit: commitInfo(root, base),
+    headCommit: commitInfo(root, git2.head),
+    dirty: git2.dirty,
+    dirtyCount: git2.dirtyCount,
+    updatesSinceRegeneration: (previous?.updatesSinceRegeneration ?? 0) + 1
+  };
+  return { mode: "update", focus, base, git: git2, map, change, lineage, changes: runChanges(map, base, git2.head) };
+}
+
 // apps/action/src/refresh.ts
 var REFRESH_KEYS = { claude: "ANTHROPIC_API_KEY", codex: "OPENAI_API_KEY" };
 var REFRESH_TIMEOUT_MS = 30 * 6e4;
@@ -10009,13 +10239,13 @@ function refreshDecision(input2) {
   if (input2.head === null || input2.head !== event?.pull_request?.head?.sha) {
     return { run: false, reason: "Updating the map needs the pull request's head checked out. Set ref to github.head_ref in actions/checkout." };
   }
-  const paths = branchPaths(input2.report, input2.components);
-  if (paths.length === 0) return { run: false, reason: null };
-  return { run: true, agent, paths };
+  const paths2 = branchPaths(input2.report, input2.components);
+  if (paths2.length === 0) return { run: false, reason: null };
+  return { run: true, agent, paths: paths2 };
 }
-function refreshCommand(agent, map, paths, home, env) {
-  const skillDir = (0, import_node_path8.join)(home, agent === "claude" ? ".claude" : ".agents", "skills", "aisus-refresh");
-  const args = headlessArgs(agent, skillPrompt(agent, "aisus-refresh", refreshArgs(map, paths)), { skillDir, scripts: SKILL_SCRIPTS["aisus-refresh"] });
+function refreshCommand(agent, map, paths2, home, env) {
+  const skillDir = (0, import_node_path9.join)(home, agent === "claude" ? ".claude" : ".agents", "skills", "aisus-refresh");
+  const args = headlessArgs(agent, skillPrompt(agent, "aisus-refresh", refreshArgs(map, paths2)), { skillDir, scripts: SKILL_SCRIPTS["aisus-refresh"] });
   const key = env[REFRESH_KEYS[agent]] ?? "";
   const keys = agent === "claude" ? { ANTHROPIC_API_KEY: key } : { OPENAI_API_KEY: key, CODEX_API_KEY: key };
   return { args, env: { PATH: env["PATH"] ?? "", HOME: home, LANG: "C.UTF-8", ...agentHomePreview(home, agent), ...keys } };
@@ -10027,9 +10257,11 @@ function git(root, args) {
   return result.status === 0 ? result.stdout : null;
 }
 function runRefresh(input2) {
+  const plan = planRefresh(input2.root, input2.map, input2.paths.map(globToRegExp));
+  if (plan.mode === "regenerate") return { ok: false, reason: `the map is due a full drawing, because ${REDRAW_REASONS[plan.reason]}. Run Generate with its focus and commit the new map.` };
   const binary = findOnPath(input2.agent, input2.env);
   if (binary === void 0) return { ok: false, reason: `refresh: ${input2.agent} needs the ${input2.agent} CLI on PATH; install it in an earlier step.` };
-  const home = (0, import_node_fs9.mkdtempSync)((0, import_node_path8.join)((0, import_node_os.tmpdir)(), "aisus-refresh-"));
+  const home = (0, import_node_fs10.mkdtempSync)((0, import_node_path9.join)((0, import_node_os.tmpdir)(), "aisus-refresh-"));
   try {
     agentHome(home, input2.agent, { name: "aisus-refresh", source: input2.skillSource });
     const { args, env } = refreshCommand(input2.agent, input2.map, input2.paths, home, input2.env);
@@ -10039,7 +10271,7 @@ function runRefresh(input2) {
     const tokens = usage.input + usage.output + usage.cacheRead + usage.cacheWrite;
     const made = newRunSince(input2.root, before);
     if (made === null || made.record.phase !== "accepted") return { ok: false, reason: `the refresh ended without an accepted map (exit ${result.status ?? "none"}).` };
-    const read = (run2) => readDiagram(JSON.parse((0, import_node_fs9.readFileSync)((0, import_node_path8.join)(input2.root, ARCHIFY_DIR, run2, CANDIDATE_FILE), "utf8")));
+    const read = (run2) => readDiagram(JSON.parse((0, import_node_fs10.readFileSync)((0, import_node_path9.join)(input2.root, ARCHIFY_DIR, run2, CANDIDATE_FILE), "utf8")));
     const older = read(input2.map);
     const newer = read(made.runFolder);
     const summary = older.ok && newer.ok ? diffSummary(diffMaps(older.diagram, newer.diagram)) : "the map changed";
@@ -10050,7 +10282,7 @@ ${summary}.`, "--", folder]) !== null && git(input2.root, ["push", "-q", "origin
     if (!committed) return { ok: false, reason: `the new map ${made.runFolder} could not be committed and pushed to ${input2.headRef}.` };
     return { ok: true, run: made.runFolder, summary, tokens };
   } finally {
-    (0, import_node_fs9.rmSync)(home, { recursive: true, force: true });
+    (0, import_node_fs10.rmSync)(home, { recursive: true, force: true });
   }
 }
 function refreshLines(outcome) {
@@ -10060,8 +10292,8 @@ function refreshLines(outcome) {
 
 // apps/action/src/main.ts
 var COMMENT_ITEMS = 30;
-function input(env, name) {
-  return (env[`INPUT_${name.toUpperCase()}`] ?? "").trim();
+function input(env, name2) {
+  return (env[`INPUT_${name2.toUpperCase()}`] ?? "").trim();
 }
 function pullRequest(event) {
   const typed = event;
@@ -10076,7 +10308,7 @@ async function uploadCheck(context, pull, report, run2) {
   if (cloud === "") return { ok: false, reason: "upload needs the cloud-url input." };
   const head = collectGitFacts(context.root)?.head;
   if (head === void 0) return { ok: false, reason: "upload needs the checked-out commit." };
-  const map = JSON.parse((0, import_node_fs10.readFileSync)((0, import_node_path9.join)(context.root, ".archify", run2, "candidate.json"), "utf8"));
+  const map = JSON.parse((0, import_node_fs11.readFileSync)((0, import_node_path10.join)(context.root, ".archify", run2, "candidate.json"), "utf8"));
   const payload = checkPayload({ repo, commit: head, branch: pull.headRef, pull: pull.number, check: report, map, run: run2, ...pull.defaultBranch ? { defaultBranch: pull.defaultBranch } : {} });
   const issues = checkUpload(payload);
   if (issues.length > 0) return { ok: false, reason: `the upload would be refused: ${issues.map((issue) => `${issue.pointer} ${issue.message}`).join("; ")}` };
@@ -10112,7 +10344,7 @@ async function runAction(context) {
   let update = [];
   const decision = refreshDecision({ refresh: input(context.env, "refresh"), env: context.env, event: context.event, report, components: diagram.components, head: collectGitFacts(context.root)?.head ?? null });
   if (decision.run) {
-    const outcome2 = runRefresh({ root: context.root, map: report.map, agent: decision.agent, paths: decision.paths, headRef: pull.headRef, skillSource: (0, import_node_path9.join)(__dirname, "..", "..", "skills", "aisus-refresh"), env: context.env });
+    const outcome2 = runRefresh({ root: context.root, map: report.map, agent: decision.agent, paths: decision.paths, headRef: pull.headRef, skillSource: (0, import_node_path10.join)(__dirname, "..", "..", "skills", "aisus-refresh"), env: context.env });
     update = refreshLines(outcome2);
     context.log(outcome2.ok ? `Map updated in ${outcome2.run}.` : `Map not updated: ${outcome2.reason}`);
   } else if (decision.reason !== null) {
@@ -10134,13 +10366,13 @@ async function runAction(context) {
 // apps/action/src/index.ts
 async function main() {
   const env = process.env;
-  const event = JSON.parse((0, import_node_fs11.readFileSync)(env["GITHUB_EVENT_PATH"] ?? "", "utf8"));
+  const event = JSON.parse((0, import_node_fs12.readFileSync)(env["GITHUB_EVENT_PATH"] ?? "", "utf8"));
   const client = restClient(env["GITHUB_API_URL"] ?? "https://api.github.com", env["GITHUB_REPOSITORY"] ?? "", env["INPUT_GITHUB-TOKEN"] ?? "");
   const outcome = await runAction({ env, root: env["GITHUB_WORKSPACE"] ?? process.cwd(), event, client, log: (line) => process.stdout.write(`${line}
 `) });
-  if (env["GITHUB_OUTPUT"]) (0, import_node_fs11.appendFileSync)(env["GITHUB_OUTPUT"], `result=${outcome.result}
+  if (env["GITHUB_OUTPUT"]) (0, import_node_fs12.appendFileSync)(env["GITHUB_OUTPUT"], `result=${outcome.result}
 `);
-  if (env["GITHUB_STEP_SUMMARY"] && outcome.comment !== null) (0, import_node_fs11.appendFileSync)(env["GITHUB_STEP_SUMMARY"], `${outcome.comment}
+  if (env["GITHUB_STEP_SUMMARY"] && outcome.comment !== null) (0, import_node_fs12.appendFileSync)(env["GITHUB_STEP_SUMMARY"], `${outcome.comment}
 `);
   return outcome.exitCode;
 }

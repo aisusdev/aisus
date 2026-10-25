@@ -1,6 +1,6 @@
 // packages/core/agent/refresh-facts.ts
-import { readdirSync as readdirSync3, readFileSync as readFileSync5, realpathSync as realpathSync3, statSync as statSync3, writeFileSync } from "node:fs";
-import { basename as basename2, join as join7 } from "node:path";
+import { readdirSync as readdirSync4, readFileSync as readFileSync6, realpathSync as realpathSync4, statSync as statSync3, writeFileSync } from "node:fs";
+import { basename as basename2, join as join8 } from "node:path";
 
 // packages/core/model/confine.ts
 import { lstatSync, realpathSync } from "node:fs";
@@ -85,8 +85,8 @@ function runTimestamp(date) {
   const two = (n) => String(n).padStart(2, "0");
   return `${date.getFullYear()}${two(date.getMonth() + 1)}${two(date.getDate())}-${two(date.getHours())}${two(date.getMinutes())}${two(date.getSeconds())}`;
 }
-function parseRunName(name) {
-  const match = RUN_NAME_PATTERN.exec(name);
+function parseRunName(name2) {
+  const match = RUN_NAME_PATTERN.exec(name2);
   if (!match) return null;
   return { prefix: match[1], slug: match[2], timestamp: match[3], n: match[4] === void 0 ? 1 : Number(match[4]) };
 }
@@ -107,10 +107,10 @@ function createRunFolder(root, slug, timestamp, options = {}) {
     throw new Error(`${dir} must be a folder inside the repository root`);
   }
   for (let n = 1; n <= MAX_COLLISIONS; n += 1) {
-    const name = n === 1 ? base : `${base}-${n}`;
+    const name2 = n === 1 ? base : `${base}-${n}`;
     try {
-      mkdirSync(join(parentReal, name));
-      return name;
+      mkdirSync(join(parentReal, name2));
+      return name2;
     } catch (error) {
       if (error.code !== "EEXIST") throw error;
     }
@@ -359,9 +359,90 @@ function skillEstimates(size, kind) {
 
 // packages/core/model/git.ts
 import { spawnSync } from "node:child_process";
+import { realpathSync as realpathSync3 } from "node:fs";
 
 // packages/core/model/changes.ts
 var REVISION_PATTERN = /^(?!-)[A-Za-z0-9._/~^@{}-]+$/;
+function unquotePath(raw) {
+  if (!raw.startsWith('"')) return raw;
+  const bytes = [];
+  const escapes = { a: 7, b: 8, t: 9, n: 10, v: 11, f: 12, r: 13, '"': 34, "\\": 92 };
+  for (let i = 1; i < raw.length - 1; i++) {
+    const char = raw[i];
+    if (char !== "\\") {
+      bytes.push(...new TextEncoder().encode(char));
+      continue;
+    }
+    const next = raw[i + 1];
+    if (/[0-7]/.test(next)) {
+      bytes.push(parseInt(raw.slice(i + 1, i + 4), 8));
+      i += 3;
+    } else {
+      bytes.push(escapes[next] ?? next.charCodeAt(0));
+      i += 1;
+    }
+  }
+  return new TextDecoder().decode(Uint8Array.from(bytes));
+}
+function headerPaths(rest) {
+  let oldRaw;
+  let newRaw;
+  if (rest.startsWith('"')) {
+    const end = /^"(?:[^"\\]|\\.)*"/.exec(rest)?.[0] ?? rest;
+    oldRaw = end;
+    newRaw = rest.slice(end.length + 1);
+  } else {
+    const split = Math.max(rest.lastIndexOf(" b/"), rest.lastIndexOf(' "b/'));
+    oldRaw = split < 0 ? rest : rest.slice(0, split);
+    newRaw = split < 0 ? rest : rest.slice(split + 1);
+  }
+  const strip = (raw, prefix) => {
+    const path = unquotePath(raw);
+    return path.startsWith(prefix) ? path.slice(prefix.length) : path;
+  };
+  return [strip(oldRaw, "a/"), strip(newRaw, "b/")];
+}
+function sidePath(line, prefix) {
+  const raw = unquotePath(line.slice(4).replace(/\t$/, ""));
+  if (raw === "/dev/null") return null;
+  return raw.startsWith(prefix) ? raw.slice(2) : raw;
+}
+function parseDiff(text) {
+  const files = [];
+  let current = null;
+  for (const line of text.split("\n")) {
+    if (line.startsWith("diff --git ")) {
+      const [oldPath, path] = headerPaths(line.slice("diff --git ".length));
+      current = { path, oldPath, status: "modified", hunks: [] };
+      files.push(current);
+    } else if (current === null) {
+      continue;
+    } else if (line.startsWith("rename from ")) {
+      current.oldPath = unquotePath(line.slice("rename from ".length));
+      current.status = "renamed";
+    } else if (line.startsWith("rename to ")) {
+      current.path = unquotePath(line.slice("rename to ".length));
+    } else if (line.startsWith("new file mode")) {
+      current.status = "added";
+    } else if (line.startsWith("deleted file mode")) {
+      current.status = "deleted";
+    } else if (line.startsWith("--- ")) {
+      const old = sidePath(line, "a/");
+      if (old !== null) current.oldPath = old;
+    } else if (line.startsWith("+++ ")) {
+      const next = sidePath(line, "b/");
+      if (next !== null) current.path = next;
+      else current.path = current.oldPath;
+    } else if (line.startsWith("@@ ")) {
+      const hunk = /^@@ -(\d+)(?:,(\d+))? \+\d+(?:,(\d+))? @@/.exec(line);
+      if (hunk) {
+        current.hunks.push({ oldStart: Number(hunk[1]), oldLines: hunk[2] === void 0 ? 1 : Number(hunk[2]) });
+        current.added = (current.added ?? 0) + (hunk[3] === void 0 ? 1 : Number(hunk[3]));
+      }
+    }
+  }
+  return files;
+}
 
 // packages/core/model/which.ts
 import { accessSync, constants, statSync as statSync2 } from "node:fs";
@@ -390,6 +471,7 @@ function findOnPath(cli, env, platform = process.platform) {
 }
 
 // packages/core/model/git.ts
+var MAX_DIRTY_PATHS = 200;
 var GIT_PREFIX = ["-c", "core.fsmonitor=false", "--no-optional-locks"];
 var GIT_READS = {
   topLevel: [...GIT_PREFIX, "rev-parse", "--show-toplevel"],
@@ -413,6 +495,49 @@ function runRaw(program, root, argv) {
 function run(program, root, argv) {
   return runRaw(program, root, argv)?.toString("utf8") ?? null;
 }
+function sanitizeOrigin(url) {
+  const match = /^(https?):\/\/(.*)$/is.exec(url);
+  if (!match) return url;
+  const scheme = match[1];
+  const rest = match[2];
+  const authorityEnd = rest.search(/[/?#]/);
+  const authority = authorityEnd < 0 ? rest : rest.slice(0, authorityEnd);
+  const tail = authorityEnd < 0 ? "" : rest.slice(authorityEnd);
+  const host = authority.slice(authority.lastIndexOf("@") + 1);
+  return `${scheme}://${host}${tail}`;
+}
+function parsePorcelainZ(output) {
+  const fields = output.split("\0");
+  const paths2 = [];
+  for (let i = 0; i < fields.length; i += 1) {
+    const record = fields[i];
+    if (record.length < 4) continue;
+    paths2.push(record.slice(3));
+    if (/[RC]/.test(record.slice(0, 2))) i += 1;
+  }
+  return paths2;
+}
+function collectGitFacts(root, env = process.env) {
+  const program = gitProgram(env);
+  if (program === void 0) return null;
+  const top = run(program, root, GIT_READS.topLevel);
+  if (top === null) return null;
+  try {
+    if (realpathSync3(top.trim()) !== realpathSync3(root)) return null;
+  } catch {
+    return null;
+  }
+  const head = run(program, root, GIT_READS.head)?.trim().toLowerCase();
+  if (head === void 0 || !/^[0-9a-f]{40}$/.test(head)) return null;
+  const origin = run(program, root, GIT_READS.origin)?.trim() ?? "";
+  const allDirty = parsePorcelainZ(run(program, root, GIT_READS.status) ?? "");
+  return {
+    head,
+    origin: origin === "" ? null : sanitizeOrigin(origin),
+    dirtyCount: allDirty.length,
+    dirty: allDirty.slice(0, MAX_DIRTY_PATHS)
+  };
+}
 function renamesSince(root, revision, env = process.env, to) {
   const renames = /* @__PURE__ */ new Map();
   const program = gitProgram(env);
@@ -430,6 +555,7 @@ function renamesSince(root, revision, env = process.env, to) {
   }
   return renames;
 }
+var DIFF_FLAGS = ["diff", "--no-color", "--no-ext-diff", "--no-textconv", "--unified=0", "-M", "--src-prefix=a/", "--dst-prefix=b/"];
 function numstatSince(root, revision, env = process.env) {
   const program = gitProgram(env);
   if (program === void 0 || !REVISION_PATTERN.test(revision)) return null;
@@ -462,13 +588,13 @@ function trackedFiles(root, env = process.env) {
   }
   return files;
 }
-function generatedFiles(root, paths, env = process.env) {
+function generatedFiles(root, paths2, env = process.env) {
   const program = gitProgram(env);
-  if (program === void 0 || paths.length === 0) return /* @__PURE__ */ new Set();
+  if (program === void 0 || paths2.length === 0) return /* @__PURE__ */ new Set();
   const result = spawnSync(program, [...GIT_PREFIX, "check-attr", "-z", "--stdin", "linguist-generated", "linguist-vendored"], {
     cwd: root,
     env: { ...process.env, GIT_TERMINAL_PROMPT: "0" },
-    input: paths.join("\0"),
+    input: paths2.join("\0"),
     stdio: ["pipe", "pipe", "ignore"],
     maxBuffer: 64 * 1024 * 1024
   });
@@ -487,7 +613,141 @@ function foldersAt(root, revision, env = process.env) {
   const program = gitProgram(env);
   if (program === void 0 || !REVISION_PATTERN.test(revision)) return null;
   const output = run(program, root, [...GIT_PREFIX, "ls-tree", "-d", "--name-only", "-z", revision]);
-  return output === null ? null : new Set(output.split("\0").filter((name) => name !== ""));
+  return output === null ? null : new Set(output.split("\0").filter((name2) => name2 !== ""));
+}
+function contextDiffSince(root, revision, env = process.env) {
+  const program = gitProgram(env);
+  if (program === void 0 || !REVISION_PATTERN.test(revision)) return null;
+  return run(program, root, [...GIT_PREFIX, ...DIFF_FLAGS.map((flag) => flag === "--unified=0" ? "--unified=3" : flag), revision, "--"]);
+}
+function isAncestorOfHead(root, revision, env = process.env) {
+  const program = gitProgram(env);
+  if (program === void 0 || !REVISION_PATTERN.test(revision)) return false;
+  return run(program, root, [...GIT_PREFIX, "merge-base", "--is-ancestor", revision, "HEAD"]) !== null;
+}
+function commitInfo(root, revision, env = process.env) {
+  const program = gitProgram(env);
+  if (program === void 0 || !REVISION_PATTERN.test(revision)) return null;
+  const output = run(program, root, [...GIT_PREFIX, "log", "-1", "--format=%cI%x00%s", revision, "--"]);
+  const at = output?.indexOf("\0") ?? -1;
+  return output === null || output === void 0 || at < 0 ? null : { committedAt: output.slice(0, at), subject: output.slice(at + 1).trim() };
+}
+
+// packages/core/model/lineage.ts
+import { existsSync as existsSync2, readdirSync as readdirSync2, readFileSync as readFileSync4 } from "node:fs";
+import { join as join6 } from "node:path";
+
+// packages/core/model/deny.ts
+var DENIED_NAMES = [".git", ".archify", ".npmrc", ".pypirc", ".netrc"];
+var ENV_EXCEPTIONS = [".env.example", ".env.sample"];
+var DENIED_PREFIXES = ["id_rsa", "id_ed25519"];
+var DENIED_EXTENSIONS = ["pem", "key", "p12", "pfx"];
+function segmentDenied(segment) {
+  const name2 = segment.toLowerCase();
+  if (DENIED_NAMES.includes(name2)) return true;
+  if (name2 === ".env" || name2.startsWith(".env.") && !ENV_EXCEPTIONS.includes(name2)) return true;
+  if (DENIED_PREFIXES.some((prefix) => name2.startsWith(prefix))) return true;
+  const dot = name2.lastIndexOf(".");
+  return dot >= 0 && DENIED_EXTENSIONS.includes(name2.slice(dot + 1));
+}
+function isDenied(path) {
+  return path.split("/").some(segmentDenied);
+}
+
+// packages/core/model/changeMap.ts
+var OWN_OUTPUT = ".archify";
+var isOwnOutput = (path) => path !== void 0 && (path === OWN_OUTPUT || path.startsWith(`${OWN_OUTPUT}/`));
+var paths = (entry) => entry.oldPath === void 0 ? [entry.path] : [entry.path, entry.oldPath];
+function nameOnly(entry, note) {
+  const name2 = entry.oldPath === void 0 ? entry.path : `${entry.oldPath} \u2192 ${entry.path}`;
+  return { entry, text: `${entry.status} ${name2} (${note})
+` };
+}
+function addedFile(path, content) {
+  const lines = content.split("\n");
+  if (content.endsWith("\n")) lines.pop();
+  const count = content === "" ? 0 : lines.length;
+  const head = [`diff --git a/${path} b/${path}`, "new file (untracked)", "--- /dev/null", `+++ b/${path}`];
+  const body = count === 0 ? [] : [`@@ -0,0 +1,${count} @@`, ...lines.map((line) => `+${line}`)];
+  return { entry: { status: "added", path }, text: `${[...head, ...body].join("\n")}
+` };
+}
+function sections(diff) {
+  const out = [];
+  for (const line of diff.split("\n")) {
+    if (line.startsWith("diff --git ")) out.push("");
+    if (out.length > 0) out[out.length - 1] += `${line}
+`;
+  }
+  return out;
+}
+function collectChanges(input) {
+  const files = [];
+  const known = /* @__PURE__ */ new Set();
+  for (const text of sections(input.diff)) {
+    const change = parseDiff(text)[0];
+    if (change === void 0) continue;
+    const entry = change.status === "renamed" ? { status: "renamed", path: change.path, oldPath: change.oldPath } : { status: change.status, path: change.path };
+    if (paths(entry).some(isOwnOutput)) continue;
+    paths(entry).forEach((path) => known.add(path));
+    if (paths(entry).some(isDenied)) files.push(nameOnly(entry, "on the deny list; content not shown"));
+    else if (/^(Binary files .* differ|GIT binary patch)$/m.test(text)) files.push(nameOnly(entry, "binary; content not shown"));
+    else files.push({ entry, text });
+  }
+  for (const path of input.untracked) {
+    if (isOwnOutput(path) || known.has(path)) continue;
+    known.add(path);
+    const content = isDenied(path) ? null : input.readUntracked(path);
+    files.push(content === null ? nameOnly({ status: "added", path }, "untracked; content not shown") : addedFile(path, content));
+  }
+  for (const dirty of input.previousDirty) {
+    const below = dirty.endsWith("/") ? [...input.cited].filter((path) => path.startsWith(dirty)).sort() : [dirty];
+    for (const path of below) {
+      if (isOwnOutput(path) || known.has(path)) continue;
+      known.add(path);
+      files.push(nameOnly({ status: input.exists(path) ? "modified" : "deleted", path }, "uncommitted when the base map was made; read the current file"));
+    }
+  }
+  return files;
+}
+function groupByBox(components2, files) {
+  const touched = [];
+  const untouched = [];
+  const cited = /* @__PURE__ */ new Set();
+  for (const component of components2) {
+    const own = new Set(component.sources.map((source) => source.path));
+    own.forEach((path) => cited.add(path));
+    const mine = files.filter((file) => paths(file.entry).some((path) => own.has(path)));
+    if (mine.length === 0) untouched.push({ id: component.id, label: component.label });
+    else touched.push({ id: component.id, label: component.label, files: mine });
+  }
+  const uncited = files.filter((file) => !paths(file.entry).some((path) => cited.has(path))).map((file) => file.entry);
+  return { touched, untouched, uncited };
+}
+function fence(text, lang = "") {
+  let ticks = "```";
+  while (text.includes(ticks)) ticks += "`";
+  return `${ticks}${lang}
+${text}${text.endsWith("\n") || text === "" ? "" : "\n"}${ticks}
+`;
+}
+var name = (entry) => entry.oldPath === void 0 ? `${entry.status} ${entry.path}` : `${entry.status} ${entry.oldPath} \u2192 ${entry.path}`;
+function renderChange(base, head, map) {
+  const out = [`# The code change from ${base.slice(0, 7)} to the working tree at ${head.slice(0, 7)}, by box`, "", "## Changed code by box", ""];
+  if (map.touched.length === 0) out.push("No box's cited files changed.", "");
+  for (const box of map.touched) out.push(`### \`${box.id}\` (${box.label})`, "", fence(box.files.map((file) => file.text).join(""), "diff"));
+  out.push("## Boxes whose cited files did not change", "", map.untouched.length === 0 ? "None." : map.untouched.map((box) => `- \`${box.id}\` (${box.label})`).join("\n"), "");
+  out.push("## Changed files no box cites", "", map.uncited.length === 0 ? "None.\n" : fence(map.uncited.map(name).join("\n")));
+  return out.join("\n");
+}
+function runChanges(map, baseRevision, revision) {
+  return {
+    schema: 1,
+    baseRevision,
+    revision,
+    touched: map.touched.map((box) => ({ id: box.id, files: box.files.map((file) => file.entry) })),
+    uncited: map.uncited
+  };
 }
 
 // packages/core/model/refresh.ts
@@ -517,28 +777,148 @@ function refreshReport(inputs) {
   return { stale, boxes, changes, uncovered: changes.filter((change) => !change.covered).map((change) => change.path), newFolders };
 }
 
-// packages/core/model/repoSize.ts
-import { lstatSync as lstatSync2, readdirSync, readFileSync as readFileSync3 } from "node:fs";
+// packages/core/model/runRecord.ts
+import { readdirSync, readFileSync as readFileSync3 } from "node:fs";
 import { join as join5 } from "node:path";
-
-// packages/core/model/deny.ts
-var DENIED_NAMES = [".git", ".archify", ".npmrc", ".pypirc", ".netrc"];
-var ENV_EXCEPTIONS = [".env.example", ".env.sample"];
-var DENIED_PREFIXES = ["id_rsa", "id_ed25519"];
-var DENIED_EXTENSIONS = ["pem", "key", "p12", "pfx"];
-function segmentDenied(segment) {
-  const name = segment.toLowerCase();
-  if (DENIED_NAMES.includes(name)) return true;
-  if (name === ".env" || name.startsWith(".env.") && !ENV_EXCEPTIONS.includes(name)) return true;
-  if (DENIED_PREFIXES.some((prefix) => name.startsWith(prefix))) return true;
-  const dot = name.lastIndexOf(".");
-  return dot >= 0 && DENIED_EXTENSIONS.includes(name.slice(dot + 1));
+var RUN_FILE = "run.json";
+function newRunRecord(fields, now = /* @__PURE__ */ new Date()) {
+  return {
+    schema: 1,
+    kind: fields.kind ?? "full",
+    focus: fields.focus,
+    paths: fields.paths ?? [],
+    base: fields.base ?? null,
+    parent: fields.parent ?? null,
+    createdAt: now.toISOString(),
+    skillVersion: fields.skillVersion,
+    phase: "created",
+    attempts: 0
+  };
 }
-function isDenied(path) {
-  return path.split("/").some(segmentDenied);
+function readRunRecord(runDir) {
+  try {
+    const value = JSON.parse(readFileSync3(join5(runDir, RUN_FILE), "utf8"));
+    return isJsonObject(value) && value["schema"] === 1 && typeof value["phase"] === "string" ? value : null;
+  } catch {
+    return null;
+  }
+}
+function writeRunRecord(root, runDir, record) {
+  const path = join5(runDir, RUN_FILE);
+  assertWritable(root, path);
+  writeJson(path, record);
+}
+
+// packages/core/model/lineage.ts
+var LINEAGE_FILE = "lineage.json";
+var CHANGES_FILE = "changes.json";
+var CHANGE_FILE = "change.md";
+var MAX_UPDATES = 5;
+var MAX_CHANGE_BYTES = 2 * 1024 * 1024;
+var isCount = (value) => Number.isInteger(value) && value >= 0;
+var isNullableString = (value) => value === null || typeof value === "string";
+function commit(value) {
+  return isJsonObject(value) && typeof value["subject"] === "string" && typeof value["committedAt"] === "string" ? { subject: value["subject"], committedAt: value["committedAt"] } : null;
+}
+function parseLineage(value) {
+  if (!isJsonObject(value) || value["schema"] !== 1 || value["mode"] !== "update" && value["mode"] !== "regenerate") return null;
+  const { reason, previousRun, baseRevision, revision, dirty, dirtyCount, updatesSinceRegeneration } = value;
+  if (typeof reason !== "string" || !isNullableString(previousRun) || !isNullableString(baseRevision) || !isNullableString(revision)) return null;
+  if (!Array.isArray(dirty) || !dirty.every((path) => typeof path === "string") || !isCount(dirtyCount) || !isCount(updatesSinceRegeneration)) return null;
+  return {
+    schema: 1,
+    mode: value["mode"],
+    reason,
+    previousRun,
+    baseRevision,
+    revision,
+    baseCommit: commit(value["baseCommit"]),
+    headCommit: commit(value["headCommit"]),
+    dirty,
+    dirtyCount,
+    updatesSinceRegeneration
+  };
+}
+function readJsonFile(path) {
+  try {
+    return JSON.parse(readFileSync4(path, "utf8"));
+  } catch {
+    return void 0;
+  }
+}
+function readLineage(runDir) {
+  return parseLineage(readJsonFile(join6(runDir, LINEAGE_FILE)));
+}
+function writeRunFile(root, runDir, file, value) {
+  const path = join6(runDir, file);
+  assertWritable(root, path);
+  writeJson(path, value);
+}
+function redrawReason(facts) {
+  if (!facts.hasGit) return "no-git";
+  if (facts.base === null) return "no-base-revision";
+  if (facts.previous !== null && facts.previous.dirtyCount > MAX_DIRTY_PATHS) return "dirty-baseline";
+  if (!facts.reachable(facts.base)) return "base-unreachable";
+  if (facts.previous !== null && facts.previous.updatesSinceRegeneration >= MAX_UPDATES) return "scheduled";
+  return null;
+}
+function components(doc) {
+  const list = isJsonObject(doc) && Array.isArray(doc["components"]) ? doc["components"] : [];
+  return list.flatMap((component) => {
+    if (!isJsonObject(component) || typeof component["id"] !== "string") return [];
+    const sources = Array.isArray(component["sources"]) ? component["sources"].filter((source) => isJsonObject(source) && typeof source["path"] === "string") : [];
+    return [{ id: component["id"], label: typeof component["label"] === "string" ? component["label"] : component["id"], sources }];
+  });
+}
+function planRefresh(root, run2, globs = []) {
+  const runDir = join6(root, ARCHIFY_DIR, run2);
+  const focus = readRunRecord(runDir)?.focus ?? "";
+  const previous = readLineage(runDir);
+  const git = collectGitFacts(root);
+  const base = previous?.revision ?? readFingerprints(runDir)?.revision ?? null;
+  const reason = redrawReason({ hasGit: git !== null, previous, base, reachable: (revision) => isAncestorOfHead(root, revision) });
+  if (reason !== null) return { mode: "regenerate", reason, focus };
+  const diff = contextDiffSince(root, base);
+  if (diff === null || git === null) return { mode: "regenerate", reason: "base-unreachable", focus };
+  const boxes = components(readJsonFile(join6(runDir, CANDIDATE_FILE)));
+  const cited = new Set(boxes.flatMap((box) => box.sources.map((source) => source.path)));
+  const files = collectChanges({
+    diff,
+    untracked: untrackedFiles(root),
+    previousDirty: previous?.dirty ?? [],
+    cited,
+    exists: (path) => existsSync2(join6(root, path)),
+    readUntracked: (path) => {
+      try {
+        const bytes = readFileSync4(join6(root, path));
+        return bytes.includes(0) ? null : bytes.toString("utf8");
+      } catch {
+        return null;
+      }
+    }
+  }).filter((file) => inScope(file.entry.path, globs) || file.entry.oldPath !== void 0 && inScope(file.entry.oldPath, globs));
+  const map = groupByBox(boxes, files);
+  const change = renderChange(base, git.head, map);
+  if (new TextEncoder().encode(change).length > MAX_CHANGE_BYTES) return { mode: "regenerate", reason: "change-too-large", focus };
+  const lineage = {
+    schema: 1,
+    mode: "update",
+    reason: "update",
+    previousRun: run2,
+    baseRevision: base,
+    revision: git.head,
+    baseCommit: commitInfo(root, base),
+    headCommit: commitInfo(root, git.head),
+    dirty: git.dirty,
+    dirtyCount: git.dirtyCount,
+    updatesSinceRegeneration: (previous?.updatesSinceRegeneration ?? 0) + 1
+  };
+  return { mode: "update", focus, base, git, map, change, lineage, changes: runChanges(map, base, git.head) };
 }
 
 // packages/core/model/repoSize.ts
+import { lstatSync as lstatSync2, readdirSync as readdirSync3, readFileSync as readFileSync5 } from "node:fs";
+import { join as join7 } from "node:path";
 var SKIPPED_DIRS = [".git", "node_modules", "vendor", "dist", "build", "target", "out", ".aisus"];
 var COUNT_LIMIT = 2e3;
 var MAX_FILE_BYTES = 1024 * 1024;
@@ -619,18 +999,18 @@ var TEST_DIRS = /* @__PURE__ */ new Set(["test", "tests", "__tests__", "spec", "
 var TEST_FILES = /(\.|_)(test|spec)\.[^./]+$|^test_[^/]+\.py$|(Test|Tests|IT)\.(java|kt|scala)$|_spec\.rb$/;
 function languageOf(path) {
   if (GENERATED.test(path)) return null;
-  const name = path.slice(path.lastIndexOf("/") + 1);
-  const named = NAMED[name.toLowerCase()];
+  const name2 = path.slice(path.lastIndexOf("/") + 1);
+  const named = NAMED[name2.toLowerCase()];
   if (named !== void 0) return named;
-  const dot = name.lastIndexOf(".");
-  const extension = dot > 0 ? name.slice(dot + 1).toLowerCase() : "";
+  const dot = name2.lastIndexOf(".");
+  const extension = dot > 0 ? name2.slice(dot + 1).toLowerCase() : "";
   if (BINARY.has(extension)) return null;
   return LANGUAGES[extension] ?? "Other";
 }
 function isTestPath(path) {
   const segments = path.split("/");
-  const name = segments.pop();
-  return segments.some((segment) => TEST_DIRS.has(segment.toLowerCase())) || TEST_FILES.test(name);
+  const name2 = segments.pop();
+  return segments.some((segment) => TEST_DIRS.has(segment.toLowerCase())) || TEST_FILES.test(name2);
 }
 function sizeFacts(size) {
   return { nonTestLines: size.lines.nonTest, files: size.files };
@@ -648,7 +1028,7 @@ function walk(root) {
     const dir = pending.pop();
     let entries;
     try {
-      entries = readdirSync(join5(root, dir), { withFileTypes: true });
+      entries = readdirSync3(join7(root, dir), { withFileTypes: true });
     } catch {
       continue;
     }
@@ -666,7 +1046,7 @@ function countFile(path) {
   try {
     const stat = lstatSync2(path);
     if (!stat.isFile() || stat.size > MAX_FILE_BYTES) return null;
-    data = readFileSync3(path);
+    data = readFileSync5(path);
   } catch {
     return null;
   }
@@ -694,7 +1074,7 @@ function repoSize(root, env = process.env, limit = COUNT_LIMIT) {
   for (let at = 0; at < candidates.length; at += step) {
     const index = Math.floor(at);
     const file = candidates[index];
-    const count = countFile(join5(root, file.path));
+    const count = countFile(join7(root, file.path));
     counts.set(index, count);
     if (count === null) continue;
     const seen = means.get(file.language) ?? { files: 0, lines: 0 };
@@ -724,38 +1104,6 @@ function repoSize(root, env = process.env, limit = COUNT_LIMIT) {
   const total = sorted.reduce((sum, entry) => sum + entry.lines, 0);
   const test = sorted.reduce((sum, entry) => sum + entry.testLines, 0);
   return { listing, files, counted, lines: { total, test, nonTest: total - test }, languages: sorted, tier: tierOf(total - test) };
-}
-
-// packages/core/model/runRecord.ts
-import { readdirSync as readdirSync2, readFileSync as readFileSync4 } from "node:fs";
-import { join as join6 } from "node:path";
-var RUN_FILE = "run.json";
-function newRunRecord(fields, now = /* @__PURE__ */ new Date()) {
-  return {
-    schema: 1,
-    kind: fields.kind ?? "full",
-    focus: fields.focus,
-    paths: fields.paths ?? [],
-    base: fields.base ?? null,
-    parent: fields.parent ?? null,
-    createdAt: now.toISOString(),
-    skillVersion: fields.skillVersion,
-    phase: "created",
-    attempts: 0
-  };
-}
-function readRunRecord(runDir) {
-  try {
-    const value = JSON.parse(readFileSync4(join6(runDir, RUN_FILE), "utf8"));
-    return isJsonObject(value) && value["schema"] === 1 && typeof value["phase"] === "string" ? value : null;
-  } catch {
-    return null;
-  }
-}
-function writeRunRecord(root, runDir, record) {
-  const path = join6(runDir, RUN_FILE);
-  assertWritable(root, path);
-  writeJson(path, record);
 }
 
 // packages/core/model/submission.ts
@@ -807,17 +1155,17 @@ function parseArgs(args) {
 }
 function citedPaths(doc) {
   const cited = /* @__PURE__ */ new Set();
-  const components = isJsonObject(doc) && Array.isArray(doc["components"]) ? doc["components"] : [];
-  for (const component of components) {
+  const components2 = isJsonObject(doc) && Array.isArray(doc["components"]) ? doc["components"] : [];
+  for (const component of components2) {
     const sources = isJsonObject(component) && Array.isArray(component["sources"]) ? component["sources"] : [];
     for (const source of sources) if (isJsonObject(source) && typeof source["path"] === "string") cited.add(source["path"]);
   }
   return cited;
 }
 function topLevelFolders(root) {
-  return readdirSync3(root).filter((name) => !name.startsWith(".") && !NOT_SOURCE.has(name)).filter((name) => {
+  return readdirSync4(root).filter((name2) => !name2.startsWith(".") && !NOT_SOURCE.has(name2)).filter((name2) => {
     try {
-      return statSync3(join7(root, name)).isDirectory();
+      return statSync3(join8(root, name2)).isDirectory();
     } catch {
       return false;
     }
@@ -829,49 +1177,62 @@ function main(args) {
   const root = process.cwd();
   const base = parsed.from.replace(/^\.archify\//, "").replace(/\/+$/, "");
   if (!/^[a-z0-9]+-[A-Za-z0-9._-]+$/.test(base) || base.includes("..")) return fail(`--from names a run folder in ${ARCHIFY_DIR}/, such as architecture-app-20261018-120000`);
-  const baseDir = join7(root, ARCHIFY_DIR, base);
+  const baseDir = join8(root, ARCHIFY_DIR, base);
   let doc;
   try {
-    const candidate = join7(baseDir, CANDIDATE_FILE);
-    if (!isWithin(realpathSync3(root), realpathSync3(candidate))) return fail(`${ARCHIFY_DIR}/${base}/${CANDIDATE_FILE} lies outside the repository`);
-    doc = JSON.parse(readFileSync5(candidate, "utf8"));
+    const candidate = join8(baseDir, CANDIDATE_FILE);
+    if (!isWithin(realpathSync4(root), realpathSync4(candidate))) return fail(`${ARCHIFY_DIR}/${base}/${CANDIDATE_FILE} lies outside the repository`);
+    doc = JSON.parse(readFileSync6(candidate, "utf8"));
   } catch (error) {
     return fail(`cannot read ${ARCHIFY_DIR}/${base}/${CANDIDATE_FILE}: ${error.message}`);
   }
   const globs = parsed.paths.map(globToRegExp);
+  const plan = planRefresh(root, base, globs);
+  if (plan.mode === "regenerate") {
+    process.stdout.write(`${JSON.stringify({ mode: "regenerate", reason: plan.reason, focus: plan.focus, base: { runFolder: `${ARCHIFY_DIR}/${base}` } }, null, 2)}
+`);
+    return 0;
+  }
   const prints = readFingerprints(baseDir);
-  const revision = prints?.revision ?? null;
+  const revision = plan.base;
   const outsideMaps = (path) => !path.startsWith(`${ARCHIFY_DIR}/`);
-  const changes = revision === null ? null : (numstatSince(root, revision) ?? []).filter((change) => outsideMaps(change.path));
-  const untracked = revision === null ? [] : untrackedFiles(root).filter(outsideMaps);
-  const freshness = mapFreshness(prints, fileReader(root), revision === null ? /* @__PURE__ */ new Map() : renamesSince(root, revision));
+  const changes = (numstatSince(root, revision) ?? []).filter((change) => outsideMaps(change.path));
+  const untracked = untrackedFiles(root).filter(outsideMaps);
+  const freshness = mapFreshness(prints, fileReader(root), renamesSince(root, revision));
   const report = refreshReport({
     freshness,
     cited: citedPaths(doc),
     changes,
     untracked,
     foldersNow: topLevelFolders(root),
-    foldersThen: revision === null ? null : foldersAt(root, revision),
+    foldersThen: foldersAt(root, revision),
     globs
   });
-  const focus = readRunRecord(baseDir)?.focus ?? "";
+  const focus = plan.focus;
   let run2;
   try {
     run2 = createRunFolder(root, slugify(focus, basename2(root)), runTimestamp(/* @__PURE__ */ new Date()));
-    const runDir = join7(root, ARCHIFY_DIR, run2);
+    const runDir = join8(root, ARCHIFY_DIR, run2);
     writeRunRecord(root, runDir, newRunRecord({ kind: "refresh", focus, paths: parsed.paths, base, skillVersion: SKILL_VERSION }));
-    const draft = join7(runDir, DRAFT_FILE);
+    const draft = join8(runDir, DRAFT_FILE);
     assertWritable(root, draft);
     writeFileSync(draft, `${JSON.stringify(stripAppOwned(doc), null, 2)}
 `);
+    writeRunFile(root, runDir, LINEAGE_FILE, plan.lineage);
+    writeRunFile(root, runDir, CHANGES_FILE, plan.changes);
+    assertWritable(root, join8(runDir, CHANGE_FILE));
+    writeFileSync(join8(runDir, CHANGE_FILE), plan.change);
   } catch (error) {
     return fail(error.message);
   }
   const facts = {
+    mode: "update",
+    reason: "update",
     root,
     runFolder: `${ARCHIFY_DIR}/${run2}`,
     draft: `${ARCHIFY_DIR}/${run2}/${DRAFT_FILE}`,
     base: { runFolder: `${ARCHIFY_DIR}/${base}`, revision, createdAt: prints?.createdAt ?? null, fingerprints: prints !== null },
+    changeFile: `${ARCHIFY_DIR}/${run2}/${CHANGE_FILE}`,
     paths: parsed.paths,
     boxes: report.boxes,
     stale: report.stale,

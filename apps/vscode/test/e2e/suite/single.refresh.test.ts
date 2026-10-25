@@ -1,6 +1,7 @@
 // FRS-06: Refresh runs the refresh skill on the shown map from the map's title bar, its freshness
 // header, the maps list and a box's menu, and falls back to Generate without a map.
 import * as assert from "node:assert/strict";
+import { spawnSync } from "node:child_process";
 import { chmodSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { homedir, tmpdir } from "node:os";
 import { dirname, join } from "node:path";
@@ -18,6 +19,19 @@ function write(root: string, rel: string, content: string): string {
   mkdirSync(dirname(path), { recursive: true });
   writeFileSync(path, content);
   return path;
+}
+
+/** Records `run` as drawn at HEAD, so a refresh can update it (FRS-08). */
+function drawnAtHead(root: string, run: string, updates = 0): void {
+  const head = spawnSync("git", ["rev-parse", "HEAD"], { cwd: root, encoding: "utf8" }).stdout.trim();
+  const lineage = { schema: 1, mode: "regenerate", reason: "no-previous", previousRun: null, baseRevision: null, revision: head, baseCommit: null, headCommit: null, dirty: [], dirtyCount: 0, updatesSinceRegeneration: updates };
+  mkdirSync(join(root, ".archify", run), { recursive: true });
+  writeFileSync(join(root, ".archify", run, "lineage.json"), JSON.stringify(lineage));
+}
+
+function git(root: string, ...args: string[]): void {
+  const result = spawnSync("git", ["-c", "user.name=Test", "-c", "user.email=test@example.com", "-c", "commit.gpgsign=false", "-c", "init.defaultBranch=main", ...args], { cwd: root, encoding: "utf8" });
+  if (result.status !== 0) throw new Error(`git ${args.join(" ")}: ${result.stderr}`);
 }
 
 function nextTerminal(): Promise<vscode.Terminal> {
@@ -71,6 +85,10 @@ suite("FRS-06 Refresh from the UI", () => {
       `.archify/${RUN}/candidate.json`,
       JSON.stringify({ meta: { title: "Shop" }, components: [{ id: "api", label: "API", type: "backend", sources: [{ path: "src/a.ts", line: 1 }, { path: "src/a.ts" }] }] }),
     );
+    git(root, "init", "-q");
+    git(root, "add", "-f", ".");
+    git(root, "commit", "-qm", "map");
+    drawnAtHead(root, RUN);
     installSkills("aisus-architecture", "aisus-refresh");
     await hook.setDataNoteShown(true);
     await vscode.workspace.getConfiguration("aisus").update("runMode", "terminal", vscode.ConfigurationTarget.Global);
@@ -83,7 +101,7 @@ suite("FRS-06 Refresh from the UI", () => {
     await vscode.commands.executeCommand("workbench.action.closeAllEditors");
     await vscode.workspace.getConfiguration("aisus").update("runMode", undefined, vscode.ConfigurationTarget.Global);
     for (const dir of cleanup.splice(0)) rmSync(dir, { recursive: true, force: true });
-    for (const dir of [".archify", "src"]) rmSync(join(root, dir), { recursive: true, force: true });
+    for (const dir of [".archify", "src", ".git"]) rmSync(join(root, dir), { recursive: true, force: true });
     for (const dir of [".agents", ".claude"]) rmSync(join(homedir(), dir), { recursive: true, force: true });
   });
 
@@ -148,6 +166,15 @@ suite("FRS-06 Refresh from the UI", () => {
     assert.equal(ui.infos[0]!.message, "Refresh with Claude Code?");
     assert.equal(afterEstimate((ui.infos[0]!.rest[0] as { detail: string }).detail), "Installs the aisus-refresh skill in ~/.claude/skills/.");
     assert.ok(readFileSync(join(homedir(), ".agents/skills/aisus-refresh/SKILL.md"), "utf8").includes("name: aisus-refresh"));
+  });
+
+  test("FRS-08 a map due a full drawing is drawn again with its focus", async () => {
+    write(root, `.archify/${RUN}/run.json`, JSON.stringify({ schema: 1, kind: "full", focus: "checkout", paths: [], base: null, parent: null, createdAt: "2026-10-18T12:00:00.000Z", skillVersion: "test", phase: "accepted", attempts: 1 }));
+    drawnAtHead(root, RUN, 5);
+    await vscode.commands.executeCommand("aisus.openArchitecture");
+    await until(() => hook.panelState().open, "the map");
+    assert.equal(await launched(() => vscode.commands.executeCommand("aisus.refreshArchitecture")), "/aisus-architecture checkout");
+    assert.equal(hook.runCard()?.focus, "Full drawing of Shop, because it was updated five times in a row");
   });
 
   test("FRS-06 without a map Refresh is Generate", async () => {
