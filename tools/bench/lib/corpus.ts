@@ -1,6 +1,6 @@
-// CST-06: bench/corpus.json, the repositories the bench runs agents on.
+// CST-06: tools/bench/corpus.json, the repositories the bench runs agents on.
 import { readFileSync } from "node:fs";
-import type { Tier } from "../../src/model/repoSize";
+import type { Tier } from "../../../src/model/repoSize";
 
 export interface CorpusEntry {
   id: string;

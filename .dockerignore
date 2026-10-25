@@ -7,5 +7,5 @@ dist
 out
 release
 .vscode-test
-bench/results
+tools/bench/results
 *.vsix

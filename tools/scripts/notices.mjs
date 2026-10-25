@@ -65,9 +65,9 @@ export function renderNotices(current, packages) {
 export function main(argv) {
   const mode = argv.includes("--write") ? "write" : argv.includes("--check") ? "check" : null;
   const rootFlag = argv.indexOf("--root");
-  const root = rootFlag >= 0 ? resolve(argv[rootFlag + 1] ?? ".") : dirname(dirname(fileURLToPath(import.meta.url)));
+  const root = rootFlag >= 0 ? resolve(argv[rootFlag + 1] ?? ".") : dirname(dirname(dirname(fileURLToPath(import.meta.url))));
   if (mode === null) {
-    process.stderr.write("usage: node scripts/notices.mjs --write|--check [--root <dir>]\n");
+    process.stderr.write("usage: node tools/scripts/notices.mjs --write|--check [--root <dir>]\n");
     return 2;
   }
   const bundles = join(root, "out/meta/bundles.json");

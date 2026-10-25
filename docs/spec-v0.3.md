@@ -134,7 +134,7 @@ Files:
 
 ## 3. Constraints
 
-- **No network in the extension, skill scripts, core CLI or IntelliJ plugin.** The only senders are the core CLI's `publish` and the GitHub Action, and only when the user asks: `publish` run explicitly, or the Action's `upload` set. CLD-12 (iterate) would add one opt-in exception in the extension. Dev tools under `bench/`, `eval/` and `scripts/` may use the network.
+- **No network in the extension, skill scripts, core CLI or IntelliJ plugin.** The only senders are the core CLI's `publish` and the GitHub Action, and only when the user asks: `publish` run explicitly, or the Action's `upload` set. CLD-12 (iterate) would add one opt-in exception in the extension. Dev tools under `tools/bench/`, `eval/` and `scripts/` may use the network.
 - **The cloud stores maps, never code.** It accepts only Archify maps, sidecars, check results and metadata (repository, commit, branch, focus, agent, token counts). Everything else is rejected (CLD-02).
 - **No LLM calls by aisus.** The user's agent runs every skill and question, on their machine or, opt-in, on their CI runner with their key.
 - **Archify JSON unchanged.** Maps stay valid against the vendored schemas, whose objects all forbid extra properties. New data goes in sidecars or `aisus.config.json`.
@@ -178,7 +178,7 @@ Verification tags:
 
 **ENG-02 Meaningful layout test.** NFR-PERF-01 times out on slower machines: about 1.1 s per 60/120 layout on the owner's WSL machine. It now asserts that the 60/120 median is at most 8 × the median of a 12-component fixture on the same machine, with a raised timeout. AC: green on the WSL machine; fails when a test double makes layout 10 × slower. `[unit]`
 
-**ENG-04 Third-party notices.** `scripts/notices.mjs` reads esbuild metafiles and regenerates `THIRD_PARTY_NOTICES.md`, keeping the Archify section. It covers every package bundled into `dist/`, the committed skill scripts, the Action or the cloud build, with its licence text. AC: generator tests `[unit]`; CI fails when the file is stale `[ci]`.
+**ENG-04 Third-party notices.** `tools/scripts/notices.mjs` reads esbuild metafiles and regenerates `THIRD_PARTY_NOTICES.md`, keeping the Archify section. It covers every package bundled into `dist/`, the committed skill scripts, the Action or the cloud build, with its licence text. AC: generator tests `[unit]`; CI fails when the file is stale `[ci]`.
 
 **SAF-01 Skill integrity check.** The build writes `dist/skill-hashes.json`: the SHA-256 of every file under each `dist/skills/<name>/`.
 - **When.** Before any launch, the extension hashes the effective skill for the chosen agent (SET-01) and compares it with the table.
@@ -528,13 +528,13 @@ Built after deploy. The owner reorders these milestones from user feedback, and 
 
 `repo-facts.mjs` prints it as `size`. AC: fixtures; 20,000 files take at most 4 × the time of 2,000. `[unit]`
 
-**CST-02 Token estimate.** `src/model/estimate.ts` estimates tokens per agent and run kind from non-test lines and file count, returning `{low, high, basis}`. `basis` is `"provisional"` until `npm run bench:fit` fits coefficients from `bench/results/`. `pricing.json` holds per-model prices with an `asOf` date and an official source URL. AC: estimates grow with size; `bench:fit` on fixture results reproduces known coefficients; price arithmetic. `[unit]`
+**CST-02 Token estimate.** `src/model/estimate.ts` estimates tokens per agent and run kind from non-test lines and file count, returning `{low, high, basis}`. `basis` is `"provisional"` until `npm run bench:fit` fits coefficients from `tools/bench/results/`. `pricing.json` holds per-model prices with an `asOf` date and an official source URL. AC: estimates grow with size; `bench:fit` on fixture results reproduces known coefficients; price arithmetic. `[unit]`
 
 **CST-03 Cost before every run.** The line under Generate, the palette modal and every token-spending action show "About 180k–260k tokens ($0.50–$0.80 at API prices)". Above `aisus.confirmAboveTokens` (default 300,000), a second click is needed. The skill prints the same estimate in its step 2. Supersedes `spec.md` §3's "no budget or consent flow". AC: text `[unit]`; the second click `[e2e]`.
 
 **CST-05 Exploration budget.** The architecture skill keeps to a read budget per tier (S 25, M 45, L 70 reads and searches). AC: `repo-facts` prints the tier, and the skill names each budget. `[unit]`
 
-**CST-06 Bench harness.** `npm run bench -- --agent claude|codex --repo <id> --kind full|refresh|audit|baseline|assisted --runs <n> [--dry-run]` runs agents on `bench/corpus.json`. Each corpus entry has an id, git URL, pinned commit, tier, language, `strip` globs and `changeTo`.
+**CST-06 Bench harness.** `npm run bench -- --agent claude|codex --repo <id> --kind full|refresh|audit|baseline|assisted --runs <n> [--dry-run]` runs agents on `tools/bench/corpus.json`. Each corpus entry has an id, git URL, pinned commit, tier, language, `strip` globs and `changeTo`.
 
 The corpus:
 
@@ -554,7 +554,7 @@ The corpus:
 - authenticate with a bench API key;
 - spawn with no shell.
 
-It records tokens, cost, wall time, validator runs, acceptance and reads, and stores the candidate, sidecars and transcript in `bench/results/<run>/`. `npm run bench:plan` projects a series' cost and refuses to start past a cap.
+It records tokens, cost, wall time, validator runs, acceptance and reads, and stores the candidate, sidecars and transcript in `tools/bench/results/<run>/`. `npm run bench:plan` projects a series' cost and refuses to start past a cap.
 
 AC: the `--dry-run` argv and environment, parsers on recorded fixtures, `bench:plan` refusing above the cap `[unit]`; one accepted run per agent `[smoke]`.
 
@@ -579,7 +579,7 @@ Cross-language arrows, protocol-labelled arrows and unsupported languages are re
 
 AC: `[dom]`.
 
-**ACC-04 Eval scorer and ground truth.** `eval/ground-truth/<id>.json` has this shape: `{repo, revision, source, components: [{id, label, aliases, paths}], edges, groups}`. One is written for each corpus repository, from its architecture document:
+**ACC-04 Eval scorer and ground truth.** `tools/eval/ground-truth/<id>.json` has this shape: `{repo, revision, source, components: [{id, label, aliases, paths}], edges, groups}`. One is written for each corpus repository, from its architecture document:
 
 | Repository | Architecture document |
 |---|---|

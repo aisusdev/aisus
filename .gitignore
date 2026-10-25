@@ -18,7 +18,7 @@ cloud/playwright-report/
 cloud/public/viewer.js
 cloud/public/viewer.css
 release/
-bench/results/
+tools/bench/results/
 research/change-collection/
 .scratch/
 deploy/.env

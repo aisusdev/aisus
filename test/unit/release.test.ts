@@ -3,7 +3,7 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { expect, test } from "vitest";
-import { buildRelease, PLUGIN_SKILLS } from "../../scripts/release.mjs";
+import { buildRelease, PLUGIN_SKILLS } from "../../tools/scripts/release.mjs";
 import { repoRoot } from "./support/sourceScan";
 import { tempDir } from "./support/temp";
 

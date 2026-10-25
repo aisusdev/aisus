@@ -107,7 +107,7 @@ export async function buildScripts(outdir, names = Object.keys(SCRIPT_ENTRIES)) 
 
 /**
  * Records every npm file the shipped bundles include in `out/meta/bundles.json`, the input of
- * `scripts/notices.mjs` (ENG-04).
+ * `tools/scripts/notices.mjs` (ENG-04).
  * @param {import("esbuild").Metafile[]} metafiles
  */
 function writeBundleInputs(metafiles) {
@@ -325,16 +325,16 @@ export async function buildAction(outfile = join(root, "action/dist/index.js")) 
 async function buildBench() {
   for (const dir of ["bench", "eval"]) rmSync(join(root, "out", dir), { recursive: true, force: true });
   const entries = ["bench", "eval"].flatMap((dir) =>
-    readdirSync(join(root, dir))
+    readdirSync(join(root, "tools", dir))
       .filter((name) => name.endsWith(".ts"))
-      .map((name) => join(root, dir, name)),
+      .map((name) => join(root, "tools", dir, name)),
   );
   await esbuild.build({
     ...common,
     metafile: false,
     entryPoints: entries,
     outdir: join(root, "out"),
-    outbase: root,
+    outbase: join(root, "tools"),
     platform: "node",
     format: "esm",
     target: "node20",

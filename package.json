@@ -559,7 +559,7 @@
   "scripts": {
     "build": "node esbuild.mjs",
     "action": "node esbuild.mjs --action",
-    "build:release": "node scripts/release.mjs",
+    "build:release": "node tools/scripts/release.mjs",
     "bench": "node esbuild.mjs --bench && node out/bench/bench.mjs",
     "bench:plan": "node esbuild.mjs --bench && node out/bench/plan.mjs",
     "bench:fit": "node esbuild.mjs --bench && node out/bench/fit.mjs",
@@ -567,13 +567,13 @@
     "eval:check-truth": "node esbuild.mjs --bench && node out/eval/check-truth.mjs",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "check:docs": "node scripts/check-docs.mjs",
-    "notices": "node scripts/notices.mjs --write",
-    "check:notices": "node scripts/notices.mjs --check",
+    "check:docs": "node tools/scripts/check-docs.mjs",
+    "notices": "node tools/scripts/notices.mjs --write",
+    "check:notices": "node tools/scripts/notices.mjs --check",
     "check": "npm run typecheck && npm run test && npm run check:docs && npm run build && npm run check:notices",
     "test:e2e": "npm run build && node esbuild.mjs --e2e && node out/e2e/runTest.js",
     "vscode:prepublish": "node esbuild.mjs",
-    "package": "node scripts/package.mjs"
+    "package": "node tools/scripts/package.mjs"
   },
   "dependencies": {
     "ajv": "8.20.0",

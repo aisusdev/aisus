@@ -20,7 +20,7 @@ This guide is for the agent that takes over aisus. Read AGENTS.md first, because
    - Every file copied from the open-source project named in `THIRD_PARTY_NOTICES.md` gets replaced with aisus's own: the two map schemas in `src/model/schemas/` (`architecture` and `common`), every fixture under `fixtures/`, `skills/aisus-architecture/references/example.json`, and both skills' format guides under `references/`.
    - Write the schemas clean-room. One agent describes the format's fields from the current schemas and validator, in its own words. A second agent writes new schemas from that description without opening the old files. A script then checks that the new and old schemas accept and refuse the same documents.
    - Write the new fixtures as invented systems with the same coverage as the old ones: nesting, wide graphs, Japanese and Korean labels, portrait cards, first drafts, a base and head pair, and a skill run. First list what every test reads from every fixture.
-   - Once nothing copied remains, remove that project's section from `THIRD_PARTY_NOTICES.md` and from `scripts/notices.mjs`.
+   - Once nothing copied remains, remove that project's section from `THIRD_PARTY_NOTICES.md` and from `tools/scripts/notices.mjs`.
    - Finally, apply `kerk/landing-copy.md` to the README opening, `package.json`, the plugin description and `docs/vision.md`.
    - Check with `git grep -i` for the project's name, its author's handle, the old product name, the earlier prototype's name, the former team repository and the owner's personal GitHub account. Only `.git` history may still hold them.
 2. **Day 1, the signed-in cloud.** See the "Day 1 proposal" table in `docs/progress-v0.3.md`, `kerk/onboarding-mockup.html` and `kerk/cloud-first-run.md`.

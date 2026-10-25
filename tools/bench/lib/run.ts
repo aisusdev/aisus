@@ -4,17 +4,17 @@ import { spawn } from "node:child_process";
 import { cpSync, existsSync, mkdirSync, mkdtempSync, openSync, closeSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { claudeParser } from "../../src/model/agentStream/claude";
-import { codexParser } from "../../src/model/agentStream/codex";
-import type { StreamUsage } from "../../src/model/agentStream/feed";
-import { modelPrice, type EstimateAgent, type ModelPrice } from "../../src/model/estimate";
-import type { BenchKind, BenchResult } from "../../src/model/fit";
-import { repoSize, sizeFacts } from "../../src/model/repoSize";
-import { newRunSince, runFolderNames } from "../../src/model/runRecord";
+import { claudeParser } from "../../../src/model/agentStream/claude";
+import { codexParser } from "../../../src/model/agentStream/codex";
+import type { StreamUsage } from "../../../src/model/agentStream/feed";
+import { modelPrice, type EstimateAgent, type ModelPrice } from "../../../src/model/estimate";
+import type { BenchKind, BenchResult } from "../../../src/model/fit";
+import { repoSize, sizeFacts } from "../../../src/model/repoSize";
+import { newRunSince, runFolderNames } from "../../../src/model/runRecord";
 import type { CorpusEntry } from "./corpus";
 import { agentHome, prepareRepo } from "./isolate";
 import { benchArgs, benchEnv, benchPrompt, benchSkill } from "./launch";
-import { summarizeStream } from "../../src/model/agentStream/summary";
+import { summarizeStream } from "../../../src/model/agentStream/summary";
 
 /** How every agent is spawned: by absolute path, never through a shell (SAF-04). */
 export const SPAWN = { shell: false } as const;

@@ -2,14 +2,14 @@
 // eval:check-truth`. No command runs from here, so either command can import it.
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import { globToRegExp } from "../../src/model/refresh";
-import type { Truth } from "../../src/model/score";
+import { globToRegExp } from "../../../src/model/refresh";
+import type { Truth } from "../../../src/model/score";
 import type { CorpusEntry } from "../../bench/lib/corpus";
 
 /** The ground truth of `repo`, or `null`. */
 export function readTruth(repoRoot: string, repo: string): Truth | null {
   try {
-    return JSON.parse(readFileSync(join(repoRoot, "eval/ground-truth", `${repo}.json`), "utf8")) as Truth;
+    return JSON.parse(readFileSync(join(repoRoot, "tools/eval/ground-truth", `${repo}.json`), "utf8")) as Truth;
   } catch {
     return null;
   }

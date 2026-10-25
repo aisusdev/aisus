@@ -2,7 +2,7 @@
 import { spawnSync } from "node:child_process";
 import { join } from "node:path";
 import { expect, test } from "vitest";
-import { packagesOf } from "../../scripts/notices.mjs";
+import { packagesOf } from "../../tools/scripts/notices.mjs";
 import { repoRoot } from "./support/sourceScan";
 import { put, tempDir } from "./support/temp";
 
@@ -24,7 +24,7 @@ test("--check passes a fresh file and fails once a bundled package changes versi
   put(root, "node_modules/demo/package.json", JSON.stringify({ name: "demo", version: "1.0.0", license: "MIT" }));
   put(root, "node_modules/demo/LICENSE", "Demo licence text");
   put(root, "THIRD_PARTY_NOTICES.md", "# Third-party notices\n\nKept by hand.\n");
-  const script = join(repoRoot, "scripts/notices.mjs");
+  const script = join(repoRoot, "tools/scripts/notices.mjs");
   const run = (mode: string) => spawnSync(process.execPath, [script, mode, "--root", root], { encoding: "utf8" });
 
   expect(run("--check").status).toBe(1);

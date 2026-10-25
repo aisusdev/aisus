@@ -1,8 +1,8 @@
 // CST-06: what a series of bench runs will cost, before any starts. `npm run bench:plan` prints it,
 // and `npm run bench` refuses to start a series whose top estimate passes the cap.
-import { estimate, modelPrice, priceRange, type EstimateAgent, type EstimateKind, type SizeFacts } from "../../src/model/estimate";
-import type { BenchKind } from "../../src/model/fit";
-import type { Tier } from "../../src/model/repoSize";
+import { estimate, modelPrice, priceRange, type EstimateAgent, type EstimateKind, type SizeFacts } from "../../../src/model/estimate";
+import type { BenchKind } from "../../../src/model/fit";
+import type { Tier } from "../../../src/model/repoSize";
 
 /** The size assumed for a tier until its clone is measured: the top of the tier. */
 export const TIER_SIZE: Record<Tier, SizeFacts> = {

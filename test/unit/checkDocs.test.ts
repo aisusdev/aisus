@@ -3,7 +3,7 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { afterEach, beforeEach, describe, expect, test } from "vitest";
-import { checkDocs, checkTraceability, relativeLinks } from "../../scripts/check-docs.mjs";
+import { checkDocs, checkTraceability, relativeLinks } from "../../tools/scripts/check-docs.mjs";
 import { repoRoot } from "./support/sourceScan";
 
 function adr(title: string, overrides: { status?: string; date?: string; body?: string } = {}): string {

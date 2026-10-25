@@ -2,7 +2,7 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, test } from "vitest";
-import { parseFrontMatter } from "../../../scripts/check-docs.mjs";
+import { parseFrontMatter } from "../../../tools/scripts/check-docs.mjs";
 import { repoRoot } from "../support/sourceScan";
 
 const skillDir = join(repoRoot, "skills/aisus-architecture");

@@ -2,7 +2,7 @@
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { expect, test } from "vitest";
-import { packageArgs } from "../../scripts/package.mjs";
+import { packageArgs } from "../../tools/scripts/package.mjs";
 import { repoRoot } from "./support/sourceScan";
 
 const pkg = JSON.parse(readFileSync(join(repoRoot, "package.json"), "utf8")) as Record<string, unknown> & { scripts: Record<string, string> };
@@ -23,7 +23,7 @@ test("RCH-05 package.json carries the store metadata and a PNG icon", () => {
 });
 
 test("RCH-05 npm run package skips the licence only while there is no LICENSE, and never the repository", () => {
-  expect(pkg.scripts["package"]).toBe("node scripts/package.mjs");
+  expect(pkg.scripts["package"]).toBe("node tools/scripts/package.mjs");
   expect(packageArgs(false)).toEqual(["package", "--no-dependencies", "--skip-license"]);
   expect(packageArgs(true)).toEqual(["package", "--no-dependencies"]);
   expect(packageArgs(existsSync(join(repoRoot, "LICENSE")))).not.toContain("--allow-missing-repository");

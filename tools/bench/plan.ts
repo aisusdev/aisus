@@ -12,7 +12,7 @@ export function main(argv: readonly string[], env: NodeJS.ProcessEnv, write: (te
     write(`bench:plan: ${options}\n${USAGE.replace("npm run bench --", "npm run bench:plan --")}\n`);
     return 2;
   }
-  const entry = readCorpus(join(repoRoot, "bench/corpus.json")).find((candidate) => candidate.id === options.repo);
+  const entry = readCorpus(join(repoRoot, "tools/bench/corpus.json")).find((candidate) => candidate.id === options.repo);
   if (entry === undefined) {
     write(`bench:plan: no corpus entry "${options.repo}"\n`);
     return 2;

@@ -8,7 +8,7 @@ import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { readCorpus, type CorpusEntry } from "../bench/lib/corpus";
 import { benchCache, cloneSource, mirrorPath } from "../bench/lib/isolate";
-import { findOnPath } from "../src/model/which";
+import { findOnPath } from "../../src/model/which";
 import { readTruth, structureProblems, unmatchedGlobs } from "./lib/truth";
 
 function git(cwd: string, args: string[]): string | null {
@@ -30,8 +30,8 @@ function filesAt(entry: CorpusEntry, repoRoot: string, revision: string): string
 
 export function main(argv: readonly string[], write: (text: string) => void, repoRoot = resolve(".")): number {
   const only = argv.indexOf("--repo") >= 0 ? argv[argv.indexOf("--repo") + 1] : undefined;
-  const corpus = readCorpus(join(repoRoot, "bench/corpus.json"));
-  const ids = readdirSync(join(repoRoot, "eval/ground-truth")).filter((name) => name.endsWith(".json")).map((name) => name.replace(/\.json$/, "")).filter((id) => only === undefined || id === only);
+  const corpus = readCorpus(join(repoRoot, "tools/bench/corpus.json"));
+  const ids = readdirSync(join(repoRoot, "tools/eval/ground-truth")).filter((name) => name.endsWith(".json")).map((name) => name.replace(/\.json$/, "")).filter((id) => only === undefined || id === only);
   let failed = false;
   for (const id of ids) {
     const truth = readTruth(repoRoot, id);

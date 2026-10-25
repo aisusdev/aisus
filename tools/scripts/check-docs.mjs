@@ -257,7 +257,7 @@ export function checkDocs(docsDir) {
 }
 
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
-  const docsDir = join(dirname(fileURLToPath(import.meta.url)), "..", "docs");
+  const docsDir = join(dirname(fileURLToPath(import.meta.url)), "../..", "docs");
   const { problems, adrCount, linkCount } = checkDocs(docsDir);
   if (problems.length > 0) {
     for (const problem of problems) console.error(`check:docs: ${problem}`);

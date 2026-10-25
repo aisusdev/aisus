@@ -4,8 +4,8 @@ import { spawnSync } from "node:child_process";
 import { cpSync, existsSync, mkdirSync, readdirSync, rmdirSync, rmSync } from "node:fs";
 import { homedir } from "node:os";
 import { dirname, join, resolve } from "node:path";
-import { globToRegExp } from "../../src/model/refresh";
-import { findOnPath } from "../../src/model/which";
+import { globToRegExp } from "../../../src/model/refresh";
+import { findOnPath } from "../../../src/model/which";
 import type { CorpusEntry } from "./corpus";
 
 /** Agent configuration a repository may carry, removed at any depth before a run. */
@@ -89,4 +89,4 @@ export function prepareRepo(entry: CorpusEntry, repoRoot: string, cache: string,
 }
 
 // The isolated agent home lives in src/model/agentHome.ts, which the Action shares (PRC-05).
-export { agentHome, agentHomePreview } from "../../src/model/agentHome";
+export { agentHome, agentHomePreview } from "../../../src/model/agentHome";

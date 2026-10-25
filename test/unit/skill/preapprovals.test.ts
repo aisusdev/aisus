@@ -2,7 +2,7 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { expect, test } from "vitest";
-import { parseFrontMatter } from "../../../scripts/check-docs.mjs";
+import { parseFrontMatter } from "../../../tools/scripts/check-docs.mjs";
 import { repoRoot } from "../support/sourceScan";
 
 const SKILLS = ["aisus-architecture", "aisus-audit", "aisus-bugfix", "aisus-refresh", "aisus-tour"];

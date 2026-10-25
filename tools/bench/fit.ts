@@ -4,8 +4,8 @@
 import { existsSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { COEFFICIENTS } from "../src/model/estimate";
-import { fitCoefficients, type BenchResult } from "../src/model/fit";
+import { COEFFICIENTS } from "../../src/model/estimate";
+import { fitCoefficients, type BenchResult } from "../../src/model/fit";
 
 
 /** Every result under `dir`, skipping runs without a readable result.json. */
@@ -33,5 +33,5 @@ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.ur
     const at = process.argv.indexOf(name);
     return at > 0 && process.argv[at + 1] ? resolve(process.argv[at + 1]!) : fallback;
   };
-  process.stdout.write(runFit(option("--results", resolve("bench/results")), option("--out", resolve("src/model/coefficients.json"))));
+  process.stdout.write(runFit(option("--results", resolve("tools/bench/results")), option("--out", resolve("src/model/coefficients.json"))));
 }

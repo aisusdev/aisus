@@ -1,11 +1,11 @@
 // `npm run eval [-- --map <candidate.json> --truth <id>] [--results <dir>] [--format json|markdown]`
-// (ACC-04): scores maps against eval/ground-truth/<id>.json. With --map it scores one map; otherwise
+// (ACC-04): scores maps against tools/eval/ground-truth/<id>.json. With --map it scores one map; otherwise
 // every accepted full run in bench/results (CST-06) against its repository's truth.
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { readDiagram } from "../src/model/tolerant";
-import { score, type Score } from "../src/model/score";
+import { readDiagram } from "../../src/model/tolerant";
+import { score, type Score } from "../../src/model/score";
 import { readTruth } from "./lib/truth";
 
 export interface Scored {
@@ -68,14 +68,14 @@ export function main(argv: readonly string[], write: (text: string) => void, rep
     const truth = repo === undefined ? null : readTruth(repoRoot, repo);
     const map = readMap(resolve(mapFile));
     if (truth === null || map === null) {
-      write("eval: --map needs a readable map and --truth the id of a file in eval/ground-truth.\n");
+      write("eval: --map needs a readable map and --truth the id of a file in tools/eval/ground-truth.\n");
       return 2;
     }
     rows = [{ name: mapFile, repo: repo!, score: score(map, truth) }];
   } else {
-    rows = scoreResults(repoRoot, resolve(option("--results") ?? join(repoRoot, "bench/results")));
+    rows = scoreResults(repoRoot, resolve(option("--results") ?? join(repoRoot, "tools/bench/results")));
     if (rows.length === 0) {
-      write("eval: no accepted full runs with a ground truth in bench/results. Run npm run bench first, or pass --map and --truth.\n");
+      write("eval: no accepted full runs with a ground truth in tools/bench/results. Run npm run bench first, or pass --map and --truth.\n");
       return 1;
     }
   }

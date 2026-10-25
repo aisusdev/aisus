@@ -1,11 +1,11 @@
 // `npm run bench -- --agent claude|codex --repo <id> --kind <kind> [--runs <n>] [--cap <usd>] [--dry-run]`
-// (CST-06): runs agents on bench/corpus.json in isolation and records each run in bench/results/.
+// (CST-06): runs agents on tools/bench/corpus.json in isolation and records each run in tools/bench/results/.
 // The series is planned first and refused above the cap; --dry-run prints each run's argv and
 // environment and starts nothing.
 import { join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { tmpdir } from "node:os";
-import { findOnPath } from "../src/model/which";
+import { findOnPath } from "../../src/model/which";
 import { readCorpus } from "./lib/corpus";
 import { AGENT_CONFIG, agentHomePreview, benchCache, cloneSource, mirrorPath } from "./lib/isolate";
 import { benchArgs, benchEnv, benchPrompt, benchSkill, redactEnv } from "./lib/launch";
@@ -25,7 +25,7 @@ export async function main(argv: readonly string[], env: NodeJS.ProcessEnv, writ
     write(`bench: ${options}\n${USAGE}\n`);
     return 2;
   }
-  const entry = readCorpus(join(repoRoot, "bench/corpus.json")).find((candidate) => candidate.id === options.repo);
+  const entry = readCorpus(join(repoRoot, "tools/bench/corpus.json")).find((candidate) => candidate.id === options.repo);
   if (entry === undefined) {
     write(`bench: no corpus entry "${options.repo}"\n`);
     return 2;
@@ -43,7 +43,7 @@ export async function main(argv: readonly string[], env: NodeJS.ProcessEnv, writ
 
   const binary = findOnPath(options.agent, env);
   const cache = benchCache(env);
-  const results = join(repoRoot, "bench/results");
+  const results = join(repoRoot, "tools/bench/results");
   const runs = Array.from({ length: options.runs }, (_, index) => questions.map((question, q) => ({ question, run: runName(now, entry.id, options.agent, options.kind, index) + (question === undefined ? "" : `-q${q + 1}`) }))).flat();
 
   if (options.dryRun) {

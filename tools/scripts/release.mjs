@@ -5,7 +5,7 @@ import { cpSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs"
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
-const root = dirname(dirname(fileURLToPath(import.meta.url)));
+const root = dirname(dirname(dirname(fileURLToPath(import.meta.url))));
 
 /** The skills a Claude Code user installs; the bugfix skill is for Devin's learning sessions. */
 export const PLUGIN_SKILLS = ["aisus-architecture", "aisus-refresh", "aisus-audit", "aisus-tour"];
