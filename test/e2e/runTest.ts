@@ -63,6 +63,10 @@ async function main(): Promise<void> {
           "--disable-extensions",
           "--skip-welcome",
           "--skip-release-notes",
+          // VS Code runs with the temporary HOME too, and macOS finds no keychain there. Secrets stay
+          // in memory and Chromium uses a mock keychain, so no "keychain not found" dialog opens.
+          "--use-inmemory-secretstorage",
+          "--use-mock-keychain",
         ],
       });
     } finally {
