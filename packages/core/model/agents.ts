@@ -25,7 +25,7 @@ export function agentLaunchArgs(prompt: string): string[] {
 }
 
 /** The skills a run launches (FR-GEN-01, FRS-05). */
-export type SkillName = "aisus-architecture" | "aisus-refresh" | "aisus-audit" | "aisus-tour";
+export type SkillName = "aisus-architecture" | "aisus-refresh" | "aisus-audit" | "aisus-tour" | "aisus-sequence";
 
 /** The scripts each skill runs, which its Bash rules name exactly. */
 export const SKILL_SCRIPTS: Readonly<Record<SkillName, readonly string[]>> = {
@@ -33,6 +33,7 @@ export const SKILL_SCRIPTS: Readonly<Record<SkillName, readonly string[]>> = {
   "aisus-refresh": ["refresh-facts.mjs", "validate.mjs", "render-html.mjs"],
   "aisus-audit": ["audit-record.mjs"],
   "aisus-tour": ["tour-record.mjs"],
+  "aisus-sequence": ["repo-facts.mjs", "validate.mjs", "render-html.mjs"],
 };
 
 export interface HeadlessOptions {

@@ -12,10 +12,11 @@ const SCRIPTS: Record<string, string[]> = {
   "aisus-audit": ["audit-record.mjs"],
   "aisus-bugfix": ["session-hook.mjs", "session.mjs"],
   "aisus-refresh": ["refresh-facts.mjs", "render-html.mjs", "validate.mjs"],
+  "aisus-sequence": ["render-html.mjs", "repo-facts.mjs", "validate.mjs"],
   "aisus-tour": ["tour-record.mjs"],
 };
 
-test.each(Object.entries(SCRIPTS))("RCH-02 ACC-05 SKL-02 %s's committed scripts are what the build makes now", (name, scripts) => {
+test.each(Object.entries(SCRIPTS))("RCH-02 ACC-05 SKL-02 SEQ-02 %s's committed scripts are what the build makes now", (name, scripts) => {
   expect(readdirSync(join(repoRoot, "skills", name, "scripts")).sort()).toEqual(scripts);
   for (const script of scripts) {
     const committed = readFileSync(join(repoRoot, "skills", name, "scripts", script), "utf8");

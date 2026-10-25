@@ -1,5 +1,34 @@
 # Progress (v0.3)
 
+## Sequence maps proposal (owner request, 2026-10-25)
+
+The owner asked for sequence diagrams and chose the recommended design: aisus's own format with no coordinates, citations on messages as well as participants, a separate `aisus-sequence` skill, and a first version that covers generating, viewing, opening code and freshness (I8, SEQ-01 to SEQ-04, ADR 0069). It is built before the toolkit cut. The new code names no other project, and its run folders sit in `.archify/` beside architecture runs, so the cut moves them with everything else.
+
+| File or unit | Change | Estimate |
+|---|---|---|
+| `packages/core/model/schemas/sequence.schema.json` (new), `schema.ts` | The sequence schema, written for aisus, and `validateSequence` | +120 / -2 |
+| `packages/core/model/types.ts`, `sequence.ts` (new) | `SequenceDoc`, `citedItems` (the participants and messages, or the components), the semantic checks | +110 |
+| `packages/core/model/submission.ts`, `citations.ts`, `fingerprints.ts` | The app-owned fields and checks by diagram type; citations and fingerprints over cited items | +40 / -15 |
+| `packages/core/model/runFolder.ts`, `discovery.ts`, `maps.ts`, `messages.ts` | The `sequence` prefix in `locateDraft`; `listCandidates(root, kind)`; the Maps list gains `kind` | +40 / -10 |
+| `packages/core/agent/validate.ts`, `repo-facts.ts` | No evidence for a sequence map; `--kind sequence` with a required focus and no lineage | +30 / -5 |
+| `skills/aisus-sequence/` (new), `esbuild.mjs`, `packages/core/install/skillFiles.ts`, `packages/core/model/agents.ts` | `SKILL.md`, `references/sequence-format.md`, `references/example.json` of an invented system, `agents/openai.yaml`, the bundled scripts and hashes, install and pre-approvals | +260 |
+| `packages/core/model/tolerant.ts`, `packages/core/layout/sequence.ts` (new) | `readSequence` and `layoutSequence`: columns, rows, activations, loops, phases | +260 |
+| `packages/viewer/sequence.ts` (new), `viewer.ts`, `click.ts`, `styles.css` | Drawing a sequence scene, clicks and keys on participants and messages | +220 / -10 |
+| `apps/vscode/src/panel.ts`, `generate.ts`, `extension.ts`, `watcher.ts`, `package.json`, `packages/viewer/home.ts` | Generate Sequence Diagram, the context key that hides architecture-only actions, items for click and freshness, sequence rows in Maps | +120 / -15 |
+| `docs/architecture.md`, `docs/messages.md` | The format, the modules and the new prompt | +40 |
+
+Tests, from the ACs of SEQ-01 to SEQ-04:
+- `[unit]` The schema accepts the example and refuses coordinates and a missing participant label. Each semantic check: duplicate ids across participants and messages, unknown ends, phase order and overlap, uncited participants and non-return messages. `validate.mjs` on a temporary repository accepts a sequence draft and writes its candidate and fingerprints keyed by message id. `listCandidates` keeps sequence runs apart from architecture runs.
+- `[unit]` `repo-facts.mjs --kind sequence` refuses an empty focus and names the folder `sequence-<slug>-…`. The sequence skill is bundled with its hashes.
+- `[unit]` Layout: a long message label widens only its gap, activations open and close with returns and nest, a self-call is one taller row that loops right, a phase band spans its messages.
+- `[dom]` A sequence map draws participants, lifelines and messages, and clicking or pressing Enter on a message posts `openSource` with its id.
+- `[e2e]` A sequence map opens from the Maps page, and clicking a message opens its cited lines.
+
+- [x] **SEQ-01 Sequence format** `[unit]` — 2026-10-25: `schemas/sequence.schema.json`, `model/sequence.ts`, the submission profile, citations and fingerprints over cited items, `locateDraft`'s kind and `listCandidates(root, kind)`. Tests: `sequence.test.ts` (7: the example valid, coordinates refused, each semantic check, cited items), `validate.test.ts` (2 new: an accepted sequence draft with fingerprints by message id and no evidence, a message citation past its file), `discovery.test.ts` (1 new), `runFolder.test.ts` (the draft location gains its kind). Each of 3 deliberate breaks failed a test: a return held to the sources rule, sequence runs listed for architecture readers, and an empty focus allowed.
+- [x] **SEQ-02 Sequence skill** `[unit]` — 2026-10-25: `skills/aisus-sequence/` with its format reference and an invented example, `repo-facts.mjs --kind sequence`, the build, install and pre-approvals. Tests: `repoFacts.test.ts` (2 new), `skill.test.ts` (2 new), and the bundled-scripts, pre-approval, CLI install and e2e install tests now list the sequence skill.
+- [ ] **SEQ-03 Sequence viewer** `[unit]` `[dom]`
+- [ ] **SEQ-04 Sequence maps in VS Code** `[e2e]`
+
 ## Change history proposal (owner request, 2026-10-25)
 
 The owner asked that the map show what changed between two maps the way an update run knows it, rather than by comparing two finished maps afterwards. Three features do it, FRS-08 to FRS-10 in the spec.
@@ -167,6 +196,7 @@ Tracks [spec-v0.3.md](spec-v0.3.md). Milestone statuses: Not started, In progres
 | I5 Cloud for teams | Waiting for the owner (CLD-12 hard stop, CLD-07 Stripe products) | `f732167` |
 | I6 Polish and reach | Closed pending owner (RCH-04 `[smoke]`) | `34d09df` |
 | I7 IntelliJ plugin | Closed pending owner (IDE-01 `[smoke]`) | IDE-01 |
+| I8 Sequence maps | In progress | |
 
 ## Waiting
 
@@ -902,6 +932,7 @@ The owner then asked that aisus be tied to nothing outside itself. The repositor
 
 ## Log
 
+- 2026-10-25 — SEQ-01 and SEQ-02 built. The sequence schema is self-contained under `https://aisus.dev/schemas/`, so it refers to no copied file. A sequence map writes no `evidence.json`, because import evidence is about boxes and arrows. This worktree had no `node_modules`, so `npm ci` restored the locked dependencies, and the two e2e builds of VS Code were copied from the main checkout's `.vscode-test/` instead of downloaded. Node here is Homebrew's 26.7.0, since `~/.nvm` does not exist on this Mac. Gates: `npm run check` exit 0 (1291 passed, 1 skipped, 69 ADRs); `npm run test:e2e` exit 0 on VS Code 1.126.0 and 1.141.0 (single 95, empty 3, multi 2 each).
 - 2026-10-25 — The home's rows start with an icon each, at the owner's request: a speech bubble, a diff page, a light bulb, a bug and a folded map. They are inline SVG line drawings in `--vscode-icon-foreground`, so the change adds no dependency. A Bug hunt row with a long status now shortens the status rather than its label. Checked at 300 px in a dark and a light theme.
 - 2026-10-25 — FRS-08 to FRS-10: a refresh records the change it worked from, a redraw keeps the earlier ids, and the map shows the Changes panel. Gates: `npm run check` exit 0 (1274 passed, 1 skipped); `npm run test:e2e` exit 0 on VS Code 1.126.0 and 1.141.0 (single 95, empty 3, multi 2 each); the cloud's test (55 passed), typecheck and build exit 0, because the viewer is shared.
 - 2026-10-25 — The sidebar is a home with pages (variant A of three mockups), replacing the Map, Ask, Review and Learn tabs. Gates: typecheck exit 0; `npm run check` exit 0 (1249 passed, 1 skipped); `npm run test:e2e` exit 0 on VS Code 1.126.0 and 1.141.0 (single 91, empty 3, multi 2 each). Each of 7 deliberate breaks failed a test: freshness kept in Needs a look, Setup not leading while failing, Refresh never offered, no focus on Back, a run not opening the home, Escape ignored, and the ⋯ row always open. Rendered at 300 px in a dark theme: the home with changed boxes, with none, without a map, with Setup failing and with a bug hunt running, and the Review, Maps, Ask and Check my understanding pages.

@@ -5,12 +5,13 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { assertWritable } from "./confine";
 import { writeJson } from "./session";
-import type { ArchifyDoc } from "./types";
+import { citedItems } from "./sequence";
+import type { MapDoc } from "./types";
 
 export const FINGERPRINTS_FILE = "fingerprints.json";
 
 export interface CitationPrint {
-  /** The citing component's id and the citation's index in its `sources`. */
+  /** The citing item's id (a box, participant or message) and the citation's index in its `sources`. */
   component: string;
   index: number;
   path: string;
@@ -52,17 +53,17 @@ export function looseLines(lines: readonly string[]): string[] {
 }
 
 /** The prints of every citation in `doc`, whose files lie in `root` and were checked by the validator. */
-export function fingerprint(doc: ArchifyDoc, root: string, revision: string | null, now = new Date()): Fingerprints {
+export function fingerprint(doc: MapDoc, root: string, revision: string | null, now = new Date()): Fingerprints {
   const contents = new Map<string, Buffer>();
   const citations: CitationPrint[] = [];
-  for (const component of doc.components) {
-    (component.sources ?? []).forEach((source, index) => {
+  for (const item of citedItems(doc)) {
+    item.sources.forEach((source, index) => {
       let bytes = contents.get(source.path);
       if (bytes === undefined) {
         bytes = readFileSync(join(root, ...source.path.split("/")));
         contents.set(source.path, bytes);
       }
-      const print: CitationPrint = { component: component.id, index, path: source.path, blob: gitBlobId(bytes) };
+      const print: CitationPrint = { component: item.id, index, path: source.path, blob: gitBlobId(bytes) };
       if (source.line !== undefined) {
         print.line = source.line;
         const end = source.end_line ?? source.line;

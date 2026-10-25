@@ -396,6 +396,7 @@ var DRAFT_FILE = "draft.json";
 var CANDIDATE_FILE = "candidate.json";
 var SLUG_MAX = 40;
 var RUN_NAME_PATTERN = /^([a-z0-9]+)-(.+)-(\d{8}-\d{6})(?:-(\d+))?$/;
+var SEQUENCE_PREFIX = "sequence";
 var MAX_COLLISIONS = 1e3;
 function kebab(text) {
   let out = "";
@@ -987,18 +988,24 @@ function repoSize(root, env = process.env, limit = COUNT_LIMIT) {
 
 // packages/core/agent/repo-facts.ts
 var SKILL_VERSION = "0.3.0";
-var USAGE = "repo-facts.mjs: usage: node repo-facts.mjs [--focus <text>] [--parent <run>]\n";
+var USAGE = "repo-facts.mjs: usage: node repo-facts.mjs [--focus <text>] [--parent <run>] [--kind sequence]\n";
 function main(args) {
   let focus = "";
   let parent = null;
+  let sequence = false;
   for (let i = 0; i < args.length; i += 2) {
     const value = args[i + 1];
-    if (value === void 0 || args[i] !== "--focus" && args[i] !== "--parent") {
+    if (value === void 0 || !["--focus", "--parent", "--kind"].includes(args[i]) || args[i] === "--kind" && value !== SEQUENCE_PREFIX) {
       process.stderr.write(USAGE);
       return 2;
     }
     if (args[i] === "--focus") focus = value;
+    else if (args[i] === "--kind") sequence = true;
     else parent = value;
+  }
+  if (sequence && (focus.trim() === "" || parent !== null)) {
+    process.stderr.write("repo-facts.mjs: a sequence map needs --focus naming the flow to follow, and takes no --parent\n");
+    return 2;
   }
   const root = process.cwd();
   if (parent !== null && (!parseRunFolderName(parent) || !existsSync3(join8(root, ARCHIFY_DIR, parent, CANDIDATE_FILE)))) {
@@ -1008,7 +1015,7 @@ function main(args) {
   }
   const git = collectGitFacts(root);
   const slug = slugify(focus, basename2(root));
-  const previous = parent === null ? previousMap(root, slug) : null;
+  const previous = parent === null && !sequence ? previousMap(root, slug) : null;
   let reason = "no-previous";
   if (previous !== null) {
     const plan = planRefresh(root, previous);
@@ -1029,9 +1036,9 @@ function main(args) {
   };
   let run2;
   try {
-    run2 = createRunFolder(root, slug, runTimestamp(/* @__PURE__ */ new Date()));
+    run2 = createRunFolder(root, slug, runTimestamp(/* @__PURE__ */ new Date()), sequence ? { prefix: SEQUENCE_PREFIX } : {});
     writeRunRecord(root, join8(root, ARCHIFY_DIR, run2), newRunRecord({ focus, skillVersion: SKILL_VERSION, ...parent === null ? {} : { kind: "drill", parent } }));
-    writeRunFile(root, join8(root, ARCHIFY_DIR, run2), LINEAGE_FILE, lineage);
+    if (!sequence) writeRunFile(root, join8(root, ARCHIFY_DIR, run2), LINEAGE_FILE, lineage);
   } catch (error) {
     process.stderr.write(`repo-facts.mjs: ${error.message}
 `);

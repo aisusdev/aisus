@@ -7486,6 +7486,18 @@ function isDenied(path) {
   return path.split("/").some(segmentDenied);
 }
 
+// packages/core/model/sequence.ts
+function isSequence(doc) {
+  return doc.diagram_type === "sequence";
+}
+function citedItems(doc) {
+  if (!isSequence(doc)) return doc.components.map((component, i) => ({ id: component.id, pointer: `/components/${i}`, sources: component.sources ?? [] }));
+  return [
+    ...doc.participants.map((participant, i) => ({ id: participant.id, pointer: `/participants/${i}`, sources: participant.sources ?? [] })),
+    ...doc.messages.map((message, i) => ({ id: message.id, pointer: `/messages/${i}`, sources: message.sources ?? [] }))
+  ];
+}
+
 // packages/core/model/citations.ts
 var MAX_CITED_BYTES = 2 * 1024 * 1024;
 var BINARY_SNIFF_BYTES = 8 * 1024;
@@ -7570,9 +7582,9 @@ function checkCitations(doc, root) {
   const rootReal = realpathSync(root);
   const cache = /* @__PURE__ */ new Map();
   const issues = [];
-  doc.components.forEach((component, i) => {
-    (component.sources ?? []).forEach((source, k) => {
-      const base = `/components/${i}/sources/${k}`;
+  for (const item of citedItems(doc)) {
+    item.sources.forEach((source, k) => {
+      const base = `${item.pointer}/sources/${k}`;
       const { path } = source;
       if (!citationPathOk(path)) {
         issues.push({
@@ -7598,7 +7610,7 @@ function checkCitations(doc, root) {
       const problem = rangeProblem(source, probe.lineCount);
       if (problem) issues.push({ code: "BrokenCitation", pointer: `${base}/${problem[0]}`, message: problem[1] });
     });
-  });
+  }
   return issues;
 }
 

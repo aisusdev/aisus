@@ -4,7 +4,8 @@ import { closeSync, openSync, readSync, realpathSync, statSync } from "node:fs";
 import { join, sep } from "node:path";
 import { citationPathOk, MAX_PATH_LENGTH } from "./citationPath";
 import { isDenied } from "./deny";
-import type { ArchifyDoc, Issue, SourceRef } from "./types";
+import { citedItems } from "./sequence";
+import type { Issue, MapDoc, SourceRef } from "./types";
 
 /** Largest citable file: 2 MiB. */
 export const MAX_CITED_BYTES = 2 * 1024 * 1024;
@@ -120,17 +121,17 @@ function probeMessage(path: string, probe: Exclude<FileProbe, { kind: "text" }>)
 }
 
 /**
- * Checks every `components[i].sources[k]` of a schema-valid document against the repo at
+ * Checks every cited source of a schema-valid map (components, or participants and messages) against the repo at
  * `root`: path syntax, deny-list, resolution inside the root, file kind and size, lines.
  * Each distinct path is probed once.
  */
-export function checkCitations(doc: ArchifyDoc, root: string): Issue[] {
+export function checkCitations(doc: MapDoc, root: string): Issue[] {
   const rootReal = realpathSync(root);
   const cache = new Map<string, FileProbe>();
   const issues: Issue[] = [];
-  doc.components.forEach((component, i) => {
-    (component.sources ?? []).forEach((source, k) => {
-      const base = `/components/${i}/sources/${k}`;
+  for (const item of citedItems(doc)) {
+    item.sources.forEach((source, k) => {
+      const base = `${item.pointer}/sources/${k}`;
       const { path } = source;
       if (!citationPathOk(path)) {
         issues.push({
@@ -156,6 +157,6 @@ export function checkCitations(doc: ArchifyDoc, root: string): Issue[] {
       const problem = rangeProblem(source, probe.lineCount);
       if (problem) issues.push({ code: "BrokenCitation", pointer: `${base}/${problem[0]}`, message: problem[1] });
     });
-  });
+  }
   return issues;
 }

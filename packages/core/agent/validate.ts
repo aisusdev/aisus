@@ -14,7 +14,8 @@ import { newRunRecord, readRunRecord, RUN_FILE, updateRunRecord, type RunRecord 
 import { writeJson } from "../model/session";
 import { checkSubmission, REMOVED_FIELD_MESSAGE } from "../model/submission";
 import { fileReader } from "../model/staleness";
-import { stringifyDocument, type ArchifyDoc, type Issue } from "../model/types";
+import { isSequence } from "../model/sequence";
+import { stringifyDocument, type Issue, type MapDoc } from "../model/types";
 
 const MAX_LISTED_ERRORS = 50;
 const HINT = "Fix exactly these errors and run the validator again.";
@@ -90,6 +91,7 @@ function main(args: string[]): number {
     {
       output: `${ARCHIFY_DIR}/${location.run}/${location.slug}.html`,
       repository: git ? repositoryFromGit(git) : null,
+      kind: location.kind,
     },
     (doc) => checkCitations(doc, location.root),
   );
@@ -101,18 +103,24 @@ function main(args: string[]): number {
     process.stdout.write(`${JSON.stringify(report, null, 2)}\n`);
     return 1;
   }
-  const doc = value as ArchifyDoc;
-  const read = fileReader(location.root);
-  const readText = (path: string): string | null => read(path)?.toString("utf8") ?? null;
-  const sources = listFiles(location.root).files.filter((path) => importLanguage(path) !== null && !isTestPath(path));
-  const evidence = checkEvidence(doc.components, readText, { connections: doc.connections ?? [], links: importLinks(sources, readText) });
+  const doc = value as MapDoc;
+  // ACC-01's evidence is about boxes and arrows, so a sequence map has none (SEQ-01).
+  let evidence: Evidence | null = null;
+  if (!isSequence(doc)) {
+    const read = fileReader(location.root);
+    const readText = (path: string): string | null => read(path)?.toString("utf8") ?? null;
+    const sources = listFiles(location.root).files.filter((path) => importLanguage(path) !== null && !isTestPath(path));
+    evidence = checkEvidence(doc.components, readText, { connections: doc.connections ?? [], links: importLinks(sources, readText) });
+  }
   try {
     const runDir = dirname(location.draft);
     assertWritable(location.root, join(runDir, CANDIDATE_FILE));
     publishCandidate(location.draft, stringifyDocument(value));
     writeFingerprints(location.root, runDir, fingerprint(doc, location.root, git?.head ?? null));
-    assertWritable(location.root, join(runDir, EVIDENCE_FILE));
-    writeJson(join(runDir, EVIDENCE_FILE), evidence);
+    if (evidence !== null) {
+      assertWritable(location.root, join(runDir, EVIDENCE_FILE));
+      writeJson(join(runDir, EVIDENCE_FILE), evidence);
+    }
     record(location, { phase: "accepted", finishedAt: new Date().toISOString() });
   } catch (error) {
     return usageError(`cannot publish ${CANDIDATE_FILE}: ${(error as Error).message}`);
@@ -122,7 +130,7 @@ function main(args: string[]): number {
     candidate: `${ARCHIFY_DIR}/${location.run}/${CANDIDATE_FILE}`,
     errors: [],
     warnings,
-    evidence: evidence.findings,
+    ...(evidence === null ? {} : { evidence: evidence.findings }),
   };
   process.stdout.write(`${JSON.stringify(report, null, 2)}\n`);
   return 0;

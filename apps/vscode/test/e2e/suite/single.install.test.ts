@@ -59,14 +59,14 @@ suite("FR-INS-01 Install Agent Skills", () => {
     assert.doesNotMatch(ui.infos[0]!.message, /hooks/);
   });
 
-  test("ACC-05 SKL-02 an existing install is replaced after Overwrite", async () => {
+  test("ACC-05 SKL-02 SEQ-02 an existing install is replaced after Overwrite", async () => {
     await vscode.commands.executeCommand("aisus.installSkills");
     const marker = join(home, ".agents/skills/aisus-architecture/marker.txt");
     writeFileSync(marker, "old");
     ui.answers.warning.push("Overwrite");
     await vscode.commands.executeCommand("aisus.installSkills");
     assert.equal(ui.warnings.length, 1);
-    assert.equal(ui.warnings[0]!.message, "Overwrite the existing aisus-architecture, aisus-audit, aisus-bugfix, aisus-refresh and aisus-tour skills?");
+    assert.equal(ui.warnings[0]!.message, "Overwrite the existing aisus-architecture, aisus-audit, aisus-bugfix, aisus-refresh, aisus-sequence and aisus-tour skills?");
     assert.deepEqual(ui.warnings[0]!.rest, [{ modal: true }, "Overwrite"]);
     assert.equal(existsSync(marker), false, "overwrite removes the old install first");
     assert.equal(lstatSync(join(home, ".claude/skills/aisus-architecture")).isSymbolicLink(), true);

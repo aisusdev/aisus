@@ -2,8 +2,9 @@
 // prototype's `archalign-model/src/submission.rs` and `archalign-agent/src/gate.rs`.
 // File access (citations, step 4) is injected so this module stays free of Node APIs.
 import { semanticChecks } from "./checks";
-import { validateArchitecture } from "./schema";
-import { isJsonObject, pointerToken, type ArchifyDoc, type Issue, type JsonObject, type Repository } from "./types";
+import { validateArchitecture, validateSequence } from "./schema";
+import { sequenceChecks } from "./sequence";
+import { isJsonObject, pointerToken, type ArchifyDoc, type Issue, type JsonObject, type MapDoc, type Repository, type SequenceDoc } from "./types";
 import { findSecrets } from "./secrets";
 
 const META_DROPS = ["viewBox", "views", "animation", "translations", "visual_preset", "engineering_profile"];
@@ -19,6 +20,8 @@ export interface AppOwned {
   output: string;
   /** `meta.repository` from git facts, or `null` when unavailable. */
   repository: Repository | null;
+  /** SEQ-01: the kind of map the run folder holds; `architecture` when absent. */
+  kind?: "architecture" | "sequence";
 }
 
 function dropKeys(object: JsonObject, keys: readonly string[], prefix: string, removed: string[]): void {
@@ -46,16 +49,20 @@ function dropInArray(root: JsonObject, field: string, keys: readonly string[], r
 export function applyAppOwnedFields(value: unknown, app: AppOwned): string[] {
   const removed: string[] = [];
   if (!isJsonObject(value)) return removed;
-  dropKeys(value, ["layout"], "", removed);
-  if (isJsonObject(value["meta"])) dropKeys(value["meta"], META_DROPS, "/meta", removed);
-  dropInArray(value, "components", COMPONENT_DROPS, removed);
-  dropInArray(value, "connections", CONNECTION_DROPS, removed);
-  dropInArray(value, "boundaries", BOUNDARY_DROPS, removed);
+  const kind = app.kind ?? "architecture";
+  // A sequence map has no geometry to drop: its schema refuses any coordinates.
+  if (kind === "architecture") {
+    dropKeys(value, ["layout"], "", removed);
+    if (isJsonObject(value["meta"])) dropKeys(value["meta"], META_DROPS, "/meta", removed);
+    dropInArray(value, "components", COMPONENT_DROPS, removed);
+    dropInArray(value, "connections", CONNECTION_DROPS, removed);
+    dropInArray(value, "boundaries", BOUNDARY_DROPS, removed);
+  }
 
   // Re-insert every key after the two root constants so the candidate starts with them.
   const rest = Object.entries(value).filter(([key]) => key !== "schema_version" && key !== "diagram_type");
   for (const key of Object.keys(value)) delete value[key];
-  Object.assign(value, { schema_version: 1, diagram_type: "architecture" }, Object.fromEntries(rest));
+  Object.assign(value, { schema_version: 1, diagram_type: kind }, Object.fromEntries(rest));
   if (!isJsonObject(value["meta"])) value["meta"] = {};
   const meta = value["meta"] as JsonObject;
   meta["locale"] = "en";
@@ -93,8 +100,14 @@ export interface SubmissionResult {
  * Runs steps 1–4 on a parsed draft, mutating it into the candidate. Schema errors stop
  * before steps 3–4; otherwise semantic checks, the secret scan (SAF-03) and `checkCitations` all run.
  */
-export function checkSubmission(value: unknown, app: AppOwned, checkCitations: (doc: ArchifyDoc) => Issue[]): SubmissionResult {
+export function checkSubmission(value: unknown, app: AppOwned, checkCitations: (doc: MapDoc) => Issue[]): SubmissionResult {
   const removed = applyAppOwnedFields(value, app);
+  if (app.kind === "sequence") {
+    const errors = validateSequence(value);
+    if (errors.length > 0) return { removed, errors };
+    const doc = value as SequenceDoc;
+    return { removed, errors: [...sequenceChecks(doc), ...findSecrets(doc), ...checkCitations(doc)] };
+  }
   const schemaErrors = validateArchitecture(value);
   if (schemaErrors.length > 0) return { removed, errors: schemaErrors };
   const doc = value as ArchifyDoc;

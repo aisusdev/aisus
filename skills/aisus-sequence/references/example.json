@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "diagram_type": "sequence",
+  "meta": {
+    "title": "Booking a ferry seat",
+    "subtitle": "From the Book button to the confirmation email",
+    "output": ".archify/sequence-booking-a-ferry-seat-20261025-090000/booking-a-ferry-seat.html"
+  },
+  "participants": [
+    { "id": "web", "type": "frontend", "label": "Booking page", "sublabel": "web/booking", "sources": [{ "path": "web/booking/BookButton.tsx", "line": 12, "end_line": 48 }] },
+    { "id": "api", "type": "backend", "label": "Bookings API", "sublabel": "api/bookings", "sources": [{ "path": "api/bookings/routes.ts", "line": 20, "end_line": 64 }] },
+    { "id": "seats", "type": "backend", "label": "Seat holds", "sources": [{ "path": "api/seats/hold.ts" }] },
+    { "id": "payments", "type": "external", "label": "Card processor", "sublabel": "client", "sources": [{ "path": "api/payments/client.ts", "line": 1, "end_line": 40 }] },
+    { "id": "db", "type": "database", "label": "Bookings table", "sources": [{ "path": "api/db/bookings.sql" }] },
+    { "id": "mail", "type": "messagebus", "label": "Mail queue", "sources": [{ "path": "api/mail/queue.ts", "line": 5, "end_line": 30 }] }
+  ],
+  "messages": [
+    { "id": "submit", "from": "web", "to": "api", "label": "POST /bookings", "variant": "emphasis", "sources": [{ "path": "web/booking/BookButton.tsx", "line": 31 }] },
+    { "id": "validate", "from": "api", "to": "api", "label": "validate request", "sources": [{ "path": "api/bookings/routes.ts", "line": 24, "end_line": 29 }] },
+    { "id": "hold", "from": "api", "to": "seats", "label": "hold(seat, 10 min)", "sources": [{ "path": "api/bookings/routes.ts", "line": 33 }] },
+    { "id": "held", "from": "seats", "to": "api", "label": "hold id", "variant": "return" },
+    { "id": "charge", "from": "api", "to": "payments", "label": "charge(card, fare)", "variant": "security", "note": "Retried once on a timeout", "sources": [{ "path": "api/bookings/routes.ts", "line": 38, "end_line": 41 }] },
+    { "id": "charged", "from": "payments", "to": "api", "label": "receipt", "variant": "return" },
+    { "id": "insert", "from": "api", "to": "db", "label": "insert booking", "sources": [{ "path": "api/bookings/routes.ts", "line": 45 }] },
+    { "id": "email", "from": "api", "to": "mail", "label": "enqueue confirmation", "variant": "dashed", "sources": [{ "path": "api/bookings/routes.ts", "line": 52 }] },
+    { "id": "done", "from": "api", "to": "web", "label": "201 booking", "variant": "return" }
+  ],
+  "phases": [
+    { "label": "Reserve", "first": "submit", "last": "held" },
+    { "label": "Pay and record", "first": "charge", "last": "done" }
+  ]
+}

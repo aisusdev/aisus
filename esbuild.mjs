@@ -169,6 +169,7 @@ export async function buildSkillsAndCli(out) {
   results.push(await buildScripts(join(out, "skills/aisus-refresh/scripts"), ["refresh-facts", "validate", "render-html"]));
   results.push(await buildScripts(join(out, "skills/aisus-audit/scripts"), ["audit-record"]));
   results.push(await buildScripts(join(out, "skills/aisus-tour/scripts"), ["tour-record"]));
+  results.push(await buildScripts(join(out, "skills/aisus-sequence/scripts"), ["repo-facts", "validate", "render-html"]));
   writeSkillHashes(out);
   const page = await buildPage();
   results.push(

@@ -133,15 +133,15 @@ var ARCHIFY_DIR = ".archify";
 var DRAFT_FILE = "draft.json";
 var CANDIDATE_FILE = "candidate.json";
 var RUN_NAME_PATTERN = /^([a-z0-9]+)-(.+)-(\d{8}-\d{6})(?:-(\d+))?$/;
+var SEQUENCE_PREFIX = "sequence";
+function mapKindOf(name) {
+  const prefix = parseRunName(name)?.prefix;
+  return prefix === "architecture" || prefix === SEQUENCE_PREFIX ? prefix : null;
+}
 function parseRunName(name) {
   const match = RUN_NAME_PATTERN.exec(name);
   if (!match) return null;
   return { prefix: match[1], slug: match[2], timestamp: match[3], n: match[4] === void 0 ? 1 : Number(match[4]) };
-}
-function parseRunFolderName(name) {
-  const parsed = parseRunName(name);
-  if (parsed === null || parsed.prefix !== "architecture") return null;
-  return { slug: parsed.slug, timestamp: parsed.timestamp, n: parsed.n };
 }
 function locateDraft(arg, cwd) {
   const draft = resolve(cwd, arg);
@@ -151,9 +151,9 @@ function locateDraft(arg, cwd) {
   if (basename(draft) !== DRAFT_FILE || basename(archify) !== ARCHIFY_DIR) {
     throw new Error(`expected a path of the form <repo>/${ARCHIFY_DIR}/<run>/${DRAFT_FILE}, got ${arg}`);
   }
-  const parsed = parseRunFolderName(run);
-  if (!parsed) throw new Error(`run folder "${run}" does not match architecture-<slug>-<YYYYMMDD-HHMMSS>[-N]`);
-  return { root: dirname2(archify), run, slug: parsed.slug, draft };
+  const kind = mapKindOf(run);
+  if (kind === null) throw new Error(`run folder "${run}" does not match architecture-<slug>-<YYYYMMDD-HHMMSS>[-N] or sequence-<slug>-<YYYYMMDD-HHMMSS>[-N]`);
+  return { root: dirname2(archify), run, slug: parseRunName(run).slug, draft, kind };
 }
 
 // packages/core/agent/match-ids.ts

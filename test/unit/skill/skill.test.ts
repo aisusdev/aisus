@@ -137,3 +137,25 @@ describe("ACC-01 behaviour over names", () => {
 test.each(["aisus-architecture", "aisus-audit", "aisus-bugfix", "aisus-refresh", "aisus-tour"])("RCH-04 %s is started by the user, with triggers: [user]", (name) => {
   expect(parseFrontMatter(readFileSync(join(repoRoot, "skills", name, "SKILL.md"), "utf8"))?.fields["triggers"]).toBe("[user]");
 });
+
+describe("SEQ-02 sequence skill", () => {
+  const sequenceDir = join(repoRoot, "skills/aisus-sequence");
+
+  test("SKILL.md declares the manual-only skill with its three scripts, and openai.yaml forbids implicit invocation", () => {
+    expect(parseFrontMatter(readFileSync(join(sequenceDir, "SKILL.md"), "utf8"))?.fields).toEqual({
+      name: "aisus-sequence",
+      description: "Draw one flow through this repository as a sequence map for the aisus viewer. Invoke manually with the flow to follow.",
+      triggers: "[user]",
+      "disable-model-invocation": "true",
+      "allowed-tools":
+        "Read Grep Glob Bash(node ${CLAUDE_SKILL_DIR}/scripts/repo-facts.mjs *) Bash(node ${CLAUDE_SKILL_DIR}/scripts/validate.mjs *) Bash(node ${CLAUDE_SKILL_DIR}/scripts/render-html.mjs *)",
+    });
+    expect(parseNestedYaml(readFileSync(join(sequenceDir, "agents/openai.yaml"), "utf8")).policy).toEqual({ allow_implicit_invocation: false });
+  });
+
+  test("it creates a sequence run for the flow and names its format reference", () => {
+    const text = readFileSync(join(sequenceDir, "SKILL.md"), "utf8");
+    expect(text).toContain("repo-facts.mjs --kind sequence --focus");
+    expect(text).toContain("references/sequence-format.md");
+  });
+});

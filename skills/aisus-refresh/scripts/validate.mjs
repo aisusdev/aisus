@@ -7486,6 +7486,62 @@ function isDenied(path) {
   return path.split("/").some(segmentDenied);
 }
 
+// packages/core/model/sequence.ts
+function isSequence(doc) {
+  return doc.diagram_type === "sequence";
+}
+function citedItems(doc) {
+  if (!isSequence(doc)) return doc.components.map((component, i) => ({ id: component.id, pointer: `/components/${i}`, sources: component.sources ?? [] }));
+  return [
+    ...doc.participants.map((participant, i) => ({ id: participant.id, pointer: `/participants/${i}`, sources: participant.sources ?? [] })),
+    ...doc.messages.map((message, i) => ({ id: message.id, pointer: `/messages/${i}`, sources: message.sources ?? [] }))
+  ];
+}
+function sequenceChecks(doc) {
+  const issues = [];
+  const first = /* @__PURE__ */ new Map();
+  for (const item of citedItems(doc)) {
+    const earlier = first.get(item.id);
+    if (earlier === void 0) first.set(item.id, item.pointer);
+    else issues.push({ code: "DuplicateId", pointer: `${item.pointer}/id`, message: `Duplicate id \`${item.id}\` (first used at ${earlier})` });
+  }
+  const participants = new Set(doc.participants.map((participant) => participant.id));
+  const order = /* @__PURE__ */ new Map();
+  doc.messages.forEach((message, i) => {
+    if (!order.has(message.id)) order.set(message.id, i);
+    for (const field of ["from", "to"]) {
+      if (!participants.has(message[field])) {
+        issues.push({ code: "UnknownReference", pointer: `/messages/${i}/${field}`, message: `Message \`${field}\` names unknown participant \`${message[field]}\`` });
+      }
+    }
+    if (message.variant !== "return" && (message.sources ?? []).length === 0) {
+      issues.push({ code: "MissingSources", pointer: `/messages/${i}`, message: `Message \`${message.id}\` has no sources; cite the line that makes the call` });
+    }
+  });
+  doc.participants.forEach((participant, i) => {
+    if ((participant.sources ?? []).length === 0) {
+      issues.push({ code: "MissingSources", pointer: `/participants/${i}`, message: `Participant \`${participant.id}\` has no sources; cite 1\u20133 files that implement it` });
+    }
+  });
+  const spans = [];
+  (doc.phases ?? []).forEach((phase, i) => {
+    const start = order.get(phase.first);
+    const end = order.get(phase.last);
+    for (const [field, at] of [["first", start], ["last", end]]) {
+      if (at === void 0) issues.push({ code: "UnknownReference", pointer: `/phases/${i}/${field}`, message: `Phase \`${field}\` names unknown message \`${phase[field]}\`` });
+    }
+    if (start === void 0 || end === void 0) return;
+    if (start > end) {
+      issues.push({ code: "PhaseOrder", pointer: `/phases/${i}`, message: `Phase \`${phase.label}\` starts at \`${phase.first}\`, which comes after its last message \`${phase.last}\`` });
+      return;
+    }
+    const overlap = spans.find((span) => start <= span.end && span.start <= end);
+    if (overlap) issues.push({ code: "PhaseOrder", pointer: `/phases/${i}`, message: `Phase \`${phase.label}\` overlaps the phase at /phases/${overlap.index}` });
+    spans.push({ start, end, index: i });
+  });
+  return issues;
+}
+
 // packages/core/model/citations.ts
 var MAX_CITED_BYTES = 2 * 1024 * 1024;
 var BINARY_SNIFF_BYTES = 8 * 1024;
@@ -7570,9 +7626,9 @@ function checkCitations(doc, root) {
   const rootReal = realpathSync(root);
   const cache = /* @__PURE__ */ new Map();
   const issues = [];
-  doc.components.forEach((component, i) => {
-    (component.sources ?? []).forEach((source, k) => {
-      const base = `/components/${i}/sources/${k}`;
+  for (const item of citedItems(doc)) {
+    item.sources.forEach((source, k) => {
+      const base = `${item.pointer}/sources/${k}`;
       const { path } = source;
       if (!citationPathOk(path)) {
         issues.push({
@@ -7598,7 +7654,7 @@ function checkCitations(doc, root) {
       const problem = rangeProblem(source, probe.lineCount);
       if (problem) issues.push({ code: "BrokenCitation", pointer: `${base}/${problem[0]}`, message: problem[1] });
     });
-  });
+  }
   return issues;
 }
 
@@ -8260,15 +8316,15 @@ var ARCHIFY_DIR = ".archify";
 var DRAFT_FILE = "draft.json";
 var CANDIDATE_FILE = "candidate.json";
 var RUN_NAME_PATTERN = /^([a-z0-9]+)-(.+)-(\d{8}-\d{6})(?:-(\d+))?$/;
+var SEQUENCE_PREFIX = "sequence";
+function mapKindOf(name) {
+  const prefix = parseRunName(name)?.prefix;
+  return prefix === "architecture" || prefix === SEQUENCE_PREFIX ? prefix : null;
+}
 function parseRunName(name) {
   const match = RUN_NAME_PATTERN.exec(name);
   if (!match) return null;
   return { prefix: match[1], slug: match[2], timestamp: match[3], n: match[4] === void 0 ? 1 : Number(match[4]) };
-}
-function parseRunFolderName(name) {
-  const parsed = parseRunName(name);
-  if (parsed === null || parsed.prefix !== "architecture") return null;
-  return { slug: parsed.slug, timestamp: parsed.timestamp, n: parsed.n };
 }
 function locateDraft(arg, cwd) {
   const draft = resolve(cwd, arg);
@@ -8278,9 +8334,9 @@ function locateDraft(arg, cwd) {
   if (basename(draft) !== DRAFT_FILE || basename(archify) !== ARCHIFY_DIR) {
     throw new Error(`expected a path of the form <repo>/${ARCHIFY_DIR}/<run>/${DRAFT_FILE}, got ${arg}`);
   }
-  const parsed = parseRunFolderName(run2);
-  if (!parsed) throw new Error(`run folder "${run2}" does not match architecture-<slug>-<YYYYMMDD-HHMMSS>[-N]`);
-  return { root: dirname2(archify), run: run2, slug: parsed.slug, draft };
+  const kind = mapKindOf(run2);
+  if (kind === null) throw new Error(`run folder "${run2}" does not match architecture-<slug>-<YYYYMMDD-HHMMSS>[-N] or sequence-<slug>-<YYYYMMDD-HHMMSS>[-N]`);
+  return { root: dirname2(archify), run: run2, slug: parseRunName(run2).slug, draft, kind };
 }
 function publishCandidate(draft, content) {
   const dir = dirname2(draft);
@@ -8342,14 +8398,14 @@ function looseLines(lines2) {
 function fingerprint(doc, root, revision, now = /* @__PURE__ */ new Date()) {
   const contents = /* @__PURE__ */ new Map();
   const citations = [];
-  for (const component of doc.components) {
-    (component.sources ?? []).forEach((source, index) => {
+  for (const item of citedItems(doc)) {
+    item.sources.forEach((source, index) => {
       let bytes = contents.get(source.path);
       if (bytes === void 0) {
         bytes = readFileSync3(join6(root, ...source.path.split("/")));
         contents.set(source.path, bytes);
       }
-      const print = { component: component.id, index, path: source.path, blob: gitBlobId(bytes) };
+      const print = { component: item.id, index, path: source.path, blob: gitBlobId(bytes) };
       if (source.line !== void 0) {
         print.line = source.line;
         const end = source.end_line ?? source.line;
@@ -8851,8 +8907,113 @@ var common_schema_default = {
   }
 };
 
+// packages/core/model/schemas/sequence.schema.json
+var sequence_schema_default = {
+  $schema: "https://json-schema.org/draft/2020-12/schema",
+  $id: "https://aisus.dev/schemas/sequence.schema.json",
+  title: "aisus sequence map",
+  description: "One flow through a repository's code. Participants are the code that takes part, messages are the calls between them in the order they happen, and the viewer derives every position from that order.",
+  type: "object",
+  additionalProperties: false,
+  required: ["schema_version", "diagram_type", "meta", "participants", "messages"],
+  properties: {
+    schema_version: { const: 1 },
+    diagram_type: { const: "sequence" },
+    meta: {
+      type: "object",
+      additionalProperties: false,
+      required: ["title", "output"],
+      properties: {
+        title: { type: "string", minLength: 1 },
+        subtitle: { type: "string" },
+        output: { type: "string", minLength: 1, pattern: "[.]html$" },
+        locale: { type: "string", pattern: "^[a-z]{2,3}(-[A-Za-z0-9]{2,8})*$" },
+        quality_profile: { enum: ["standard", "showcase"] },
+        repository: {
+          type: "object",
+          additionalProperties: false,
+          required: ["url", "revision"],
+          properties: {
+            url: { type: "string", minLength: 1 },
+            revision: { type: "string", pattern: "^[0-9a-fA-F]{40}$" },
+            provider: { enum: ["github", "gitee"] },
+            link_mode: { enum: ["web", "local-only"] }
+          }
+        }
+      }
+    },
+    participants: {
+      type: "array",
+      minItems: 2,
+      items: {
+        type: "object",
+        additionalProperties: false,
+        required: ["id", "type", "label"],
+        properties: {
+          id: { $ref: "#/$defs/id" },
+          type: { enum: ["frontend", "backend", "database", "cloud", "security", "messagebus", "external"] },
+          label: { type: "string", minLength: 1 },
+          sublabel: { type: "string" },
+          sources: { $ref: "#/$defs/sources" }
+        }
+      }
+    },
+    messages: {
+      type: "array",
+      minItems: 1,
+      items: {
+        type: "object",
+        additionalProperties: false,
+        required: ["id", "from", "to", "label"],
+        properties: {
+          id: { $ref: "#/$defs/id" },
+          from: { $ref: "#/$defs/id" },
+          to: { $ref: "#/$defs/id" },
+          label: { type: "string", minLength: 1 },
+          variant: { enum: ["default", "emphasis", "security", "dashed", "return"] },
+          note: { type: "string", minLength: 1 },
+          sources: { $ref: "#/$defs/sources" }
+        }
+      }
+    },
+    phases: {
+      type: "array",
+      items: {
+        type: "object",
+        additionalProperties: false,
+        required: ["label", "first", "last"],
+        properties: {
+          label: { type: "string", minLength: 1 },
+          first: { $ref: "#/$defs/id" },
+          last: { $ref: "#/$defs/id" }
+        }
+      }
+    }
+  },
+  $defs: {
+    id: { type: "string", pattern: "^[a-zA-Z][a-zA-Z0-9_-]*$" },
+    sources: {
+      type: "array",
+      minItems: 1,
+      maxItems: 3,
+      items: {
+        type: "object",
+        additionalProperties: false,
+        required: ["path"],
+        properties: {
+          path: { type: "string", minLength: 1, maxLength: 240 },
+          line: { type: "integer", minimum: 1 },
+          end_line: { type: "integer", minimum: 1 },
+          label: { type: "string", minLength: 1, maxLength: 48 }
+        }
+      }
+    }
+  }
+};
+
 // packages/core/model/schema.ts
 var compiled;
+var compiledSequence;
 function validator() {
   if (!compiled) {
     const ajv = new import__.default({ allErrors: true, strict: false });
@@ -8880,6 +9041,10 @@ function toIssue(error) {
 function validateArchitecture(value) {
   const validate = validator();
   return validate(value) ? [] : (validate.errors ?? []).map(toIssue);
+}
+function validateSequence(value) {
+  compiledSequence ??= new import__.default({ allErrors: true, strict: false }).compile(sequence_schema_default);
+  return compiledSequence(value) ? [] : (compiledSequence.errors ?? []).map(toIssue);
 }
 
 // packages/core/model/secrets.ts
@@ -8948,14 +9113,17 @@ function dropInArray(root, field, keys, removed) {
 function applyAppOwnedFields(value, app) {
   const removed = [];
   if (!isJsonObject(value)) return removed;
-  dropKeys(value, ["layout"], "", removed);
-  if (isJsonObject(value["meta"])) dropKeys(value["meta"], META_DROPS, "/meta", removed);
-  dropInArray(value, "components", COMPONENT_DROPS, removed);
-  dropInArray(value, "connections", CONNECTION_DROPS, removed);
-  dropInArray(value, "boundaries", BOUNDARY_DROPS, removed);
+  const kind = app.kind ?? "architecture";
+  if (kind === "architecture") {
+    dropKeys(value, ["layout"], "", removed);
+    if (isJsonObject(value["meta"])) dropKeys(value["meta"], META_DROPS, "/meta", removed);
+    dropInArray(value, "components", COMPONENT_DROPS, removed);
+    dropInArray(value, "connections", CONNECTION_DROPS, removed);
+    dropInArray(value, "boundaries", BOUNDARY_DROPS, removed);
+  }
   const rest = Object.entries(value).filter(([key]) => key !== "schema_version" && key !== "diagram_type");
   for (const key of Object.keys(value)) delete value[key];
-  Object.assign(value, { schema_version: 1, diagram_type: "architecture" }, Object.fromEntries(rest));
+  Object.assign(value, { schema_version: 1, diagram_type: kind }, Object.fromEntries(rest));
   if (!isJsonObject(value["meta"])) value["meta"] = {};
   const meta = value["meta"];
   meta["locale"] = "en";
@@ -8967,6 +9135,12 @@ function applyAppOwnedFields(value, app) {
 }
 function checkSubmission(value, app, checkCitations2) {
   const removed = applyAppOwnedFields(value, app);
+  if (app.kind === "sequence") {
+    const errors = validateSequence(value);
+    if (errors.length > 0) return { removed, errors };
+    const doc2 = value;
+    return { removed, errors: [...sequenceChecks(doc2), ...findSecrets(doc2), ...checkCitations2(doc2)] };
+  }
   const schemaErrors = validateArchitecture(value);
   if (schemaErrors.length > 0) return { removed, errors: schemaErrors };
   const doc = value;
@@ -9043,7 +9217,8 @@ function main(args) {
     value,
     {
       output: `${ARCHIFY_DIR}/${location.run}/${location.slug}.html`,
-      repository: git ? repositoryFromGit(git) : null
+      repository: git ? repositoryFromGit(git) : null,
+      kind: location.kind
     },
     (doc2) => checkCitations(doc2, location.root)
   );
@@ -9056,17 +9231,22 @@ function main(args) {
     return 1;
   }
   const doc = value;
-  const read = fileReader(location.root);
-  const readText = (path) => read(path)?.toString("utf8") ?? null;
-  const sources = listFiles(location.root).files.filter((path) => importLanguage(path) !== null && !isTestPath(path));
-  const evidence = checkEvidence(doc.components, readText, { connections: doc.connections ?? [], links: importLinks(sources, readText) });
+  let evidence = null;
+  if (!isSequence(doc)) {
+    const read = fileReader(location.root);
+    const readText = (path) => read(path)?.toString("utf8") ?? null;
+    const sources = listFiles(location.root).files.filter((path) => importLanguage(path) !== null && !isTestPath(path));
+    evidence = checkEvidence(doc.components, readText, { connections: doc.connections ?? [], links: importLinks(sources, readText) });
+  }
   try {
     const runDir = dirname4(location.draft);
     assertWritable(location.root, join9(runDir, CANDIDATE_FILE));
     publishCandidate(location.draft, stringifyDocument(value));
     writeFingerprints(location.root, runDir, fingerprint(doc, location.root, git?.head ?? null));
-    assertWritable(location.root, join9(runDir, EVIDENCE_FILE));
-    writeJson(join9(runDir, EVIDENCE_FILE), evidence);
+    if (evidence !== null) {
+      assertWritable(location.root, join9(runDir, EVIDENCE_FILE));
+      writeJson(join9(runDir, EVIDENCE_FILE), evidence);
+    }
     record(location, { phase: "accepted", finishedAt: (/* @__PURE__ */ new Date()).toISOString() });
   } catch (error) {
     return usageError(`cannot publish ${CANDIDATE_FILE}: ${error.message}`);
@@ -9076,7 +9256,7 @@ function main(args) {
     candidate: `${ARCHIFY_DIR}/${location.run}/${CANDIDATE_FILE}`,
     errors: [],
     warnings,
-    evidence: evidence.findings
+    ...evidence === null ? {} : { evidence: evidence.findings }
   };
   process.stdout.write(`${JSON.stringify(report, null, 2)}
 `);

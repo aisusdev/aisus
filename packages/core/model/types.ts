@@ -81,6 +81,48 @@ export interface ArchifyDoc {
   boundaries?: Boundary[];
 }
 
+export type MessageVariant = Variant | "return";
+
+/** SEQ-01: the code that takes part in a flow. */
+export interface Participant {
+  id: string;
+  type: ComponentType;
+  label: string;
+  sublabel?: string;
+  sources?: SourceRef[];
+}
+
+/** SEQ-01: one call between participants, in the order the flow makes it. */
+export interface Message {
+  id: string;
+  from: string;
+  to: string;
+  label: string;
+  variant?: MessageVariant;
+  note?: string;
+  sources?: SourceRef[];
+}
+
+/** SEQ-01: a band over the messages from `first` to `last`, by id. */
+export interface Phase {
+  label: string;
+  first: string;
+  last: string;
+}
+
+/** SEQ-01: a sequence map of one flow (ADR 0069). */
+export interface SequenceDoc {
+  schema_version: 1;
+  diagram_type: "sequence";
+  meta: Meta;
+  participants: Participant[];
+  messages: Message[];
+  phases?: Phase[];
+}
+
+/** Either kind of map the validator accepts. */
+export type MapDoc = ArchifyDoc | SequenceDoc;
+
 /** Categories of validator findings; the validator prefixes each message with its code. */
 export type IssueCode =
   | "Json"
@@ -89,6 +131,8 @@ export type IssueCode =
   | "UnknownReference"
   | "MissingSources"
   | "BoundaryOverlap"
+  /** SEQ-01: a phase out of order or overlapping another. */
+  | "PhaseOrder"
   | "InvalidCitationPath"
   | "DeniedCitation"
   | "BrokenCitation"

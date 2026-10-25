@@ -7905,21 +7905,21 @@ var import_node_path = require("node:path");
 var ARCHIFY_DIR = ".archify";
 var CANDIDATE_FILE = "candidate.json";
 var RUN_NAME_PATTERN = /^([a-z0-9]+)-(.+)-(\d{8}-\d{6})(?:-(\d+))?$/;
+var SEQUENCE_PREFIX = "sequence";
+function mapKindOf(name2) {
+  const prefix = parseRunName(name2)?.prefix;
+  return prefix === "architecture" || prefix === SEQUENCE_PREFIX ? prefix : null;
+}
 function parseRunName(name2) {
   const match = RUN_NAME_PATTERN.exec(name2);
   if (!match) return null;
   return { prefix: match[1], slug: match[2], timestamp: match[3], n: match[4] === void 0 ? 1 : Number(match[4]) };
 }
-function parseRunFolderName(name2) {
-  const parsed = parseRunName(name2);
-  if (parsed === null || parsed.prefix !== "architecture") return null;
-  return { slug: parsed.slug, timestamp: parsed.timestamp, n: parsed.n };
-}
 
 // packages/core/model/discovery.ts
 function compareCandidates(a, b) {
-  const ra = parseRunFolderName(a.runFolder);
-  const rb = parseRunFolderName(b.runFolder);
+  const ra = mapKindOf(a.runFolder) === null ? null : parseRunName(a.runFolder);
+  const rb = mapKindOf(b.runFolder) === null ? null : parseRunName(b.runFolder);
   if (ra && !rb) return -1;
   if (!ra && rb) return 1;
   if (ra && rb) {
@@ -7930,7 +7930,7 @@ function compareCandidates(a, b) {
   }
   return a.runFolder < b.runFolder ? 1 : a.runFolder > b.runFolder ? -1 : 0;
 }
-function listCandidates(root) {
+function listCandidates(root, kind = "architecture") {
   let rootReal;
   let folders;
   try {
@@ -7941,6 +7941,8 @@ function listCandidates(root) {
   }
   const candidates = [];
   for (const runFolder of folders) {
+    const sequence = mapKindOf(runFolder) === SEQUENCE_PREFIX;
+    if (kind !== "all" && sequence !== (kind === "sequence")) continue;
     const file = (0, import_node_path.join)(root, ARCHIFY_DIR, runFolder, CANDIDATE_FILE);
     try {
       const real = (0, import_node_fs.realpathSync)(file);
@@ -9692,7 +9694,8 @@ var SKILL_SCRIPTS = {
   "aisus-architecture": ["repo-facts.mjs", "match-ids.mjs", "validate.mjs", "render-html.mjs"],
   "aisus-refresh": ["refresh-facts.mjs", "validate.mjs", "render-html.mjs"],
   "aisus-audit": ["audit-record.mjs"],
-  "aisus-tour": ["tour-record.mjs"]
+  "aisus-tour": ["tour-record.mjs"],
+  "aisus-sequence": ["repo-facts.mjs", "validate.mjs", "render-html.mjs"]
 };
 function headlessArgs(cli, prompt, options) {
   if (cli === "codex") return ["exec", "--json", "--sandbox", options.readOnly ? "read-only" : "workspace-write", prompt];

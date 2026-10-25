@@ -63,3 +63,15 @@ describe("FR-VIEW-01 repo root of a browsed file", () => {
     expect(repoRootFor(file, "/w/folder")).toBe(expected);
   });
 });
+describe("SEQ-01 sequence runs", () => {
+  test("architecture readers never see sequence runs, and sequence runs are listed on their own, newest first", () => {
+    const root = tempDir();
+    candidate(root, "architecture-app-20261010-120000", 1_000);
+    candidate(root, "sequence-login-20261011-120000", 1_000);
+    candidate(root, "sequence-checkout-20261012-120000", 900);
+    candidate(root, "hand-made", 800);
+    expect(listCandidates(root).map((c) => c.runFolder)).toEqual(["architecture-app-20261010-120000", "hand-made"]);
+    expect(listCandidates(root, "sequence").map((c) => c.runFolder)).toEqual(["sequence-checkout-20261012-120000", "sequence-login-20261011-120000"]);
+    expect(listCandidates(root, "all")).toHaveLength(4);
+  });
+});

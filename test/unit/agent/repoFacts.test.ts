@@ -155,3 +155,25 @@ describe("FRS-09 the earlier map of the same focus", () => {
     expect(drill.previous).toBeNull();
   });
 });
+
+describe("SEQ-02 sequence runs", () => {
+  test("--kind sequence names the folder sequence-<slug>-<timestamp> and writes run.json without lineage", () => {
+    const root = tempDir();
+    const run = runScript("repo-facts", ["--kind", "sequence", "--focus", "Log in with GitHub"], { cwd: root, env: envWithoutGit() });
+    expect(run.status).toBe(0);
+    const facts = run.json();
+    expect(facts.runFolder).toMatch(/^\.archify\/sequence-log-in-with-github-\d{8}-\d{6}$/);
+    expect(facts.previous).toBeNull();
+    expect(readdirSync(join(root, facts.runFolder))).toEqual(["run.json"]);
+  });
+
+  test("--kind sequence without a focus, or with a parent, is a usage error that makes no run folder", () => {
+    const root = tempDir();
+    for (const args of [["--kind", "sequence"], ["--kind", "sequence", "--focus", "  "], ["--kind", "sequence", "--focus", "login", "--parent", "architecture-x-20261010-101010"]]) {
+      const run = runScript("repo-facts", args, { cwd: root, env: envWithoutGit() });
+      expect(run.status).toBe(2);
+      expect(run.stderr).toMatch(/needs --focus/);
+    }
+    expect(existsSync(join(root, ".archify"))).toBe(false);
+  });
+});

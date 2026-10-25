@@ -10,6 +10,16 @@ export const CANDIDATE_FILE = "candidate.json";
 export const SLUG_MAX = 40;
 /** `<prefix>-<slug>-<YYYYMMDD-HHMMSS>[-N]` — the generic run-folder name shape. */
 export const RUN_NAME_PATTERN = /^([a-z0-9]+)-(.+)-(\d{8}-\d{6})(?:-(\d+))?$/;
+/** SEQ-01: the prefix of sequence map runs, which sit beside architecture runs. */
+export const SEQUENCE_PREFIX = "sequence";
+/** The kinds of map a run folder holds, named by its prefix. */
+export type MapKind = "architecture" | "sequence";
+
+/** The kind of map a run folder holds, or `null` when its name is no map run's. */
+export function mapKindOf(name: string): MapKind | null {
+  const prefix = parseRunName(name)?.prefix;
+  return prefix === "architecture" || prefix === SEQUENCE_PREFIX ? prefix : null;
+}
 /** `architecture-<slug>-<YYYYMMDD-HHMMSS>[-N]` */
 export const RUN_FOLDER_PATTERN = /^architecture-(.+)-(\d{8}-\d{6})(?:-(\d+))?$/;
 
@@ -133,11 +143,13 @@ export interface DraftLocation {
   slug: string;
   /** Absolute path of `draft.json`. */
   draft: string;
+  /** SEQ-01: the kind of map, from the run folder's prefix. */
+  kind: MapKind;
 }
 
 /**
  * Interprets a validator argument (absolute or relative to `cwd`) as
- * `<R>/.archify/<run>/draft.json`, with `<run>` a run folder name. Throws with a usage
+ * `<R>/.archify/<run>/draft.json`, with `<run>` an architecture or sequence run folder name. Throws with a usage
  * message otherwise.
  */
 export function locateDraft(arg: string, cwd: string): DraftLocation {
@@ -148,9 +160,9 @@ export function locateDraft(arg: string, cwd: string): DraftLocation {
   if (basename(draft) !== DRAFT_FILE || basename(archify) !== ARCHIFY_DIR) {
     throw new Error(`expected a path of the form <repo>/${ARCHIFY_DIR}/<run>/${DRAFT_FILE}, got ${arg}`);
   }
-  const parsed = parseRunFolderName(run);
-  if (!parsed) throw new Error(`run folder "${run}" does not match architecture-<slug>-<YYYYMMDD-HHMMSS>[-N]`);
-  return { root: dirname(archify), run, slug: parsed.slug, draft };
+  const kind = mapKindOf(run);
+  if (kind === null) throw new Error(`run folder "${run}" does not match architecture-<slug>-<YYYYMMDD-HHMMSS>[-N] or sequence-<slug>-<YYYYMMDD-HHMMSS>[-N]`);
+  return { root: dirname(archify), run, slug: parseRunName(run)!.slug, draft, kind };
 }
 
 /**

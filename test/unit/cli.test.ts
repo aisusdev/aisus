@@ -40,11 +40,11 @@ function mappedRepo(): { root: string; run: string } {
 }
 
 describe("RCH-03 install and verify-skills", () => {
-  test("ACC-05 SKL-02 install --scope project writes every skill; verify-skills finds them intact, then a changed file", () => {
+  test("ACC-05 SKL-02 SEQ-02 install --scope project writes every skill; verify-skills finds them intact, then a changed file", () => {
     const root = tempDir();
     const installed = cli(["install", "--scope", "project", "--root", root], { cwd: root });
     expect(installed.status).toBe(0);
-    expect(installed.json()).toEqual({ status: "installed", base: root, skills: ["aisus-architecture", "aisus-audit", "aisus-bugfix", "aisus-refresh", "aisus-tour"] });
+    expect(installed.json()).toEqual({ status: "installed", base: root, skills: ["aisus-architecture", "aisus-audit", "aisus-bugfix", "aisus-refresh", "aisus-sequence", "aisus-tour"] });
     expect(existsSync(join(root, ".claude/skills/aisus-refresh/SKILL.md"))).toBe(true);
 
     const intact = cli(["verify-skills", "--scope", "project"], { cwd: root });

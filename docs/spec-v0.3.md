@@ -104,6 +104,10 @@ aisus pays down three debts that AI-assisted coding creates: **comprehension** (
 | SAF-08 | Remove aisus from a folder | One action removes everything aisus added | — | I6 |
 | ENG-03 | Spec traceability check | Every feature has exactly one progress entry | — | I6 |
 | IDE-01 | IntelliJ plugin | The map in an IntelliJ tool window, with click-to-code | Comprehension | I7 |
+| SEQ-01 | Sequence format | A sequence map of one flow, whose participants and messages cite code | Comprehension | I8 |
+| SEQ-02 | Sequence skill | An agent draws one flow of the repository as a sequence map | Comprehension | I8 |
+| SEQ-03 | Sequence viewer | Lifelines, messages, activations and phases laid out from message order | Comprehension | I8 |
+| SEQ-04 | Sequence maps in VS Code | Generate, list, open, click to code and freshness for sequence maps | Comprehension | I8 |
 
 ## 2. Where it appears
 
@@ -763,6 +767,33 @@ AC: `[e2e]`.
 
 AC: bridge, argv and CLI-call tests, plus `verifyPlugin` `[jvm]`; on AB3, generate, open, and click to open the cited lines `[smoke]`.
 
+### I8 Sequence maps
+
+A sequence map shows one flow through the code, such as a request from its entry point to its response. Time runs downward. Each message is a call, and clicking it opens the line that makes the call.
+
+**SEQ-01 Sequence format.** A sequence map is `{schema_version: 1, diagram_type: "sequence", meta, participants, messages, phases?}`.
+- `meta` holds `title`, an optional `subtitle`, and the app-owned `output`, `repository`, `locale` and `quality_profile`, as architecture maps do.
+- `participants` (at least 2) are `{id, type, label, sublabel?, sources}`, with the component types and source references of architecture maps.
+- `messages` (at least 1) are `{id, from, to, label, variant?, note?, sources?}` in the order they happen. `variant` is `default`, `emphasis`, `security`, `dashed` or `return`. A message whose `from` and `to` are the same participant is a call to itself.
+- `phases` are `{label, first, last}`, naming the ids of a phase's first and last message.
+- No field holds coordinates. The viewer derives every position from message order.
+
+Participants and messages share one id namespace. The validator rejects duplicate ids, unknown `from`, `to`, `first` or `last`, a phase whose first message comes after its last, and overlapping phases. Every participant cites code, and every message other than a `return` cites its call site. Citations, the deny-list and the secret scan work as for architecture maps. On acceptance the validator writes `fingerprints.json` keyed by participant and message id, and no `evidence.json`. Run folders are named `sequence-<slug>-<YYYYMMDD-HHMMSS>[-N]` beside architecture runs. Every architecture-only feature lists only `architecture-…` runs and so leaves sequence maps out. AC: the schema and each semantic check, the run folder name, and acceptance writing the candidate and its fingerprints `[unit]`.
+
+**SEQ-02 Sequence skill.** `skills/aisus-sequence/` is a manual-only skill like the architecture skill. Its focus names the flow and is required. `repo-facts.mjs --kind sequence --focus <flow>` creates the run folder. The skill finds the flow's entry point, follows its calls, writes the draft from `references/sequence-format.md`, validates it with `validate.mjs` at most four times, and writes the page with `render-html.mjs`. It pre-approves only its own scripts. AC: `repo-facts --kind sequence` refuses an empty focus and names the folder `[unit]`; the skill's files are bundled with integrity hashes `[unit]`.
+
+**SEQ-03 Sequence viewer.** The shared viewer draws a sequence map when `diagram_type` is `"sequence"`.
+- Participants are boxes across the top, in document order, each over a dashed lifeline.
+- Each message is one row, drawn as an arrow with its label above it and its note below. `return` and `dashed` messages are dashed. A call to itself loops to the right.
+- A column is wide enough for its box and for the labels of the messages between it and its neighbour.
+- A participant is active from a message it receives until its next `return` to the caller, and from its first message when nothing activated it. Activations nest.
+- A phase is a band behind its messages, labelled at the left.
+- Clicking or pressing Enter on a participant or a message opens its first citation. The screen reader list and image export work as for architecture maps.
+
+AC: column widths, activations, self-calls and phases `[unit]`; drawing, clicks and keys `[dom]`.
+
+**SEQ-04 Sequence maps in VS Code.** `aisus: Generate Sequence Diagram` asks for the flow and launches the sequence skill as Generate does. The Maps page lists sequence maps with the number of participants. The map panel opens them, opens cited lines on click, and badges participants and messages whose citations changed, with the freshness header. For a sequence map, the map's title bar keeps only Save Image. Find, Refresh, Compare, Audit, Tour, Checks, Hotspots, the rules and the box and arrow menus stay hidden. AC: a sequence map opens from the Maps page and a click opens the cited lines `[e2e]`.
+
 ## 6. Milestones
 
 | Milestone | Features | Done when |
@@ -780,6 +811,7 @@ AC: bridge, argv and CLI-call tests, plus `verifyPlugin` `[jvm]`; on AB3, genera
 | I5 Cloud for teams | CLD-05..07, CLD-10, CLD-12, CLD-13 | Dashboard, billing and self-hosting work |
 | I6 Polish and reach | FRS-07..10, VWR-02..06, RCH-04, SET-04, SET-05, SAF-08, ENG-03 | Gates green |
 | I7 IntelliJ plugin | IDE-01 | The plugin opens cited lines on AB3 |
+| I8 Sequence maps | SEQ-01..04 | A sequence map generated in VS Code opens its cited call sites |
 
 ## 7. Process
 

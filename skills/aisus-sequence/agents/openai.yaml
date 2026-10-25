@@ -1,0 +1,5 @@
+interface:
+  display_name: "aisus Sequence"
+  short_description: "Draw one flow of the code as a sequence map for aisus"
+policy:
+  allow_implicit_invocation: false

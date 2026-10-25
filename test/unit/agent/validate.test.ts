@@ -352,3 +352,49 @@ describe("FR-VAL-06 publish", () => {
     expect(readFileSync(join(root, DRAFT), "utf8")).toBe(draftText);
   });
 });
+
+describe("SEQ-01 sequence drafts", () => {
+  const SEQ_RUN = "sequence-login-20261025-090000";
+  const SEQ_DRAFT = `.archify/${SEQ_RUN}/draft.json`;
+
+  function sequenceDraft(): Json & { messages: Json[] } {
+    return {
+      meta: { title: "Login" },
+      participants: [
+        { id: "web", type: "frontend", label: "Web", sources: [{ path: "src/web.ts", line: 1 }] },
+        { id: "api", type: "backend", label: "API", sources: [{ path: "src/api.ts" }] },
+      ],
+      messages: [
+        { id: "post", from: "web", to: "api", label: "POST /login", sources: [{ path: "src/web.ts", line: 2, end_line: 3 }] },
+        { id: "ok", from: "api", to: "web", label: "200", variant: "return" },
+      ],
+    };
+  }
+
+  test("an accepted sequence draft becomes a sequence candidate with fingerprints keyed by message id, and no evidence", () => {
+    const root = tempDir();
+    put(root, "src/web.ts", "a\nb\nc\n");
+    put(root, "src/api.ts", "1\n2\n");
+    put(root, SEQ_DRAFT, JSON.stringify(sequenceDraft()));
+    const run = runScript("validate", [SEQ_DRAFT], { cwd: root, env: envWithoutGit() });
+    expect(run.json()).toEqual({ status: "accepted", candidate: `.archify/${SEQ_RUN}/candidate.json`, errors: [], warnings: [] });
+    expect(run.status).toBe(0);
+    expect(readdirSync(join(root, ".archify", SEQ_RUN)).sort()).toEqual(["candidate.json", "fingerprints.json", "run.json"]);
+    const doc = JSON.parse(readFileSync(join(root, ".archify", SEQ_RUN, "candidate.json"), "utf8"));
+    expect([doc.diagram_type, doc.meta.output]).toEqual(["sequence", `.archify/${SEQ_RUN}/login.html`]);
+    const prints = JSON.parse(readFileSync(join(root, ".archify", SEQ_RUN, "fingerprints.json"), "utf8"));
+    expect(prints.citations.map((print: Json) => [print["component"], print["path"]])).toEqual([["web", "src/web.ts"], ["api", "src/api.ts"], ["post", "src/web.ts"]]);
+  });
+
+  test("a sequence message citing past the end of its file is rejected at the message's pointer", () => {
+    const root = tempDir();
+    put(root, "src/web.ts", "a\nb\nc\n");
+    put(root, "src/api.ts", "1\n2\n");
+    const doc = sequenceDraft();
+    doc.messages[0]!["sources"] = [{ path: "src/web.ts", line: 9 }];
+    put(root, SEQ_DRAFT, JSON.stringify(doc));
+    const run = runScript("validate", [SEQ_DRAFT], { cwd: root });
+    expect(run.status).toBe(1);
+    expect(run.json().errors.map((error) => error.pointer)).toEqual(["/messages/0/sources/0/line"]);
+  });
+});

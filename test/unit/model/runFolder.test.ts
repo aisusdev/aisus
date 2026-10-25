@@ -89,19 +89,21 @@ describe("FR-RF-01 run folders", () => {
 });
 
 describe("FR-VAL-01 draft location", () => {
-  test("absolute and relative paths resolve to the repo root and run", () => {
+  test("SEQ-01 absolute and relative paths resolve to the repo root, the run and its kind", () => {
     const root = tempDir();
     const rel = ".archify/architecture-api-20261010-093000/draft.json";
-    const expected = { root, run: "architecture-api-20261010-093000", slug: "api", draft: join(root, rel) };
+    const expected = { root, run: "architecture-api-20261010-093000", slug: "api", draft: join(root, rel), kind: "architecture" };
     expect(locateDraft(join(root, rel), "/")).toEqual(expected);
     expect(locateDraft(rel, root)).toEqual(expected);
     expect(locateDraft(`../${rel}`, join(root, "src"))).toEqual(expected);
+    expect(locateDraft(".archify/sequence-log-in-20261010-093000/draft.json", root)).toMatchObject({ run: "sequence-log-in-20261010-093000", slug: "log-in", kind: "sequence" });
   });
 
   test.each([
     [".archify/architecture-api-20261010-093000/candidate.json", /expected a path/],
     ["runs/architecture-api-20261010-093000/draft.json", /expected a path/],
     [".archify/hand-made/draft.json", /does not match/],
+    [".archify/session-api-20261010-093000/draft.json", /does not match/],
   ])("%s is a usage error", (arg, message) => {
     expect(() => locateDraft(arg, tempDir())).toThrow(message);
   });

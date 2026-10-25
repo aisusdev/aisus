@@ -6,9 +6,11 @@ import Ajv2020 from "ajv/dist/2020";
 import type { ErrorObject, ValidateFunction } from "ajv";
 import architectureSchema from "./schemas/architecture.schema.json";
 import commonSchema from "./schemas/common.schema.json";
+import sequenceSchema from "./schemas/sequence.schema.json";
 import { pointerToken, type Issue } from "./types";
 
 let compiled: ValidateFunction | undefined;
+let compiledSequence: ValidateFunction | undefined;
 
 function validator(): ValidateFunction {
   if (!compiled) {
@@ -40,4 +42,10 @@ function toIssue(error: ErrorObject): Issue {
 export function validateArchitecture(value: unknown): Issue[] {
   const validate = validator();
   return validate(value) ? [] : (validate.errors ?? []).map(toIssue);
+}
+
+/** SEQ-01: every violation of the sequence schema. Empty when valid. */
+export function validateSequence(value: unknown): Issue[] {
+  compiledSequence ??= new Ajv2020({ allErrors: true, strict: false }).compile(sequenceSchema);
+  return compiledSequence(value) ? [] : (compiledSequence.errors ?? []).map(toIssue);
 }
