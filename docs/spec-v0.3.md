@@ -715,7 +715,7 @@ AC: `[e2e]`.
 
 ### I7 IntelliJ plugin
 
-**IDE-01 IntelliJ plugin.** `intellij/` is a Kotlin project on the IntelliJ Platform Gradle Plugin 2.x. It targets IntelliJ IDEA 2026.2 (Java 25) and 2026.1 (Java 21), and declares the bundled "Web Browser (JCEF)" plugin as a dependency for 2026.2.
+**IDE-01 IntelliJ plugin.** `apps/intellij/` is a Kotlin project on the IntelliJ Platform Gradle Plugin 2.x. It targets IntelliJ IDEA 2026.2 (Java 25) and 2026.1 (Java 21), and declares the bundled "Web Browser (JCEF)" plugin as a dependency for 2026.2.
 - **Tool window.** "aisus" has a Map tab (JCEF, `hosts/jcef.ts`) and a Home tab (composer, maps, review, setup).
 - **Click to code.** `OpenFileDescriptor(project, file, line - 1, 0).navigate(true)` on the UI thread.
 - **Editor menu:** "Show in aisus Map".

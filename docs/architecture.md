@@ -423,7 +423,7 @@ Export and audit (CLD-13): `GET /api/v1/account/export` downloads `{exportedAt, 
 
 ## The IntelliJ plugin
 
-`intellij/` (IDE-01) is a Gradle build of its own, plugin ID `dev.aisus`, for IntelliJ IDEA 2026.1 (build 261) and later. `./gradlew buildPlugin` packs `out/intellij/jcef.js` and `jcef.css`, `dist/cli/`, `dist/skills/` and `dist/skill-hashes.json` into the plugin as `aisus/aisus-core.zip`, so `npm run build` and `node esbuild.mjs --intellij` run first. `AisusCore` unpacks the zip once per plugin version under `<IDE system folder>/aisus/<version>/`, refusing any entry that would land outside it, because node runs the CLI from real files.
+`apps/intellij/` (IDE-01) is a Gradle build of its own, plugin ID `dev.aisus`, for IntelliJ IDEA 2026.1 (build 261) and later. `./gradlew buildPlugin` packs `out/intellij/jcef.js` and `jcef.css`, `dist/cli/`, `dist/skills/` and `dist/skill-hashes.json` into the plugin as `aisus/aisus-core.zip`, so `npm run build` and `node esbuild.mjs --intellij` run first. `AisusCore` unpacks the zip once per plugin version under `<IDE system folder>/aisus/<version>/`, refusing any entry that would land outside it, because node runs the CLI from real files.
 
 | File | Responsibility |
 |---|---|

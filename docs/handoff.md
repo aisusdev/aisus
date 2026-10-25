@@ -57,7 +57,7 @@ Every change follows AGENTS.md:
 All gates are listed under "Gates" in AGENTS.md. In practice they are:
 - root `npm run check` and `npm run test:e2e`;
 - in cloud, `npm run -w apps/cloud test`, `typecheck`, `build` and `test:web`;
-- for plugin changes, `./gradlew test` in `intellij/`.
+- for plugin changes, `./gradlew test` in `apps/intellij/`.
 
 ### The VS Code extension
 
@@ -106,9 +106,9 @@ All gates are listed under "Gates" in AGENTS.md. In practice they are:
 
 ### The IntelliJ plugin
 
-- The plugin is Kotlin under `intellij/`, built with the Gradle wrapper and JDK 21, targeting IntelliJ 2026.1.
+- The plugin is Kotlin under `apps/intellij/`, built with the Gradle wrapper and JDK 21, targeting IntelliJ 2026.1.
 - Run `node esbuild.mjs --intellij` and `npm run build` first. The plugin packs the viewer and the CLI from `out/intellij/` and `dist/`.
-- Then run `./gradlew test` and `./gradlew buildPlugin`. The second writes `intellij/build/distributions/*.zip`, which users install from disk.
+- Then run `./gradlew test` and `./gradlew buildPlugin`. The second writes `apps/intellij/build/distributions/*.zip`, which users install from disk.
 - `./gradlew verifyPlugin` checks compatibility.
 - The plugin's home panel is Swing, separate from the VS Code sidebar.
 

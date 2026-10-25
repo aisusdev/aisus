@@ -15,7 +15,7 @@ group = "aisus"
 version = providers.gradleProperty("pluginVersion").get()
 
 val platformVersion = providers.gradleProperty("platformVersion").get()
-val repository = layout.projectDirectory.dir("..")
+val repository = layout.projectDirectory.dir("../..")
 
 dependencies {
     intellijPlatform {
