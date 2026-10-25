@@ -21,6 +21,6 @@ release/
 tools/bench/results/
 research/change-collection/
 .scratch/
-deploy/.env
-deploy/secrets/
+infra/.env
+infra/secrets/
 .amp/portals/*

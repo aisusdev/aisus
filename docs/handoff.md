@@ -95,14 +95,14 @@ All gates are listed under "Gates" in AGENTS.md. In practice they are:
 - **Plans** are in `cloud/plans.ts`, and Stripe calls are in `cloud/src/lib/billing.ts`.
 - **Migrations:** append new ones to `cloud/src/db/migrations.ts` and never edit old ones.
 - **Browser tests:** `test:web` starts the app with mock GitHub and Stripe servers on ports 3210 to 3213. Take care when two runs share one machine.
-- **Changing plans or prices:** update ADR 0067 and `deploy/stripe-setup.sh`.
+- **Changing plans or prices:** update ADR 0067 and `infra/stripe-setup.sh`.
 
 ### Deploying the cloud
 
-- `deploy/deploy.sh [ref]` deploys `origin/main`, or the named ref, to the server. The server then builds the image itself.
+- `infra/deploy.sh [ref]` deploys `origin/main`, or the named ref, to the server. The server then builds the image itself.
 - **Local files:** the script needs the owner's `~/.config/aisus/` folder with `secrets.env`, `aisus.pem`, `server.env` and `known_hosts`. Get these from the owner by a private channel, never through git. A new person should add their own SSH key to the server rather than share `aisus.pem`.
-- **The stack:** `deploy/compose.yaml` runs Caddy, the cloud, Umami, Prometheus, node-exporter and Grafana. Their configs are under `deploy/`.
-- **Other scripts:** `deploy/aws-up.sh` and `deploy/aws-down.sh --yes` create and remove the server. `deploy/stripe-setup.sh` sets up Stripe.
+- **The stack:** `infra/compose.yaml` runs Caddy, the cloud, Umami, Prometheus, node-exporter and Grafana. Their configs are under `infra/`.
+- **Other scripts:** `infra/aws-up.sh` and `infra/aws-down.sh --yes` create and remove the server. `infra/stripe-setup.sh` sets up Stripe.
 - **The deploy workflow:** `.github/workflows/deploy-cloud.yml` does nothing until the repository variable `AISUS_DEPLOY` is set.
 
 ### The IntelliJ plugin

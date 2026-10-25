@@ -8,8 +8,8 @@
 # cloud. Running it again reuses each price while its amount stays the same, and replaces the
 # webhook when its secret is not on record.
 #
-#   deploy/stripe-setup.sh             # Pro US$5 a month, Team US$10 per seat a month
-#   AISUS_PRO_PRICE_CENTS=700 AISUS_TEAM_PRICE_CENTS=1200 deploy/stripe-setup.sh
+#   infra/stripe-setup.sh              # Pro US$5 a month, Team US$10 per seat a month
+#   AISUS_PRO_PRICE_CENTS=700 AISUS_TEAM_PRICE_CENTS=1200 infra/stripe-setup.sh
 set -euo pipefail
 
 state=$HOME/.config/aisus
@@ -86,4 +86,4 @@ stripe POST "/v1/billing_portal/configurations${portal:+/$portal}" \
   -d "features[subscription_update][enabled]=true" \
   -d "features[subscription_update][default_allowed_updates][]=quantity" \
   -d "features[subscription_update][products][0][product]=$team_product" -d "features[subscription_update][products][0][prices][]=$team_price" >/dev/null
-echo "Stripe is ready: Pro $pro_price ($(setting AISUS_PRO_PRICE_TEXT)), Team $team_price ($(setting AISUS_TEAM_PRICE_TEXT)), webhook $url. Run deploy/deploy.sh to hand it to the cloud."
+echo "Stripe is ready: Pro $pro_price ($(setting AISUS_PRO_PRICE_TEXT)), Team $team_price ($(setting AISUS_TEAM_PRICE_TEXT)), webhook $url. Run infra/deploy.sh to hand it to the cloud."

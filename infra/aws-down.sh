@@ -3,7 +3,7 @@
 # Removes everything aws-up.sh created: the server and its disk, the Elastic IP, the security group
 # and the key pair. The data on the server goes with it.
 #
-#   deploy/aws-down.sh --yes
+#   infra/aws-down.sh --yes
 set -euo pipefail
 [[ ${1:-} == --yes ]] || { echo "This deletes the server and all its data. Run it with --yes." >&2; exit 1; }
 

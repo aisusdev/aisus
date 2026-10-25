@@ -5,7 +5,7 @@
 # machine's address, a key pair, and an Elastic IP. CPU credits are "standard", so a busy server
 # slows down instead of billing for surplus credits. Run it again to re-allow SSH from a new address.
 #
-#   deploy/aws-up.sh            # profile "aisus", region ap-southeast-1
+#   infra/aws-up.sh             # profile "aisus", region ap-southeast-1
 #
 # It writes the server's address to ~/.config/aisus/server.env and the SSH key to
 # ~/.config/aisus/aisus.pem. aws-down.sh removes everything it creates.

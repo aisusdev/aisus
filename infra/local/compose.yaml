@@ -1,10 +1,10 @@
-# aisus cloud on one machine (CLD-10): docker compose -f cloud/docker-compose.yml up --build
+# aisus cloud on one machine (CLD-10): docker compose -f infra/local/compose.yaml up --build
 # Every setting comes from the environment; copy the variables below into a .env file beside this
 # one. Billing stays off without the Stripe keys, which gives every account every feature.
 services:
   cloud:
     build:
-      context: ..
+      context: ../..
       dockerfile: cloud/Dockerfile
     ports:
       - "3000:3000"

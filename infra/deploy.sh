@@ -3,9 +3,9 @@
 # Deploys a ref of the public repository to the server that aws-up.sh made. The server builds the
 # cloud's image itself; nothing is built here.
 #
-#   deploy/deploy.sh --setup     # once, on a fresh server: Docker, swap and the clone
-#   deploy/deploy.sh             # origin/main
-#   deploy/deploy.sh v0.3.0      # any ref the public repository has
+#   infra/deploy.sh --setup      # once, on a fresh server: Docker, swap and the clone
+#   infra/deploy.sh              # origin/main
+#   infra/deploy.sh v0.3.0       # any ref the public repository has
 #
 # Secrets live in ~/.config/aisus/secrets.env (env.example lists them). The generated ones are made
 # on first use and kept there. On the first deploy, Umami's admin password is changed from its
@@ -15,7 +15,7 @@ set -euo pipefail
 here=$(cd "$(dirname "$0")" && pwd)
 state=$HOME/.config/aisus
 secrets=$state/secrets.env
-[[ -f $state/server.env ]] || { echo "Run deploy/aws-up.sh first." >&2; exit 1; }
+[[ -f $state/server.env ]] || { echo "Run infra/aws-up.sh first." >&2; exit 1; }
 . "$state/server.env"
 touch "$secrets"
 chmod 600 "$secrets"
@@ -62,15 +62,15 @@ server_env() {
   [[ -n "$(setting GITHUB_CLIENT_ID)" ]] || printf 'GITHUB_CLIENT_ID=not-set\nGITHUB_CLIENT_SECRET=not-set\n'
 }
 write_env() {
-  server_env | ssh_server "umask 077 && cat > aisus/deploy/.env"
-  setting METRICS_TOKEN | ssh_server "mkdir -p aisus/deploy/secrets && umask 022 && tr -d '\n' > aisus/deploy/secrets/metrics_token"
+  server_env | ssh_server "umask 077 && cat > aisus/infra/.env"
+  setting METRICS_TOKEN | ssh_server "mkdir -p aisus/infra/secrets && umask 022 && tr -d '\n' > aisus/infra/secrets/metrics_token"
 }
 
 ssh_server "cd aisus && git fetch --quiet origin && (git checkout --quiet --detach 'origin/$REF' 2>/dev/null || git checkout --quiet --detach '$REF') && git log -1 --format='deploying %h %s'"
 write_env
 ssh_server bash -s <<'REMOTE'
 set -euo pipefail
-cd aisus/deploy
+cd aisus/infra
 docker compose config --quiet
 set -a; . ./.env; set +a
 docker run --rm -e DOMAIN -v "$PWD/caddy:/etc/caddy:ro" caddy:2.11.7 caddy validate --config /etc/caddy/Caddyfile --adapter caddyfile
@@ -83,12 +83,12 @@ docker image prune -f >/dev/null
 REMOTE
 
 # Umami: replace the default admin password, and create the site's website once.
-website=$(ssh_server "cd aisus/deploy && docker compose exec -T -e ADMIN_PASSWORD='$(setting UMAMI_ADMIN_PASSWORD)' -e SITE='$DOMAIN' umami node --input-type=module -" < "$here/umami-setup.mjs")
+website=$(ssh_server "cd aisus/infra && docker compose exec -T -e ADMIN_PASSWORD='$(setting UMAMI_ADMIN_PASSWORD)' -e SITE='$DOMAIN' umami node --input-type=module -" < "$here/umami-setup.mjs")
 if [[ $website != "$(setting UMAMI_WEBSITE_ID)" ]]; then
   remember UMAMI_WEBSITE_ID "$website"
   write_env
-  ssh_server "cd aisus/deploy && docker compose up -d cloud"
+  ssh_server "cd aisus/infra && docker compose up -d cloud"
 fi
 
-ssh_server "cd aisus/deploy && docker compose ps --format 'table {{.Service}}\t{{.Status}}'"
+ssh_server "cd aisus/infra && docker compose ps --format 'table {{.Service}}\t{{.Status}}'"
 echo "Deployed to https://$DOMAIN. Umami: https://stats.$DOMAIN (admin). Grafana: https://$DOMAIN/grafana/ (admin). Both passwords are in $secrets."
