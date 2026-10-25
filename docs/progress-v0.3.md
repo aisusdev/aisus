@@ -1,5 +1,19 @@
 # Progress (v0.3)
 
+## Landing craft pass proposal (2026-10-25)
+
+The owner wants the landing page and command surfaces to use the restrained paper-and-forest visual system already established for the public site. The first interactive map, product claims, routes, sign-in and download actions remain.
+
+| File or unit | Change | Estimate | Built |
+|---|---|---|---|
+| `cloud/src/components/Landing.tsx` | Replace repeated abstract illustrations with specific cited-code, review and cloud examples; use editorial sections and a command panel for the final action | +170 / -260 | +108 / -236 |
+| `cloud/src/components/CommandPanel.tsx`, `cloud/src/app/get-started/page.tsx` | Give installation commands one reusable terminal treatment | +35 / -5 | +19 / -2 |
+| `cloud/src/app/site-redesign.css` | Apply the same light page system and a forest map with a readable paper code inspector to the landing; support desktop and phone layouts | +230 / -45 | +140 / -51 |
+
+Checks: build and typecheck, the public-site browser test, and desktop and phone screenshots. The map tabs, boxes and code citations must still respond to clicks. No editor binary or new dependency is needed.
+
+Built and checked: the cloud production build passed, all 14 public-site browser tests passed, and final desktop (1440px) and phone (390px) captures of the landing and Get Started pages were reviewed. Both widths avoid horizontal page overflow. The design detector reported one advisory for the real map canvas grid; that grid is part of the interactive architecture preview.
+
 ## Public site redesign proposal (2026-10-25)
 
 The owner chose the visual system from the earlier public site for the current aisus cloud site. This supersedes the dark-only visual direction recorded for CLD-08. The current routes, product architecture, first interactive map, sign-in, download and privacy behavior remain.

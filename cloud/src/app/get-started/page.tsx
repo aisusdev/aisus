@@ -1,5 +1,6 @@
 // A release-accurate path from installation to the first code-linked map.
 import { releasesRepo } from "../../lib/install";
+import { CommandPanel } from "../../components/CommandPanel";
 
 const sections = [
   { href: "#install", label: "Install aisus" },
@@ -32,14 +33,19 @@ export default function GetStartedPage() {
             <p className="guide-note">The sidebar setup checklist names anything still needed for your chosen agent. Viewing an existing map does not need an agent.</p>
             <h3>Use the skills without the extension</h3>
             <p>In a repository, install the aisus skills for Claude Code or Codex. Node.js 18 or newer and a signed-in agent are needed to generate a map.</p>
-            <pre><code>{`npx skills add ${repo}`}</code></pre>
+            <CommandPanel title="Install skills">{`npx skills add ${repo}`}</CommandPanel>
             <p>The generated map can open as a standalone HTML page, including when you work in a JetBrains IDE.</p>
           </section>
           <section id="generate">
             <h2>Generate a map</h2>
             <p>In the aisus sidebar, choose <strong>Generate</strong>. Give it an optional focus such as “checkout flow,” then choose Claude Code, Codex or Devin. The agent writes a map and checks its citations.</p>
             <p>With the skills alone, run one of these commands in the repository:</p>
-            <pre><code>{`# Claude Code\n/aisus-architecture checkout flow\n\n# Codex\n$aisus-architecture checkout flow`}</code></pre>
+            <CommandPanel title="Generate a map">
+              <span className="terminal-comment"># Claude Code</span>{"\n"}
+              /aisus-architecture checkout flow{"\n\n"}
+              <span className="terminal-comment"># Codex</span>{"\n"}
+              $aisus-architecture checkout flow
+            </CommandPanel>
             <p>The focus can be left out. The agent uses its own tokens or subscription allowance to generate the map.</p>
           </section>
           <section id="inspect">
