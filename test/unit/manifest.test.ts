@@ -45,7 +45,7 @@ test("UI-01 every command is reachable from a menu, a title bar or the sidebar",
 });
 
 test("UI-01 each sidebar action is a button the sidebar renders", () => {
-  const sidebar = readFileSync(join(repoRoot, "webview/home.ts"), "utf8");
+  const sidebar = readFileSync(join(repoRoot, "packages/viewer/home.ts"), "utf8");
   for (const type of Object.keys(SIDEBAR_ACTIONS)) expect(sidebar).toContain(`type: "${type}"`);
 });
 

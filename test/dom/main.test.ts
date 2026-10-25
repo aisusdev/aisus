@@ -5,14 +5,14 @@ import { beforeEach, describe, expect, test, vi } from "vitest";
 import { layoutDiagram } from "@aisus/core/layout/layout";
 import type { Scene } from "@aisus/core/layout/scene";
 import type { HostMessage, WebviewMessage } from "@aisus/core/model/messages";
-import { fitView } from "../../webview/viewport";
+import { fitView } from "@aisus/viewer/viewport";
 import { uncertainty } from "@aisus/core/model/uncertainty";
 import { diffMaps } from "@aisus/core/model/diff";
 import { gridScene } from "./support/scene";
 
 vi.mock("@aisus/core/layout/layout", () => ({ layoutDiagram: vi.fn() }));
 
-// webview/main.ts runs on import: the VS Code API, panel size and canvas must be stubbed first.
+// packages/viewer/main.ts runs on import: the VS Code API, panel size and canvas must be stubbed first.
 const { posted, fonts } = vi.hoisted(() => {
   const posted: WebviewMessage[] = [];
   const fonts: string[] = [];
@@ -29,7 +29,7 @@ const { posted, fonts } = vi.hoisted(() => {
   return { posted, fonts };
 });
 
-import "../../webview/main";
+import "@aisus/viewer/main";
 
 const startup = [...posted];
 

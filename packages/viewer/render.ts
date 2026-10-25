@@ -1,5 +1,5 @@
 // Draws a laid-out Scene as SVG (FR-VIEW-05). Colours, stroke widths and dash patterns come from
-// webview/styles.css (VS Code theme variables); this module sets geometry, classes and data
+// styles.css (VS Code theme variables); this module sets geometry, classes and data
 // attributes only. Text sizes are the ones the layout measured node boxes with.
 import { LABEL_PX, SUBLABEL_PX, TAG_PX } from "@aisus/core/layout/measure";
 import type { MeasureText, Point, Scene, SceneEdge } from "@aisus/core/layout/scene";

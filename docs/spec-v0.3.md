@@ -315,7 +315,7 @@ The run card shows progress from it in terminal mode. Supersedes `spec.md` §3's
 
 ### D3 The living map
 
-**VWR-01 Host bridge.** The viewer reaches its host only through `webview/bridge.ts` (`post(message)`, `onMessage(handler)`). Layout stays in `packages/core/layout/`. Colours come from `--aisus-*` CSS tokens: `hosts/vscode.ts` maps them from `--vscode-*`, and `hosts/standalone.ts` (diagram page and cloud) from a light and dark palette. Today's VS Code bindings are `webview/main.ts` (lines 13, 26 and 89) and `webview/styles.css`. Supersedes FR-VIEW-05's direct variables and ADR 0024. AC: every fixture renders the same DOM under each host, ignoring style values; existing tests pass. `[dom]`
+**VWR-01 Host bridge.** The viewer reaches its host only through `packages/viewer/bridge.ts` (`post(message)`, `onMessage(handler)`). Layout stays in `packages/core/layout/`. Colours come from `--aisus-*` CSS tokens: `hosts/vscode.ts` maps them from `--vscode-*`, and `hosts/standalone.ts` (diagram page and cloud) from a light and dark palette. Today's VS Code bindings are `packages/viewer/main.ts` (lines 13, 26 and 89) and `packages/viewer/styles.css`. Supersedes FR-VIEW-05's direct variables and ADR 0024. AC: every fixture renders the same DOM under each host, ignoring style values; existing tests pass. `[dom]`
 
 **FRS-01 Fingerprints.** On acceptance, `validate.mjs` writes `fingerprints.json`: `{schema: 1, revision, createdAt, citations: [{component, index, path, line?, end_line?, blob, range?}]}`.
 - `blob` is the git blob id of the file content.

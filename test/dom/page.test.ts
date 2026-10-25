@@ -5,7 +5,7 @@ import type { PageData } from "@aisus/core/model/page";
 import { escapeJson, renderPage } from "@aisus/core/model/page";
 
 // VWR-02: pages lay out in Web Workers, which happy-dom lacks; here ELK runs in the thread instead.
-vi.mock("../../webview/layoutWorkers", async () => {
+vi.mock("@aisus/viewer/layoutWorkers", async () => {
   const { runInThread } = await import("@aisus/core/layout/elkInThread");
   return { workerRunner: () => runInThread };
 });
@@ -48,7 +48,7 @@ describe("RCH-01 diagram page", () => {
     store.id = "aisus-data";
     store.textContent = escapeJson(JSON.stringify(DATA));
     document.body.append(store);
-    await import("../../webview/page");
+    await import("@aisus/viewer/page");
 
     await vi.waitFor(() => expect(document.querySelectorAll(".node").length).toBe(2), { timeout: 5000 });
     expect(fetchSpy).not.toHaveBeenCalled();

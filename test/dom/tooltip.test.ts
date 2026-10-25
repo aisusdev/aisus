@@ -2,8 +2,8 @@
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import type { WebviewMessage } from "@aisus/core/model/messages";
 import type { ViewDiagram } from "@aisus/core/model/tolerant";
-import { renderScene } from "../../webview/render";
-import { HIDE_DELAY_MS, SHOW_DELAY_MS, TooltipController, formatSource } from "../../webview/tooltip";
+import { renderScene } from "@aisus/viewer/render";
+import { HIDE_DELAY_MS, SHOW_DELAY_MS, TooltipController, formatSource } from "@aisus/viewer/tooltip";
 import { fixedMeasure, gridScene } from "./support/scene";
 
 const SVG_NS = "http://www.w3.org/2000/svg";

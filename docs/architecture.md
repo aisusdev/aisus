@@ -16,7 +16,7 @@ flowchart LR
   subgraph ext["Extension host: src/extension/"]
     host["install, generate, open, panel,<br/>navigate, watcher"]
   end
-  web["Webview: webview/<br/>render, viewport, tooltip"]
+  web["Webview: packages/viewer/<br/>render, viewport, tooltip"]
   model["packages/core/model/"]
   layout["packages/core/layout/<br/>ViewDiagram → Scene (elkjs)"]
   disk[(".archify/&lt;run&gt;/<br/>draft.json → candidate.json")]
@@ -196,7 +196,7 @@ The GitHub Action ([ADR 0053](adr/0053-the-check-runs-as-a-javascript-action.md)
 
 ### `packages/core/layout/`
 
-Browser-safe; runs in the webview, whose ELK runs in two Web Workers from a Blob URL ([ADR 0064](adr/0064-layout-runs-in-web-workers-from-blob-urls.md)). Entry `layout.ts › layoutDiagram(diagram, {measure, viewport, run}) → Promise<Scene>` (types in `scene.ts`), where `run(input, direction)` is `workerRunner()` from `webview/layoutWorkers.ts` on a page and `runInThread` from `elkInThread.ts` in Node.
+Browser-safe; runs in the webview, whose ELK runs in two Web Workers from a Blob URL ([ADR 0064](adr/0064-layout-runs-in-web-workers-from-blob-urls.md)). Entry `layout.ts › layoutDiagram(diagram, {measure, viewport, run}) → Promise<Scene>` (types in `scene.ts`), where `run(input, direction)` is `workerRunner()` from `packages/viewer/layoutWorkers.ts` on a page and `runInThread` from `elkInThread.ts` in Node.
 
 | File | Responsibility |
 |---|---|
@@ -209,7 +209,7 @@ Browser-safe; runs in the webview, whose ELK runs in two Web Workers from a Blob
 | `elkInThread.ts` | `runInThread`: bundled ELK in the calling thread, for Node (VWR-02). |
 | `layout.ts` | Mode choice, both ELK directions at once, choice by fit scale (ties RIGHT), translation to a 40 px origin, `bounds` with a 40 px margin. |
 
-### `webview/`
+### `packages/viewer/`
 
 Bundled into `dist/webview.js` (IIFE, browser, minified, elkjs included) and `dist/webview.css`.
 
@@ -237,7 +237,7 @@ Enforced by `test/unit/boundaries.test.ts` (NFR-QUAL-03):
 
 * `packages/core/model/` imports no `vscode` and nothing outside `packages/core/model/` (plus `ajv` in `schema.ts`). Only the modules listed as Node modules in `test/unit/boundaries.test.ts` may import `node:fs`, `node:path`, `node:child_process` or `node:crypto`; the browser-safe ones listed there import no Node built-in, because the webviews and the diagram page bundle them.
 * `packages/core/layout/` is browser-safe and may import only `packages/core/model/` and elkjs.
-* `packages/core/agent/`, `src/cli/`, `src/extension/`, `webview/` and `action/src/` sit on top of `model` and `layout`. No module in `src/` or `webview/` makes network requests; in `action/src/` only `github.ts` does, and only `refresh.ts` starts a program, for the opt-in map update (`test/unit/noNetwork.test.ts`, NFR-SEC-02, PRC-04, [ADR 0058](adr/0058-the-action-updates-the-map-only-when-asked.md)).
+* `packages/core/agent/`, `src/cli/`, `src/extension/`, `packages/viewer/` and `action/src/` sit on top of `model` and `layout`. No module in `src/` or `packages/viewer/` makes network requests; in `action/src/` only `github.ts` does, and only `refresh.ts` starts a program, for the opt-in map update (`test/unit/noNetwork.test.ts`, NFR-SEC-02, PRC-04, [ADR 0058](adr/0058-the-action-updates-the-map-only-when-asked.md)).
 
 ## Flows
 

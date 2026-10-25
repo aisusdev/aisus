@@ -1,4 +1,4 @@
-// IDE-01: the messages between the plugin and the map viewer (webview/hosts/jcef.ts). The viewer posts
+// IDE-01: the messages between the plugin and the map viewer (packages/viewer/hosts/jcef.ts). The viewer posts
 // its messages as JSON through window.aisusPost, and the plugin answers by calling window.aisusReceive
 // with a JSON object. Every message the plugin sends is built here and serialised by Gson, which escapes
 // <, >, & and quotes, so a map's text cannot end the page's script.

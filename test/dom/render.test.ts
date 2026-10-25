@@ -7,7 +7,7 @@ import { parseDiagram } from "@aisus/core/model/tolerant";
 import type { ViewDiagram } from "@aisus/core/model/tolerant";
 import type { BoundaryKind, ComponentType, Variant } from "@aisus/core/model/types";
 import { archifyFixtures } from "../unit/support/fixtures";
-import { renderScene } from "../../webview/render";
+import { renderScene } from "@aisus/viewer/render";
 import { contentGroup, fixedMeasure, gridScene } from "./support/scene";
 
 const TYPES: ComponentType[] = ["frontend", "backend", "database", "cloud", "security", "messagebus", "external"];

@@ -2,8 +2,8 @@
 // `aisusPost`, delivers the plugin's messages from `aisusReceive`, and takes the IDE's palette.
 import { describe, expect, test } from "vitest";
 import type { HostMessage, WebviewMessage } from "@aisus/core/model/messages";
-import { jcefHost, type JcefWindow } from "../../webview/hosts/jcef";
-import { DARK, LIGHT } from "../../webview/hosts/standalone";
+import { jcefHost, type JcefWindow } from "@aisus/viewer/hosts/jcef";
+import { DARK, LIGHT } from "@aisus/viewer/hosts/standalone";
 
 describe("IDE-01 JCEF host", () => {
   test("the viewer's messages reach aisusPost as JSON, and aisusReceive's messages reach the viewer", () => {

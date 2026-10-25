@@ -99,7 +99,7 @@ describe("NFR-QUAL-03 module boundaries", () => {
     ["packages/core/model/checks.ts", 'const m = await import("node:os");'],
     ["packages/core/model/git.ts", 'import type { ExtensionContext } from "vscode";'],
     ["packages/core/model/schema.ts", 'import { panel } from "../extension/panel";'],
-    ["packages/core/layout/elk.ts", 'import { render } from "../../webview/render";'],
+    ["packages/core/layout/elk.ts", 'import { render } from "../../viewer/render";'],
     ["packages/core/layout/elk.ts", 'import { render } from "@aisus/viewer/render";'],
   ])("%s rejects %s", (file, source) => {
     expect(boundaryViolations(file, source)).toHaveLength(1);

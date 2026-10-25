@@ -5,10 +5,10 @@ import { join } from "node:path";
 import { describe, expect, test, vi } from "vitest";
 import { layoutDiagram } from "@aisus/core/layout/layout";
 import type { HostMessage, WebviewMessage } from "@aisus/core/model/messages";
-import { useHost } from "../../webview/bridge";
-import { DARK, LIGHT, standaloneHost } from "../../webview/hosts/standalone";
-import { VSCODE_TOKENS, vscodeHost } from "../../webview/hosts/vscode";
-import { startViewer } from "../../webview/viewer";
+import { useHost } from "@aisus/viewer/bridge";
+import { DARK, LIGHT, standaloneHost } from "@aisus/viewer/hosts/standalone";
+import { VSCODE_TOKENS, vscodeHost } from "@aisus/viewer/hosts/vscode";
+import { startViewer } from "@aisus/viewer/viewer";
 import { repoRoot } from "../unit/support/sourceScan";
 import { archifyFixtures } from "../unit/support/fixtures";
 import { gridScene } from "./support/scene";
@@ -53,7 +53,7 @@ describe("VWR-01 hosts", () => {
   });
 
   test("each host defines every token the stylesheet uses", () => {
-    const css = readFileSync(join(repoRoot, "webview/styles.css"), "utf8");
+    const css = readFileSync(join(repoRoot, "packages/viewer/styles.css"), "utf8");
     const used = [...new Set([...css.matchAll(/var\((--aisus-[\w-]+)/g)].map((match) => match[1]!))].sort();
     expect(css).not.toContain("--vscode-");
     const vscode = [...Object.keys(VSCODE_TOKENS), "--aisus-font-family"];

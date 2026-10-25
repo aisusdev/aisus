@@ -7,7 +7,7 @@ import { layoutWorkerDefine } from "../../../esbuild.mjs";
 import { runInThread } from "@aisus/core/layout/elkInThread";
 import { layoutDiagram } from "@aisus/core/layout/layout";
 import { readDiagram, type ViewDiagram } from "@aisus/core/model/tolerant";
-import { workerRunner } from "../../../webview/layoutWorkers";
+import { workerRunner } from "@aisus/viewer/layoutWorkers";
 import { archifyFixtures } from "../support/fixtures";
 import { fixedAdvance, VIEWPORT } from "./helpers";
 

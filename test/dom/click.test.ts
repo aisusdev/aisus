@@ -2,8 +2,8 @@
 import { beforeEach, describe, expect, test } from "vitest";
 import type { WebviewMessage } from "@aisus/core/model/messages";
 import type { ViewDiagram } from "@aisus/core/model/tolerant";
-import { NodeClicks } from "../../webview/click";
-import { renderScene } from "../../webview/render";
+import { NodeClicks } from "@aisus/viewer/click";
+import { renderScene } from "@aisus/viewer/render";
 import { fixedMeasure, gridScene } from "./support/scene";
 
 const SVG_NS = "http://www.w3.org/2000/svg";

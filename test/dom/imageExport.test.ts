@@ -2,8 +2,8 @@
 // a canvas for a PNG at twice its size.
 import { afterEach, describe, expect, test, vi } from "vitest";
 import type { ViewDiagram } from "@aisus/core/model/tolerant";
-import { mapPng, mapSvg } from "../../webview/imageExport";
-import { renderScene } from "../../webview/render";
+import { mapPng, mapSvg } from "@aisus/viewer/imageExport";
+import { renderScene } from "@aisus/viewer/render";
 import { contentGroup, fixedMeasure, gridScene } from "./support/scene";
 
 const DIAGRAM: ViewDiagram = {

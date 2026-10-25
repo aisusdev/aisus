@@ -60,7 +60,7 @@ let pageBuild;
 async function buildPageOnce() {
   const result = await esbuild.build({
     ...common,
-    entryPoints: [join(root, "webview/page.ts")],
+    entryPoints: [join(root, "packages/viewer/page.ts")],
     write: false,
     platform: "browser",
     format: "iife",
@@ -72,7 +72,7 @@ async function buildPageOnce() {
   const output = result.outputFiles?.[0];
   if (output === undefined) throw new Error("buildPage: esbuild returned no output");
   const script = output.text.trimEnd();
-  const style = `${readFileSync(join(root, "webview/styles.css"), "utf8")}\n${readFileSync(join(root, "webview/page.css"), "utf8")}`;
+  const style = `${readFileSync(join(root, "packages/viewer/styles.css"), "utf8")}\n${readFileSync(join(root, "packages/viewer/page.css"), "utf8")}`;
   return { script, style, metafile: result.metafile };
 }
 
@@ -223,7 +223,7 @@ async function buildDist() {
   // carries elkjs inside its layout worker's code (VWR-02).
   results.push(await esbuild.build({
     ...common,
-    entryPoints: [join(root, "webview/main.ts")],
+    entryPoints: [join(root, "packages/viewer/main.ts")],
     outfile: join(dist, "webview.js"),
     platform: "browser",
     format: "iife",
@@ -233,7 +233,7 @@ async function buildDist() {
   }));
   results.push(await esbuild.build({
     ...common,
-    entryPoints: [join(root, "webview/session.ts")],
+    entryPoints: [join(root, "packages/viewer/session.ts")],
     outfile: join(dist, "session-webview.js"),
     platform: "browser",
     format: "iife",
@@ -242,16 +242,16 @@ async function buildDist() {
   }));
   results.push(await esbuild.build({
     ...common,
-    entryPoints: [join(root, "webview/sidebar.ts")],
+    entryPoints: [join(root, "packages/viewer/sidebar.ts")],
     outfile: join(dist, "sidebar.js"),
     platform: "browser",
     format: "iife",
     target: "es2022",
     minify: true,
   }));
-  cpSync(join(root, "webview/styles.css"), join(dist, "webview.css"));
-  cpSync(join(root, "webview/session.css"), join(dist, "session-webview.css"));
-  cpSync(join(root, "webview/sidebar.css"), join(dist, "sidebar.css"));
+  cpSync(join(root, "packages/viewer/styles.css"), join(dist, "webview.css"));
+  cpSync(join(root, "packages/viewer/session.css"), join(dist, "session-webview.css"));
+  cpSync(join(root, "packages/viewer/sidebar.css"), join(dist, "sidebar.css"));
   // Export Page in the extension builds pages from the same assets as render-html.mjs.
   const page = await buildPage();
   writeFileSync(join(dist, "page.js"), page.script);
@@ -294,7 +294,7 @@ export async function buildJcefViewer() {
   await esbuild.build({
     ...common,
     metafile: false,
-    entryPoints: [join(root, "webview/jcef.ts")],
+    entryPoints: [join(root, "packages/viewer/jcef.ts")],
     outfile: join(dir, "jcef.js"),
     platform: "browser",
     format: "iife",
@@ -302,7 +302,7 @@ export async function buildJcefViewer() {
     minify: true,
     define: await layoutWorkerDefine(),
   });
-  cpSync(join(root, "webview/styles.css"), join(dir, "jcef.css"));
+  cpSync(join(root, "packages/viewer/styles.css"), join(dir, "jcef.css"));
 }
 
 /**

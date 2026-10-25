@@ -62,14 +62,14 @@ All gates are listed under "Gates" in AGENTS.md. In practice they are:
 
 ### The VS Code extension
 
-- The code is in `src/extension/` (the host), `packages/core/model/` and `packages/core/layout/` (shared logic) and `webview/` (the sidebar and the map panel).
+- The code is in `src/extension/` (the host), `packages/core/model/` and `packages/core/layout/` (shared logic) and `packages/viewer/` (the sidebar and the map panel).
 - Tests live in `test/unit/`, `test/dom/` and `test/e2e/`. The e2e suite downloads VS Code 1.126.0 and 1.141.0 into `.vscode-test/`. Unset `ELECTRON_RUN_AS_NODE` before running it.
 - `npm run package` builds the `.vsix`. Users get it from a release.
 - Every user-facing message is listed in `docs/messages.md`. Keep that file in step with the code.
 
 ### The map viewer
 
-- `webview/` holds the one viewer that the extension, the cloud and the IntelliJ plugin share.
+- `packages/viewer/` holds the one viewer that the extension, the cloud and the IntelliJ plugin share.
 - `node esbuild.mjs --cloud` writes the cloud's copy, and the cloud's build runs it for you.
 - `node esbuild.mjs --intellij` writes the plugin's copy.
 - Run the tests of every host after you change the viewer.

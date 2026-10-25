@@ -4,7 +4,7 @@ import { parseAnswer } from "@aisus/core/model/ask";
 import { checkView, type PracticeCheck } from "@aisus/core/model/practice";
 import type { HomeState, HomeWebviewMessage, MapItem, RunCard } from "@aisus/core/model/messages";
 import type { Check } from "@aisus/core/model/preflight";
-import { createHome, phaseLine, type Home } from "../../webview/home";
+import { createHome, phaseLine, type Home } from "@aisus/viewer/home";
 
 const NOW = new Date("2026-10-18T12:00:00Z");
 const HOSTILE = '<img src=x onerror="alert(1)">';
