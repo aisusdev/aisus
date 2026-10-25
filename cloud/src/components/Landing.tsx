@@ -1,7 +1,5 @@
-// CLD-08: the signed-out landing page. Its words are the approved copy, and pricing shows the price texts of
-// billing's configuration, or that this server gives every account everything when billing is off.
+// CLD-08: the signed-out landing page keeps the interactive map and product claims.
 import type { ReactNode } from "react";
-import type { BillingConfig } from "../../plans";
 import { ProductFrame } from "./ProductFrame";
 
 const BOX = { fill: "#14181d", stroke: "rgba(255,255,255,.18)" };
@@ -215,31 +213,19 @@ function Buttons() {
   );
 }
 
-/** The pricing paragraph: the plans' prices from billing's configuration, or this server's offer when billing is off. */
-export function pricingText(billing: BillingConfig | null): string {
-  const free = "The extension, the skills, the CLI and the Action's comment are free.";
-  if (billing === null) return `${free} This server gives every account everything in aisus cloud.`;
-  const { pro, team } = billing.priceTexts;
-  return [
-    free,
-    `Pro ${pro ? `costs ${pro}` : "is"} for your own repositories.`,
-    `Team ${team ? `costs ${team}` : "is"} for an organization, with the team dashboard.`,
-    "Enterprise runs aisus cloud on your own servers.",
-  ].join(" ");
-}
-
-export function Landing({ billing }: { billing: BillingConfig | null }) {
+export function Landing() {
   return (
-    <main>
+    <main className="landing">
       <section className="hero">
-        <div className="glow" aria-hidden="true" />
-        <div className="wrap">
+        <div className="wrap hero-grid">
           <h1 className="h1">
             <span>Trade some of your agent&apos;s output</span>{" "}
             <span className="l2">for understanding.</span>
           </h1>
-          <p className="lead">Coding agents write more code than a person can follow. aisus is a toolkit for sustainable development. It helps you keep up with the code you ship.</p>
-          <Buttons />
+          <div className="hero-aside">
+            <p className="lead">Coding agents write more code than a person can follow. aisus is a toolkit for sustainable development. It helps you keep up with the code you ship.</p>
+            <Buttons />
+          </div>
         </div>
       </section>
       <section className="stage" id="product">
@@ -271,9 +257,6 @@ export function Landing({ billing }: { billing: BillingConfig | null }) {
       </Section>
       <Section id="cloud" heading="Share maps with your team." visual={VISUALS["cloud"]}>
         <p>aisus cloud puts your maps and pull request reports on the web. Your code stays on your machine and your CI runner.</p>
-      </Section>
-      <Section id="pricing" heading="You pay only for aisus cloud.">
-        <p className="pricing">{pricingText(billing)}</p>
       </Section>
       <section className="wrap" id="start">
         <div className="final">

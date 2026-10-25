@@ -10,7 +10,7 @@ import { STATS_HOOK, statsWebsite } from "../../src/lib/stats";
 import { saveUpload, upsertRepository } from "../../src/lib/store";
 import { COMMIT, MAP } from "../support/fixtures";
 
-const REPO = "kerktaiheng/aisus";
+const REPO = "aisusdev/aisus";
 
 function release(tag: string, assets: string[], draft = false): Release {
   return { html_url: `https://github.com/${REPO}/releases/tag/${tag}`, draft, assets: assets.map((name) => ({ name, browser_download_url: `https://github.com/${REPO}/releases/download/${tag}/${name}` })) };
@@ -25,7 +25,7 @@ describe("install", () => {
 
   test("the releases come from AISUS_RELEASES_REPO, and a failing or unreachable GitHub falls back to the releases page", async () => {
     expect(releasesRepo({ AISUS_RELEASES_REPO: REPO })).toBe(REPO);
-    expect(releasesRepo({ AISUS_RELEASES_REPO: "not a repository" })).toBe("kerktaiheng/aisus");
+    expect(releasesRepo({ AISUS_RELEASES_REPO: "not a repository" })).toBe("aisusdev/aisus");
     const asked: string[] = [];
     const found = await installUrl({ AISUS_RELEASES_REPO: REPO, GITHUB_API_URL: "http://github.test" }, async (url) => {
       asked.push(String(url));

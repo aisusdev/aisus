@@ -1,28 +1,21 @@
-// The root layout: the site header and footer, and no third-party scripts, fonts or analytics (CLD-08). With
-// UMAMI_WEBSITE_ID set, the site's own Umami counts visits through the site's own /stats/ path.
+// The public and signed-in pages share one header and footer. The product map keeps its own viewer theme.
 import type { ReactNode } from "react";
 import { currentUser } from "../auth";
+import { GALLERY_ENABLED } from "../lib/siteFeatures";
 import { STATS_HOOK, STATS_PATH, statsWebsite } from "../lib/stats";
 import "./globals.css";
+import "./site-redesign.css";
 
-export const metadata = { title: "aisus cloud", description: "aisus is a toolkit for sustainable development. Its main tool is a map whose boxes open the code they cite." };
-
-function Mark() {
-  return (
-    <svg className="mark" viewBox="0 0 28 28" aria-hidden="true">
-      <rect x="2.5" y="5.5" width="15" height="17" rx="4.5" fill="none" stroke="#f2f4f1" strokeWidth="2.2" />
-      <path d="M6.8 11h6.4M6.8 15.5h3.8" stroke="#f2f4f1" strokeWidth="2.2" strokeLinecap="round" />
-      <path d="M17.5 14h3.3" stroke="#c5f24a" strokeWidth="2.2" />
-      <circle cx="23.2" cy="14" r="3" fill="#c5f24a" />
-    </svg>
-  );
-}
+export const metadata = {
+  title: "aisus cloud",
+  description: "aisus maps a repository into an architecture diagram whose boxes open the code they cite.",
+};
 
 const LINKS = [
-  { href: "/docs", label: "Docs" },
-  { href: "/gallery", label: "Gallery" },
-  { href: "/#pricing", label: "Pricing" },
-  { href: "/privacy", label: "Privacy" },
+  { href: "/#map", label: "Features" },
+  { href: "/get-started", label: "Get Started" },
+  { href: "/pricing", label: "Pricing" },
+  ...(GALLERY_ENABLED ? [{ href: "/gallery", label: "Gallery" }] : []),
 ];
 
 export default async function RootLayout({ children }: { children: ReactNode }) {
@@ -39,53 +32,39 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
   return (
     <html lang="en">
       <body>
+        <a className="skip-link" href="#page-content">Skip to content</a>
         <header className="site-header">
-          <div className="wrap">
-            <a className="brand" href="/" aria-label="aisus cloud home">
-              <Mark />
-              aisus <small>cloud</small>
+          <div className="wrap header-inner">
+            <a className="brand brand-wordmark" href="/" aria-label="aisus home">
+              <img src="/aisus-wordmark.png" alt="aisus" width="160" height="55" />
             </a>
             <nav className="nav" aria-label="Main">
-              {LINKS.map((link) => (
-                <a key={link.href} href={link.href}>
-                  {link.label}
-                </a>
-              ))}
+              {LINKS.map((link) => <a key={link.href} href={link.href}>{link.label}</a>)}
             </nav>
             <div className="top-r">
               <span className="account">{account}</span>
-              <a className="btn btn-primary btn-sm" href="/install" data-umami-event="install">
-                <svg className="i" viewBox="0 0 24 24" aria-hidden="true">
-                  <path d="M12 4v11m0 0-4.5-4.5M12 15l4.5-4.5M5 19.5h14" />
-                </svg>
-                Download
-              </a>
+              <a className="btn btn-primary btn-sm" href="/install" data-umami-event="install">Download</a>
               <details className="menu">
-                <summary aria-label="Menu">
-                  <svg className="i" viewBox="0 0 24 24" aria-hidden="true">
-                    <path d="M4 7h16M4 12h16M4 17h16" />
-                  </svg>
-                </summary>
+                <summary aria-label="Menu"><svg className="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" /></svg></summary>
                 <nav aria-label="Menu">
-                  {LINKS.map((link) => (
-                    <a key={link.href} href={link.href}>
-                      {link.label}
-                    </a>
-                  ))}
+                  {LINKS.map((link) => <a key={link.href} href={link.href}>{link.label}</a>)}
+                  <a href="/privacy">Privacy</a>
                   {account}
                 </nav>
               </details>
             </div>
           </div>
         </header>
-        {children}
+        <div id="page-content">{children}</div>
         <footer className="site-footer">
-          <div className="wrap">
-            {LINKS.map((link) => (
-              <a key={link.href} href={link.href}>
-                {link.label}
-              </a>
-            ))}
+          <div className="wrap footer-grid">
+            <div className="footer-about">
+              <a className="brand brand-wordmark" href="/" aria-label="aisus home"><img src="/aisus-wordmark.png" alt="aisus" width="160" height="55" /></a>
+              <p>A map of the code you can check for yourself.</p>
+            </div>
+            <div className="footer-links"><strong>Explore</strong><a href="/#map">Features</a><a href="/get-started">Get Started</a><a href="/pricing">Pricing</a>{GALLERY_ENABLED && <a href="/gallery">Gallery</a>}</div>
+            <div className="footer-links"><strong>Project</strong><a href="https://github.com/aisusdev/aisus">GitHub ↗</a><a href="/privacy">Privacy</a></div>
+            <div className="footer-last"><span>Built for developers who read the code they ship.</span><small>Third-party product names and marks belong to their respective owners.</small></div>
           </div>
         </footer>
         {website && (

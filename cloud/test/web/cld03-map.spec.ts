@@ -37,7 +37,7 @@ test("CLD-03 an owner makes a public repository's maps public, and then anyone c
   await visitor.goto("/acme/open-map");
   await expect(visitor.locator("#aisus-viewer .node").first()).toBeVisible();
   await visitor.goto("/gallery");
-  await expect(visitor.locator(".gallery")).toContainText("acme/open-map");
+  await expect(visitor.locator("h1")).toHaveText("404");
   await visitor.goto("/acme/shop");
   await expect(visitor).toHaveURL(/\/signin/);
 });

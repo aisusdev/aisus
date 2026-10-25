@@ -7,7 +7,7 @@ export interface Release {
   assets: { name: string; browser_download_url: string }[];
 }
 
-const DEFAULT_REPO = "kerktaiheng/aisus";
+const DEFAULT_REPO = "aisusdev/aisus";
 /** How long one answer from GitHub is reused. */
 const CACHE_MS = 5 * 60_000;
 

@@ -1,0 +1,14 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "overused-font",
+        "value": "space grotesk",
+        "createdAt": "2026-10-25T04:13:29.106Z",
+        "reason": "User confirmed the supplied visual reference's font style; its design rules specify Space Grotesk Semibold for public headlines."
+      }
+    ]
+  }
+}

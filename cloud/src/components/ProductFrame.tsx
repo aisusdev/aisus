@@ -357,6 +357,7 @@ export function ProductFrame() {
             </span>
           </div>
         </div>
+        <div className="pf-scroll-hint">Swipe the map to explore more boxes.</div>
         <div className="pf-panel">
           <div className="pf-p-head">
             <div className="pf-seg">

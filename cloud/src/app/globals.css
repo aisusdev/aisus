@@ -1,4 +1,4 @@
-/* aisus cloud's styles: one dark design for every page. System fonts only, because the site loads nothing from other hosts (CLD-08).
+/* Base page and product-picture styles. site-redesign.css supplies the public light visual system.
    Text is never set smaller than body text, except inside the product picture and in code. */
 :root {
   --bg: #08090b;
@@ -570,10 +570,7 @@ code {
 
 .h1 .l2,
 .h2 .lime {
-  background: linear-gradient(90deg, #dcff86 0%, var(--accent) 34%, var(--accent) 72%, #7fe9b6 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
+  color: #477646;
 }
 
 .lead {

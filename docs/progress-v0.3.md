@@ -1,5 +1,30 @@
 # Progress (v0.3)
 
+## Public site redesign proposal (2026-10-25)
+
+The owner chose the visual system from the earlier public site for the current aisus cloud site. This supersedes the dark-only visual direction recorded for CLD-08. The current routes, product architecture, first interactive map, sign-in, download and privacy behavior remain.
+
+| File or unit | Change | Estimate | Built |
+|---|---|---|---|
+| `cloud/src/app/globals.css`, `cloud/src/app/site-redesign.css`, `cloud/public/`, `cloud/src/app/icon.png` | Apply the pale green, forest and lime design, local display font, wordmark and PNG favicon; retain the product preview's internal diagram states | +290 / -35 | +418 / -5, four assets |
+| `cloud/src/app/layout.tsx`, `cloud/src/app/page.tsx`, `cloud/src/components/Landing.tsx` | Rebuild shared header/footer and landing spacing, keep the first interactive map, update navigation and signed-in links | +90 / -65 | +43 / -83 |
+| `cloud/src/components/ProductFrame.tsx` | Keep the first map readable and horizontally explorable on phones | +2 | +1 |
+| `cloud/src/app/get-started/page.tsx` | Add release-accurate installation and first-map guide | +130 | +63 |
+| `cloud/src/app/pricing/page.tsx` | Move the current plan offer into a separate page using configured prices and supported actions | +110 | +54 |
+| `cloud/src/lib/siteFeatures.ts`, `cloud/src/app/gallery/page.tsx` | Keep Gallery code behind one disabled switch that gates links and direct visits | +15 | +5 |
+| `cloud/src/lib/install.ts`, `cloud/test/unit/site.test.ts` | Point the default release source at the current repository | — | +3 / -3 |
+| `cloud/test/web/cld08-site.spec.ts`, `cloud/test/web/cld03-map.spec.ts` | Check public navigation, guide, pricing, favicon, Gallery gate and mobile map interaction; retain public-map coverage by its direct route | +35 / -20 | +24 / -6 |
+| `.impeccable/config.json` | Record the owner's confirmed display-font exception for the design detector | — | +14 |
+| `cloud/src/app/site-redesign.css`, `cloud/src/app/get-started/page.tsx` (guide refinement) | Keep narrow outer gutters; match the guide's column layout, smaller title, side navigation and section spacing to the approved design | +35 / -15 | +44 / -24, +2 JSX |
+
+Tests: browser checks for the landing, guide, privacy, pricing texts, first interactive map, navigation and Gallery's disabled route. Run cloud typecheck, unit tests, build and web tests, followed by the repository gates where the installed toolchain permits them.
+
+Built: The first interactive map remains in `ProductFrame.tsx`; its phone layout allows horizontal exploration at a readable scale. The pricing page reads billing's configured price texts and keeps the current account-plan action; when a configured price text is absent, it points to checkout for the price. The gallery switch gates header, footer, signed-in home and direct visits. The icon is a square PNG using the owner's green-outline sample on the pale site background. The visual check at 1440 and 390 pixels found no document overflow across the landing, guide, pricing and privacy pages. A mobile headline wrap was adjusted after the first capture.
+
+Guide refinement: The header and Get Started guide use 24-pixel side gutters on desktop and 16-pixel gutters on phones, including wide desktop screens. The guide has a 42-pixel maximum title, a 760-pixel reading column, an Introduction link in the left navigation, and the approved side navigation and section spacing. Its intro starts at the same desktop coordinates as the reference at 1920 and 1440 pixels. The cloud build and three CLD-08 browser tests passed. Previews at 1920, 1440 and 390 pixels had no document overflow.
+
+Checks: cloud typecheck, 55 unit tests, build and all 14 browser tests passed using installed Chrome. The mobile map browser check failed against the initial small map, then passed after the responsive fix. The Gallery browser check failed as expected with its switch deliberately enabled, then passed after restoring `false`. `npm run check` passed with 1,246 tests and one skip, 67 ADRs and 237 relative links checked, and the build and notices check. Node 24.14.1 was used because the pinned Node 26 is not installed. The editor e2e gate was not run because it would download VS Code, an install requiring separate owner approval. The design detector's gradient-text finding was fixed; its Space Grotesk warning is scoped to the owner's chosen display font.
+
 Tracks [spec-v0.3.md](spec-v0.3.md). Milestone statuses: Not started, In progress, Closed pending owner (spec §6), Closed. Tick a feature only when its AC passed, and write the evidence next to it: test names, commands and results. `[smoke]` items, and `[ci]` items until CI runs, wait for the owner under **Waiting**.
 
 ## Status

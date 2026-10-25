@@ -1,12 +1,12 @@
-// CLD-08: signed out, `/` is the landing page. Signed in, it keeps the install steps and links to the docs and the gallery.
-import { billingConfig } from "../../plans";
+// CLD-08: signed out, `/` is the landing page. Signed in, it keeps the install steps and useful links.
 import { currentUser } from "../auth";
 import { Landing } from "../components/Landing";
 import { releasesRepo } from "../lib/install";
+import { GALLERY_ENABLED } from "../lib/siteFeatures";
 
 export default async function Home() {
   const user = await currentUser();
-  if (!user) return <Landing billing={billingConfig()} />;
+  if (!user) return <Landing />;
   return (
     <main className="page">
       <h1>Architecture maps that keep up with your code</h1>
@@ -30,12 +30,10 @@ export default async function Home() {
         <a className="button" href="/settings">
           Settings
         </a>
-        <a className="button" href="/docs">
-          Read the docs
+        <a className="button" href="/get-started">
+          Get Started
         </a>
-        <a className="button" href="/gallery">
-          See public maps
-        </a>
+        {GALLERY_ENABLED && <a className="button" href="/gallery">See public maps</a>}
       </p>
     </main>
   );
