@@ -3,4 +3,4 @@
 # Generated files, left out of GitHub's language statistics and aisus's repository size (CST-01).
 skills/*/scripts/*.mjs linguist-generated=true
 skills/aisus-refresh/references/** linguist-generated=true
-action/dist/** linguist-generated=true
+apps/action/dist/** linguist-generated=true

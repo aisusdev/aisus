@@ -54,7 +54,7 @@ The sidebar's setup checklist names anything missing and offers a fix for each.
          - uses: actions/checkout@v5
            with:
              fetch-depth: 0
-         - uses: kerktaiheng/aisus/action@main
+         - uses: kerktaiheng/aisus/apps/action@main
    ```
 
 3. Open a pull request. aisus comments with the boxes it touches, the boxes it leaves stale and the code no box covers.

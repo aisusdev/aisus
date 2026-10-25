@@ -5,8 +5,8 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, expect, test } from "vitest";
 import { buildAction } from "../../esbuild.mjs";
-import type { Comment, GitHubClient } from "../../action/src/github";
-import { runAction } from "../../action/src/main";
+import type { Comment, GitHubClient } from "../../apps/action/src/github";
+import { runAction } from "../../apps/action/src/main";
 import { COMMENT_MARKER } from "@aisus/core/model/deltaMarkdown";
 import { repoRoot } from "./support/sourceScan";
 import { git, gitRepo, put, runScript } from "./support/temp";
@@ -117,7 +117,7 @@ describe("PRC-04 the Action", () => {
     const dir = mkdtempSync(join(tmpdir(), "aisus-action-"));
     try {
       await buildAction(join(dir, "index.js"));
-      expect(readFileSync(join(dir, "index.js"), "utf8")).toBe(readFileSync(join(repoRoot, "action/dist/index.js"), "utf8"));
+      expect(readFileSync(join(dir, "index.js"), "utf8")).toBe(readFileSync(join(repoRoot, "apps/action/dist/index.js"), "utf8"));
     } finally {
       rmSync(dir, { recursive: true, force: true });
     }

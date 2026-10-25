@@ -190,9 +190,9 @@ The learning-session skill ([ADRs 0029–0036](adr/0029-learning-modes-in-one-ag
 
 `aisus.ts` and `commands.ts`, bundled to `dist/cli/aisus.mjs` (ESM, Node ≥ 18) beside `dist/skills/` and `dist/skill-hashes.json`, which it finds from its own path ([ADR 0052](adr/0052-a-core-cli-shares-the-model-with-every-host.md)). Commands: `install [--scope user|project]`, `verify-skills [--agent] [--scope]`, `staleness [--map]`, `changes --scope uncommitted|branch|range [--range a..b]`, `export-page [--map] [--share]`, `preflight`, `check --base <ref> [--head <ref>] [--map] [--fail-on stale,new-box]`, `publish [--run] [--dry-run] [--url]` (CLD-09: the map and its sidecars to aisus cloud, checked first, signed with `AISUS_TOKEN`). Every command takes `--root` and `--format json|markdown`, prints one JSON object or markdown, and exits 0 (done, passed), 1 (a failing finding) or 2 (usage or I/O error).
 
-### `action/`
+### `apps/action/`
 
-The GitHub Action ([ADR 0053](adr/0053-the-check-runs-as-a-javascript-action.md), [ADR 0058](adr/0058-the-action-updates-the-map-only-when-asked.md)): `action.yml` (inputs `fail-on`, `map`, `comment`, `upload`, `refresh`, `github-token`; output `result`), `src/refresh.ts` (PRC-05: `refreshDecision`, `refreshCommand`, `runRefresh` and the comment's Map update lines), `src/main.ts` (`runAction`: `runCheck` from `origin/<base_ref>` to `HEAD`, one comment marked `<!-- aisus-check -->` with the markdown and `deltaMermaid`, the job result from `fail-on`), `src/github.ts` (`GitHubClient` over the REST API, the only network use in `action/src/`), `src/index.ts` (entry). With `upload: true` and `cloud-url`, it also sends the check and its map to aisus cloud through `packages/cloud-client/client.ts`, signed by the job's OIDC token, and links the pull request page in the comment (CLD-09). `node esbuild.mjs --action` writes the committed `dist/index.js`; CI rebuilds and compares it.
+The GitHub Action ([ADR 0053](adr/0053-the-check-runs-as-a-javascript-action.md), [ADR 0058](adr/0058-the-action-updates-the-map-only-when-asked.md)): `action.yml` (inputs `fail-on`, `map`, `comment`, `upload`, `refresh`, `github-token`; output `result`), `src/refresh.ts` (PRC-05: `refreshDecision`, `refreshCommand`, `runRefresh` and the comment's Map update lines), `src/main.ts` (`runAction`: `runCheck` from `origin/<base_ref>` to `HEAD`, one comment marked `<!-- aisus-check -->` with the markdown and `deltaMermaid`, the job result from `fail-on`), `src/github.ts` (`GitHubClient` over the REST API, the only network use in `apps/action/src/`), `src/index.ts` (entry). With `upload: true` and `cloud-url`, it also sends the check and its map to aisus cloud through `packages/cloud-client/client.ts`, signed by the job's OIDC token, and links the pull request page in the comment (CLD-09). `node esbuild.mjs --action` writes the committed `dist/index.js`; CI rebuilds and compares it.
 
 ### `packages/core/layout/`
 
@@ -237,7 +237,7 @@ Enforced by `test/unit/boundaries.test.ts` (NFR-QUAL-03):
 
 * `packages/core/model/` imports no `vscode` and nothing outside `packages/core/model/` (plus `ajv` in `schema.ts`). Only the modules listed as Node modules in `test/unit/boundaries.test.ts` may import `node:fs`, `node:path`, `node:child_process` or `node:crypto`; the browser-safe ones listed there import no Node built-in, because the webviews and the diagram page bundle them.
 * `packages/core/layout/` is browser-safe and may import only `packages/core/model/` and elkjs.
-* `packages/core/agent/`, `packages/cli/`, `src/extension/`, `packages/viewer/` and `action/src/` sit on top of `model` and `layout`. No module in `src/` or `packages/viewer/` makes network requests; in `action/src/` only `github.ts` does, and only `refresh.ts` starts a program, for the opt-in map update (`test/unit/noNetwork.test.ts`, NFR-SEC-02, PRC-04, [ADR 0058](adr/0058-the-action-updates-the-map-only-when-asked.md)).
+* `packages/core/agent/`, `packages/cli/`, `src/extension/`, `packages/viewer/` and `apps/action/src/` sit on top of `model` and `layout`. No module in `src/` or `packages/viewer/` makes network requests; in `apps/action/src/` only `github.ts` does, and only `refresh.ts` starts a program, for the opt-in map update (`test/unit/noNetwork.test.ts`, NFR-SEC-02, PRC-04, [ADR 0058](adr/0058-the-action-updates-the-map-only-when-asked.md)).
 
 ## Flows
 
@@ -456,7 +456,7 @@ Export and audit (CLD-13): `GET /api/v1/account/export` downloads `{exportedAt, 
 | `dist/skills/aisus-refresh/` | `SKILL.md`, `agents/openai.yaml`, the shared `references/`, `scripts/refresh-facts.mjs`, `scripts/validate.mjs`, `scripts/render-html.mjs` (FRS-05). |
 | `dist/skill-hashes.json` | `{version, skills: {name: {path: sha256}}}`, the integrity reference (SAF-01). |
 | `dist/cli/aisus.mjs` | The core CLI (RCH-03). |
-| `action/dist/index.js` | The committed Action bundle (PRC-04). |
+| `apps/action/dist/index.js` | The committed Action bundle (PRC-04). |
 | `dist/session-webview.js`, `dist/session-webview.css` | Session-panel bundle and stylesheet; `localResourceRoots` is `dist/` for both panels. |
 | `out/bench/` | `node esbuild.mjs --bench` builds each `tools/bench/*.ts` into `<name>.mjs`: `npm run bench` runs `bench.mjs`, `npm run bench:plan` runs `plan.mjs`, and `npm run bench:fit` runs `fit.mjs`, which reads `tools/bench/results/` and writes `packages/core/model/coefficients.json` (CST-02, CST-06). Never packaged. |
 | `tools/eval/ground-truth/<id>.json` | ACC-04: one hand-written `Truth` per corpus repository, from its architecture document at the corpus's pinned commit. `npm run eval` scores a map (`--map`, `--truth`) or every accepted full bench run; `npm run eval:check-truth` checks ids, edges, groups, the revision and every glob against the bench's cached clone. |
@@ -480,7 +480,7 @@ Export and audit (CLD-13): `GET /api/v1/account/export` downloads `{exportedAt, 
 * **Agent output:** stream text, Ask answers and map labels reach the webviews and the pull request comment as text only; Ask citations are checked again by the host before a line opens.
 * **Bench (CST-06, a dev tool):** each run clones a pinned commit into a temporary folder through a cache outside the repository, removes agent configuration and the entry's `strip` globs, and gives the agent a fresh home holding only the skill, with hooks off. The agent gets only `PATH`, `HOME`, `LANG`, its home variable and the bench API key, by absolute path with no shell. A series above `--cap` is refused before anything starts.
 * **Map update in CI (PRC-05):** only with the Action's `refresh` input, on a pull request from the same repository checked out at its head, does the Action run an agent. It runs the refresh skill with the sidebar's headless argv in a fresh home holding only that skill, with only `PATH`, `HOME`, `LANG`, the agent's home variable and its key, then commits and pushes only the new run folder to the pull request's branch.
-* **Network:** in `src/` only `packages/cloud-client/client.ts` sends, for `publish` and the Action's `upload`; in `action/src/` only the GitHub client does, for the comment ([ADR 0055](adr/0055-only-the-cloud-client-sends-and-only-when-asked.md), PRC-04, CLD-09).
+* **Network:** in `src/` only `packages/cloud-client/client.ts` sends, for `publish` and the Action's `upload`; in `apps/action/src/` only the GitHub client does, for the comment ([ADR 0055](adr/0055-only-the-cloud-client-sends-and-only-when-asked.md), PRC-04, CLD-09).
 
 ## Decisions
 

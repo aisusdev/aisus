@@ -68,7 +68,7 @@ jobs:
           node-version-file: .nvmrc
       - run: npm ci
       - run: npm run action
-      - run: git diff --exit-code action/dist
+      - run: git diff --exit-code apps/action/dist
 
   aisus-check:
     if: github.event_name == 'pull_request'
@@ -80,7 +80,7 @@ jobs:
       - uses: actions/checkout@v5
         with:
           fetch-depth: 0
-      - uses: ./action
+      - uses: ./apps/action
 
   cloud:
     runs-on: ubuntu-latest

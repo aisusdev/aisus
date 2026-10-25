@@ -424,7 +424,7 @@ AC: one temporary git repository per category, the config schema, a markdown sna
 
 AC: ghost boxes `[dom]`; on a temporary repository branch, the candidates are listed, Add to map launches refresh with those paths, and Ignore writes the config `[e2e]`.
 
-**PRC-04 GitHub Action.** `action/` is a JavaScript action: `action.yml`, plus `dist/index.js` built from `action/src/`, committed, and checked for staleness in CI. It is used as `uses: <owner>/aisus/action@v0`.
+**PRC-04 GitHub Action.** `apps/action/` is a JavaScript action: `action.yml`, plus `dist/index.js` built from `apps/action/src/`, committed, and checked for staleness in CI. It is used as `uses: <owner>/aisus/apps/action@v0`.
 
 On `pull_request`, after `actions/checkout` with `fetch-depth: 0`, it:
 - runs PRC-01 with `--base origin/<base_ref> --head HEAD`;

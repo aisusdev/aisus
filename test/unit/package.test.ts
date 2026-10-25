@@ -33,7 +33,7 @@ test("RCH-05 a v* tag runs the gates and releases the files, and a hyphenated ta
   const release = readFileSync(join(repoRoot, ".github/workflows/release.yml"), "utf8");
   expect(release).toContain('tags: ["v*"]');
   const runs = [...release.matchAll(/- run: (.+)/g)].map((match) => match[1]);
-  expect(runs).toEqual(["npm ci", "npm run check", "npm run package", "npm run build:release", "npm run action", "git diff --exit-code action/dist skills"]);
+  expect(runs).toEqual(["npm ci", "npm run check", "npm run package", "npm run build:release", "npm run action", "git diff --exit-code apps/action/dist skills"]);
   expect(release).toContain("PRERELEASE: ${{ contains(github.ref_name, '-') }}");
   for (const file of ["aisus-*.vsix", "aisus-skills.zip", "aisus-action.js", "aisus.mjs", "SHA256SUMS"]) expect(release).toContain(file);
   const publishing = release.slice(release.indexOf("- name: GitHub release"));

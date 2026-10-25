@@ -2,7 +2,7 @@
 // and that a fork's pull request is never updated.
 import { join } from "node:path";
 import { expect, test } from "vitest";
-import { refreshCommand, refreshDecision } from "../../action/src/refresh";
+import { refreshCommand, refreshDecision } from "../../apps/action/src/refresh";
 
 const HEAD = "a".repeat(40);
 const event = (fields: { fork?: boolean; full?: string; sha?: string } = {}) => ({

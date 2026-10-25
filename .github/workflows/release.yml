@@ -28,13 +28,13 @@ jobs:
       - run: npm run package
       - run: npm run build:release
       - run: npm run action
-      - run: git diff --exit-code action/dist skills
+      - run: git diff --exit-code apps/action/dist skills
       - name: Assemble the release files
         run: |
           mkdir -p release/files
           cp aisus-*.vsix release/files/
           (cd release/plugin && zip -qr ../files/aisus-skills.zip skills .claude-plugin)
-          cp action/dist/index.js release/files/aisus-action.js
+          cp apps/action/dist/index.js release/files/aisus-action.js
           cp dist/cli/aisus.mjs release/files/aisus.mjs
           (cd release/files && sha256sum * > SHA256SUMS)
           echo "LICENSED=$(node -p 'require("./package.json").license ? "true" : "false"')" >> "$GITHUB_ENV"

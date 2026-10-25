@@ -85,8 +85,8 @@ All gates are listed under "Gates" in AGENTS.md. In practice they are:
 
 ### The GitHub Action
 
-- The source is in `action/src/`.
-- Run `npm run action` to rebuild `action/dist/index.js`, and commit the rebuilt file, because the Action runs from it.
+- The source is in `apps/action/src/`.
+- Run `npm run action` to rebuild `apps/action/dist/index.js`, and commit the rebuilt file, because the Action runs from it.
 
 ### aisus cloud
 

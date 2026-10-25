@@ -7453,10 +7453,10 @@ var require__ = __commonJS({
   }
 });
 
-// action/src/index.ts
+// apps/action/src/index.ts
 var import_node_fs11 = require("node:fs");
 
-// action/src/github.ts
+// apps/action/src/github.ts
 function restClient(api, repository, token) {
   const headers = { Authorization: `Bearer ${token}`, Accept: "application/vnd.github+json", "X-GitHub-Api-Version": "2022-11-28", "Content-Type": "application/json" };
   const call = async (method, path2, body) => {
@@ -7482,7 +7482,7 @@ function restClient(api, repository, token) {
   };
 }
 
-// action/src/main.ts
+// apps/action/src/main.ts
 var import_node_fs10 = require("node:fs");
 var import_node_path9 = require("node:path");
 
@@ -9661,7 +9661,7 @@ function checkPayload(input2) {
   };
 }
 
-// action/src/refresh.ts
+// apps/action/src/refresh.ts
 var import_node_child_process2 = require("node:child_process");
 var import_node_fs9 = require("node:fs");
 var import_node_os = require("node:os");
@@ -9993,7 +9993,7 @@ function diffSummary(diff) {
   ].join(" \xB7 ");
 }
 
-// action/src/refresh.ts
+// apps/action/src/refresh.ts
 var REFRESH_KEYS = { claude: "ANTHROPIC_API_KEY", codex: "OPENAI_API_KEY" };
 var REFRESH_TIMEOUT_MS = 30 * 6e4;
 function refreshDecision(input2) {
@@ -10058,7 +10058,7 @@ function refreshLines(outcome) {
   return ["", "**Map update**", "", `aisus refreshed the map in \`${outcome.run}\` and pushed it to this branch. ${outcome.summary.charAt(0).toUpperCase()}${outcome.summary.slice(1)}. It used ${outcome.tokens.toLocaleString("en-US")} tokens.`];
 }
 
-// action/src/main.ts
+// apps/action/src/main.ts
 var COMMENT_ITEMS = 30;
 function input(env, name) {
   return (env[`INPUT_${name.toUpperCase()}`] ?? "").trim();
@@ -10131,7 +10131,7 @@ async function runAction(context) {
   return { exitCode: report.result === "pass" ? 0 : 1, result: report.result, comment: body };
 }
 
-// action/src/index.ts
+// apps/action/src/index.ts
 async function main() {
   const env = process.env;
   const event = JSON.parse((0, import_node_fs11.readFileSync)(env["GITHUB_EVENT_PATH"] ?? "", "utf8"));

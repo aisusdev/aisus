@@ -9,7 +9,7 @@ out/
 .archify/
 .claude/
 .devin/
-!action/dist/
+!apps/action/dist/
 .next/
 *.tsbuildinfo
 apps/cloud/.data/

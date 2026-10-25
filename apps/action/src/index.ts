@@ -1,4 +1,4 @@
-// The Action's entry point (PRC-04), bundled to action/dist/index.js and committed.
+// The Action's entry point (PRC-04), bundled to apps/action/dist/index.js and committed.
 import { appendFileSync, readFileSync } from "node:fs";
 import { restClient } from "./github";
 import { runAction } from "./main";

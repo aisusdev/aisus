@@ -32,12 +32,12 @@ test("the e2e, package and Node 18 script jobs run their commands", () => {
 });
 
 test("PRC-04 the Action's committed bundle is rebuilt and compared, and the Action checks pull requests", () => {
-  expect(jobRuns("action-dist")).toEqual(["npm ci", "npm run action", "git diff --exit-code action/dist"]);
+  expect(jobRuns("action-dist")).toEqual(["npm ci", "npm run action", "git diff --exit-code apps/action/dist"]);
   const job = workflow.slice(workflow.indexOf("\n  aisus-check:\n"));
   expect(job).toContain("if: github.event_name == 'pull_request'");
   expect(job).toContain("pull-requests: write");
   expect(job).toContain("fetch-depth: 0");
-  expect(job).toContain("- uses: ./action");
+  expect(job).toContain("- uses: ./apps/action");
 });
 
 test("D5 the cloud job runs the cloud's unit tests, build and [web] suite", () => {

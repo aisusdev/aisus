@@ -1,7 +1,7 @@
 // Builds the shipped bundles into dist/ (see docs/spec.md §6).
 // `node esbuild.mjs`        → dist/
 // `node esbuild.mjs --e2e`  → out/e2e/ (the @vscode/test-electron suite; never shipped)
-// `node esbuild.mjs --action` → action/dist/index.js (the GitHub Action, committed; PRC-04)
+// `node esbuild.mjs --action` → apps/action/dist/index.js (the GitHub Action, committed; PRC-04)
 // `node esbuild.mjs --cloud`  → apps/cloud/public/viewer.js and viewer.css (the cloud's map viewer; CLD-03)
 // `node esbuild.mjs --intellij` → out/intellij/jcef.js and jcef.css (the IntelliJ plugin's map viewer; IDE-01)
 // `node esbuild.mjs --bench`  → out/bench/ and out/eval/ (the bench harness, its fit and the eval scorer; never shipped, CST-02, CST-06, ACC-04)
@@ -309,11 +309,11 @@ export async function buildJcefViewer() {
  * The GitHub Action's bundle (PRC-04). It is committed, so it must come out the same on every machine.
  * @param {string} [outfile]
  */
-export async function buildAction(outfile = join(root, "action/dist/index.js")) {
+export async function buildAction(outfile = join(root, "apps/action/dist/index.js")) {
   await esbuild.build({
     ...common,
     metafile: false,
-    entryPoints: [join(root, "action/src/index.ts")],
+    entryPoints: [join(root, "apps/action/src/index.ts")],
     outfile,
     platform: "node",
     format: "cjs",
