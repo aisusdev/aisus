@@ -23,3 +23,4 @@ research/change-collection/
 .scratch/
 deploy/.env
 deploy/secrets/
+.amp/portals/*

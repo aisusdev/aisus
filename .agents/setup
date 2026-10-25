@@ -1,0 +1,105 @@
+#!/usr/bin/env bash
+# Prepares a fresh orb to run every gate in AGENTS.md: npm run check, npm run test:e2e and the cloud tests.
+# It runs again on a stale snapshot, so each step skips work that is already done.
+set -euo pipefail
+
+repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+cd "$repo_root"
+state="$HOME/.cache/aisus-orb"
+mkdir -p "$state"
+
+step() {
+  local name="$1"
+  shift
+  local start=$SECONDS
+  echo "==> $name"
+  "$@"
+  echo "<== $name ($((SECONDS - start))s)"
+}
+
+# xvfb runs VS Code headless for test:e2e, and VS Code's Electron needs libsecret.
+system_packages() {
+  local missing=()
+  for pkg in xvfb libsecret-1-0; do
+    dpkg -s "$pkg" >/dev/null 2>&1 || missing+=("$pkg")
+  done
+  if [ "${#missing[@]}" -gt 0 ]; then
+    sudo apt-get update -q
+    sudo DEBIAN_FRONTEND=noninteractive apt-get install -y -q --no-install-recommends "${missing[@]}"
+  fi
+}
+
+# AGENTS.md starts node commands with `source ~/.nvm/nvm.sh && nvm use`, so nvm and the .nvmrc Node exist here too.
+nvm_version="v0.40.3"
+node_toolchain() {
+  if [ ! -s "$HOME/.nvm/nvm.sh" ]; then
+    git clone -q --depth 1 --branch "$nvm_version" https://github.com/nvm-sh/nvm.git "$HOME/.nvm"
+  fi
+  set +u
+  # shellcheck disable=SC1091
+  source "$HOME/.nvm/nvm.sh" --no-use
+  nvm use >/dev/null 2>&1 || nvm install
+  nvm use >/dev/null
+  set -u
+  echo "node $(node -v), npm $(npm -v)"
+}
+
+# npm ci removes node_modules each run, so it runs only when the lockfile or Node changed.
+npm_dependencies() {
+  local stamp="node_modules/.aisus-orb-stamp"
+  local want
+  want="$(node -v) $(sha256sum package-lock.json | cut -d' ' -f1)"
+  if [ -f "$stamp" ] && [ "$(cat "$stamp")" = "$want" ]; then
+    echo "node_modules matches package-lock.json"
+    return
+  fi
+  npm ci --no-audit --no-fund
+  echo "$want" >"$stamp"
+}
+
+# The cloud's test:web runs Playwright's Chromium. Its system libraries install once per Playwright version.
+playwright_browser() {
+  local version
+  version="$(node -p 'require("@playwright/test/package.json").version')"
+  if [ ! -f "$state/playwright-deps-$version" ]; then
+    npm exec -w cloud -- playwright install-deps chromium
+    touch "$state/playwright-deps-$version"
+  fi
+  npm exec -w cloud -- playwright install chromium
+}
+
+# test:e2e runs against the VS Code versions listed in test/e2e/runTest.ts. Downloading them now keeps the first run offline.
+vscode_builds() {
+  node -e '
+    const { readFileSync } = require("node:fs");
+    const { downloadAndUnzipVSCode } = require("@vscode/test-electron");
+    const line = /VSCODE_VERSIONS\s*=\s*\[([^\]]*)\]/.exec(readFileSync("test/e2e/runTest.ts", "utf8"));
+    const versions = line ? [...line[1].matchAll(/"([^"]+)"/g)].map((m) => m[1]) : [];
+    (async () => { for (const v of versions) console.log(await downloadAndUnzipVSCode(v)); })()
+      .catch((error) => { console.error(error); process.exit(1); });
+  '
+}
+
+agent_notes() {
+  mkdir -p "$HOME/.config/amp"
+  local notes="$HOME/.config/amp/AGENTS.md"
+  local marker="<!-- aisus orb notes -->"
+  grep -Fqx "$marker" "$notes" 2>/dev/null && return
+  cat >>"$notes" <<EOF
+
+$marker
+# aisus in an orb
+
+- The machine is Debian 12 with passwordless sudo. \`.agents/setup\` already installed nvm with the Node version from \`.nvmrc\`, the npm dependencies, Playwright's Chromium with its system libraries, xvfb, and the VS Code builds the e2e suite uses.
+- Approval for those installs is already given. Ask before installing anything else, as AGENTS.md says.
+- Run the e2e gate as \`xvfb-run -a npm run test:e2e\`, because the orb has no display.
+- Docker has no daemon here, so the cloud-image CI job cannot run in the orb.
+EOF
+}
+
+step "system packages" system_packages
+step "node toolchain" node_toolchain
+step "npm dependencies" npm_dependencies
+step "playwright chromium" playwright_browser
+step "vscode builds" vscode_builds
+step "agent notes" agent_notes
