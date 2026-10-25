@@ -1,7 +1,7 @@
 import { runTests } from "@vscode/test-electron";
-import { mkdirSync, mkdtempSync, realpathSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, mkdtempSync, realpathSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { join, resolve } from "node:path";
+import { delimiter, join, resolve } from "node:path";
 
 // The VS Code builds the [e2e] suite runs against: the engines.vscode floor and the latest stable.
 const VSCODE_VERSIONS = ["1.126.0", "1.141.0"];
@@ -31,6 +31,29 @@ const SCENARIOS: { name: string; workspace(base: string): string | undefined }[]
   },
 ];
 
+/** The agent CLIs the extension looks for. Each test puts its own stubs on PATH. */
+const AGENT_CLIS = ["claude", "codex", "devin"];
+
+/** The programs the suite needs on PATH, which may share a folder with an agent CLI. */
+const TOOLS = ["git", "node"];
+
+/**
+ * PATH for the VS Code under test: the runner's PATH without the folders that hold a real agent
+ * CLI, so a test finds only the agents it stubs. Each tool stays reachable through a link in `bin`.
+ */
+function testPath(bin: string): string {
+  const file = (dir: string, name: string): string | undefined => ["", ".exe", ".cmd"].map((ext) => name + ext).find((entry) => existsSync(join(dir, entry)));
+  const dirs = (process.env["PATH"] ?? "").split(delimiter).filter((dir) => dir !== "");
+  const kept = dirs.filter((dir) => !AGENT_CLIS.some((cli) => file(dir, cli)));
+  for (const tool of TOOLS) {
+    const dir = dirs.find((entry) => file(entry, tool));
+    if (dir === undefined || kept.some((entry) => file(entry, tool))) continue;
+    const name = file(dir, tool)!;
+    symlinkSync(join(dir, name), join(bin, name));
+  }
+  return [bin, ...kept].join(delimiter);
+}
+
 async function main(): Promise<void> {
   // Bundled to out/e2e/runTest.js, so the repo root is two levels up.
   const extensionDevelopmentPath = resolve(__dirname, "../..");
@@ -50,13 +73,14 @@ async function main(): Promise<void> {
     writeFileSync(join(userData, "User", "settings.json"), `${JSON.stringify({ "git.enabled": false })}\n`);
     // Skills install per user by default (SET-01), so each launch gets its own home folder.
     const home = mkdtempSync(join(tmpdir(), "aisus-home-"));
+    const bin = mkdtempSync(join(tmpdir(), "aisus-bin-"));
     console.log(`\n=== e2e VS Code ${version}, scenario: ${scenario.name} ===`);
     try {
       await runTests({
         version,
         extensionDevelopmentPath,
         extensionTestsPath,
-        extensionTestsEnv: { AISUS_E2E_SCENARIO: scenario.name, HOME: home, USERPROFILE: home },
+        extensionTestsEnv: { AISUS_E2E_SCENARIO: scenario.name, HOME: home, USERPROFILE: home, PATH: testPath(bin) },
         launchArgs: [
           ...(workspace ? [workspace] : []),
           `--user-data-dir=${userData}`,
@@ -67,11 +91,14 @@ async function main(): Promise<void> {
           // in memory and Chromium uses a mock keychain, so no "keychain not found" dialog opens.
           "--use-inmemory-secretstorage",
           "--use-mock-keychain",
+          // VS Code keeps the PATH given here rather than adding the login shell's.
+          "--force-disable-user-env",
         ],
       });
     } finally {
       rmSync(base, { recursive: true, force: true });
       rmSync(home, { recursive: true, force: true });
+      rmSync(bin, { recursive: true, force: true });
       rmSync(userData, { recursive: true, force: true });
     }
   }

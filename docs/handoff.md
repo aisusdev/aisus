@@ -32,7 +32,6 @@ This guide is for the agent that takes over aisus. Read AGENTS.md first, because
    - Until then, private repositories answer "not found" on aisus.dev.
 4. **Day 2.** A repository without a map shows a setup checklist. The Action uploads the main map from the default branch. See the Day 1 proposal's sibling rows in the "Plans and first run" table.
 5. **Release v0.3.1** after item 1. The owner pushes the tag. After that, the owner deletes the v0.3.0 release with `gh release delete v0.3.0 -R aisusdev/aisus --cleanup-tag --yes`.
-6. **Rerun the e2e suite on VS Code 1.141.0** for the sidebar tabs. The last run could not download that version because of a DNS failure, and 1.126.0 passed.
 
 ## What the owner wants
 
