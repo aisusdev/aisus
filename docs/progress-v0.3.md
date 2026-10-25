@@ -4,18 +4,18 @@
 
 The owner asked for sequence diagrams and chose the recommended design: aisus's own format with no coordinates, citations on messages as well as participants, a separate `aisus-sequence` skill, and a first version that covers generating, viewing, opening code and freshness (I8, SEQ-01 to SEQ-04, ADR 0069). It is built before the toolkit cut. The new code names no other project, and its run folders sit in `.archify/` beside architecture runs, so the cut moves them with everything else.
 
-| File or unit | Change | Estimate |
-|---|---|---|
-| `packages/core/model/schemas/sequence.schema.json` (new), `schema.ts` | The sequence schema, written for aisus, and `validateSequence` | +120 / -2 |
-| `packages/core/model/types.ts`, `sequence.ts` (new) | `SequenceDoc`, `citedItems` (the participants and messages, or the components), the semantic checks | +110 |
-| `packages/core/model/submission.ts`, `citations.ts`, `fingerprints.ts` | The app-owned fields and checks by diagram type; citations and fingerprints over cited items | +40 / -15 |
-| `packages/core/model/runFolder.ts`, `discovery.ts`, `maps.ts`, `messages.ts` | The `sequence` prefix in `locateDraft`; `listCandidates(root, kind)`; the Maps list gains `kind` | +40 / -10 |
-| `packages/core/agent/validate.ts`, `repo-facts.ts` | No evidence for a sequence map; `--kind sequence` with a required focus and no lineage | +30 / -5 |
-| `skills/aisus-sequence/` (new), `esbuild.mjs`, `packages/core/install/skillFiles.ts`, `packages/core/model/agents.ts` | `SKILL.md`, `references/sequence-format.md`, `references/example.json` of an invented system, `agents/openai.yaml`, the bundled scripts and hashes, install and pre-approvals | +260 |
-| `packages/core/model/tolerant.ts`, `packages/core/layout/sequence.ts` (new) | `readSequence` and `layoutSequence`: columns, rows, activations, loops, phases | +260 |
-| `packages/viewer/sequence.ts` (new), `viewer.ts`, `click.ts`, `styles.css` | Drawing a sequence scene, clicks and keys on participants and messages | +220 / -10 |
-| `apps/vscode/src/panel.ts`, `generate.ts`, `extension.ts`, `watcher.ts`, `package.json`, `packages/viewer/home.ts` | Generate Sequence Diagram, the context key that hides architecture-only actions, items for click and freshness, sequence rows in Maps | +120 / -15 |
-| `docs/architecture.md`, `docs/messages.md` | The format, the modules and the new prompt | +40 |
+| File or unit | Change | Estimate | Built |
+|---|---|---|---|
+| `packages/core/model/schemas/sequence.schema.json` (new), `schema.ts` | The sequence schema, written for aisus, and `validateSequence` | +120 / -2 | +110 |
+| `packages/core/model/types.ts`, `sequence.ts` (new) | `SequenceDoc`, `citedItems` (the participants and messages, or the components), the semantic checks | +110 | +117 |
+| `packages/core/model/submission.ts`, `citations.ts`, `fingerprints.ts` | The app-owned fields and checks by diagram type; citations and fingerprints over cited items | +40 / -15 | +37 / -22 |
+| `packages/core/model/runFolder.ts`, `discovery.ts`, `maps.ts`, `messages.ts` | The `sequence` prefix in `locateDraft`; `listCandidates(root, kind)`; the Maps list gains `kind` | +40 / -10 | +38 / -14 |
+| `packages/core/agent/validate.ts`, `repo-facts.ts` | No evidence for a sequence map; `--kind sequence` with a required focus and no lineage | +30 / -5 | +31 / -16 |
+| `skills/aisus-sequence/` (new), `esbuild.mjs`, `packages/core/install/skillFiles.ts`, `packages/core/model/agents.ts` | `SKILL.md`, `references/sequence-format.md`, `references/example.json` of an invented system, `agents/openai.yaml`, the bundled scripts and hashes, install and pre-approvals | +260 | +170 / -2, besides the three bundled scripts |
+| `packages/core/model/tolerant.ts`, `packages/core/layout/sequence.ts` (new) | `readSequence` and `layoutSequence`: columns, rows, activations, loops, phases | +260 | +352 / -2 |
+| `packages/viewer/sequence.ts` (new), `viewer.ts`, `click.ts`, `styles.css` | Drawing a sequence scene, clicks and keys on participants and messages | +220 / -10 | +210 / -4, with `render.ts` and `viewport.ts` |
+| `apps/vscode/src/panel.ts`, `generate.ts`, `extension.ts`, `watcher.ts`, `package.json`, `packages/viewer/home.ts` | Generate Sequence Diagram, the context key that hides architecture-only actions, items for click and freshness, sequence rows in Maps | +120 / -15 | +102 / -34, with `apps/vscode/src/home.ts`, `estimates.ts` and `packages/core/model/home.ts` |
+| `docs/architecture.md`, `docs/messages.md` | The format, the modules and the new prompt | +40 | +82 / -2, with the spec and ADR 0069 |
 
 Tests, from the ACs of SEQ-01 to SEQ-04:
 - `[unit]` The schema accepts the example and refuses coordinates and a missing participant label. Each semantic check: duplicate ids across participants and messages, unknown ends, phase order and overlap, uncited participants and non-return messages. `validate.mjs` on a temporary repository accepts a sequence draft and writes its candidate and fingerprints keyed by message id. `listCandidates` keeps sequence runs apart from architecture runs.
@@ -23,6 +23,13 @@ Tests, from the ACs of SEQ-01 to SEQ-04:
 - `[unit]` Layout: a long message label widens only its gap, activations open and close with returns and nest, a self-call is one taller row that loops right, a phase band spans its messages.
 - `[dom]` A sequence map draws participants, lifelines and messages, and clicking or pressing Enter on a message posts `openSource` with its id.
 - `[e2e]` A sequence map opens from the Maps page, and clicking a message opens its cited lines.
+
+Built on 2026-10-25 in three commits. Where the build differs:
+
+- `readDiagram` reads a sequence map itself and gives its participants and messages as the diagram's components. The panel, the diagram page, the Maps list and click to code then work unchanged, and only the viewer's drawing branches.
+- A participant that never returns stays active until its last message, rather than to the end of the map.
+- Generate Sequence Diagram is also "Draw a sequence map" in the composer, and Export Page stays in the title bar for sequence maps.
+- The Maps page shows sequence maps in their own section from `HomeState.sequences`, rather than as rows of `maps` with a `kind`.
 
 - [x] **SEQ-01 Sequence format** `[unit]` — 2026-10-25: `schemas/sequence.schema.json`, `model/sequence.ts`, the submission profile, citations and fingerprints over cited items, `locateDraft`'s kind and `listCandidates(root, kind)`. Tests: `sequence.test.ts` (7: the example valid, coordinates refused, each semantic check, cited items), `validate.test.ts` (2 new: an accepted sequence draft with fingerprints by message id and no evidence, a message citation past its file), `discovery.test.ts` (1 new), `runFolder.test.ts` (the draft location gains its kind). Each of 3 deliberate breaks failed a test: a return held to the sources rule, sequence runs listed for architecture readers, and an empty focus allowed.
 - [x] **SEQ-02 Sequence skill** `[unit]` — 2026-10-25: `skills/aisus-sequence/` with its format reference and an invented example, `repo-facts.mjs --kind sequence`, the build, install and pre-approvals. Tests: `repoFacts.test.ts` (2 new), `skill.test.ts` (2 new), and the bundled-scripts, pre-approval, CLI install and e2e install tests now list the sequence skill.
@@ -196,7 +203,7 @@ Tracks [spec-v0.3.md](spec-v0.3.md). Milestone statuses: Not started, In progres
 | I5 Cloud for teams | Waiting for the owner (CLD-12 hard stop, CLD-07 Stripe products) | `f732167` |
 | I6 Polish and reach | Closed pending owner (RCH-04 `[smoke]`) | `34d09df` |
 | I7 IntelliJ plugin | Closed pending owner (IDE-01 `[smoke]`) | IDE-01 |
-| I8 Sequence maps | In progress | |
+| I8 Sequence maps | Closed | `273be0a` |
 
 ## Waiting
 
