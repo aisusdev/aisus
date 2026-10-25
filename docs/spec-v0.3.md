@@ -239,7 +239,7 @@ AC: the manifest field and git argv `[unit]`; with `core.fsmonitor` set in `.git
    - **Run card.** The current run (UI-02, CST-04).
    - **Map card.** The newest map's title, which opens it, and its status: "Map from 2 days ago · 16 boxes · 3 changed". Its one filled button is "Refresh 3 boxes" when boxes changed, and Open otherwise. Without a map, the composer takes its place under "Map this folder".
    - **Needs a look.** The Health lines that ask for attention (ARC-05), each opening its view. The freshness line is left out, because the map card says it.
-   - **Rows.** Ask about the code, Review changes, Check my understanding, Bug hunt and Maps, with the number of maps. Review changes and Maps show once a map exists. Bug hunt starts a learning session, or opens the running one and shows its phase, step k of n and score.
+   - **Rows.** Ask about the code, Review changes, Check my understanding, Bug hunt and Maps, with the number of maps. Each row starts with an icon in the theme's icon colour. Review changes and Maps show once a map exists. Bug hunt starts a learning session, or opens the running one and shows its phase, step k of n and score.
    - **Setup.** SET-02's checklist, as one folded line at the foot. While a check fails, it leads the home and opens.
 3. **Ask about the code.** UI-06.
 4. **Review changes.** Review changes (PRC-02), Rules (ARC-02) and Hotspots (ARC-03).

@@ -29,6 +29,29 @@ function section(title: string, className: string): HTMLElement {
   return node;
 }
 
+/** The home rows' icons: 16 px line drawings in the theme's text colour. */
+const ICONS = {
+  ask: ["M2.5 3.5h11v7h-6l-3 2.5v-2.5h-2z"],
+  review: ["M3.5 1.5h6l3 3v10h-9z", "M9.5 1.5v3h3", "M6 7.5h4M8 5.5v4M6 12h4"],
+  learn: ["M8 1.5a4.5 4.5 0 0 0-2.5 8.2v1.8h5V9.7A4.5 4.5 0 0 0 8 1.5z", "M6 13.5h4"],
+  hunt: ["M5.5 6.5a2.5 2.5 0 0 1 5 0v4a2.5 2.5 0 0 1-5 0z", "M8 7v6", "M2.5 7.5h3M10.5 7.5h3M2.5 11h3M10.5 11h3", "M6.5 4.3 5 2.5M9.5 4.3 11 2.5"],
+  maps: ["M1.5 3.5l4-1.5 5 1.5 4-1.5v10.5l-4 1.5-5-1.5-4 1.5z", "M5.5 2v10.5M10.5 3.5V14"],
+} as const;
+
+function icon(name: keyof typeof ICONS): SVGSVGElement {
+  const ns = "http://www.w3.org/2000/svg";
+  const svg = document.createElementNS(ns, "svg");
+  svg.setAttribute("class", "row__icon");
+  svg.setAttribute("viewBox", "0 0 16 16");
+  svg.setAttribute("aria-hidden", "true");
+  for (const d of ICONS[name]) {
+    const path = document.createElementNS(ns, "path");
+    path.setAttribute("d", d);
+    svg.append(path);
+  }
+  return svg;
+}
+
 const STATUS_LABEL: Record<RunCard["status"], string> = { running: "Running", done: "Done", failed: "Failed", cancelled: "Cancelled" };
 /** The Generate button once a run above `aisus.confirmAboveTokens` needs a second click (CST-03). */
 const SECOND_CLICK = "Click again to generate";
@@ -383,7 +406,7 @@ export function createHome(container: HTMLElement, post: Post, now: () => Date =
     const list = el("ul", "rows do");
     const row = (label: string, meta: string, onClick: () => void, page: Page | null): void => {
       const entry = button("", page === null ? "row row--hunt" : "row", onClick);
-      entry.append(el("span", "row__label", label));
+      entry.append(icon(page === null || page === "home" ? "hunt" : page), el("span", "row__label", label));
       if (meta !== "") entry.append(el("span", page === null ? "row__meta learning__status" : "row__meta", meta));
       if (page !== null) entry.dataset["page"] = page;
       const item = el("li");
