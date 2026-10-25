@@ -1,5 +1,22 @@
 # Progress (v0.3)
 
+## Folder layout proposal (owner request, 2026-10-25)
+
+The owner chose a layout with shared code under `packages/` and one folder per shipped thing under `apps/`. `kerk/` stays at the root. Shared code is imported by package name through npm workspaces, so `../../src/model/maps` becomes `@aisus/core/model/maps`. Each move is its own commit, with every gate green.
+
+| Move | Change | Estimate |
+|---|---|---|
+| `bench/`, `eval/`, `scripts/` to `tools/` | Paths in the npm scripts, `esbuild.mjs`, the tsconfig, `.gitignore` and the scripts' own root lookups | ±40 |
+| `deploy/` to `infra/`, `cloud/docker-compose.yml` to `infra/local/compose.yaml` | `deploy.sh` works in `aisus/infra` on the server. The compose project keeps the name `aisus`, so its volumes and containers carry over | ±30 |
+| `src/model`, `src/layout`, `src/agent` to `packages/core` (`@aisus/core`) | `src/extension/agents.ts` and `skillFiles.ts` join `packages/core/model`, because the CLI, the Action and the bench import them and they use no VS Code API. `ajv` and `elkjs` become core's dependencies. Every import from outside core uses the package name. The cloud's Next build transpiles the package | ±400 import lines, 1 new `package.json` |
+| `webview/` to `packages/viewer` (`@aisus/viewer`) | Build entry points and the DOM tests' imports | ±80 |
+| `src/cloud` to `packages/cloud-client`, `src/cli` to `packages/cli` | Build entry points and imports | ±30 |
+| `cloud/` to `apps/cloud`, `action/` to `apps/action`, `intellij/` to `apps/intellij` | Next's root, the Dockerfile, the compose files, the workflows and the plugin's path to the repository. The Action is used as `aisusdev/aisus/apps/action@<ref>` | ±60 |
+| `src/extension`, `media/`, `.vscodeignore`, `test/e2e` and the manifest to `apps/vscode` | The root `package.json` keeps the workspaces, the shared scripts and the gates. The build writes `apps/vscode/dist`. Packaging copies the README and the notices into the extension folder for vsce | ±150 |
+| `AGENTS.md`, `README.md`, `docs/handoff.md`, `docs/architecture.md`, `docs/spec-v0.3.md` | Current paths. The log, the ADRs and `docs/spec.md` keep the paths of their day | ±80 |
+
+Tests: no new tests. The existing tests that read files by path follow the moves. The scans for network calls, process launches, layer boundaries and messages are checked to read the same number of files before and after each move.
+
 ## Landing craft pass proposal (2026-10-25)
 
 The owner wants the landing page and command surfaces to use the restrained paper-and-forest visual system already established for the public site. The first interactive map, product claims, routes, sign-in and download actions remain.
