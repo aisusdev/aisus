@@ -55,7 +55,7 @@ function testPath(bin: string): string {
 }
 
 async function main(): Promise<void> {
-  // Bundled to out/e2e/runTest.js, so the repo root is two levels up.
+  // Bundled to apps/vscode/out/e2e/runTest.js, so the extension is two levels up.
   const extensionDevelopmentPath = resolve(__dirname, "../..");
   const extensionTestsPath = resolve(__dirname, "suite/index.js");
   const only = process.argv[2];

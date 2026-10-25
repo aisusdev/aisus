@@ -14,7 +14,7 @@ const DESCRIPTION = "Architecture maps of your repository whose boxes open the c
 
 /** @param {string} out */
 export function buildRelease(out) {
-  const pkg = JSON.parse(readFileSync(join(root, "package.json"), "utf8"));
+  const pkg = JSON.parse(readFileSync(join(root, "apps/vscode/package.json"), "utf8"));
   const plugin = join(out, "plugin");
   rmSync(plugin, { recursive: true, force: true });
   mkdirSync(join(plugin, ".claude-plugin"), { recursive: true });

@@ -3,7 +3,7 @@
 import { chmodSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, test } from "vitest";
-import { devinFallbackPaths, devinPromptArgs, findDevinCli } from "../../../src/extension/devin";
+import { devinFallbackPaths, devinPromptArgs, findDevinCli } from "../../../apps/vscode/src/devin";
 import { put, tempDir } from "../support/temp";
 
 function stubDevin(dir: string, name = "devin"): string {

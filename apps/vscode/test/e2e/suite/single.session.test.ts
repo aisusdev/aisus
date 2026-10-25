@@ -6,8 +6,8 @@ import { chmodSync, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync }
 import { homedir } from "node:os";
 import { join } from "node:path";
 import * as vscode from "vscode";
-import type { TestHook } from "../../../src/extension/extension";
-import { mergeHooks } from "../../../src/extension/hooksFiles";
+import type { TestHook } from "../../../src/extension";
+import { mergeHooks } from "../../../src/hooksFiles";
 import { stubUi, type UiStubs } from "../stubs";
 import { setup, suite, teardown, test } from "../tdd";
 import { pause, until } from "../until";

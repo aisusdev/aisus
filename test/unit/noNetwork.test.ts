@@ -21,9 +21,9 @@ function networkViolations(file: string, source: string): string[] {
 }
 
 describe("NFR-SEC-02 no network", () => {
-  test("src/** and packages/** contain no network imports or APIs, except the cloud upload client", () => {
+  test("apps/vscode/src/** and packages/** contain no network imports or APIs, except the cloud upload client", () => {
     // CLD-09: packages/cloud-client/client.ts uploads only when the user runs publish or sets the Action's upload.
-    const files = [...sourceFiles("src"), ...sourceFiles("packages")].filter((file) => file !== "packages/cloud-client/client.ts");
+    const files = [...sourceFiles("apps/vscode/src"), ...sourceFiles("packages")].filter((file) => file !== "packages/cloud-client/client.ts");
     expect(sourceFiles("packages")).toContain("packages/cloud-client/client.ts");
     const violations = files.flatMap((file) => networkViolations(file, readFileSync(join(repoRoot, file), "utf8")));
     expect(violations).toEqual([]);

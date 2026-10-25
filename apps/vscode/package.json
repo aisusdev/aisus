@@ -1,0 +1,559 @@
+{
+  "name": "aisus",
+  "displayName": "aisus",
+  "description": "View a repository's architecture as an Archify diagram and open the code behind each node.",
+  "icon": "media/icon.png",
+  "preview": true,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kerktaiheng/aisus.git"
+  },
+  "homepage": "https://github.com/kerktaiheng/aisus#readme",
+  "bugs": {
+    "url": "https://github.com/kerktaiheng/aisus/issues"
+  },
+  "keywords": [
+    "architecture",
+    "diagram",
+    "archify",
+    "code map",
+    "documentation",
+    "claude code",
+    "codex"
+  ],
+  "categories": [
+    "Visualization",
+    "AI",
+    "Education"
+  ],
+  "version": "0.3.0",
+  "publisher": "aisus",
+  "private": true,
+  "engines": {
+    "vscode": "^1.126.0",
+    "node": ">=18"
+  },
+  "main": "./dist/extension.js",
+  "capabilities": {
+    "untrustedWorkspaces": {
+      "supported": false,
+      "description": "aisus launches coding agents and runs git in the opened folder."
+    }
+  },
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "contributes": {
+    "configuration": {
+      "title": "aisus",
+      "properties": {
+        "aisus.skillScope": {
+          "type": "string",
+          "enum": [
+            "user",
+            "project"
+          ],
+          "enumDescriptions": [
+            "Install the skills in your home folder (~/.claude/skills, ~/.agents/skills). Nothing is added to the repository.",
+            "Install the skills in the repository (.claude/skills, .agents/skills)."
+          ],
+          "default": "user",
+          "description": "Where aisus installs its agent skills."
+        },
+        "aisus.runMode": {
+          "type": "string",
+          "enum": [
+            "sidebar",
+            "terminal"
+          ],
+          "enumDescriptions": [
+            "Run the agent headless and stream its progress into the aisus sidebar.",
+            "Run the agent in a terminal, as you would yourself."
+          ],
+          "default": "sidebar",
+          "description": "Where Generate runs the agent."
+        },
+        "aisus.confirmAboveTokens": {
+          "type": "number",
+          "default": 300000,
+          "minimum": 0,
+          "description": "Runs whose estimate reaches above this many tokens need a second click before they start."
+        },
+        "aisus.rules.severity": {
+          "type": "string",
+          "enum": [
+            "error",
+            "warning",
+            "information"
+          ],
+          "default": "warning",
+          "description": "How the Problems panel shows an import that breaks an architecture rule in aisus.config.json."
+        },
+        "aisus.hotspots.days": {
+          "type": "number",
+          "default": 90,
+          "minimum": 1,
+          "description": "How many days of git history the map's Hotspots count."
+        },
+        "aisus.usageLog": {
+          "type": "boolean",
+          "default": false,
+          "description": "Keep daily counts of which aisus actions you use, on this machine only. The log holds no paths, labels, repository names or anything you typed. Export or clear it from the aisus sidebar's menu."
+        }
+      }
+    },
+    "commands": [
+      {
+        "command": "aisus.installSkills",
+        "title": "Install Agent Skills",
+        "category": "aisus"
+      },
+      {
+        "command": "aisus.generateArchitecture",
+        "title": "Generate Architecture",
+        "category": "aisus"
+      },
+      {
+        "command": "aisus.copyPromptFor",
+        "title": "Copy Prompt for…",
+        "category": "aisus"
+      },
+      {
+        "command": "aisus.openArchitecture",
+        "title": "Open Architecture",
+        "category": "aisus"
+      },
+      {
+        "command": "aisus.openArchitectureFile",
+        "title": "Open Architecture File…",
+        "category": "aisus"
+      },
+      {
+        "command": "aisus.startLearning",
+        "title": "Start Learning Session",
+        "category": "aisus"
+      },
+      {
+        "command": "aisus.checkSetup",
+        "title": "Check Setup",
+        "category": "aisus",
+        "icon": "$(checklist)"
+      },
+      {
+        "command": "aisus.refreshHome",
+        "title": "Refresh",
+        "category": "aisus",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "aisus.cancelRun",
+        "title": "Cancel Run",
+        "category": "aisus",
+        "icon": "$(debug-stop)"
+      },
+      {
+        "command": "aisus.showInMap",
+        "title": "Show in Map",
+        "category": "aisus",
+        "icon": {
+          "light": "media/aisus-light.svg",
+          "dark": "media/aisus-dark.svg"
+        }
+      },
+      {
+        "command": "aisus.showFileInMap",
+        "title": "Show in Architecture Map",
+        "category": "aisus"
+      },
+      {
+        "command": "aisus.mapFolder",
+        "title": "Map This Folder with aisus",
+        "category": "aisus"
+      },
+      {
+        "command": "aisus.openBoxCode",
+        "title": "Open Code",
+        "category": "aisus"
+      },
+      {
+        "command": "aisus.showChanges",
+        "title": "Show Changes on Diagram",
+        "category": "aisus",
+        "icon": "$(git-compare)"
+      },
+      {
+        "command": "aisus.refreshArchitecture",
+        "title": "Refresh Architecture",
+        "category": "aisus",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "aisus.refreshBox",
+        "title": "Refresh This Box",
+        "category": "aisus"
+      },
+      {
+        "command": "aisus.flagBox",
+        "title": "This Box Is Wrong…",
+        "category": "aisus"
+      },
+      {
+        "command": "aisus.checkUnderstanding",
+        "title": "Check My Understanding",
+        "category": "aisus"
+      },
+      {
+        "command": "aisus.drillDown",
+        "title": "Map This Box in Detail",
+        "category": "aisus"
+      },
+      {
+        "command": "aisus.find",
+        "title": "Find in Map",
+        "category": "aisus",
+        "icon": "$(search)"
+      },
+      {
+        "command": "aisus.playTour",
+        "title": "Tour",
+        "category": "aisus",
+        "icon": "$(milestone)"
+      },
+      {
+        "command": "aisus.createTour",
+        "title": "Create Tour",
+        "category": "aisus"
+      },
+      {
+        "command": "aisus.forbidArrow",
+        "title": "Forbid This Dependency",
+        "category": "aisus"
+      },
+      {
+        "command": "aisus.onlyAllowImportsFrom",
+        "title": "Only Allow Imports From…",
+        "category": "aisus"
+      },
+      {
+        "command": "aisus.routeThrough",
+        "title": "Route Dependencies Through…",
+        "category": "aisus"
+      },
+      {
+        "command": "aisus.suggestRules",
+        "title": "Suggest Rules",
+        "category": "aisus"
+      },
+      {
+        "command": "aisus.writeAgentNotes",
+        "title": "Write Architecture Notes for Agents",
+        "category": "aisus"
+      },
+      {
+        "command": "aisus.compareMaps",
+        "title": "Compare With…",
+        "category": "aisus"
+      },
+      {
+        "command": "aisus.exportPage",
+        "title": "Export Page",
+        "category": "aisus",
+        "icon": "$(globe)"
+      },
+      {
+        "command": "aisus.saveImage",
+        "title": "Save Image",
+        "category": "aisus",
+        "icon": "$(device-camera)"
+      },
+      {
+        "command": "aisus.auditMap",
+        "title": "Audit Map",
+        "category": "aisus",
+        "icon": "$(checklist)"
+      },
+      {
+        "command": "aisus.hideChecks",
+        "title": "Hide Checks",
+        "category": "aisus",
+        "icon": "$(eye)"
+      },
+      {
+        "command": "aisus.showChecks",
+        "title": "Show Checks",
+        "category": "aisus",
+        "icon": "$(eye-closed)"
+      },
+      {
+        "command": "aisus.showHotspots",
+        "title": "Show Hotspots",
+        "category": "aisus",
+        "icon": "$(flame)"
+      },
+      {
+        "command": "aisus.hideHotspots",
+        "title": "Hide Hotspots",
+        "category": "aisus",
+        "icon": "$(circle-slash)"
+      },
+      {
+        "command": "aisus.reviewChanges",
+        "title": "Review Changes",
+        "category": "aisus"
+      },
+      {
+        "command": "aisus.removeAisus",
+        "title": "Remove aisus from This Folder",
+        "category": "aisus"
+      },
+      {
+        "command": "aisus.exportUsageLog",
+        "title": "Export Usage Log",
+        "category": "aisus"
+      },
+      {
+        "command": "aisus.clearUsageLog",
+        "title": "Clear Usage Log",
+        "category": "aisus"
+      }
+    ],
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "aisus",
+          "title": "aisus",
+          "icon": "media/aisus.svg"
+        }
+      ]
+    },
+    "views": {
+      "aisus": [
+        {
+          "type": "webview",
+          "id": "aisus.home",
+          "name": "aisus"
+        }
+      ]
+    },
+    "menus": {
+      "view/title": [
+        {
+          "command": "aisus.refreshHome",
+          "when": "view == aisus.home",
+          "group": "navigation@1"
+        },
+        {
+          "command": "aisus.checkSetup",
+          "when": "view == aisus.home",
+          "group": "navigation@2"
+        },
+        {
+          "command": "aisus.cancelRun",
+          "when": "view == aisus.home && aisus.running",
+          "group": "navigation@0"
+        },
+        {
+          "command": "aisus.openArchitectureFile",
+          "when": "view == aisus.home",
+          "group": "more@1"
+        },
+        {
+          "command": "aisus.installSkills",
+          "when": "view == aisus.home",
+          "group": "more@2"
+        },
+        {
+          "command": "aisus.removeAisus",
+          "when": "view == aisus.home",
+          "group": "z_aisus@9"
+        },
+        {
+          "command": "aisus.exportUsageLog",
+          "when": "view == aisus.home && config.aisus.usageLog",
+          "group": "z_aisus@7"
+        },
+        {
+          "command": "aisus.clearUsageLog",
+          "when": "view == aisus.home && config.aisus.usageLog",
+          "group": "z_aisus@8"
+        }
+      ],
+      "commandPalette": [
+        {
+          "command": "aisus.cancelRun",
+          "when": "aisus.running"
+        },
+        {
+          "command": "aisus.showFileInMap",
+          "when": "false"
+        },
+        {
+          "command": "aisus.mapFolder",
+          "when": "false"
+        },
+        {
+          "command": "aisus.openBoxCode",
+          "when": "false"
+        },
+        {
+          "command": "aisus.refreshBox",
+          "when": "false"
+        },
+        {
+          "command": "aisus.flagBox",
+          "when": "false"
+        },
+        {
+          "command": "aisus.forbidArrow",
+          "when": "false"
+        },
+        {
+          "command": "aisus.onlyAllowImportsFrom",
+          "when": "false"
+        },
+        {
+          "command": "aisus.routeThrough",
+          "when": "false"
+        },
+        {
+          "command": "aisus.drillDown",
+          "when": "false"
+        }
+      ],
+      "editor/title": [
+        {
+          "command": "aisus.showInMap",
+          "when": "resourceScheme == file",
+          "group": "navigation@100"
+        },
+        {
+          "command": "aisus.showChanges",
+          "when": "activeWebviewPanelId == 'aisus.architecture'",
+          "group": "navigation@2"
+        },
+        {
+          "command": "aisus.refreshArchitecture",
+          "when": "activeWebviewPanelId == 'aisus.architecture'",
+          "group": "navigation@1"
+        },
+        {
+          "command": "aisus.exportPage",
+          "when": "activeWebviewPanelId == 'aisus.architecture'",
+          "group": "navigation@3"
+        },
+        {
+          "command": "aisus.auditMap",
+          "when": "activeWebviewPanelId == 'aisus.architecture'",
+          "group": "navigation@4"
+        },
+        {
+          "command": "aisus.hideChecks",
+          "when": "activeWebviewPanelId == 'aisus.architecture' && !aisus.checksHidden",
+          "group": "navigation@5"
+        },
+        {
+          "command": "aisus.showChecks",
+          "when": "activeWebviewPanelId == 'aisus.architecture' && aisus.checksHidden",
+          "group": "navigation@5"
+        },
+        {
+          "command": "aisus.showHotspots",
+          "when": "activeWebviewPanelId == 'aisus.architecture' && !aisus.hotspotsShown",
+          "group": "navigation@6"
+        },
+        {
+          "command": "aisus.hideHotspots",
+          "when": "activeWebviewPanelId == 'aisus.architecture' && aisus.hotspotsShown",
+          "group": "navigation@6"
+        },
+        {
+          "command": "aisus.find",
+          "when": "activeWebviewPanelId == 'aisus.architecture'",
+          "group": "navigation@0"
+        },
+        {
+          "command": "aisus.playTour",
+          "when": "activeWebviewPanelId == 'aisus.architecture'",
+          "group": "navigation@7"
+        },
+        {
+          "command": "aisus.writeAgentNotes",
+          "when": "activeWebviewPanelId == 'aisus.architecture'",
+          "group": "z_aisus@1"
+        },
+        {
+          "command": "aisus.createTour",
+          "when": "activeWebviewPanelId == 'aisus.architecture'",
+          "group": "z_aisus@2"
+        },
+        {
+          "command": "aisus.compareMaps",
+          "when": "activeWebviewPanelId == 'aisus.architecture'",
+          "group": "z_aisus@0"
+        },
+        {
+          "command": "aisus.saveImage",
+          "when": "activeWebviewPanelId == 'aisus.architecture'",
+          "group": "z_aisus@3"
+        }
+      ],
+      "explorer/context": [
+        {
+          "command": "aisus.mapFolder",
+          "when": "explorerResourceIsFolder",
+          "group": "aisus@1"
+        },
+        {
+          "command": "aisus.showFileInMap",
+          "when": "!explorerResourceIsFolder",
+          "group": "aisus@2"
+        }
+      ],
+      "webview/context": [
+        {
+          "command": "aisus.openBoxCode",
+          "when": "webviewId == 'aisus.architecture' && webviewSection == 'box'",
+          "group": "navigation@1"
+        },
+        {
+          "command": "aisus.refreshBox",
+          "when": "webviewId == 'aisus.architecture' && webviewSection == 'box'",
+          "group": "navigation@2"
+        },
+        {
+          "command": "aisus.flagBox",
+          "when": "webviewId == 'aisus.architecture' && webviewSection == 'box'",
+          "group": "navigation@3"
+        },
+        {
+          "command": "aisus.checkUnderstanding",
+          "when": "webviewId == 'aisus.architecture' && webviewSection == 'box'",
+          "group": "navigation@4"
+        },
+        {
+          "command": "aisus.drillDown",
+          "when": "webviewId == 'aisus.architecture' && webviewSection == 'box'",
+          "group": "navigation@5"
+        },
+        {
+          "command": "aisus.onlyAllowImportsFrom",
+          "when": "webviewId == 'aisus.architecture' && webviewSection == 'box'",
+          "group": "rules@1"
+        },
+        {
+          "command": "aisus.routeThrough",
+          "when": "webviewId == 'aisus.architecture' && webviewSection == 'box'",
+          "group": "rules@2"
+        },
+        {
+          "command": "aisus.forbidArrow",
+          "when": "webviewId == 'aisus.architecture' && webviewSection == 'arrow'",
+          "group": "rules@1"
+        }
+      ]
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "node ../../esbuild.mjs"
+  }
+}

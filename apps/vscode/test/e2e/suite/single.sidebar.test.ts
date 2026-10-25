@@ -6,7 +6,7 @@ import { chmodSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, wr
 import { homedir, tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import * as vscode from "vscode";
-import type { TestHook } from "../../../src/extension/extension";
+import type { TestHook } from "../../../src/extension";
 import { skillTargets, writeSkill } from "@aisus/core/install/skillFiles";
 import { findOnPath } from "@aisus/core/model/which";
 import { ESTIMATE, prompts, stubUi, type UiStubs } from "../stubs";
@@ -19,8 +19,13 @@ function extensionPath(): string {
   return vscode.extensions.getExtension("aisus.aisus")!.extensionPath;
 }
 
+/** The repository, which holds the shared test fixtures. The extension sits in its apps/vscode. */
+function repositoryRoot(): string {
+  return join(extensionPath(), "../..");
+}
+
 function stream(name: string): string {
-  return join(extensionPath(), "test/fixtures/streams", name);
+  return join(repositoryRoot(), "test/fixtures/streams", name);
 }
 
 function alive(pid: number): boolean {
@@ -53,7 +58,7 @@ suite("UI-01 aisus sidebar", () => {
   function agents(names: string[], body?: string): string {
     const dir = mkdtempSync(join(tmpdir(), "aisus-agents-"));
     cleanup.push(dir);
-    const stub = join(extensionPath(), "test/fixtures/streams/stub-agent.mjs");
+    const stub = join(repositoryRoot(), "test/fixtures/streams/stub-agent.mjs");
     for (const name of names) {
       const path = join(dir, name);
       writeFileSync(path, body ?? `#!/bin/sh\nELECTRON_RUN_AS_NODE=1 exec "${process.execPath}" "${stub}" "$@"\n`);
@@ -169,7 +174,7 @@ suite("UI-01 aisus sidebar", () => {
 
   test("UI-02 a replayed stream shows feed, tokens and acceptance, records the run and opens the map", async () => {
     agents(["claude"]);
-    const candidate = join(extensionPath(), "fixtures/archify/examples/rag-pipeline.architecture.json");
+    const candidate = join(repositoryRoot(), "fixtures/archify/examples/rag-pipeline.architecture.json");
     Object.assign(process.env, { AISUS_STUB_STREAM: stream("claude-generate.jsonl"), AISUS_STUB_CANDIDATE: candidate, AISUS_STUB_DELAY: "200" });
     await reveal();
     await hook.postFromHome({ type: "generate", focus: "rag" });

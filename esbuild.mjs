@@ -1,6 +1,6 @@
 // Builds the shipped bundles into dist/ (see docs/spec.md §6).
-// `node esbuild.mjs`        → dist/
-// `node esbuild.mjs --e2e`  → out/e2e/ (the @vscode/test-electron suite; never shipped)
+// `node esbuild.mjs`        → apps/vscode/dist/
+// `node esbuild.mjs --e2e`  → apps/vscode/out/e2e/ (the @vscode/test-electron suite; never shipped)
 // `node esbuild.mjs --action` → apps/action/dist/index.js (the GitHub Action, committed; PRC-04)
 // `node esbuild.mjs --cloud`  → apps/cloud/public/viewer.js and viewer.css (the cloud's map viewer; CLD-03)
 // `node esbuild.mjs --intellij` → out/intellij/jcef.js and jcef.css (the IntelliJ plugin's map viewer; IDE-01)
@@ -12,10 +12,13 @@ import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const root = dirname(fileURLToPath(import.meta.url));
-const dist = join(root, "dist");
+const extension = join(root, "apps/vscode");
+const dist = join(extension, "dist");
 
 /** @type {import("esbuild").BuildOptions} */
 const common = {
+  // Paths in the bundles are relative to the repository, whichever folder the build starts in.
+  absWorkingDir: root,
   bundle: true,
   logLevel: "warning",
   sourcemap: false,
@@ -99,7 +102,7 @@ export async function buildScripts(outdir, names = Object.keys(SCRIPT_ENTRIES)) 
     format: "esm",
     target: "node18",
     define: {
-      "process.env.AISUS_VERSION": JSON.stringify(JSON.parse(readFileSync(join(root, "package.json"), "utf8")).version),
+      "process.env.AISUS_VERSION": JSON.stringify(JSON.parse(readFileSync(join(extension, "package.json"), "utf8")).version),
       ...(page ? { "process.env.AISUS_PAGE_SCRIPT": JSON.stringify(page.script), "process.env.AISUS_PAGE_STYLE": JSON.stringify(page.style) } : {}),
     },
   });
@@ -142,7 +145,7 @@ function hashTree(dir, prefix = "") {
  * @param {string} out
  */
 function writeSkillHashes(out) {
-  const { version } = JSON.parse(readFileSync(join(root, "package.json"), "utf8"));
+  const { version } = JSON.parse(readFileSync(join(extension, "package.json"), "utf8"));
   const skillsDir = join(out, "skills");
   const skills = Object.fromEntries(readdirSync(skillsDir).sort().map((name) => [name, hashTree(join(skillsDir, name))]));
   writeFileSync(join(out, "skill-hashes.json"), `${JSON.stringify({ version, skills }, null, 2)}\n`);
@@ -176,7 +179,7 @@ export async function buildSkillsAndCli(out) {
       format: "esm",
       target: "node18",
       define: {
-        "process.env.AISUS_VERSION": JSON.stringify(JSON.parse(readFileSync(join(root, "package.json"), "utf8")).version),
+        "process.env.AISUS_VERSION": JSON.stringify(JSON.parse(readFileSync(join(extension, "package.json"), "utf8")).version),
         "process.env.AISUS_PAGE_SCRIPT": JSON.stringify(page.script),
         "process.env.AISUS_PAGE_STYLE": JSON.stringify(page.style),
       },
@@ -211,7 +214,7 @@ async function buildDist() {
 
   results.push(await esbuild.build({
     ...common,
-    entryPoints: [join(root, "src/extension/extension.ts")],
+    entryPoints: [join(extension, "src/extension.ts")],
     outfile: join(dist, "extension.js"),
     platform: "node",
     format: "cjs",
@@ -261,17 +264,19 @@ async function buildDist() {
 }
 
 async function buildE2e() {
-  const out = join(root, "out/e2e");
+  // The suite sits inside the extension folder, so VS Code gives it the extension's own API object
+  // and the tests' stubs of its dialogs reach the extension.
+  const out = join(extension, "out/e2e");
   rmSync(out, { recursive: true, force: true });
-  const suiteDir = join(root, "test/e2e/suite");
+  const suiteDir = join(extension, "test/e2e/suite");
   const suiteFiles = readdirSync(suiteDir)
     .filter((name) => name.endsWith(".ts"))
     .map((name) => join(suiteDir, name));
   await esbuild.build({
     ...common,
-    entryPoints: [join(root, "test/e2e/runTest.ts"), ...suiteFiles],
+    entryPoints: [join(extension, "test/e2e/runTest.ts"), ...suiteFiles],
     outdir: out,
-    outbase: join(root, "test/e2e"),
+    outbase: join(extension, "test/e2e"),
     platform: "node",
     format: "cjs",
     target: "node20",

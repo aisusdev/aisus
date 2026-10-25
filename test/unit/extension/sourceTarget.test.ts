@@ -2,7 +2,7 @@
 import { symlinkSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, test } from "vitest";
-import { resolveSource } from "../../../src/extension/sourceTarget";
+import { resolveSource } from "../../../apps/vscode/src/sourceTarget";
 import { put, tempDir } from "../support/temp";
 
 function repo(): { base: string; root: string } {

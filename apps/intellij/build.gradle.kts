@@ -59,7 +59,7 @@ kotlin {
 // The viewer, the core CLI and the skills, laid out as dist/ lays them out, so the CLI finds its skills.
 val aisusCore = tasks.register<Zip>("aisusCore") {
     val viewer = repository.dir("out/intellij")
-    val dist = repository.dir("dist")
+    val dist = repository.dir("apps/vscode/dist")
     doFirst {
         val missing = listOf(viewer.file("jcef.js"), viewer.file("jcef.css"), dist.file("cli/aisus.mjs"), dist.file("skill-hashes.json"))
             .map { it.asFile }.filterNot { it.isFile }

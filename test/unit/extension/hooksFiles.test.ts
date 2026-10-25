@@ -4,7 +4,7 @@
 import { existsSync, readdirSync, readFileSync, rmSync, symlinkSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, test } from "vitest";
-import { ensureGitExclude, EXCLUDE_LINES, mergeAgentHooks, mergeHooks, mergeSessionHooks, removeHooks, removeHooksWhenIdle, AISUS_HOOK_MARKER, aisusHooks } from "../../../src/extension/hooksFiles";
+import { ensureGitExclude, EXCLUDE_LINES, mergeAgentHooks, mergeHooks, mergeSessionHooks, removeHooks, removeHooksWhenIdle, AISUS_HOOK_MARKER, aisusHooks } from "../../../apps/vscode/src/hooksFiles";
 import { put, tempDir } from "../support/temp";
 
 const HOOKS = ".devin/hooks.v1.json";

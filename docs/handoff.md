@@ -61,8 +61,8 @@ All gates are listed under "Gates" in AGENTS.md. In practice they are:
 
 ### The VS Code extension
 
-- The code is in `src/extension/` (the host), `packages/core/model/` and `packages/core/layout/` (shared logic) and `packages/viewer/` (the sidebar and the map panel).
-- Tests live in `test/unit/`, `test/dom/` and `test/e2e/`. The e2e suite downloads VS Code 1.126.0 and 1.141.0 into `.vscode-test/`. Unset `ELECTRON_RUN_AS_NODE` before running it.
+- The code is in `apps/vscode/src/` (the host), `packages/core/model/` and `packages/core/layout/` (shared logic) and `packages/viewer/` (the sidebar and the map panel).
+- Tests live in `test/unit/`, `test/dom/` and `apps/vscode/test/e2e/`. The e2e suite downloads VS Code 1.126.0 and 1.141.0 into `.vscode-test/`. Unset `ELECTRON_RUN_AS_NODE` before running it.
 - `npm run package` builds the `.vsix`. Users get it from a release.
 - Every user-facing message is listed in `docs/messages.md`. Keep that file in step with the code.
 
@@ -75,7 +75,7 @@ All gates are listed under "Gates" in AGENTS.md. In practice they are:
 
 ### The skills
 
-- Each skill is a folder under `skills/`, holding `SKILL.md`, `references/` and script sources that `npm run build` bundles into `dist/skills/`.
+- Each skill is a folder under `skills/`, holding `SKILL.md`, `references/` and script sources that `npm run build` bundles into `apps/vscode/dist/skills/`.
 - The build also regenerates the integrity hashes the extension checks before it launches a skill. Commit them with the change.
 - Users install the skills with `npx skills add aisusdev/aisus`, or through the extension.
 
@@ -107,7 +107,7 @@ All gates are listed under "Gates" in AGENTS.md. In practice they are:
 ### The IntelliJ plugin
 
 - The plugin is Kotlin under `apps/intellij/`, built with the Gradle wrapper and JDK 21, targeting IntelliJ 2026.1.
-- Run `node esbuild.mjs --intellij` and `npm run build` first. The plugin packs the viewer and the CLI from `out/intellij/` and `dist/`.
+- Run `node esbuild.mjs --intellij` and `npm run build` first. The plugin packs the viewer and the CLI from `out/intellij/` and `apps/vscode/dist/`.
 - Then run `./gradlew test` and `./gradlew buildPlugin`. The second writes `apps/intellij/build/distributions/*.zip`, which users install from disk.
 - `./gradlew verifyPlugin` checks compatibility.
 - The plugin's home panel is Swing, separate from the VS Code sidebar.

@@ -16,5 +16,5 @@
     "skipLibCheck": true,
     "noEmit": true
   },
-  "include": ["src", "packages", "test", "tools", "apps/action/src", "esbuild.mjs", "vitest.config.ts"]
+  "include": ["packages", "apps/vscode/src", "apps/vscode/test", "test", "tools", "apps/action/src", "esbuild.mjs", "vitest.config.ts"]
 }

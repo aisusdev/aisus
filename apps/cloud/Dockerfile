@@ -6,6 +6,7 @@ FROM node:22-bookworm-slim AS build
 WORKDIR /app
 COPY package.json package-lock.json ./
 COPY apps/cloud/package.json apps/cloud/
+COPY apps/vscode/package.json apps/vscode/
 COPY packages/core/package.json packages/core/
 COPY packages/viewer/package.json packages/viewer/
 COPY packages/cloud-client/package.json packages/cloud-client/

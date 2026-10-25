@@ -24,3 +24,7 @@ research/change-collection/
 infra/.env
 infra/secrets/
 .amp/portals/*
+# npm run package copies these into the extension folder while it packages.
+apps/vscode/README.md
+apps/vscode/THIRD_PARTY_NOTICES.md
+apps/vscode/LICENSE

@@ -9,7 +9,7 @@ import { tempDir } from "./support/temp";
 
 test("RCH-02 ACC-05 SKL-02 build:release assembles the plugin with its manifests and the committed skills", () => {
   const plugin = buildRelease(tempDir());
-  const pkg = JSON.parse(readFileSync(join(repoRoot, "package.json"), "utf8")) as { version: string };
+  const pkg = JSON.parse(readFileSync(join(repoRoot, "apps/vscode/package.json"), "utf8")) as { version: string };
   const manifest = JSON.parse(readFileSync(join(plugin, ".claude-plugin/plugin.json"), "utf8"));
   expect(manifest).toMatchObject({ name: "aisus", version: pkg.version, author: { name: "aisus" } });
   expect(manifest.description).toMatch(/^Architecture maps/);

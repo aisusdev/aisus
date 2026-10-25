@@ -6,7 +6,7 @@ import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node
 import { homedir } from "node:os";
 import { dirname, join } from "node:path";
 import * as vscode from "vscode";
-import { ensureGitExclude, mergeAgentHooks, mergeHooks } from "../../../src/extension/hooksFiles";
+import { ensureGitExclude, mergeAgentHooks, mergeHooks } from "../../../src/hooksFiles";
 import { skillTargets, writeSkill } from "@aisus/core/install/skillFiles";
 import { stubUi, type UiStubs } from "../stubs";
 import { setup, suite, teardown, test } from "../tdd";

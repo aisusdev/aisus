@@ -2,7 +2,7 @@
 import { chmodSync } from "node:fs";
 import { describe, expect, test } from "vitest";
 import { agentLaunchArgs, agentPrompt, AGENTS, copiedPrompt, findOnPath, headlessArgs, PROMPT_TARGETS, SKILL_SCRIPTS, skillPrompt } from "@aisus/core/model/agents";
-import { devinPromptArgs } from "../../../src/extension/devin";
+import { devinPromptArgs } from "../../../apps/vscode/src/devin";
 import { put, tempDir } from "../support/temp";
 
 /** Flags that turn off an agent's permission checks. Two-word flags are matched as adjacent elements. */

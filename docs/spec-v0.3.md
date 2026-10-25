@@ -232,7 +232,7 @@ AC: the manifest field and git argv `[unit]`; with `core.fsmonitor` set in `.git
 
 ### D2 The product in VS Code
 
-**UI-01 aisus sidebar.** `contributes.viewsContainers.activitybar` adds an aisus container with a monochrome icon (`media/aisus.svg`). It holds one webview view, `aisus.home`, bundled as `dist/sidebar.js` under the same CSP rules as the map panel. Top to bottom:
+**UI-01 aisus sidebar.** `contributes.viewsContainers.activitybar` adds an aisus container with a monochrome icon (`apps/vscode/media/aisus.svg`). It holds one webview view, `aisus.home`, bundled as `dist/sidebar.js` under the same CSP rules as the map panel. Top to bottom:
 
 1. **Header.** The folder, with a picker when the workspace has several, and the map status: "Map from 2 days ago · 16 boxes", or "No map yet".
 2. **Composer.**
@@ -258,7 +258,7 @@ AC:
 - **Claude Code:** `claude -p "/aisus-architecture <focus>" --output-format stream-json --verbose --permission-mode dontAsk --allowedTools <list>`. The list is exactly Read, Grep, Glob, the skill's script rules, and `Edit(./.archify/**)`.
 - **Codex:** `codex exec --json --sandbox workspace-write "$aisus-architecture <focus>"`.
 - **Devin** always runs in a terminal.
-- **Parsing.** `packages/core/model/agentStream/` turns events into feed items: "Reading src/extension/panel.ts", "Writing draft", "Validating, attempt 2", "Accepted: 16 boxes".
+- **Parsing.** `packages/core/model/agentStream/` turns events into feed items: "Reading apps/vscode/src/panel.ts", "Writing draft", "Validating, attempt 2", "Accepted: 16 boxes".
 - **Live figures.** The card shows elapsed time and tokens from usage events, and the final tokens and cost when reported. This is the deploy answer to cost.
 - **Controls.** Cancel kills the process tree. Agent-reported permission denials show with "Run in terminal instead".
 - **When done.** On acceptance, the map opens.

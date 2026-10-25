@@ -7,7 +7,7 @@ import { SIDEBAR_ACTIONS } from "@aisus/core/model/home";
 import { repoRoot } from "./support/sourceScan";
 
 test("SAF-07 aisus declares no support for untrusted workspaces", () => {
-  const manifest = JSON.parse(readFileSync(join(repoRoot, "package.json"), "utf8")) as { capabilities?: { untrustedWorkspaces?: { supported?: unknown } } };
+  const manifest = JSON.parse(readFileSync(join(repoRoot, "apps/vscode/package.json"), "utf8")) as { capabilities?: { untrustedWorkspaces?: { supported?: unknown } } };
   expect(manifest.capabilities?.untrustedWorkspaces?.supported).toBe(false);
 });
 
@@ -21,16 +21,16 @@ interface Manifest {
   };
 }
 
-const manifest = JSON.parse(readFileSync(join(repoRoot, "package.json"), "utf8")) as Manifest;
+const manifest = JSON.parse(readFileSync(join(repoRoot, "apps/vscode/package.json"), "utf8")) as Manifest;
 
 test("UI-01 the Activity Bar container holds the sidebar webview, with a monochrome icon that ships", () => {
   const container = manifest.contributes.viewsContainers.activitybar.find((entry) => entry.id === "aisus");
   expect(container?.icon).toBe("media/aisus.svg");
   expect(manifest.contributes.views["aisus"]).toEqual([{ type: "webview", id: "aisus.home", name: "aisus" }]);
-  const icon = readFileSync(join(repoRoot, "media/aisus.svg"), "utf8");
+  const icon = readFileSync(join(repoRoot, "apps/vscode/media/aisus.svg"), "utf8");
   expect(icon).toContain('stroke="currentColor"');
   expect(icon).not.toMatch(/#[0-9a-f]{3,6}\b/i);
-  expect(readFileSync(join(repoRoot, ".vscodeignore"), "utf8").split("\n")).toContain("!media/**");
+  expect(readFileSync(join(repoRoot, "apps/vscode/.vscodeignore"), "utf8").split("\n")).toContain("!media/**");
 });
 
 test("UI-01 every command is reachable from a menu, a title bar or the sidebar", () => {
@@ -59,7 +59,7 @@ test("UI-03 Show in Map sits in every file editor's title bar with the aisus ico
   expect(manifest.contributes.menus["editor/title"]).toContainEqual({ command: "aisus.showInMap", when: "resourceScheme == file", group: "navigation@100" });
   const command = manifest.contributes.commands.find((entry) => entry.command === "aisus.showInMap") as { icon?: { light: string; dark: string } };
   expect(command.icon).toEqual({ light: "media/aisus-light.svg", dark: "media/aisus-dark.svg" });
-  for (const path of Object.values(command.icon!)) expect(readFileSync(join(repoRoot, path), "utf8")).toContain("<svg");
+  for (const path of Object.values(command.icon!)) expect(readFileSync(join(repoRoot, "apps/vscode", path), "utf8")).toContain("<svg");
 });
 
 test("UI-05 the Explorer maps folders and shows files; boxes open their code", () => {

@@ -13,7 +13,7 @@ flowchart LR
     rf["scripts/repo-facts.mjs"]
     val["scripts/validate.mjs"]
   end
-  subgraph ext["Extension host: src/extension/"]
+  subgraph ext["Extension host: apps/vscode/src/"]
     host["install, generate, open, panel,<br/>navigate, watcher"]
   end
   web["Webview: packages/viewer/<br/>render, viewport, tooltip"]
@@ -137,7 +137,7 @@ The learning-session skill ([ADRs 0029–0036](adr/0029-learning-modes-in-one-ag
 * `references/archify-format.md`: authoring guidance adapted from the prototype's system prompt, with validation described as the `validate.mjs` steps (FR-SKL-03).
 * `references/example.json`: vendored Archify candidate, a shape example only.
 
-### `src/extension/`
+### `apps/vscode/src/`
 
 | File | Responsibility |
 |---|---|
@@ -237,7 +237,7 @@ Enforced by `test/unit/boundaries.test.ts` (NFR-QUAL-03):
 
 * `packages/core/model/` imports no `vscode` and nothing outside `packages/core/model/` (plus `ajv` in `schema.ts`). Only the modules listed as Node modules in `test/unit/boundaries.test.ts` may import `node:fs`, `node:path`, `node:child_process` or `node:crypto`; the browser-safe ones listed there import no Node built-in, because the webviews and the diagram page bundle them.
 * `packages/core/layout/` is browser-safe and may import only `packages/core/model/` and elkjs.
-* `packages/core/agent/`, `packages/cli/`, `src/extension/`, `packages/viewer/` and `apps/action/src/` sit on top of `model` and `layout`. No module in `src/` or `packages/viewer/` makes network requests; in `apps/action/src/` only `github.ts` does, and only `refresh.ts` starts a program, for the opt-in map update (`test/unit/noNetwork.test.ts`, NFR-SEC-02, PRC-04, [ADR 0058](adr/0058-the-action-updates-the-map-only-when-asked.md)).
+* `packages/core/agent/`, `packages/cli/`, `apps/vscode/src/`, `packages/viewer/` and `apps/action/src/` sit on top of `model` and `layout`. No module in `src/` or `packages/viewer/` makes network requests; in `apps/action/src/` only `github.ts` does, and only `refresh.ts` starts a program, for the opt-in map update (`test/unit/noNetwork.test.ts`, NFR-SEC-02, PRC-04, [ADR 0058](adr/0058-the-action-updates-the-map-only-when-asked.md)).
 
 ## Flows
 
@@ -443,26 +443,26 @@ Export and audit (CLD-13): `GET /api/v1/account/export` downloads `{exportedAt, 
 | `<repo>/.agents/skills/aisus-architecture/`, `<repo>/.agents/skills/aisus-bugfix/` | Installed skills: real files copied from `dist/skills/<name>/` ([ADR 0006](adr/0006-install-skill-into-agents-with-claude-symlink.md)). |
 | `<repo>/.claude/skills/<name>` | Relative symlink `../../.agents/skills/<name>` (`junction` on Windows); a copy if the link cannot be created. |
 | `<repo>/.git/info/exclude` | Gets `.aisus/`, `.archify/**/draft.json` and `.archify/**/*.html` at Generate and at session launch. aisus never edits `.gitignore` (spec v0.3 SAF-06). |
-| `dist/extension.js` | Extension host bundle (CJS, `vscode` external). |
-| `dist/skills/aisus-architecture/` | Static skill files from `skills/` plus `scripts/repo-facts.mjs`, `scripts/validate.mjs`. |
-| `dist/skills/aisus-bugfix/` | `SKILL.md`, `references/bug-taxonomy.md`, `agents/openai.yaml`, `scripts/session.mjs`, `scripts/session-hook.mjs`. |
+| `apps/vscode/dist/extension.js` | Extension host bundle (CJS, `vscode` external). |
+| `apps/vscode/dist/skills/aisus-architecture/` | Static skill files from `skills/` plus `scripts/repo-facts.mjs`, `scripts/validate.mjs`. |
+| `apps/vscode/dist/skills/aisus-bugfix/` | `SKILL.md`, `references/bug-taxonomy.md`, `agents/openai.yaml`, `scripts/session.mjs`, `scripts/session-hook.mjs`. |
 | `<repo>/.claude/settings.local.json`, `<repo>/.codex/hooks.json` | LRN-01: while a session runs in Claude Code or Codex, one PreToolUse group under `hooks` runs `session-hook.mjs` by absolute path, matching `Edit\|Write\|NotebookEdit\|Agent` or `apply_patch`. Every other key stays; a file left empty is deleted ([ADR 0061](adr/0061-sessions-enforce-the-hunt-in-each-agents-own-hooks.md)). |
 | `<repo>/.devin/hooks.v1.json` | Devin lifecycle hooks wiring `session-hook.mjs` — `PreToolUse` blocklist for the hunt phase plus `UserPromptSubmit`/`PostCompaction`/`SessionStart` context injection ([ADR 0032](adr/0032-hunt-phase-enforcement-via-devin-hooks.md)). The extension merges aisus's entries (marker: `command` containing `.agents/skills/aisus-`), preserving everything else ([ADR 0040](adr/0040-hooks-merge-panel-read-side-and-devin-detection.md)). |
-| `dist/webview.js`, `dist/webview.css` | Architecture webview bundle (IIFE, elkjs included, minified) and stylesheet. |
-| `dist/sidebar.js`, `dist/sidebar.css` | The sidebar's bundle and stylesheet (UI-01). |
-| `dist/page.js`, `dist/page.css` | The diagram page's script and styles, which Export Page inlines (RCH-01). |
-| `dist/skills/aisus-audit/` | `SKILL.md`, `agents/openai.yaml`, `scripts/audit-record.mjs` (ACC-05). |
-| `dist/skills/aisus-tour/` | `SKILL.md`, `agents/openai.yaml`, `scripts/tour-record.mjs` (SKL-02). |
-| `dist/skills/aisus-refresh/` | `SKILL.md`, `agents/openai.yaml`, the shared `references/`, `scripts/refresh-facts.mjs`, `scripts/validate.mjs`, `scripts/render-html.mjs` (FRS-05). |
-| `dist/skill-hashes.json` | `{version, skills: {name: {path: sha256}}}`, the integrity reference (SAF-01). |
-| `dist/cli/aisus.mjs` | The core CLI (RCH-03). |
+| `apps/vscode/dist/webview.js`, `dist/webview.css` | Architecture webview bundle (IIFE, elkjs included, minified) and stylesheet. |
+| `apps/vscode/dist/sidebar.js`, `dist/sidebar.css` | The sidebar's bundle and stylesheet (UI-01). |
+| `apps/vscode/dist/page.js`, `dist/page.css` | The diagram page's script and styles, which Export Page inlines (RCH-01). |
+| `apps/vscode/dist/skills/aisus-audit/` | `SKILL.md`, `agents/openai.yaml`, `scripts/audit-record.mjs` (ACC-05). |
+| `apps/vscode/dist/skills/aisus-tour/` | `SKILL.md`, `agents/openai.yaml`, `scripts/tour-record.mjs` (SKL-02). |
+| `apps/vscode/dist/skills/aisus-refresh/` | `SKILL.md`, `agents/openai.yaml`, the shared `references/`, `scripts/refresh-facts.mjs`, `scripts/validate.mjs`, `scripts/render-html.mjs` (FRS-05). |
+| `apps/vscode/dist/skill-hashes.json` | `{version, skills: {name: {path: sha256}}}`, the integrity reference (SAF-01). |
+| `apps/vscode/dist/cli/aisus.mjs` | The core CLI (RCH-03). |
 | `apps/action/dist/index.js` | The committed Action bundle (PRC-04). |
-| `dist/session-webview.js`, `dist/session-webview.css` | Session-panel bundle and stylesheet; `localResourceRoots` is `dist/` for both panels. |
+| `apps/vscode/dist/session-webview.js`, `dist/session-webview.css` | Session-panel bundle and stylesheet; `localResourceRoots` is `dist/` for both panels. |
 | `out/bench/` | `node esbuild.mjs --bench` builds each `tools/bench/*.ts` into `<name>.mjs`: `npm run bench` runs `bench.mjs`, `npm run bench:plan` runs `plan.mjs`, and `npm run bench:fit` runs `fit.mjs`, which reads `tools/bench/results/` and writes `packages/core/model/coefficients.json` (CST-02, CST-06). Never packaged. |
 | `tools/eval/ground-truth/<id>.json` | ACC-04: one hand-written `Truth` per corpus repository, from its architecture document at the corpus's pinned commit. `npm run eval` scores a map (`--map`, `--truth`) or every accepted full bench run; `npm run eval:check-truth` checks ids, edges, groups, the revision and every glob against the bench's cached clone. |
 | `tools/bench/results/<run>/` | One bench run (CST-06, gitignored): `result.json` (`BenchRecord`: `BenchResult`'s agent, kind, accepted, size and usage, plus run, repo, revision, runFolder, tier, tokens, costUsd, model, wallMs, validatorRuns, reads, searches, exitCode, startedAt, and question, answer or injectionFollowed where they apply), `transcript.jsonl`, and the run folder's `candidate.json`, `run.json`, `fingerprints.json` and `evidence.json`. |
 | `out/e2e/`, `out/test-scripts/`, `out/test-dist/` | Test builds (gitignored, never packaged): the e2e suite (scenarios `single`, `empty`, `multi`, each in its own VS Code launch), and the script bundles the unit tests run ([ADR 0016](adr/0016-build-test-and-docs-check-harness.md)). |
-| `aisus-<version>.vsix` | `npm run package` (`tools/scripts/package.mjs` runs `vsce package --no-dependencies`, with `--skip-license` only while there is no `LICENSE`; build via `vscode:prepublish`); `.vscodeignore` ships only `dist/**`, `package.json`, `README.md`, `THIRD_PARTY_NOTICES.md`, `media/**` (and `LICENSE` if one is added). |
+| `aisus-<version>.vsix` | `npm run package` (`tools/scripts/package.mjs` runs `vsce package --no-dependencies`, with `--skip-license` only while there is no `LICENSE`; build via `vscode:prepublish`); `apps/vscode/.vscodeignore` ships only `dist/**`, `package.json`, `README.md`, `THIRD_PARTY_NOTICES.md`, `media/**` (and `LICENSE` if one is added). |
 | `release/plugin/`, `release/files/` | `npm run build:release` assembles the Claude Code plugin (RCH-02). The release workflow adds the `.vsix`, `aisus-skills.zip`, `aisus-action.js`, the CLI as `aisus.mjs` and `SHA256SUMS` on a `v*` tag; a hyphenated tag keeps them as a workflow artifact only ([ADR 0057](adr/0057-release-from-tags-to-github-and-the-stores.md), RCH-05). |
 
 ## Trust boundaries

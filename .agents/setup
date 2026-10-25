@@ -68,12 +68,12 @@ playwright_browser() {
   npm exec -w apps/cloud -- playwright install chromium
 }
 
-# test:e2e runs against the VS Code versions listed in test/e2e/runTest.ts. Downloading them now keeps the first run offline.
+# test:e2e runs against the VS Code versions listed in apps/vscode/test/e2e/runTest.ts. Downloading them now keeps the first run offline.
 vscode_builds() {
   node -e '
     const { readFileSync } = require("node:fs");
     const { downloadAndUnzipVSCode } = require("@vscode/test-electron");
-    const line = /VSCODE_VERSIONS\s*=\s*\[([^\]]*)\]/.exec(readFileSync("test/e2e/runTest.ts", "utf8"));
+    const line = /VSCODE_VERSIONS\s*=\s*\[([^\]]*)\]/.exec(readFileSync("apps/vscode/test/e2e/runTest.ts", "utf8"));
     const versions = line ? [...line[1].matchAll(/"([^"]+)"/g)].map((m) => m[1]) : [];
     (async () => { for (const v of versions) console.log(await downloadAndUnzipVSCode(v)); })()
       .catch((error) => { console.error(error); process.exit(1); });

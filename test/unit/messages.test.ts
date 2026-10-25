@@ -76,11 +76,11 @@ function literal(arg: string): string | null {
   return null;
 }
 
-/** Every notification call under `src/` and `packages/`. */
+/** Every notification call under `apps/vscode/src/` and `packages/`. */
 function shownMessages(): { shown: Shown[]; problems: string[] } {
   const shown: Shown[] = [];
   const problems: string[] = [];
-  for (const file of [...sourceFiles("src"), ...sourceFiles("packages")]) {
+  for (const file of [...sourceFiles("apps/vscode/src"), ...sourceFiles("packages")]) {
     const source = readFileSync(join(repoRoot, file), "utf8");
     for (const match of source.matchAll(/\bshow(Information|Warning|Error)Message\b/g)) {
       const where = `${file}:${source.slice(0, match.index).split("\n").length}`;

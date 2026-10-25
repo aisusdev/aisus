@@ -1,6 +1,6 @@
 // FR-WAT-01: 300 ms debouncing and the reload / switch / notify / deleted decisions.
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
-import { candidateOf, ChangeBatch, DEBOUNCE_MS, noteCandidate, watchAction, type CandidateChange } from "../../../src/extension/watchLogic";
+import { candidateOf, ChangeBatch, DEBOUNCE_MS, noteCandidate, watchAction, type CandidateChange } from "../../../apps/vscode/src/watchLogic";
 
 describe("FR-WAT-01 debouncing", () => {
   beforeEach(() => vi.useFakeTimers());

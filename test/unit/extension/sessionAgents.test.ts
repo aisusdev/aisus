@@ -3,7 +3,7 @@
 import { chmodSync } from "node:fs";
 import { join } from "node:path";
 import { expect, test } from "vitest";
-import { sessionAgents, sessionArgs } from "../../../src/extension/sessionAgents";
+import { sessionAgents, sessionArgs } from "../../../apps/vscode/src/sessionAgents";
 import { put, tempDir } from "../support/temp";
 
 test("LRN-01 Claude Code, Codex and Devin on PATH are offered in that order", () => {

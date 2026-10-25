@@ -1,6 +1,6 @@
 // NFR-SEC-01: the webview's Content Security Policy and HTML shell.
 import { describe, expect, test } from "vitest";
-import { webviewCsp, webviewHtml } from "../../../src/extension/html";
+import { webviewCsp, webviewHtml } from "../../../apps/vscode/src/html";
 
 const assets = {
   cspSource: "https://file+.vscode-resource.vscode-cdn.net",

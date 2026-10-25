@@ -3,7 +3,7 @@ import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { expect, test, vi } from "vitest";
 import { claudeParser } from "@aisus/core/model/agentStream/claude";
-import { canRunHeadless, startHeadless } from "../../../src/extension/runner";
+import { canRunHeadless, startHeadless } from "../../../apps/vscode/src/runner";
 import { tempDir } from "../support/temp";
 
 const repoRoot = join(__dirname, "../../..");

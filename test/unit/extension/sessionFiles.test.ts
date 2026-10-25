@@ -3,7 +3,7 @@
 import { mkdirSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, test } from "vitest";
-import { listSessionRuns, readSessionSnapshot } from "../../../src/extension/sessionFiles";
+import { listSessionRuns, readSessionSnapshot } from "../../../apps/vscode/src/sessionFiles";
 import { ACTIVE_FILE, SESSION_FILE, AISUS_DIR } from "@aisus/core/model/session";
 import { put, tempDir } from "../support/temp";
 

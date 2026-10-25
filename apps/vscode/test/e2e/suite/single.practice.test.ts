@@ -6,13 +6,14 @@ import { chmodSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync 
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import * as vscode from "vscode";
-import type { TestHook } from "../../../src/extension/extension";
+import type { TestHook } from "../../../src/extension";
 import { stubUi, type UiStubs } from "../stubs";
 import { setup, suite, suiteSetup, teardown, test } from "../tdd";
 import { until } from "../until";
 
-function extensionPath(): string {
-  return vscode.extensions.getExtension("aisus.aisus")!.extensionPath;
+/** The repository, which holds the shared test fixtures. The extension sits in its apps/vscode. */
+function repositoryRoot(): string {
+  return join(vscode.extensions.getExtension("aisus.aisus")!.extensionPath, "../..");
 }
 
 function git(root: string, ...args: string[]): void {
@@ -36,7 +37,7 @@ suite("SKL-01 Explain-back", () => {
     ui = stubUi();
     savedPath = process.env["PATH"];
     scratch = mkdtempSync(join(tmpdir(), "aisus-practice-"));
-    const stub = join(extensionPath(), "test/fixtures/streams/stub-agent.mjs");
+    const stub = join(repositoryRoot(), "test/fixtures/streams/stub-agent.mjs");
     writeFileSync(join(scratch, "claude"), `#!/bin/sh\nELECTRON_RUN_AS_NODE=1 exec "${process.execPath}" "${stub}" "$@"\n`);
     chmodSync(join(scratch, "claude"), 0o755);
     process.env["PATH"] = `${scratch}:${savedPath}`;
@@ -63,7 +64,7 @@ suite("SKL-01 Explain-back", () => {
 
   test("SKL-01 the agent's questions reach the sidebar without their keys, and an answer comes back graded with a link that opens the code", async () => {
     const args = join(scratch, "args.json");
-    Object.assign(process.env, { AISUS_STUB_STREAM: join(extensionPath(), "test/fixtures/streams/claude-practice-questions.jsonl"), AISUS_STUB_ARGS: args });
+    Object.assign(process.env, { AISUS_STUB_STREAM: join(repositoryRoot(), "test/fixtures/streams/claude-practice-questions.jsonl"), AISUS_STUB_ARGS: args });
     await hook.postFromHome({ type: "practiceStart", scope: "uncommitted" });
     const asked = JSON.parse(readFileSync(args, "utf8")) as string[];
     assert.match(asked[1]!, /^Check that the user understands the uncommitted changes\. The code is here:\n- src\/pay\.ts, line 2\n/);
@@ -76,7 +77,7 @@ suite("SKL-01 Explain-back", () => {
     );
     assert.equal(JSON.stringify(hook.homeState().state).includes("KEY-"), false, "no expected answer reaches the sidebar");
 
-    Object.assign(process.env, { AISUS_STUB_STREAM: join(extensionPath(), "test/fixtures/streams/claude-practice-grade.jsonl") });
+    Object.assign(process.env, { AISUS_STUB_STREAM: join(repositoryRoot(), "test/fixtures/streams/claude-practice-grade.jsonl") });
     await hook.postFromHome({ type: "practiceAnswer", index: 0, answer: "It doubles the amount." });
     const graded = JSON.parse(readFileSync(args, "utf8")) as string[];
     assert.match(graded[1]!, /Expected answer: KEY-ONE: the amount is in cents and the fee doubles it\.\n/);

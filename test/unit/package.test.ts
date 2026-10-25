@@ -5,7 +5,7 @@ import { expect, test } from "vitest";
 import { packageArgs } from "../../tools/scripts/package.mjs";
 import { repoRoot } from "./support/sourceScan";
 
-const pkg = JSON.parse(readFileSync(join(repoRoot, "package.json"), "utf8")) as Record<string, unknown> & { scripts: Record<string, string> };
+const pkg = JSON.parse(readFileSync(join(repoRoot, "apps/vscode/package.json"), "utf8")) as Record<string, unknown>;
 
 test("RCH-05 package.json carries the store metadata and a PNG icon", () => {
   expect(pkg).toMatchObject({
@@ -17,13 +17,14 @@ test("RCH-05 package.json carries the store metadata and a PNG icon", () => {
     categories: ["Visualization", "AI", "Education"],
   });
   expect(pkg["keywords"]).toContain("architecture");
-  const icon = readFileSync(join(repoRoot, "media/icon.png"));
+  const icon = readFileSync(join(repoRoot, "apps/vscode/media/icon.png"));
   expect(icon.subarray(1, 4).toString("latin1")).toBe("PNG");
   expect([icon.readUInt32BE(16), icon.readUInt32BE(20)]).toEqual([128, 128]);
 });
 
 test("RCH-05 npm run package skips the licence only while there is no LICENSE, and never the repository", () => {
-  expect(pkg.scripts["package"]).toBe("node tools/scripts/package.mjs");
+  const root = JSON.parse(readFileSync(join(repoRoot, "package.json"), "utf8")) as { scripts: Record<string, string> };
+  expect(root.scripts["package"]).toBe("node tools/scripts/package.mjs");
   expect(packageArgs(false)).toEqual(["package", "--no-dependencies", "--skip-license"]);
   expect(packageArgs(true)).toEqual(["package", "--no-dependencies"]);
   expect(packageArgs(existsSync(join(repoRoot, "LICENSE")))).not.toContain("--allow-missing-repository");
