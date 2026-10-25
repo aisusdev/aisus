@@ -1,10 +1,11 @@
 // Tolerant reading of Archify documents for the viewer (FR-VIEW-03, ADR 0012). No schema
 // validation: whatever can be drawn is kept, the rest is skipped. Browser-safe: no imports
 // besides types.
-import type { BoundaryKind, ComponentType, GridLayout, Point, SourceRef, Variant } from "./types";
+import type { BoundaryKind, ComponentType, GridLayout, MessageVariant, Point, SourceRef, Variant } from "./types";
 
 const COMPONENT_TYPES: readonly ComponentType[] = ["frontend", "backend", "database", "cloud", "security", "messagebus", "external"];
 const VARIANTS: readonly Variant[] = ["default", "emphasis", "security", "dashed"];
+const MESSAGE_VARIANTS: readonly MessageVariant[] = [...VARIANTS, "return"];
 
 export interface ViewComponent {
   id: string;
@@ -35,8 +36,46 @@ export interface ViewBoundary {
   wraps: string[];
 }
 
+export interface ViewParticipant {
+  id: string;
+  label: string;
+  sublabel?: string;
+  type: ComponentType;
+  sources: SourceRef[];
+}
+
+export interface ViewMessage {
+  id: string;
+  /** Indices into `ViewSequence.participants`. */
+  from: number;
+  to: number;
+  label: string;
+  variant: MessageVariant;
+  note?: string;
+  sources: SourceRef[];
+}
+
+export interface ViewPhase {
+  label: string;
+  /** Indices into `ViewSequence.messages`, `first <= last`. */
+  first: number;
+  last: number;
+}
+
+/** SEQ-03: what the viewer draws of a sequence map. */
+export interface ViewSequence {
+  participants: ViewParticipant[];
+  messages: ViewMessage[];
+  phases: ViewPhase[];
+}
+
 export interface ViewDiagram {
   title?: string;
+  /**
+   * SEQ-03: set for a sequence map, whose `components` are then its participants followed by its
+   * messages, so that clicks, freshness and citations find either by id. It has no connections or boundaries.
+   */
+  sequence?: ViewSequence;
   /** Root `layout`, only when `mode` is `"grid"`. */
   grid?: GridLayout;
   components: ViewComponent[];
@@ -101,9 +140,97 @@ function readGrid(value: unknown): GridLayout | undefined {
   return grid;
 }
 
-/** Tolerant read of an already parsed JSON value. */
+/**
+ * SEQ-03: a sequence map's participants with a string id (the first of each id), the messages
+ * whose ends resolve, given `message-<n>` when their id is missing or taken, and the phases whose
+ * messages resolve in order.
+ */
+function readSequence(value: Obj): TolerantResult {
+  const skipped: string[] = [];
+  const participants: ViewParticipant[] = [];
+  const index = new Map<string, number>();
+  const rawParticipants = Array.isArray(value["participants"]) ? value["participants"] : [];
+  rawParticipants.forEach((raw, i) => {
+    const pointer = `/participants/${i}`;
+    const id = isObj(raw) ? str(raw["id"]) : undefined;
+    if (!isObj(raw) || id === undefined || index.has(id)) {
+      skipped.push(`${pointer}: no string id, or a duplicate`);
+      return;
+    }
+    index.set(id, participants.length);
+    const type = str(raw["type"]);
+    const participant: ViewParticipant = {
+      id,
+      label: str(raw["label"]) || id,
+      type: COMPONENT_TYPES.includes(type as ComponentType) ? (type as ComponentType) : "external",
+      sources: readSources(raw["sources"], pointer, skipped),
+    };
+    const sublabel = str(raw["sublabel"]);
+    if (sublabel) participant.sublabel = sublabel;
+    participants.push(participant);
+  });
+  if (participants.length === 0) return { ok: false, reason: "it has no participants with an id" };
+  const ids = new Set(index.keys());
+  const messages: ViewMessage[] = [];
+  const order = new Map<string, number>();
+  const rawMessages = Array.isArray(value["messages"]) ? value["messages"] : [];
+  rawMessages.forEach((raw, i) => {
+    const pointer = `/messages/${i}`;
+    const from = isObj(raw) ? index.get(str(raw["from"]) ?? "") : undefined;
+    const to = isObj(raw) ? index.get(str(raw["to"]) ?? "") : undefined;
+    if (!isObj(raw) || from === undefined || to === undefined) {
+      skipped.push(`${pointer}: from/to do not resolve`);
+      return;
+    }
+    let id = str(raw["id"]);
+    if (id === undefined || ids.has(id)) id = `message-${i}`;
+    ids.add(id);
+    order.set(id, messages.length);
+    const variant = str(raw["variant"]);
+    const message: ViewMessage = {
+      id,
+      from,
+      to,
+      label: str(raw["label"]) ?? "",
+      variant: MESSAGE_VARIANTS.includes(variant as MessageVariant) ? (variant as MessageVariant) : "default",
+      sources: readSources(raw["sources"], pointer, skipped),
+    };
+    const note = str(raw["note"]);
+    if (note) message.note = note;
+    messages.push(message);
+  });
+  const phases: ViewPhase[] = [];
+  const rawPhases = Array.isArray(value["phases"]) ? value["phases"] : [];
+  rawPhases.forEach((raw, i) => {
+    const first = isObj(raw) ? order.get(str(raw["first"]) ?? "") : undefined;
+    const last = isObj(raw) ? order.get(str(raw["last"]) ?? "") : undefined;
+    if (!isObj(raw) || first === undefined || last === undefined || first > last) {
+      skipped.push(`/phases/${i}: its messages do not resolve in order`);
+      return;
+    }
+    phases.push({ label: str(raw["label"]) ?? "", first, last });
+  });
+  const components: ViewComponent[] = [
+    ...participants.map((participant) => ({ ...participant })),
+    ...messages.map((message) => ({
+      id: message.id,
+      label: message.label || message.id,
+      sublabel: `${participants[message.from]!.label} to ${participants[message.to]!.label}`,
+      type: "external" as const,
+      sources: message.sources,
+    })),
+  ];
+  const diagram: ViewDiagram = { components, connections: [], boundaries: [], sequence: { participants, messages, phases } };
+  const meta = value["meta"];
+  const title = isObj(meta) ? str(meta["title"]) : undefined;
+  if (title) diagram.title = title;
+  return { ok: true, diagram, skipped };
+}
+
+/** Tolerant read of an already parsed JSON value: an architecture map, or a sequence map (SEQ-03). */
 export function readDiagram(value: unknown): TolerantResult {
   if (!isObj(value)) return { ok: false, reason: "the root is not a JSON object" };
+  if (value["diagram_type"] === "sequence") return readSequence(value);
   const rawComponents = value["components"];
   if (!Array.isArray(rawComponents) || rawComponents.length === 0) {
     return { ok: false, reason: "it has no components" };

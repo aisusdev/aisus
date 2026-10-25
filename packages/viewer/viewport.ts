@@ -147,7 +147,7 @@ export class ViewportController {
 
   private onPointerDown(event: PointerEvent): void {
     if (event.button !== 0) return;
-    if (event.target instanceof Element && event.target.closest(".node")) return;
+    if (event.target instanceof Element && event.target.closest(".node, .message")) return;
     this.drag = { pointerId: event.pointerId, lastX: event.clientX, lastY: event.clientY };
     this.svg.setPointerCapture(event.pointerId);
     this.svg.classList.add("canvas--panning");

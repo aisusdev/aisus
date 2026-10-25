@@ -34,7 +34,7 @@ function textEl(className: string, content: string, x: number, y: number, sizePx
 }
 
 /** The edge's line (ending at the arrowhead's base) and its arrowhead triangle. */
-function edgeGeometry(points: Point[]): { line: string; head: string } {
+export function edgeGeometry(points: Point[]): { line: string; head: string } {
   const tip = points[points.length - 1]!;
   // The last point that differs from the tip gives the arrow's direction; repeats of the tip are dropped.
   let end = points.length - 2;

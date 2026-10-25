@@ -8598,6 +8598,7 @@ function fileReader(root) {
 // packages/core/model/tolerant.ts
 var COMPONENT_TYPES = ["frontend", "backend", "database", "cloud", "security", "messagebus", "external"];
 var VARIANTS = ["default", "emphasis", "security", "dashed"];
+var MESSAGE_VARIANTS = [...VARIANTS, "return"];
 function isObj(value) {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
@@ -8643,8 +8644,90 @@ function readGrid(value) {
   }
   return grid;
 }
+function readSequence(value) {
+  const skipped2 = [];
+  const participants = [];
+  const index = /* @__PURE__ */ new Map();
+  const rawParticipants = Array.isArray(value["participants"]) ? value["participants"] : [];
+  rawParticipants.forEach((raw, i) => {
+    const pointer = `/participants/${i}`;
+    const id = isObj(raw) ? str(raw["id"]) : void 0;
+    if (!isObj(raw) || id === void 0 || index.has(id)) {
+      skipped2.push(`${pointer}: no string id, or a duplicate`);
+      return;
+    }
+    index.set(id, participants.length);
+    const type = str(raw["type"]);
+    const participant = {
+      id,
+      label: str(raw["label"]) || id,
+      type: COMPONENT_TYPES.includes(type) ? type : "external",
+      sources: readSources(raw["sources"], pointer, skipped2)
+    };
+    const sublabel = str(raw["sublabel"]);
+    if (sublabel) participant.sublabel = sublabel;
+    participants.push(participant);
+  });
+  if (participants.length === 0) return { ok: false, reason: "it has no participants with an id" };
+  const ids = new Set(index.keys());
+  const messages = [];
+  const order = /* @__PURE__ */ new Map();
+  const rawMessages = Array.isArray(value["messages"]) ? value["messages"] : [];
+  rawMessages.forEach((raw, i) => {
+    const pointer = `/messages/${i}`;
+    const from = isObj(raw) ? index.get(str(raw["from"]) ?? "") : void 0;
+    const to = isObj(raw) ? index.get(str(raw["to"]) ?? "") : void 0;
+    if (!isObj(raw) || from === void 0 || to === void 0) {
+      skipped2.push(`${pointer}: from/to do not resolve`);
+      return;
+    }
+    let id = str(raw["id"]);
+    if (id === void 0 || ids.has(id)) id = `message-${i}`;
+    ids.add(id);
+    order.set(id, messages.length);
+    const variant = str(raw["variant"]);
+    const message = {
+      id,
+      from,
+      to,
+      label: str(raw["label"]) ?? "",
+      variant: MESSAGE_VARIANTS.includes(variant) ? variant : "default",
+      sources: readSources(raw["sources"], pointer, skipped2)
+    };
+    const note = str(raw["note"]);
+    if (note) message.note = note;
+    messages.push(message);
+  });
+  const phases = [];
+  const rawPhases = Array.isArray(value["phases"]) ? value["phases"] : [];
+  rawPhases.forEach((raw, i) => {
+    const first = isObj(raw) ? order.get(str(raw["first"]) ?? "") : void 0;
+    const last = isObj(raw) ? order.get(str(raw["last"]) ?? "") : void 0;
+    if (!isObj(raw) || first === void 0 || last === void 0 || first > last) {
+      skipped2.push(`/phases/${i}: its messages do not resolve in order`);
+      return;
+    }
+    phases.push({ label: str(raw["label"]) ?? "", first, last });
+  });
+  const components2 = [
+    ...participants.map((participant) => ({ ...participant })),
+    ...messages.map((message) => ({
+      id: message.id,
+      label: message.label || message.id,
+      sublabel: `${participants[message.from].label} to ${participants[message.to].label}`,
+      type: "external",
+      sources: message.sources
+    }))
+  ];
+  const diagram = { components: components2, connections: [], boundaries: [], sequence: { participants, messages, phases } };
+  const meta = value["meta"];
+  const title = isObj(meta) ? str(meta["title"]) : void 0;
+  if (title) diagram.title = title;
+  return { ok: true, diagram, skipped: skipped2 };
+}
 function readDiagram(value) {
   if (!isObj(value)) return { ok: false, reason: "the root is not a JSON object" };
+  if (value["diagram_type"] === "sequence") return readSequence(value);
   const rawComponents = value["components"];
   if (!Array.isArray(rawComponents) || rawComponents.length === 0) {
     return { ok: false, reason: "it has no components" };

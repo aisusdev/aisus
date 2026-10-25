@@ -12,8 +12,9 @@ interface Press {
   y: number;
 }
 
+/** The id of the box, or of the sequence map's message (SEQ-03), under the pointer. */
 function nodeId(target: EventTarget | null): string | undefined {
-  const node = target instanceof Element ? target.closest(".node") : null;
+  const node = target instanceof Element ? target.closest(".node, .message") : null;
   return node?.getAttribute("data-id") ?? undefined;
 }
 

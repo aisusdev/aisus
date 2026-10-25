@@ -3,6 +3,7 @@
 // webview, the diagram page and the cloud site share it.
 import { layoutDiagram } from "@aisus/core/layout/layout";
 import type { MeasureText, Scene } from "@aisus/core/layout/scene";
+import { layoutSequence } from "@aisus/core/layout/sequence";
 import type { ChangeOverlay, Comparison, Ghost, GhostArrow, HostMessage } from "@aisus/core/model/messages";
 import { NO_IMPORT_EVIDENCE } from "@aisus/core/model/uncertainty";
 import type { Freshness } from "@aisus/core/model/staleness";
@@ -11,6 +12,7 @@ import { onMessage, post } from "./bridge";
 import { ChangesView, formatFields, type ElementKind } from "./changes";
 import { NodeClicks } from "./click";
 import { renderScene } from "./render";
+import { renderSequence } from "./sequence";
 import { screenReaderList } from "./a11y";
 import { Finder } from "./finder";
 import { mapPng, mapSvg } from "./imageExport";
@@ -178,7 +180,7 @@ export function startViewer(mount: HTMLElement = document.body): void {
   let shownDiagram: ViewDiagram | undefined;
   content.addEventListener("keydown", (event) => {
     if (event.key !== "Enter" && event.key !== " ") return;
-    const id = event.target instanceof Element ? event.target.closest(".node")?.getAttribute("data-id") : null;
+    const id = event.target instanceof Element ? event.target.closest(".node, .message")?.getAttribute("data-id") : null;
     const component = shownDiagram?.components.find((entry) => entry.id === id);
     if (!component) return;
     event.preventDefault();
@@ -397,6 +399,19 @@ export function startViewer(mount: HTMLElement = document.body): void {
       text.textContent = badge;
       node.append(text);
     }
+    // SEQ-04: a message whose call site changed says so after its label.
+    for (const message of content.querySelectorAll<SVGGElement>(".message")) {
+      message.querySelector(".message__badge")?.remove();
+      message.classList.remove("message--edited", "message--missing");
+      const state = freshness[message.getAttribute("data-id") ?? ""];
+      const badge = state === undefined ? undefined : BADGES[state];
+      if (badge === undefined) continue;
+      message.classList.add(`message--${state}`);
+      const tspan = document.createElementNS(SVG_NS, "tspan");
+      tspan.setAttribute("class", "message__badge");
+      tspan.textContent = ` \u00b7 ${badge}`;
+      message.querySelector(".message__label")?.append(tspan);
+    }
   }
 
   function applyHighlight(): void {
@@ -446,6 +461,23 @@ export function startViewer(mount: HTMLElement = document.body): void {
     // The canvas must be displayed for its size to be the panel size.
     emptyState.hidden = true;
     app.classList.remove("app--empty");
+    const sequence = result.diagram.sequence;
+    // SEQ-03: a sequence map is laid out from message order, and only freshness and highlights apply to it.
+    if (sequence !== undefined) {
+      const scene = layoutSequence(sequence, measure);
+      renderSequence(content, sequence, scene, measure);
+      shownScene = undefined;
+      shownDiagram = result.diagram;
+      applyHighlight();
+      applyFreshness();
+      screenReader.replaceChildren(screenReaderList(result.diagram, post));
+      finder.setDiagram(null);
+      tooltip.setDiagram(undefined);
+      viewport.bounds = scene.bounds;
+      if (file !== shownFile) viewport.fit();
+      shownFile = file;
+      return;
+    }
     const ids = new Set(result.diagram.components.map((component) => component.id));
     const broken = violationArrows.filter((arrow) => ids.has(arrow.from) && ids.has(arrow.to)).map((arrow) => ({ ...arrow, variant: "emphasis" as const }));
     const checked = withUncertainty(result.diagram, uncertain.shown ? uncertain.edges : []);

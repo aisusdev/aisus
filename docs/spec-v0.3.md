@@ -786,7 +786,7 @@ Participants and messages share one id namespace. The validator rejects duplicat
 - Participants are boxes across the top, in document order, each over a dashed lifeline.
 - Each message is one row, drawn as an arrow with its label above it and its note below. `return` and `dashed` messages are dashed. A call to itself loops to the right.
 - A column is wide enough for its box and for the labels of the messages between it and its neighbour.
-- A participant is active from a message it receives until its next `return` to the caller, and from its first message when nothing activated it. Activations nest.
+- A participant is active from a message it receives until its next `return`. When it never returns, it stays active until the last message it sends or receives. A participant that sends while nothing has activated it is active from that message. Activations nest.
 - A phase is a band behind its messages, labelled at the left.
 - Clicking or pressing Enter on a participant or a message opens its first citation. The screen reader list and image export work as for architecture maps.
 

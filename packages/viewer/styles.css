@@ -889,3 +889,88 @@ button.changes-panel__item:focus-visible {
 .app--empty .overview {
   display: none;
 }
+
+/* Sequence maps (SEQ-03) */
+
+.phase__band {
+  fill: var(--aisus-widget-background);
+  stroke: var(--aisus-widget-border);
+  stroke-width: 1px;
+}
+
+.phase__label {
+  fill: var(--aisus-muted);
+  font-weight: bold;
+}
+
+.lifeline {
+  stroke: var(--aisus-muted);
+  stroke-width: 1px;
+  stroke-dasharray: 4 4;
+}
+
+.activation {
+  fill: var(--aisus-background);
+  stroke: var(--aisus-muted);
+  stroke-width: 1px;
+}
+
+.activation--frontend { stroke: var(--aisus-blue); }
+.activation--backend { stroke: var(--aisus-green); }
+.activation--database { stroke: var(--aisus-purple); }
+.activation--cloud { stroke: var(--aisus-yellow); }
+.activation--security { stroke: var(--aisus-red); }
+.activation--messagebus { stroke: var(--aisus-orange); }
+
+.message {
+  cursor: pointer;
+}
+
+.message__hit {
+  fill: none;
+  stroke: transparent;
+  stroke-width: 14px;
+}
+
+.edge--return {
+  --edge-color: var(--aisus-muted);
+}
+
+.edge--return .edge__line {
+  stroke-dasharray: 4 3;
+}
+
+.message__label,
+.message__note {
+  fill: var(--aisus-foreground);
+  stroke: var(--aisus-background);
+  stroke-width: 4px;
+  stroke-linejoin: round;
+  paint-order: stroke;
+}
+
+.edge--return .message__label,
+.message__note {
+  fill: var(--aisus-muted);
+}
+
+.message:hover .edge__line,
+.message:focus-visible .edge__line {
+  stroke-width: 2.5px;
+}
+
+.message:focus {
+  outline: none;
+}
+
+.message:focus-visible .message__label {
+  text-decoration: underline;
+}
+
+.message--edited .message__badge {
+  fill: var(--aisus-orange);
+}
+
+.message--missing .message__badge {
+  fill: var(--aisus-red);
+}

@@ -692,3 +692,55 @@ describe("VWR-06 image export", () => {
     expect(posted).toEqual([{ type: "image", request: 8, data: null }]);
   });
 });
+
+describe("SEQ-03 sequence maps", () => {
+  const SEQUENCE = {
+    diagram_type: "sequence",
+    meta: { title: "Login" },
+    participants: [
+      { id: "web", type: "frontend", label: "Web", sources: [{ path: "web/login.ts", line: 4 }] },
+      { id: "api", type: "backend", label: "API", sources: [{ path: "api/login.ts" }] },
+    ],
+    messages: [
+      { id: "post", from: "web", to: "api", label: "POST /login", sources: [{ path: "web/login.ts", line: 9 }] },
+      { id: "ok", from: "api", to: "web", label: "200", variant: "return" },
+    ],
+  };
+
+  beforeEach(() => send({ type: "freshness", boxes: {}, header: null }));
+
+  test("draws participants over lifelines and one arrow per message, without the architecture layout", async () => {
+    send({ type: "load", doc: SEQUENCE, file: "/r/.archify/sequence-login-20261025-090000/candidate.json" });
+    await vi.waitFor(() => expect(document.querySelectorAll(".message").length).toBe(2));
+    expect([...document.querySelectorAll(".node")].map((node) => node.getAttribute("data-id"))).toEqual(["web", "api"]);
+    expect(document.querySelectorAll(".lifeline").length).toBe(2);
+    expect([...document.querySelectorAll(".message")].map((message) => [message.getAttribute("data-id"), message.classList.contains("edge--return"), message.querySelector(".message__label")?.textContent])).toEqual([
+      ["post", false, "POST /login"],
+      ["ok", true, "200"],
+    ]);
+    expect(document.querySelector(".message")!.getAttribute("aria-label")).toBe("POST /login, Web to API. Opens web/login.ts:9");
+    expect(vi.mocked(layoutDiagram)).not.toHaveBeenCalled();
+  });
+
+  test("a click or Enter on a message posts openSource with the message's id", async () => {
+    send({ type: "load", doc: SEQUENCE, file: "/r/s.json" });
+    await vi.waitFor(() => expect(document.querySelectorAll(".message").length).toBe(2));
+    const line = document.querySelector('.message[data-id="post"] .edge__line')!;
+    line.dispatchEvent(new PointerEvent("pointerdown", { bubbles: true, button: 0, pointerId: 1, clientX: 10, clientY: 10 }));
+    line.dispatchEvent(new PointerEvent("pointerup", { bubbles: true, button: 0, pointerId: 1, clientX: 11, clientY: 10 }));
+    document.querySelector('.message[data-id="post"]')!.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter", bubbles: true }));
+    expect(posted.filter((message) => message.type === "openSource")).toEqual([
+      { type: "openSource", componentId: "post", index: 0 },
+      { type: "openSource", componentId: "post", index: 0 },
+    ]);
+  });
+
+  test("a message whose call site changed says so after its label", async () => {
+    send({ type: "load", doc: SEQUENCE, file: "/r/s.json" });
+    await vi.waitFor(() => expect(document.querySelectorAll(".message").length).toBe(2));
+    send({ type: "freshness", boxes: { post: "edited", api: "missing" }, header: "2 of 4 changed" });
+    expect(document.querySelector('.message[data-id="post"]')!.classList.contains("message--edited")).toBe(true);
+    expect(document.querySelector('.message[data-id="post"] .message__label')!.textContent).toBe("POST /login \u00b7 changed");
+    expect(document.querySelector('.node[data-id="api"] .node__badge')?.textContent).toBe("missing");
+  });
+});
