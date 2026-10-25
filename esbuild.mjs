@@ -2,7 +2,7 @@
 // `node esbuild.mjs`        → dist/
 // `node esbuild.mjs --e2e`  → out/e2e/ (the @vscode/test-electron suite; never shipped)
 // `node esbuild.mjs --action` → action/dist/index.js (the GitHub Action, committed; PRC-04)
-// `node esbuild.mjs --cloud`  → cloud/public/viewer.js and viewer.css (the cloud's map viewer; CLD-03)
+// `node esbuild.mjs --cloud`  → apps/cloud/public/viewer.js and viewer.css (the cloud's map viewer; CLD-03)
 // `node esbuild.mjs --intellij` → out/intellij/jcef.js and jcef.css (the IntelliJ plugin's map viewer; IDE-01)
 // `node esbuild.mjs --bench`  → out/bench/ and out/eval/ (the bench harness, its fit and the eval scorer; never shipped, CST-02, CST-06, ACC-04)
 import * as esbuild from "esbuild";
@@ -279,12 +279,12 @@ async function buildE2e() {
   });
 }
 
-/** The cloud's map viewer: the diagram page's script and styles, served from cloud/public (CLD-03). */
+/** The cloud's map viewer: the diagram page's script and styles, served from apps/cloud/public (CLD-03). */
 export async function buildCloudViewer() {
   const page = await buildPage();
-  mkdirSync(join(root, "cloud/public"), { recursive: true });
-  writeFileSync(join(root, "cloud/public/viewer.js"), page.script);
-  writeFileSync(join(root, "cloud/public/viewer.css"), page.style);
+  mkdirSync(join(root, "apps/cloud/public"), { recursive: true });
+  writeFileSync(join(root, "apps/cloud/public/viewer.js"), page.script);
+  writeFileSync(join(root, "apps/cloud/public/viewer.css"), page.style);
 }
 
 /** The IntelliJ plugin's map viewer and its styles, which the plugin's build packs (IDE-01). */

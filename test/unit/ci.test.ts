@@ -41,7 +41,7 @@ test("PRC-04 the Action's committed bundle is rebuilt and compared, and the Acti
 });
 
 test("D5 the cloud job runs the cloud's unit tests, build and [web] suite", () => {
-  expect(jobRuns("cloud")).toEqual(["npm ci", "npm run -w cloud test", "npm run -w cloud build", "npx -w cloud playwright install --with-deps chromium", "npm run -w cloud test:web"]);
+  expect(jobRuns("cloud")).toEqual(["npm ci", "npm run -w apps/cloud test", "npm run -w apps/cloud build", "npx -w apps/cloud playwright install --with-deps chromium", "npm run -w apps/cloud test:web"]);
 });
 
 test("RCH-02 CI rebuilds the skills and fails when the committed scripts are stale", () => {

@@ -17,8 +17,8 @@ jobs:
         with:
           node-version-file: .nvmrc
       - run: npm ci
-      - run: npm run -w cloud test
-      - run: npm run -w cloud build
+      - run: npm run -w apps/cloud test
+      - run: npm run -w apps/cloud build
       - name: Deploy
         env:
           DEPLOY_HOOK: ${{ secrets.AISUS_DEPLOY_HOOK }}

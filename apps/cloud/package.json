@@ -4,10 +4,10 @@
   "private": true,
   "description": "aisus cloud: architecture maps for teams, never code.",
   "scripts": {
-    "viewer": "node ../esbuild.mjs --cloud",
-    "predev": "node ../esbuild.mjs --cloud",
+    "viewer": "node ../../esbuild.mjs --cloud",
+    "predev": "node ../../esbuild.mjs --cloud",
     "dev": "next dev",
-    "prebuild": "node ../esbuild.mjs --cloud",
+    "prebuild": "node ../../esbuild.mjs --cloud",
     "build": "next build",
     "start": "next start",
     "typecheck": "tsc --noEmit -p .",

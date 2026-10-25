@@ -66,7 +66,7 @@ Keep tool output and scratch files out of the repository. Build and probe in the
 
 ## Gates
 
-`npm run check` (typecheck, tests, docs check, build) and `npm run test:e2e` are green before every commit. Once `cloud/` exists, its tests join the gates.
+`npm run check` (typecheck, tests, docs check, build) and `npm run test:e2e` are green before every commit. Once `apps/cloud/` exists, its tests join the gates.
 
 ## Decisions
 

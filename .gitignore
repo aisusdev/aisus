@@ -12,11 +12,11 @@ out/
 !action/dist/
 .next/
 *.tsbuildinfo
-cloud/.data/
-cloud/test-results/
-cloud/playwright-report/
-cloud/public/viewer.js
-cloud/public/viewer.css
+apps/cloud/.data/
+apps/cloud/test-results/
+apps/cloud/playwright-report/
+apps/cloud/public/viewer.js
+apps/cloud/public/viewer.css
 release/
 tools/bench/results/
 research/change-collection/

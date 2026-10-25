@@ -47,5 +47,5 @@ test("RCH-05 the cloud deploys from main once the owner turns it on", () => {
   const deploy = readFileSync(join(repoRoot, ".github/workflows/deploy-cloud.yml"), "utf8");
   expect(deploy).toContain("branches: [main]");
   expect(deploy).toContain("if: vars.AISUS_DEPLOY == 'true'");
-  expect([...deploy.matchAll(/- run: (.+)/g)].map((match) => match[1])).toEqual(["npm ci", "npm run -w cloud test", "npm run -w cloud build"]);
+  expect([...deploy.matchAll(/- run: (.+)/g)].map((match) => match[1])).toEqual(["npm ci", "npm run -w apps/cloud test", "npm run -w apps/cloud build"]);
 });

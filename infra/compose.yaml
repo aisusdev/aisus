@@ -7,7 +7,7 @@ services:
   cloud:
     build:
       context: ..
-      dockerfile: cloud/Dockerfile
+      dockerfile: apps/cloud/Dockerfile
     image: aisus-cloud:latest
     restart: unless-stopped
     environment:

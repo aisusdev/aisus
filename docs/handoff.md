@@ -56,7 +56,7 @@ Every change follows AGENTS.md:
 
 All gates are listed under "Gates" in AGENTS.md. In practice they are:
 - root `npm run check` and `npm run test:e2e`;
-- in cloud, `npm run -w cloud test`, `typecheck`, `build` and `test:web`;
+- in cloud, `npm run -w apps/cloud test`, `typecheck`, `build` and `test:web`;
 - for plugin changes, `./gradlew test` in `intellij/`.
 
 ### The VS Code extension
@@ -90,9 +90,9 @@ All gates are listed under "Gates" in AGENTS.md. In practice they are:
 
 ### aisus cloud
 
-- The cloud is the Next 16 app in `cloud/`, using PGlite and Drizzle, with next-auth for GitHub sign-in and plain CSS in `cloud/src/app/globals.css`.
-- **Plans** are in `cloud/plans.ts`, and Stripe calls are in `cloud/src/lib/billing.ts`.
-- **Migrations:** append new ones to `cloud/src/db/migrations.ts` and never edit old ones.
+- The cloud is the Next 16 app in `apps/cloud/`, using PGlite and Drizzle, with next-auth for GitHub sign-in and plain CSS in `apps/cloud/src/app/globals.css`.
+- **Plans** are in `apps/cloud/plans.ts`, and Stripe calls are in `apps/cloud/src/lib/billing.ts`.
+- **Migrations:** append new ones to `apps/cloud/src/db/migrations.ts` and never edit old ones.
 - **Browser tests:** `test:web` starts the app with mock GitHub and Stripe servers on ports 3210 to 3213. Take care when two runs share one machine.
 - **Changing plans or prices:** update ADR 0067 and `infra/stripe-setup.sh`.
 

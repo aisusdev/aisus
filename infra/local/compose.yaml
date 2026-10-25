@@ -5,7 +5,7 @@ services:
   cloud:
     build:
       context: ../..
-      dockerfile: cloud/Dockerfile
+      dockerfile: apps/cloud/Dockerfile
     ports:
       - "3000:3000"
     environment:

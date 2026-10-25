@@ -1,8 +1,8 @@
 # What the cloud's image never needs (CLD-10).
 .git
 node_modules
-cloud/node_modules
-cloud/.next
+apps/cloud/node_modules
+apps/cloud/.next
 dist
 out
 release

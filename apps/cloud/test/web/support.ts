@@ -11,7 +11,7 @@ export const BILLED_APP = 3213;
 export const COMMIT = "0123456789abcdef0123456789abcdef01234567";
 /** An Archify example whose first box cites src/api.ts lines 3 to 9, so it has something to open. */
 export const MAP: Record<string, unknown> = (() => {
-  const map = JSON.parse(readFileSync(join(__dirname, "../../../fixtures/archify/examples/rag-pipeline.architecture.json"), "utf8")) as { components: Record<string, unknown>[] };
+  const map = JSON.parse(readFileSync(join(__dirname, "../../../../fixtures/archify/examples/rag-pipeline.architecture.json"), "utf8")) as { components: Record<string, unknown>[] };
   map.components[0]!["sources"] = [{ path: "src/api.ts", line: 3, end_line: 9 }];
   return map;
 })();

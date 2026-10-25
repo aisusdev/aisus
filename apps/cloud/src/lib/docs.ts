@@ -22,9 +22,9 @@ export function docPath(from: string, href: string): string | null {
   return doc === undefined ? null : doc.slug === "" ? "/docs" : `/docs/${doc.slug}`;
 }
 
-/** The repository root: the cloud runs from cloud/. */
+/** The repository root: the cloud runs from apps/cloud/. */
 function repositoryRoot(): string {
-  return join(process.cwd(), "..");
+  return join(process.cwd(), "../..");
 }
 
 export function loadDoc(slug: string): { title: string; blocks: Block[] } | null {

@@ -90,17 +90,17 @@ jobs:
         with:
           node-version-file: .nvmrc
       - run: npm ci
-      - run: npm run -w cloud test
-      - run: npm run -w cloud build
-      - run: npx -w cloud playwright install --with-deps chromium
-      - run: npm run -w cloud test:web
+      - run: npm run -w apps/cloud test
+      - run: npm run -w apps/cloud build
+      - run: npx -w apps/cloud playwright install --with-deps chromium
+      - run: npm run -w apps/cloud test:web
 
   # CLD-10: the self-hosting image builds, and its health endpoint answers.
   cloud-image:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
-      - run: docker build -f cloud/Dockerfile -t aisus-cloud .
+      - run: docker build -f apps/cloud/Dockerfile -t aisus-cloud .
       - run: docker run -d --name aisus-cloud -p 3000:3000 -e NEXTAUTH_URL=http://127.0.0.1:3000 -e NEXTAUTH_SECRET=ci-secret-ci-secret-ci-secret -e GITHUB_CLIENT_ID=ci -e GITHUB_CLIENT_SECRET=ci aisus-cloud
       - run: for attempt in $(seq 1 30); do curl -fsS http://127.0.0.1:3000/api/health && exit 0; sleep 2; done; docker logs aisus-cloud; exit 1
 

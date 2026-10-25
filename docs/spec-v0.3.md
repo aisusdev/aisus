@@ -142,7 +142,7 @@ Files:
 - **Shared paths.** Every write goes through SAF-05, every git call through SAF-07, and every agent launch through SAF-04.
 - **Platform.** Desktop VS Code ≥ 1.126 and its forks (Cursor, Devin Desktop). Not untrusted workspaces.
 - **Licence.** The repository's own LICENSE, whichever the owner adds, ships when present. This spec does not choose one.
-- **Cloud stack.** A `cloud/` npm workspace package:
+- **Cloud stack.** An `apps/cloud/` npm workspace package:
   - Next.js (App Router) with TypeScript;
   - PostgreSQL through Drizzle ORM, with tests on PGlite;
   - Auth.js with GitHub OAuth;
@@ -172,7 +172,7 @@ Verification tags:
 - `npm run test:e2e` under `xvfb-run` on ubuntu;
 - `npm run package`, with the `.vsix` as an artifact;
 - the script-bundle tests again with `AISUS_SCRIPT_NODE` pointing at Node 18;
-- the cloud package's tests once `cloud/` exists.
+- the cloud package's tests once `apps/cloud/` exists.
 
 `.gitattributes` sets `* text=auto eol=lf`. A platform skip uses `skipIf` with a reason, never for confinement, integrity or citation tests. AC: a test asserts the workflow's jobs `[unit]`; green `[ci]`.
 
@@ -437,7 +437,7 @@ AC: comment and Mermaid rendering, including hostile labels, with API calls thro
 
 ### D5 aisus cloud v1
 
-Built in `cloud/` with the stack in §3. At deploy, every plan is free (beta).
+Built in `apps/cloud/` with the stack in §3. At deploy, every plan is free (beta).
 
 **CLD-01 Accounts and organizations.** Sign in with GitHub. Organizations mirror the GitHub organizations the user belongs to (`read:org`).
 - A repository space belongs to the account owning the GitHub repository.
@@ -498,7 +498,7 @@ AC: the payload, dry run, scan and both auth paths, against a fake server `[unit
 - **Publish steps,** each only when its secret exists:
   - Open VSX (`ovsx publish`), only when `package.json` declares a licence;
   - the VS Code Marketplace, with `vsce publish --azure-credential` (Microsoft Entra ID; global Azure DevOps tokens are retired on 1 Dec 2026).
-- **Cloud.** `cloud/` deploys from `main` to the owner's host, with migrations run before start.
+- **Cloud.** `apps/cloud/` deploys from `main` to the owner's host, with migrations run before start.
 
 Supersedes ADRs 0014 and 0028. AC: package metadata `[unit]`; a dry run on a pre-release tag `[ci]`; the first publish and deploy `[smoke]`.
 
@@ -670,7 +670,7 @@ Everything is aggregated per repository. No per-person view, query or export exi
 
 **CLD-06 Share links.** Expiring (1, 7 or 30 days), revocable, read-only links to private maps. AC: `[web]`.
 
-**CLD-07 Plans and billing.** Stripe Checkout and the Customer Portal, with signature-verified webhooks setting the plan. `cloud/plans.ts` defines the plans, enforced on the server:
+**CLD-07 Plans and billing.** Stripe Checkout and the Customer Portal, with signature-verified webhooks setting the plan. `apps/cloud/plans.ts` defines the plans, enforced on the server:
 - **Free:** no cloud. The extension, the skills, the CLI and the Action's PR comment stay free and local. The cloud refuses uploads with 402, naming Pro and Team and the upgrade address, and shows no maps.
 - **Pro (US$5 a month):** the cloud for one person's own repositories, public and private, with full history, PR pages and share links. Bought by that person for their own account, quantity 1.
 - **Team (US$10 per seat a month):** Pro for everyone in a GitHub organization, with its repositories, the dashboard and seats. Bought for an organization's account by someone with admin access to one of its repositories.
@@ -678,7 +678,7 @@ Everything is aggregated per repository. No per-person view, query or export exi
 
 Prices live in configuration. AC: signed test webhooks and limits `[unit]`; the upgrade flow against mocked Stripe `[web]`.
 
-**CLD-10 Self-hosting.** `cloud/Dockerfile` and `infra/local/compose.yaml` run the app with Postgres. Configuration comes from the environment only, and billing is off without Stripe keys. AC: in CI, the image builds and the health endpoint answers. `[ci]`
+**CLD-10 Self-hosting.** `apps/cloud/Dockerfile` and `infra/local/compose.yaml` run the app with Postgres. Configuration comes from the environment only, and billing is off without Stripe keys. AC: in CI, the image builds and the health endpoint answers. `[ci]`
 
 **CLD-12 Share from the extension.** When `aisus.cloud.enabled` is true (default false), the maps list shows "Share to aisus cloud". It signs in through VS Code's GitHub authentication provider, previews exactly the JSON to send, and asks to confirm. Only `packages/cloud-client/client.ts` may use the network: the no-network test allowlists exactly that file, superseding NFR-SEC-02 for it alone. AC: no other file may use the network, and the payload equals the preview `[unit]`; hidden by default, and against a fake server it sends the preview `[e2e]`.
 

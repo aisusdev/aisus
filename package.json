@@ -115,7 +115,7 @@
       },
       {
         "command": "aisus.copyPromptFor",
-        "title": "Copy Prompt for…",
+        "title": "Copy Prompt for\u2026",
         "category": "aisus"
       },
       {
@@ -125,7 +125,7 @@
       },
       {
         "command": "aisus.openArchitectureFile",
-        "title": "Open Architecture File…",
+        "title": "Open Architecture File\u2026",
         "category": "aisus"
       },
       {
@@ -194,7 +194,7 @@
       },
       {
         "command": "aisus.flagBox",
-        "title": "This Box Is Wrong…",
+        "title": "This Box Is Wrong\u2026",
         "category": "aisus"
       },
       {
@@ -231,12 +231,12 @@
       },
       {
         "command": "aisus.onlyAllowImportsFrom",
-        "title": "Only Allow Imports From…",
+        "title": "Only Allow Imports From\u2026",
         "category": "aisus"
       },
       {
         "command": "aisus.routeThrough",
-        "title": "Route Dependencies Through…",
+        "title": "Route Dependencies Through\u2026",
         "category": "aisus"
       },
       {
@@ -251,7 +251,7 @@
       },
       {
         "command": "aisus.compareMaps",
-        "title": "Compare With…",
+        "title": "Compare With\u2026",
         "category": "aisus"
       },
       {
@@ -555,7 +555,7 @@
   },
   "workspaces": [
     "packages/*",
-    "cloud"
+    "apps/cloud"
   ],
   "scripts": {
     "build": "node esbuild.mjs",

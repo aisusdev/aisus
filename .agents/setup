@@ -62,10 +62,10 @@ playwright_browser() {
   local version
   version="$(node -p 'require("@playwright/test/package.json").version')"
   if [ ! -f "$state/playwright-deps-$version" ]; then
-    npm exec -w cloud -- playwright install-deps chromium
+    npm exec -w apps/cloud -- playwright install-deps chromium
     touch "$state/playwright-deps-$version"
   fi
-  npm exec -w cloud -- playwright install chromium
+  npm exec -w apps/cloud -- playwright install chromium
 }
 
 # test:e2e runs against the VS Code versions listed in test/e2e/runTest.ts. Downloading them now keeps the first run offline.
