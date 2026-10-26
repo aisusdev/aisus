@@ -362,6 +362,9 @@ export class HomeView implements vscode.WebviewViewProvider, vscode.Disposable {
       case "checkSetup":
         await this.checkSetup();
         return;
+      case "openSettings":
+        await vscode.commands.executeCommand("workbench.action.openSettings", `@ext:${this.context.extension.id}`);
+        return;
       case "openSession":
         if (root !== null) SessionPanel.show(this.context.extensionUri, root);
         return;

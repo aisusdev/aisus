@@ -87,6 +87,7 @@ export const PAGES = [
   ["review", "Review changes"],
   ["learn", "Check my understanding"],
   ["maps", "Maps"],
+  ["settings", "Settings"],
 ] as const;
 export type Page = (typeof PAGES)[number][0];
 
@@ -144,7 +145,9 @@ export function createHome(container: HTMLElement, post: Post, now: () => Date =
   const reviewSlot = el("div", "review-slot");
   const rulesSlot = el("div", "rules-slot");
   const hotspotsSlot = el("div", "hotspots-slot");
-  const setup = el("details", "section setup");
+  const setup = section("", "setup");
+  const settings = section("", "settings");
+  settings.append(button("Open aisus settings", "link", () => post({ type: "openSettings" })));
   // SKL-01: rebuilt only when the practice view changes, so an answer being typed keeps its box.
   const practiceSlot = el("div", "practice-slot");
   let practiceKey = "";
@@ -195,11 +198,12 @@ export function createHome(container: HTMLElement, post: Post, now: () => Date =
     }
     pages.set(id, page);
   }
-  pages.get("home")!.append(runSlot, currentSlot, attentionSlot, doSlot, setup);
+  pages.get("home")!.append(runSlot, currentSlot, attentionSlot, doSlot);
   pages.get("ask")!.append(askSection);
   pages.get("review")!.append(reviewSlot, rulesSlot, hotspotsSlot);
   pages.get("learn")!.append(practiceSlot);
   pages.get("maps")!.append(maps, newMap);
+  pages.get("settings")!.append(setup, settings);
   container.append(header, ...pages.values());
   container.addEventListener("keydown", (event) => {
     const typing = event.target instanceof HTMLTextAreaElement || event.target instanceof HTMLInputElement;
@@ -214,7 +218,7 @@ export function createHome(container: HTMLElement, post: Post, now: () => Date =
     for (const [entry, page] of pages) page.hidden = entry !== id;
     store?.set(id);
     if (!moveFocus) return;
-    if (id === "home") doSlot.querySelector<HTMLElement>(`[data-page="${from}"]`)?.focus();
+    if (id === "home") (from === "settings" ? header.querySelector<HTMLElement>(".header__status") : doSlot.querySelector<HTMLElement>(`[data-page="${from}"]`))?.focus();
     else backs.get(id)?.focus();
   }
   const stored = store?.get() ?? null;
@@ -222,7 +226,6 @@ export function createHome(container: HTMLElement, post: Post, now: () => Date =
 
   let current: HomeState | null = null;
   let figures: HTMLElement | null = null;
-  let setupFailing: boolean | null = null;
   let doKey = "";
 
   function renderHeader(state: HomeState): void {
@@ -260,6 +263,13 @@ export function createHome(container: HTMLElement, post: Post, now: () => Date =
       agent.addEventListener("change", () => post({ type: "setAgent", agent: agent.value === "codex" || agent.value === "devin" ? agent.value : "claude" }));
       header.append(agent);
     }
+    // SET-02: the setup checks show as one dot. It opens the Settings page, which lists them.
+    const status = state.setup === null ? "checking" : state.setup.every((check) => check.ok) ? "ok" : "fail";
+    const dot = button("", `header__status header__status--${status}`, () => showPage("settings", true));
+    const label = `Setup: ${status === "checking" ? "checking…" : status === "ok" ? "ready" : "needs attention"}`;
+    dot.title = label;
+    dot.setAttribute("aria-label", label);
+    header.append(dot);
   }
 
   function renderComposer(state: HomeState): void {
@@ -437,7 +447,7 @@ export function createHome(container: HTMLElement, post: Post, now: () => Date =
     doSlot.replaceChildren();
     if (state.root === null) return;
     const list = el("ul", "rows do");
-    const row = (label: string, meta: string, onClick: () => void, page: Page | null): void => {
+    const row = (label: string, meta: string, onClick: () => void, page: Exclude<Page, "settings"> | null): void => {
       const entry = button("", page === null ? "row row--hunt" : "row", onClick);
       entry.append(icon(page === null || page === "home" ? "hunt" : page), el("span", "row__label", label));
       if (meta !== "") entry.append(el("span", page === null ? "row__meta learning__status" : "row__meta", meta));
@@ -556,27 +566,22 @@ export function createHome(container: HTMLElement, post: Post, now: () => Date =
   }
 
   function renderSetup(checks: Check[] | null): void {
-    const failing = checks?.some((check) => !check.ok) ?? false;
-    const summary = el("summary", "section__title", checks === null ? "Setup · checking…" : failing ? "Setup · needs attention" : "Setup · ready");
-    setup.replaceChildren(summary);
-    if (checks !== null) {
-      const list = el("ul", "checks");
-      for (const check of checks) {
-        const row = el("li", `check check--${check.ok ? "ok" : "fail"}`);
-        row.dataset["check"] = check.id;
-        row.append(el("span", "check__mark", check.ok ? "✓" : "✗"), el("span", "check__detail", check.detail));
-        if (!check.ok && check.fix) row.append(button(check.fix.label, "link check__fix", () => post({ type: "fix", check: check.id })));
-        list.append(row);
-      }
-      setup.append(list, button("Check again", "link", () => post({ type: "checkSetup" })));
+    setup.replaceChildren(el("h2", "section__title", "Setup"));
+    if (checks === null) {
+      setup.append(el("p", "setup__pending", "Checking…"));
+      return;
     }
-    // While a check fails, Setup leads the home, open. Otherwise it is one folded line at the foot.
-    const home = pages.get("home")!;
-    if (failing) home.prepend(setup);
-    else home.append(setup);
-    if (checks !== null && failing !== setupFailing) setup.open = failing;
-    if (checks !== null) setupFailing = failing;
+    const list = el("ul", "checks");
+    for (const check of checks) {
+      const row = el("li", `check check--${check.ok ? "ok" : "fail"}`);
+      row.dataset["check"] = check.id;
+      row.append(el("span", "check__mark", check.ok ? "✓" : "✗"), el("span", "check__detail", check.detail));
+      if (!check.ok && check.fix) row.append(button(check.fix.label, "link check__fix", () => post({ type: "fix", check: check.id })));
+      list.append(row);
+    }
+    setup.append(list, button("Check again", "link setup__again", () => post({ type: "checkSetup" })));
   }
+
 
   function practiceQuestion(scope: string, entry: PracticeQuestionView, index: number, busy: boolean): HTMLElement {
     const item = el("li", `practice-question practice-question--${entry.status}`);

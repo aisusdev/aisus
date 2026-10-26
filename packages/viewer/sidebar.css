@@ -36,8 +36,8 @@ select.header__folder,
   font: inherit;
 }
 
-.header__status,
 .header__empty,
+.setup__pending,
 .composer__note,
 .composer__none,
 .run__focus,
@@ -60,8 +60,28 @@ select.header__folder,
   cursor: default;
 }
 
-.setup > summary {
+.header__status {
+  flex: none;
+  width: 8px;
+  height: 8px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: var(--vscode-descriptionForeground);
   cursor: pointer;
+}
+
+.header__status--ok {
+  background: var(--vscode-testing-iconPassed, var(--vscode-charts-green));
+}
+
+.header__status--fail {
+  background: var(--vscode-errorForeground);
+}
+
+.header__status:focus-visible {
+  outline: 1px solid var(--vscode-focusBorder);
+  outline-offset: 2px;
 }
 
 .composer {

@@ -350,6 +350,8 @@ export type HomeWebviewMessage =
   | { type: "ignoreCandidate"; dir: string }
   | { type: "fix"; check: CheckId }
   | { type: "checkSetup" }
+  /** Opens VS Code's Settings editor on aisus's settings. */
+  | { type: "openSettings" }
   | { type: "openSession" }
   | { type: "startLearning" }
   | { type: "ask"; question: string; confirmed?: boolean }

@@ -161,26 +161,26 @@ describe("UI-01 sidebar states", () => {
     expect(posted).toEqual([{ type: "cancelRun" }]);
   });
 
-  test("setup failing: the checklist opens, with one fix per failing check", () => {
+  test("setup shows as a header dot that opens the Settings page, with one fix per failing check", () => {
+    const dot = (): HTMLButtonElement => container.querySelector<HTMLButtonElement>(".header__status")!;
+    home.render(state({ setup: null }));
+    expect(dot().getAttribute("aria-label")).toBe("Setup: checking…");
     home.render(state({ setup: OK_CHECKS }));
-    expect(container.querySelector<HTMLDetailsElement>(".setup")!.open).toBe(false);
-    expect(text(".setup > summary")).toEqual(["Setup · ready"]);
+    expect(dot().getAttribute("aria-label")).toBe("Setup: ready");
+    expect(container.querySelector("#page-home .checks")).toBeNull();
     const failing: Check[] = [
       ...OK_CHECKS,
       { id: "codex", ok: false, detail: "codex was not found", fix: { kind: "copy", label: "Copy install command", text: "npm install -g @openai/codex" } },
       { id: "skills", ok: false, detail: "aisus's skills are missing or changed", fix: { kind: "install-skills", label: "Install skills" } },
     ];
     home.render(state({ setup: failing }));
-    expect(container.querySelector<HTMLDetailsElement>(".setup")!.open).toBe(true);
-    expect(text(".setup > summary")).toEqual(["Setup · needs attention"]);
-    expect(text(".check--fail .check__detail")).toEqual(["codex was not found", "aisus's skills are missing or changed"]);
+    expect(dot().getAttribute("aria-label")).toBe("Setup: needs attention");
+    dot().click();
+    expect(container.querySelector<HTMLElement>("#page-settings")!.hidden).toBe(false);
+    expect(text("#page-settings .check--fail .check__detail")).toEqual(["codex was not found", "aisus's skills are missing or changed"]);
     click("Install skills");
-    expect(posted).toEqual([{ type: "fix", check: "skills" }]);
-  });
-
-  test("setup while checking says so", () => {
-    home.render(state({ setup: null }));
-    expect(text(".setup > summary")).toEqual(["Setup · checking…"]);
+    click("Open aisus settings");
+    expect(posted).toEqual([{ type: "fix", check: "skills" }, { type: "openSettings" }]);
   });
 
   test("session active: the Bug hunt row shows phase, step and score and opens the session; otherwise it starts one", () => {
@@ -259,13 +259,6 @@ describe("UI-01 home and pages", () => {
   test("without a map, the home has no Review or Maps row", () => {
     home.render(state());
     expect(text(".do .row__label")).toEqual(["Ask about the code", "Check my understanding", "Bug hunt"]);
-  });
-
-  test("Setup leads the home, open, only while a check fails", () => {
-    home.render(state({ setup: [{ id: "node", ok: false, detail: "Node not found" }] }));
-    expect(container.querySelector("#page-home")!.firstElementChild?.classList.contains("setup")).toBe(true);
-    home.render(state());
-    expect(container.querySelector("#page-home")!.lastElementChild?.classList.contains("setup")).toBe(true);
   });
 
   test("a run opens the home, an answer opens Ask and an explain-back opens Learn", () => {
