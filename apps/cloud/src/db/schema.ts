@@ -62,14 +62,18 @@ export const uploads = pgTable(
     branch: text("branch").notNull(),
     pull: integer("pull"),
     payload: jsonb("payload").notNull(),
-    via: text("via", { enum: ["oidc", "token"] }).notNull(),
+    via: text("via", { enum: ["oidc", "token", "github"] }).notNull(),
+    /** CLD-14: the team's space of the repository, or one person's own. */
+    space: text("space", { enum: ["team", "personal"] }).notNull().default("team"),
+    /** CLD-14: who uploaded through their GitHub sign-in, and so whose personal map it is. */
+    userId: integer("user_id").references(() => users.id, { onDelete: "cascade" }),
     /** CLD-13: the upload token that signed it, while the token exists. */
     tokenId: integer("token_id"),
     /** CLD-13: the request body's size in bytes. */
     size: integer("size"),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   },
-  (table) => [index("uploads_repo_kind_created").on(table.repoId, table.kind, table.createdAt)],
+  (table) => [index("uploads_repo_kind_created").on(table.repoId, table.kind, table.createdAt), index("uploads_repo_branch").on(table.repoId, table.branch, table.createdAt)],
 );
 
 export const tokens = pgTable("tokens", {

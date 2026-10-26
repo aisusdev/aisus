@@ -28,6 +28,8 @@ const BROWSER_SAFE_MODEL: Record<string, true> = {
   "packages/core/model/comparison.ts": true,
   "packages/core/model/matchIds.ts": true,
   "packages/core/model/diff.ts": true,
+  "packages/core/model/loadOrder.ts": true,
+  "packages/core/model/mergeMaps.ts": true,
 };
 const NODE_MODEL: Record<string, true> = {
   "packages/core/model/citations.ts": true,
@@ -48,6 +50,7 @@ const NODE_MODEL: Record<string, true> = {
   "packages/core/model/repoSize.ts": true,
   "packages/core/model/agentHome.ts": true,
   "packages/core/model/lineage.ts": true,
+  "packages/core/model/upload.ts": true,
 };
 const NODE_ALLOWED: Record<string, true> = {
   "node:fs": true,

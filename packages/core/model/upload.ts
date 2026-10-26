@@ -2,6 +2,7 @@
 // `aisus.mjs publish` before it sends. An upload is an architecture map with its sidecars, or a
 // check result, plus metadata; no object may carry extra properties, the map must pass the
 // vendored map schemas, and nothing may look like a secret (SAF-03).
+import { createHash } from "node:crypto";
 import Ajv2020 from "ajv/dist/2020";
 import type { ErrorObject, ValidateFunction } from "ajv";
 import { validateArchitecture } from "./schema";
@@ -19,10 +20,12 @@ export interface Upload {
   commit: string;
   branch: string;
   kind: "map" | "check";
+  /** CLD-14: the team's space when absent. */
+  space?: "team" | "personal";
   map?: unknown;
   sidecars?: { run?: unknown; fingerprints?: unknown; evidence?: unknown; tour?: unknown };
   check?: unknown;
-  meta: { run?: string; focus?: string; agent?: string; pull?: number; defaultBranch?: string; [key: string]: unknown };
+  meta: { run?: string; focus?: string; agent?: string; pull?: number; defaultBranch?: string; merge?: { branch: string; pull?: number; conflicts: { kind: string; name: string; reason: string }[] }; [key: string]: unknown };
 }
 
 let compiled: ValidateFunction | undefined;
@@ -91,4 +94,19 @@ export function checkPayload(input: { repo: string; commit: string; branch: stri
     map: input.map,
     meta: { pull: input.pull, run: input.run, ...(input.defaultBranch ? { defaultBranch: input.defaultBranch } : {}) },
   };
+}
+
+/** JSON with every object's keys sorted, so equal maps serialize alike. */
+function canonical(value: unknown): string {
+  if (Array.isArray(value)) return `[${value.map(canonical).join(",")}]`;
+  if (value !== null && typeof value === "object") {
+    const entries = Object.entries(value as Record<string, unknown>).filter(([, item]) => item !== undefined);
+    return `{${entries.sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0)).map(([key, item]) => `${JSON.stringify(key)}:${canonical(item)}`).join(",")}}`;
+  }
+  return JSON.stringify(value);
+}
+
+/** CLD-15 and CLD-16: the SHA-256 of a map's canonical JSON, which tells a local map from one the cloud holds. */
+export function mapSha256(map: unknown): string {
+  return createHash("sha256").update(canonical(map)).digest("hex");
 }

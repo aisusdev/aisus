@@ -103,4 +103,14 @@ ALTER TABLE account_plans DROP CONSTRAINT account_plans_plan_check;
 ALTER TABLE account_plans ADD CONSTRAINT account_plans_plan_check CHECK (plan IN ('free', 'pro', 'team', 'enterprise'));
 `,
   },
+  {
+    id: "0006_spaces",
+    sql: `
+ALTER TABLE uploads DROP CONSTRAINT uploads_via_check;
+ALTER TABLE uploads ADD CONSTRAINT uploads_via_check CHECK (via IN ('oidc', 'token', 'github'));
+ALTER TABLE uploads ADD COLUMN space text NOT NULL DEFAULT 'team' CHECK (space IN ('team', 'personal'));
+ALTER TABLE uploads ADD COLUMN user_id integer REFERENCES users(id) ON DELETE CASCADE;
+CREATE INDEX uploads_repo_branch ON uploads (repo_id, branch, created_at);
+`,
+  },
 ];

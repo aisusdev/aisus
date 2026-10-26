@@ -11,6 +11,7 @@
     "commit": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
     "branch": { "type": "string", "minLength": 1, "maxLength": 255 },
     "kind": { "enum": ["map", "check"] },
+    "space": { "enum": ["team", "personal"], "description": "CLD-14: the team's space, the default, or the uploader's own." },
     "map": { "type": "object", "description": "An architecture map, checked against the vendored map schemas." },
     "sidecars": {
       "type": "object",
@@ -62,7 +63,31 @@
         "costUsd": { "type": "number", "minimum": 0 },
         "skillVersion": { "type": "string", "maxLength": 40 },
         "pull": { "type": "integer", "minimum": 1 },
-        "defaultBranch": { "type": "string", "minLength": 1, "maxLength": 255 }
+        "defaultBranch": { "type": "string", "minLength": 1, "maxLength": 255 },
+        "merge": {
+          "type": "object",
+          "description": "CLD-17: the branch a merged map came from, its pull request and the elements that conflicted.",
+          "additionalProperties": false,
+          "required": ["branch", "conflicts"],
+          "properties": {
+            "branch": { "type": "string", "minLength": 1, "maxLength": 255 },
+            "pull": { "type": "integer", "minimum": 1 },
+            "conflicts": {
+              "type": "array",
+              "maxItems": 500,
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["kind", "name", "reason"],
+                "properties": {
+                  "kind": { "enum": ["box", "arrow", "boundary"] },
+                  "name": { "$ref": "#/$defs/shortText" },
+                  "reason": { "enum": ["both-changed", "changed-and-removed"] }
+                }
+              }
+            }
+          }
+        }
       }
     },
     "run": {

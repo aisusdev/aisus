@@ -53,6 +53,21 @@ export async function signIn(db: Database, github: GitHubApi, token: string, now
 }
 
 /**
+ * CLD-14 and CLD-15: the user a GitHub token belongs to, as the extension sends it. Their record is
+ * created or updated, and the token is never stored.
+ */
+export async function userForToken(db: Database, github: GitHubApi, token: string): Promise<SignedIn | null> {
+  const profile = await github.user(token).catch(() => null);
+  if (profile === null) return null;
+  const [user] = await db
+    .insert(users)
+    .values({ githubId: profile.id, login: profile.login, name: profile.name })
+    .onConflictDoUpdate({ target: users.githubId, set: { login: profile.login, name: profile.name } })
+    .returning();
+  return { userId: user!.id, login: profile.login, githubToken: token };
+}
+
+/**
  * The user's role on `owner/name`, from the record when it is under an hour old, else from GitHub.
  * Returns the repository too, created when the user can see it on GitHub.
  */

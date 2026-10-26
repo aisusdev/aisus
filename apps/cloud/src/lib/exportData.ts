@@ -1,9 +1,9 @@
 // CLD-13: everything aisus cloud holds for a user, as one JSON document: their account, their
 // organizations, and each repository they own with its plan, tokens (never the secrets), share
-// links (never the links), and every upload.
-import { asc, eq } from "drizzle-orm";
+// links (never the links), and every team upload, and their own personal maps (CLD-14).
+import { and, asc, eq } from "drizzle-orm";
 import type { Database } from "../db/client";
-import { shareLinks, tokens, uploads, users } from "../db/schema";
+import { repositories as repositoryTable, shareLinks, tokens, uploads, users } from "../db/schema";
 import { organizationsOf, spacesOf } from "./access";
 import { storedPlan } from "./billing";
 
@@ -26,9 +26,15 @@ export async function exportData(db: Database, userId: number, now = new Date())
       uploads: await db
         .select({ id: uploads.id, kind: uploads.kind, commit: uploads.commit, branch: uploads.branch, pull: uploads.pull, via: uploads.via, size: uploads.size, createdAt: uploads.createdAt, payload: uploads.payload })
         .from(uploads)
-        .where(eq(uploads.repoId, repo.id))
+        .where(and(eq(uploads.repoId, repo.id), eq(uploads.space, "team")))
         .orderBy(asc(uploads.id)),
     });
   }
-  return { exportedAt: now.toISOString(), user: user ?? null, organizations: await organizationsOf(db, userId), repositories };
+  const personalMaps = await db
+    .select({ id: uploads.id, owner: repositoryTable.owner, name: repositoryTable.name, commit: uploads.commit, branch: uploads.branch, size: uploads.size, createdAt: uploads.createdAt, payload: uploads.payload })
+    .from(uploads)
+    .innerJoin(repositoryTable, eq(uploads.repoId, repositoryTable.id))
+    .where(and(eq(uploads.space, "personal"), eq(uploads.userId, userId)))
+    .orderBy(asc(uploads.id));
+  return { exportedAt: now.toISOString(), user: user ?? null, organizations: await organizationsOf(db, userId), repositories, personalMaps };
 }

@@ -1,6 +1,7 @@
-// CLD-09: the only code in src/ that sends anything over the network. It uploads to aisus cloud
-// when the user runs `aisus.mjs publish` or sets the Action's `upload`, and asks GitHub Actions
-// for an OIDC token for that upload. Nothing else in src/ may use the network (spec §3).
+// CLD-09, CLD-12 and CLD-15: the only shipped code that sends anything over the network. It uploads
+// to aisus cloud when the user runs `aisus.mjs publish`, sets the Action's `upload`, or shares from
+// the extension, and asks GitHub Actions for an OIDC token for that upload. It pulls a branch's maps
+// for the extension's load order and the Action's merge. Nothing else may use the network (spec §3).
 
 /** The audience aisus cloud expects in an Actions OIDC token. */
 export const CLOUD_AUDIENCE = "aisus-cloud";
@@ -18,6 +19,49 @@ export async function postUpload(cloud: string, bearer: string, payload: unknown
   if (response.ok) return { ok: true, status: response.status, body };
   const message = (body as { message?: unknown } | null)?.message;
   return { ok: false, status: response.status, body, message: typeof message === "string" ? message : `aisus cloud answered ${response.status}` };
+}
+
+/** CLD-15: one map as the cloud answers it. */
+export interface CloudMap {
+  id: number;
+  space: "team" | "personal";
+  branch: string;
+  commit: string;
+  createdAt: string;
+  /** SHA-256 of the map's canonical JSON. */
+  sha256: string;
+  map: unknown;
+  sidecars: { run?: unknown; fingerprints?: unknown; evidence?: unknown; tour?: unknown } | null;
+  meta: Record<string, unknown>;
+}
+
+/** CLD-15: a branch's maps in the cloud. */
+export interface BranchMaps {
+  defaultBranch: string;
+  team: CloudMap | null;
+  personal: CloudMap | null;
+  main: CloudMap | null;
+  mainHistory: { id: number; commit: string; createdAt: string }[];
+}
+
+async function getJson<T>(url: string, bearer: string, fetcher: typeof fetch): Promise<T> {
+  const response = await fetcher(url, { headers: { Authorization: `Bearer ${bearer}`, Accept: "application/json" } });
+  const body: unknown = await response.json().catch(() => null);
+  if (!response.ok) {
+    const message = (body as { message?: unknown } | null)?.message;
+    throw new Error(typeof message === "string" ? message : `aisus cloud answered ${response.status}`);
+  }
+  return body as T;
+}
+
+/** CLD-15: the maps of `branch` in `repo` (`owner/name`), read with `bearer`. */
+export function pullMaps(cloud: string, bearer: string, repo: string, branch: string, fetcher: typeof fetch = fetch): Promise<BranchMaps> {
+  return getJson<BranchMaps>(`${cloud.replace(/\/+$/, "")}/api/v1/repos/${repo}/maps?branch=${encodeURIComponent(branch)}`, bearer, fetcher);
+}
+
+/** CLD-15: one team map of `repo` by its id. */
+export async function pullMap(cloud: string, bearer: string, repo: string, id: number, fetcher: typeof fetch = fetch): Promise<CloudMap> {
+  return (await getJson<{ entry: CloudMap }>(`${cloud.replace(/\/+$/, "")}/api/v1/repos/${repo}/maps?id=${id}`, bearer, fetcher)).entry;
 }
 
 /**

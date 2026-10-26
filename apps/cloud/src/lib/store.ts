@@ -62,15 +62,60 @@ export async function mainMap(db: Database, repo: Repository): Promise<UploadRow
   const [row] = await db
     .select()
     .from(uploads)
-    .where(and(eq(uploads.repoId, repo.id), eq(uploads.kind, "map"), eq(uploads.branch, repo.defaultBranch)))
+    .where(and(eq(uploads.repoId, repo.id), eq(uploads.kind, "map"), eq(uploads.space, "team"), eq(uploads.branch, repo.defaultBranch)))
     .orderBy(desc(uploads.createdAt), desc(uploads.id))
     .limit(1);
   return row;
 }
 
+/** CLD-14: the latest team map of `branch`, or `null`. */
+export async function branchMap(db: Database, repoId: number, branch: string): Promise<UploadRow | null> {
+  const [row] = await db
+    .select()
+    .from(uploads)
+    .where(and(eq(uploads.repoId, repoId), eq(uploads.kind, "map"), eq(uploads.space, "team"), eq(uploads.branch, branch)))
+    .orderBy(desc(uploads.createdAt), desc(uploads.id))
+    .limit(1);
+  return row ?? null;
+}
+
+/** CLD-14: one person's latest map of `branch` in their personal space, or `null`. */
+export async function personalMap(db: Database, repoId: number, userId: number, branch: string): Promise<UploadRow | null> {
+  const [row] = await db
+    .select()
+    .from(uploads)
+    .where(and(eq(uploads.repoId, repoId), eq(uploads.kind, "map"), eq(uploads.space, "personal"), eq(uploads.userId, userId), eq(uploads.branch, branch)))
+    .orderBy(desc(uploads.createdAt), desc(uploads.id))
+    .limit(1);
+  return row ?? null;
+}
+
+/** CLD-14: the branches with team maps, each with its latest map's commit and time, newest first. */
+export async function teamBranches(db: Database, repoId: number): Promise<{ branch: string; commit: string; createdAt: Date }[]> {
+  const rows = await db
+    .select({ branch: uploads.branch, commit: uploads.commit, createdAt: uploads.createdAt, id: uploads.id })
+    .from(uploads)
+    .where(and(eq(uploads.repoId, repoId), eq(uploads.kind, "map"), eq(uploads.space, "team")))
+    .orderBy(desc(uploads.createdAt), desc(uploads.id));
+  const seen = new Map<string, { branch: string; commit: string; createdAt: Date }>();
+  for (const row of rows) if (!seen.has(row.branch)) seen.set(row.branch, { branch: row.branch, commit: row.commit, createdAt: row.createdAt });
+  return [...seen.values()];
+}
+
+/** CLD-14: the repositories and branches a person's personal space holds maps for. */
+export async function personalBranches(db: Database, userId: number): Promise<{ repoId: number; owner: string; name: string; branch: string }[]> {
+  return db
+    .selectDistinct({ repoId: uploads.repoId, owner: repositories.owner, name: repositories.name, branch: uploads.branch })
+    .from(uploads)
+    .innerJoin(repositories, eq(uploads.repoId, repositories.id))
+    .where(and(eq(uploads.space, "personal"), eq(uploads.userId, userId)))
+    .orderBy(repositories.owner, repositories.name, uploads.branch);
+}
+
 /** The repository's maps, newest first; with `since`, only those uploaded from then on (CLD-07). */
 export async function mapHistory(db: Database, repoId: number, since: Date | null = null): Promise<UploadRow[]> {
-  const kept = since === null ? and(eq(uploads.repoId, repoId), eq(uploads.kind, "map")) : and(eq(uploads.repoId, repoId), eq(uploads.kind, "map"), gte(uploads.createdAt, since));
+  const team = and(eq(uploads.repoId, repoId), eq(uploads.kind, "map"), eq(uploads.space, "team"));
+  const kept = since === null ? team : and(team, gte(uploads.createdAt, since));
   return db.select().from(uploads).where(kept).orderBy(desc(uploads.createdAt), desc(uploads.id));
 }
 
@@ -135,17 +180,18 @@ export const AUDIT_ENTRIES = 50;
 export async function auditLog(db: Database, repoId: number): Promise<{ id: number; kind: "map" | "check"; via: string; size: number | null; createdAt: Date }[]> {
   const signer = alias(tokens, "signer");
   const rows = await db
-    .select({ id: uploads.id, kind: uploads.kind, via: uploads.via, token: signer.name, size: uploads.size, createdAt: uploads.createdAt, owner: repositories.owner, name: repositories.name })
+    .select({ id: uploads.id, kind: uploads.kind, via: uploads.via, token: signer.name, size: uploads.size, createdAt: uploads.createdAt, owner: repositories.owner, name: repositories.name, login: users.login })
     .from(uploads)
     .innerJoin(repositories, eq(uploads.repoId, repositories.id))
     .leftJoin(signer, eq(uploads.tokenId, signer.id))
-    .where(eq(uploads.repoId, repoId))
+    .leftJoin(users, eq(uploads.userId, users.id))
+    .where(and(eq(uploads.repoId, repoId), eq(uploads.space, "team")))
     .orderBy(desc(uploads.createdAt), desc(uploads.id))
     .limit(AUDIT_ENTRIES);
   return rows.map((row) => ({
     id: row.id,
     kind: row.kind,
-    via: row.via === "oidc" ? `GitHub Actions OIDC for ${row.owner}/${row.name}` : row.token === null ? "an upload token since revoked" : `the upload token ${row.token}`,
+    via: row.via === "oidc" ? `GitHub Actions OIDC for ${row.owner}/${row.name}` : row.via === "github" ? `the GitHub sign-in of ${row.login ?? "a deleted user"}` : row.token === null ? "an upload token since revoked" : `the upload token ${row.token}`,
     size: row.size,
     createdAt: row.createdAt,
   }));

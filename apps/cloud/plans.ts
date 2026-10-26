@@ -18,14 +18,16 @@ export interface Plan {
   dashboard: boolean;
   /** Whether the maps of an organization's repositories are kept, as well as those of a person's own. */
   organizationRepositories: boolean;
+  /** CLD-14: the branches a person's personal space holds across all repositories, or `null` for any number. */
+  personalBranches: number | null;
 }
 
 export const PLANS: Readonly<Record<PlanId, Plan>> = {
-  // Free shows no maps. Its 30 days of history decide what the daily retention job keeps of an account that stops paying.
-  free: { id: "free", label: "Free", cloud: false, historyDays: 30, pullPages: false, shareLinks: false, dashboard: false, organizationRepositories: false },
-  pro: { id: "pro", label: "Pro", cloud: true, historyDays: null, pullPages: true, shareLinks: true, dashboard: false, organizationRepositories: false },
-  team: { id: "team", label: "Team", cloud: true, historyDays: null, pullPages: true, shareLinks: true, dashboard: true, organizationRepositories: true },
-  enterprise: { id: "enterprise", label: "Enterprise", cloud: true, historyDays: null, pullPages: true, shareLinks: true, dashboard: true, organizationRepositories: true },
+  // Free shows no team maps, and its personal space holds three branches. Its 30 days of history decide what the daily retention job keeps of an account that stops paying.
+  free: { id: "free", label: "Free", cloud: false, historyDays: 30, pullPages: false, shareLinks: false, dashboard: false, organizationRepositories: false, personalBranches: 3 },
+  pro: { id: "pro", label: "Pro", cloud: true, historyDays: null, pullPages: true, shareLinks: true, dashboard: false, organizationRepositories: false, personalBranches: null },
+  team: { id: "team", label: "Team", cloud: true, historyDays: null, pullPages: true, shareLinks: true, dashboard: true, organizationRepositories: true, personalBranches: null },
+  enterprise: { id: "enterprise", label: "Enterprise", cloud: true, historyDays: null, pullPages: true, shareLinks: true, dashboard: true, organizationRepositories: true, personalBranches: null },
 };
 
 /** Billing's configuration: Stripe's secret key, the webhook's signing secret and the ids of the Pro and Team prices. */
