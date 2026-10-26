@@ -25,6 +25,7 @@ import { webviewHtml } from "./html";
 import { installSkill } from "./install";
 import { skillStatus } from "./integrity";
 import { ArchitecturePanel } from "./panel";
+import { shareMapCommand } from "./cloud";
 import { exportPageCommand } from "./exportPage";
 import { createTourCommand } from "./tour";
 import { copyPromptCommand } from "./copyPrompt";
@@ -142,6 +143,7 @@ export class HomeView implements vscode.WebviewViewProvider, vscode.Disposable {
       root,
       maps: root === null ? [] : this.mapsOf(root),
       sequences: root === null ? [] : this.mapsOf(root, "sequence"),
+      cloud: vscode.workspace.getConfiguration("aisus").get<boolean>("cloud.enabled", false),
       composer: { agents, agent, runMode, notes, confirm },
       run: this.runs.current,
       setup: root === this.setupRoot ? this.setup : null,
@@ -287,6 +289,9 @@ export class HomeView implements vscode.WebviewViewProvider, vscode.Disposable {
       }
       case "openMap":
         if (root !== null && this.isCandidate(root, message.file)) ArchitecturePanel.show(this.context.extensionUri, root, message.file);
+        return;
+      case "shareMap":
+        if (root !== null && this.isCandidate(root, message.file)) await shareMapCommand(root, message.file);
         return;
       case "deleteMap":
         if (root !== null && this.isCandidate(root, message.file)) await this.deleteMap(root, message.file);

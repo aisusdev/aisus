@@ -98,6 +98,16 @@
           "type": "boolean",
           "default": false,
           "description": "Keep daily counts of which aisus actions you use, on this machine only. The log holds no paths, labels, repository names or anything you typed. Export or clear it from the aisus sidebar's menu."
+        },
+        "aisus.cloud.enabled": {
+          "type": "boolean",
+          "default": false,
+          "description": "Share maps to aisus cloud and pull the checked-out branch's maps from it, signed in with your GitHub account. Nothing is sent while this is off."
+        },
+        "aisus.cloud.url": {
+          "type": "string",
+          "default": "https://aisus.dev",
+          "description": "The aisus cloud to share maps with and pull them from."
         }
       }
     },

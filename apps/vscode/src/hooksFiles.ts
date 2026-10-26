@@ -215,7 +215,7 @@ export function removeHooksWhenIdle(root: string): HooksRemoval {
 }
 
 /** Lines aisus keeps out of git through the repository's local exclude file (SAF-06). Maps stay committed. */
-export const EXCLUDE_LINES: readonly string[] = [".aisus/sessions/", ".aisus/maps/**/draft.json", ".aisus/maps/**/*.html"];
+export const EXCLUDE_LINES: readonly string[] = [".aisus/sessions/", ".aisus/maps/**/draft.json", ".aisus/maps/**/*.html", ".aisus/cloud/"];
 /** The line aisus wrote before maps moved into `.aisus/`. It would hide committed maps, so it goes. */
 const HIDES_MAPS = ".aisus/";
 

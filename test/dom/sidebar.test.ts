@@ -32,6 +32,7 @@ function state(fields: Partial<HomeState> = {}): HomeState {
     root: "/r",
     maps: [],
     sequences: [],
+    cloud: false,
     composer: { agents: [{ cli: "claude", label: "Claude Code", headless: true }], agent: "claude", runMode: "sidebar", notes: [], confirm: false },
     run: null,
     setup: OK_CHECKS,
@@ -122,6 +123,13 @@ describe("UI-01 sidebar states", () => {
       { type: "openMap", file: map({}).file },
       { type: "refreshMap", file: map({}).file },
     ]);
+  });
+
+  test("CLD-12 with aisus cloud on, a map's actions add Share to aisus cloud, which posts the file", () => {
+    home.render(state({ maps: [map({})], cloud: true }));
+    expect(text(".map:first-child .map__actions button")).toEqual(["Refresh", "Export page", "Create tour", "Share to aisus cloud", "Delete"]);
+    click("Share to aisus cloud");
+    expect(posted).toEqual([{ type: "shareMap", file: map({}).file }]);
   });
 
   test("running: the card shows feed, figures and Cancel, and Generate is disabled", () => {

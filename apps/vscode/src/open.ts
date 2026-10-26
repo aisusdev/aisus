@@ -1,8 +1,10 @@
-// `aisus: Open Architecture` and `aisus: Open Architecture File…` (FR-VIEW-01, FR-VIEW-02).
+// `aisus: Open Architecture` and `aisus: Open Architecture File…` (FR-VIEW-01, FR-VIEW-02). With
+// `aisus.cloud.enabled` on, Open Architecture follows CLD-16's load order.
 import { readFileSync } from "node:fs";
 import * as vscode from "vscode";
 import { listCandidates, repoRootFor } from "@aisus/core/model/discovery";
 import { parseDiagram } from "@aisus/core/model/tolerant";
+import { openFromCloud } from "./cloud";
 import { pickRepoRoot } from "./folders";
 import { ArchitecturePanel } from "./panel";
 
@@ -10,7 +12,9 @@ export async function openArchitectureCommand(extensionUri: vscode.Uri): Promise
   const folder = await pickRepoRoot();
   if (!folder) return;
   const root = folder.uri.fsPath;
-  const newest = listCandidates(root)[0];
+  const opened = await openFromCloud(extensionUri, root);
+  if (opened === true) return;
+  const newest = opened === null ? listCandidates(root)[0] : undefined;
   if (newest) {
     ArchitecturePanel.show(extensionUri, root, newest.file);
     return;

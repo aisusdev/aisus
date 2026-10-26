@@ -72,3 +72,12 @@ Every notification aisus shows in VS Code is listed here by ID, with its kind, i
 | removed | info | Removed aisus from {folder}. | — |
 | usage-log-saved | info | Saved the usage log. | — |
 | usage-log-cleared | info | Cleared the usage log. | — |
+| cloud-needs-github | info | Share to aisus cloud works in a git repository with a github.com origin and a checked-out branch. | — |
+| cloud-would-refuse | error | aisus cloud would refuse this map, so nothing was sent: {issues} | Open Map |
+| cloud-confirm-share | info | Send exactly this JSON to {cloud}, to your {space}? | Send |
+| cloud-unreachable | error | aisus cloud can't be reached: {reason} | Try Again |
+| cloud-shared | info | Shared to your {space} in aisus cloud. | — |
+| cloud-refused | error | aisus cloud refused the map: {reason} | Open aisus cloud |
+| cloud-unreachable-open | warning | aisus cloud can't be reached, so the local map opens: {reason} | Open Settings |
+| cloud-opened-local | info | Opened your local map, which isn't in aisus cloud yet, {staleness}. | — |
+| cloud-opened | info | Opened {whose}, {staleness}. | — |

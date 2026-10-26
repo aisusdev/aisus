@@ -819,7 +819,7 @@ AC: the two spaces, the write-access rule, the Free limit and its fourth branch 
 It also answers `mainHistory`, the default branch's maps newest first as `{id, commit, createdAt}`, at most 50. With `?id=<n>` it answers that one team map instead. An entry carries `id`, `space`, `branch`, `commit`, `createdAt`, `sha256` of the map's canonical JSON, the map, its sidecars and its metadata. Reading needs read access, and a plan that keeps the space's maps. AC: each entry, the history, the user's own personal map only, and refusals without access `[unit]`.
 
 **CLD-16 Map load order.** With `aisus.cloud.enabled` on, `aisus: Open Architecture` and the Maps page's Open pick the architecture map with an empty focus for the checked-out branch, in this order:
-1. The newest local map whose map is in neither of the branch's cloud entries. It is skipped when its commit is an ancestor of the cloud map's commit, because the cloud map is then newer.
+1. The newest local map drawn at HEAD or one of its ancestors whose map is in neither of the branch's cloud entries. It is skipped when its commit is an ancestor of the cloud map's commit, because the cloud map is then newer. A local map drawn at a commit outside the branch is not the branch's work.
 2. The branch's cloud map, personal or team, whichever was drawn at the later commit.
 3. The default branch's cloud map.
 4. Otherwise the user is asked to generate a map.

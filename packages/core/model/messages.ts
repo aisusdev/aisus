@@ -283,6 +283,8 @@ export interface HomeState {
   maps: MapItem[];
   /** SEQ-04: the folder's sequence maps, newest first; `boxes` counts their participants. */
   sequences: MapItem[];
+  /** CLD-12: whether `aisus.cloud.enabled` is on, so maps offer Share to aisus cloud. */
+  cloud: boolean;
   composer: {
     agents: ComposerAgent[];
     /** The remembered agent, or the first one found. */
@@ -329,6 +331,8 @@ export type HomeWebviewMessage =
   | { type: "deleteMap"; file: string }
   | { type: "refreshMap"; file: string }
   | { type: "exportMap"; file: string }
+  /** CLD-12: Share to aisus cloud. */
+  | { type: "shareMap"; file: string }
   | { type: "review" }
   | { type: "suggestRules" }
   | { type: "compareBase" }
