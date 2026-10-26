@@ -10,7 +10,7 @@ import { DARK, LIGHT, standaloneHost } from "@aisus/viewer/hosts/standalone";
 import { VSCODE_TOKENS, vscodeHost } from "@aisus/viewer/hosts/vscode";
 import { startViewer } from "@aisus/viewer/viewer";
 import { repoRoot } from "../unit/support/sourceScan";
-import { archifyFixtures } from "../unit/support/fixtures";
+import { mapFixtures } from "../unit/support/fixtures";
 import { gridScene } from "./support/scene";
 
 vi.mock("@aisus/core/layout/layout", () => ({ layoutDiagram: vi.fn() }));
@@ -37,7 +37,7 @@ async function render(install: (load: HostMessage) => void, doc: unknown): Promi
 }
 
 describe("VWR-01 hosts", () => {
-  test.each(archifyFixtures().map((fixture) => [fixture.name, fixture.text] as const))("%s renders the same DOM under both hosts", async (_name, text) => {
+  test.each(mapFixtures().map((fixture) => [fixture.name, fixture.text] as const))("%s renders the same DOM under both hosts", async (_name, text) => {
     const doc: unknown = JSON.parse(text);
     const underVscode = await render((load) => {
       vi.stubGlobal("acquireVsCodeApi", () => ({ postMessage: (_message: WebviewMessage) => undefined }));

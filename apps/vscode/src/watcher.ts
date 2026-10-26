@@ -68,9 +68,9 @@ export class CandidateWatcher implements vscode.Disposable {
     for (const folder of folders) {
       const root = folder.uri.fsPath;
       this.known.set(root, new Set(listCandidates(root, "all").map((candidate) => candidate.file)));
-      const archify = join(root, ".archify");
+      const maps = join(root, ".archify");
       const onEvent = (uri: vscode.Uri): void => {
-        const candidate = candidateOf(archify, uri.fsPath, sep);
+        const candidate = candidateOf(maps, uri.fsPath, sep);
         if (candidate !== undefined) this.batch.add(candidate, false);
       };
       const watcher = vscode.workspace.createFileSystemWatcher(new vscode.RelativePattern(folder, ".archify/**"));

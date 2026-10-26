@@ -3,7 +3,7 @@ import { writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { expect, test } from "vitest";
 import { fingerprint, gitBlobId, hashLines, normalizedLines } from "@aisus/core/model/fingerprints";
-import type { ArchifyDoc } from "@aisus/core/model/types";
+import type { ArchitectureDoc } from "@aisus/core/model/types";
 import { git, put, tempDir } from "../support/temp";
 
 test("FRS-01 blob equals git hash-object --no-filters, whatever the line endings or bytes", () => {
@@ -32,7 +32,7 @@ test("FRS-01 a range hash ignores \\r and trailing whitespace; a whole-file cita
       { id: "a", sources: [{ path: "lf.ts", line: 2, end_line: 3 }, { path: "lf.ts" }] },
       { id: "b", sources: [{ path: "crlf.ts", line: 2, end_line: 3 }] },
     ],
-  } as unknown as ArchifyDoc;
+  } as unknown as ArchitectureDoc;
   const prints = fingerprint(doc, root, "abc", new Date("2026-10-18T12:00:00Z"));
   expect(prints).toMatchObject({ schema: 1, revision: "abc", createdAt: "2026-10-18T12:00:00.000Z" });
   const [ranged, whole, crlf] = prints.citations;

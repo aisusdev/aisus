@@ -8,7 +8,7 @@ export default function PrivacyPage() {
       <h1>Privacy</h1>
       <h2>Maps, not code</h2>
       <p>
-        aisus cloud stores architecture maps, never your code. It accepts only Archify maps, their sidecars (run records, fingerprints and evidence, which hold hashes,
+        aisus cloud stores architecture maps, never your code. It accepts only architecture maps, their sidecars (run records, fingerprints and evidence, which hold hashes,
         not content, and tours, which hold the explanations and questions committed with the map), pull request check results and metadata: the repository, commit,
         branch, focus, agent and token counts. Every other field is refused, and so is anything that looks like a secret.
       </p>

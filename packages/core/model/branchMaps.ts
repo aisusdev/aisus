@@ -3,7 +3,7 @@
 // for exactly the candidates and stale boxes the review found.
 import type { DeltaReport } from "./delta";
 import { fileAt, filesAt } from "./git";
-import { ARCHIFY_DIR, CANDIDATE_FILE, parseRunFolderName } from "./runFolder";
+import { MAP_DIR, CANDIDATE_FILE, parseRunFolderName } from "./runFolder";
 import { RUN_FILE } from "./runRecord";
 
 /** Whether run folder `a` was made after `b`. */
@@ -17,13 +17,13 @@ export function newerRun(a: string, b: string): boolean {
 /** The main map at `revision`: its newest accepted map with an empty focus, by run folder, or `null`. */
 export function baseMap(root: string, revision: string, env: NodeJS.ProcessEnv = process.env): string | null {
   const runs = new Set(
-    filesAt(root, revision, ARCHIFY_DIR, env)
+    filesAt(root, revision, MAP_DIR, env)
       .map((path) => path.split("/"))
       .filter((parts) => parts.length === 3 && parts[2] === CANDIDATE_FILE && parseRunFolderName(parts[1]!) !== null)
       .map((parts) => parts[1]!),
   );
   const unfocused = [...runs].filter((run) => {
-    const record = fileAt(root, revision, `${ARCHIFY_DIR}/${run}/${RUN_FILE}`, env);
+    const record = fileAt(root, revision, `${MAP_DIR}/${run}/${RUN_FILE}`, env);
     if (record === null) return true;
     try {
       return ((JSON.parse(record.toString("utf8")) as { focus?: unknown }).focus ?? "") === "";

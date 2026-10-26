@@ -35,10 +35,10 @@ export class ChangeBatch {
  * The `candidate.json` an event under `<root>/.archify/` concerns: the one in the run folder the
  * path lies in, or `undefined` for paths outside a run folder.
  */
-export function candidateOf(archifyDir: string, path: string, sep: string): string | undefined {
-  if (!path.startsWith(archifyDir + sep)) return undefined;
-  const run = path.slice(archifyDir.length + sep.length).split(sep)[0];
-  return run === undefined || run === "" ? undefined : `${archifyDir}${sep}${run}${sep}candidate.json`;
+export function candidateOf(mapDir: string, path: string, sep: string): string | undefined {
+  if (!path.startsWith(mapDir + sep)) return undefined;
+  const run = path.slice(mapDir.length + sep.length).split(sep)[0];
+  return run === undefined || run === "" ? undefined : `${mapDir}${sep}${run}${sep}candidate.json`;
 }
 
 /**

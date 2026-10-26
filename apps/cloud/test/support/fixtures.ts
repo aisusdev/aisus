@@ -4,7 +4,7 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { OIDC_AUDIENCE, OIDC_ISSUER, type Jwks } from "../../src/lib/oidc";
 
-export const MAP: Record<string, unknown> = JSON.parse(readFileSync(join(__dirname, "../../../../fixtures/archify/examples/rag-pipeline.architecture.json"), "utf8"));
+export const MAP: Record<string, unknown> = JSON.parse(readFileSync(join(__dirname, "../../../../fixtures/maps/examples/rag-pipeline.architecture.json"), "utf8"));
 export const COMMIT = "0123456789abcdef0123456789abcdef01234567";
 
 export function mapUpload(fields: Record<string, unknown> = {}): Record<string, unknown> {

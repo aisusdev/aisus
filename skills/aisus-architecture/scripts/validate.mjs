@@ -8312,7 +8312,7 @@ import { dirname as dirname3, join as join5 } from "node:path";
 // packages/core/model/runFolder.ts
 import { closeSync as closeSync2, fsyncSync, mkdirSync, openSync as openSync2, realpathSync as realpathSync4, renameSync, rmSync, statSync as statSync3, unlinkSync, writeSync } from "node:fs";
 import { basename, dirname as dirname2, join as join4, resolve, sep as sep2 } from "node:path";
-var ARCHIFY_DIR = ".archify";
+var MAP_DIR = ".archify";
 var DRAFT_FILE = "draft.json";
 var CANDIDATE_FILE = "candidate.json";
 var RUN_NAME_PATTERN = /^([a-z0-9]+)-(.+)-(\d{8}-\d{6})(?:-(\d+))?$/;
@@ -8329,14 +8329,14 @@ function parseRunName(name) {
 function locateDraft(arg, cwd) {
   const draft = resolve(cwd, arg);
   const runDir = dirname2(draft);
-  const archify = dirname2(runDir);
+  const maps = dirname2(runDir);
   const run2 = basename(runDir);
-  if (basename(draft) !== DRAFT_FILE || basename(archify) !== ARCHIFY_DIR) {
-    throw new Error(`expected a path of the form <repo>/${ARCHIFY_DIR}/<run>/${DRAFT_FILE}, got ${arg}`);
+  if (basename(draft) !== DRAFT_FILE || basename(maps) !== MAP_DIR) {
+    throw new Error(`expected a path of the form <repo>/${MAP_DIR}/<run>/${DRAFT_FILE}, got ${arg}`);
   }
   const kind = mapKindOf(run2);
   if (kind === null) throw new Error(`run folder "${run2}" does not match architecture-<slug>-<YYYYMMDD-HHMMSS>[-N] or sequence-<slug>-<YYYYMMDD-HHMMSS>[-N]`);
-  return { root: dirname2(archify), run: run2, slug: parseRunName(run2).slug, draft, kind };
+  return { root: dirname2(maps), run: run2, slug: parseRunName(run2).slug, draft, kind };
 }
 function publishCandidate(draft, content) {
   const dir = dirname2(draft);
@@ -8573,8 +8573,8 @@ var import__ = __toESM(require__());
 // packages/core/model/schemas/architecture.schema.json
 var architecture_schema_default = {
   $schema: "https://json-schema.org/draft/2020-12/schema",
-  $id: "https://github.com/tt-a1i/archify/schemas/architecture.schema.json",
-  title: "Archify Architecture Diagram",
+  $id: "https://aisus.dev/schemas/architecture.schema.json",
+  title: "Architecture Map",
   type: "object",
   additionalProperties: false,
   required: ["schema_version", "diagram_type", "meta", "components"],
@@ -8727,8 +8727,8 @@ var architecture_schema_default = {
 // packages/core/model/schemas/common.schema.json
 var common_schema_default = {
   $schema: "https://json-schema.org/draft/2020-12/schema",
-  $id: "https://github.com/tt-a1i/archify/schemas/common.schema.json",
-  title: "Archify Shared Definitions",
+  $id: "https://aisus.dev/schemas/common.schema.json",
+  title: "Map Shared Definitions",
   $defs: {
     id: {
       type: "string",
@@ -9181,7 +9181,7 @@ function usageError(message) {
 }
 function main(args) {
   if (args.length !== 1) {
-    return usageError(`usage: node validate.mjs <repo>/${ARCHIFY_DIR}/<run>/draft.json`);
+    return usageError(`usage: node validate.mjs <repo>/${MAP_DIR}/<run>/draft.json`);
   }
   let location;
   let text;
@@ -9216,7 +9216,7 @@ function main(args) {
   const { removed, errors } = checkSubmission(
     value,
     {
-      output: `${ARCHIFY_DIR}/${location.run}/${location.slug}.html`,
+      output: `${MAP_DIR}/${location.run}/${location.slug}.html`,
       repository: git ? repositoryFromGit(git) : null,
       kind: location.kind
     },
@@ -9253,7 +9253,7 @@ function main(args) {
   }
   const report = {
     status: "accepted",
-    candidate: `${ARCHIFY_DIR}/${location.run}/${CANDIDATE_FILE}`,
+    candidate: `${MAP_DIR}/${location.run}/${CANDIDATE_FILE}`,
     errors: [],
     warnings,
     ...evidence === null ? {} : { evidence: evidence.findings }

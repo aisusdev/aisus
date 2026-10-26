@@ -1,7 +1,7 @@
 // FR-VIEW-03: tolerant parsing, one test per rule; every fixture parses with no skips.
 import { describe, expect, test } from "vitest";
 import { parseDiagram, readDiagram, type TolerantResult } from "@aisus/core/model/tolerant";
-import { archifyFixtures } from "../support/fixtures";
+import { mapFixtures } from "../support/fixtures";
 
 function ok(result: TolerantResult): Extract<TolerantResult, { ok: true }> {
   if (!result.ok) throw new Error(`expected a diagram, got: ${result.reason}`);
@@ -27,7 +27,7 @@ const base = (): RawDoc => ({
 });
 
 describe("FR-VIEW-03 tolerant parse", () => {
-  test.each(archifyFixtures().map((fixture) => [fixture.name, fixture.text]))("%s parses with no skips", (_name, text) => {
+  test.each(mapFixtures().map((fixture) => [fixture.name, fixture.text]))("%s parses with no skips", (_name, text) => {
     const result = ok(parseDiagram(text));
     expect(result.skipped).toEqual([]);
     const raw: unknown = JSON.parse(text);

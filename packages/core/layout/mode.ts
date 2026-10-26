@@ -1,9 +1,9 @@
-// Layout mode selection and Archify grid conversion (FR-LAY-01).
+// Layout mode selection and grid conversion (FR-LAY-01).
 import type { ViewComponent, ViewDiagram } from "../model/tolerant";
 import type { GridLayout } from "../model/types";
 import type { Rect } from "./scene";
 
-/** Archify's grid defaults (`cols` only matters to Archify's own placement, not to the conversion). */
+/** The format's grid defaults (`cols` matters only to placement by the grid, not to the conversion). */
 const GRID_DEFAULTS = { origin: [40, 80], gapX: 30, gapY: 40, cellW: 130, cellH: 64 } as const;
 /** Size of an authored component without `size`. */
 const DEFAULT_SIZE = [120, 60] as const;

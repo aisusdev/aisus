@@ -3,10 +3,10 @@ import { describe, expect, test } from "vitest";
 import type { Scene } from "@aisus/core/layout/scene";
 import { readDiagram } from "@aisus/core/model/tolerant";
 import type { ViewDiagram } from "@aisus/core/model/tolerant";
-import { archifyFixtures } from "../support/fixtures";
+import { mapFixtures } from "../support/fixtures";
 import { contains, lay, onBorder, overlaps } from "./helpers";
 
-const parsed = archifyFixtures().map((f) => {
+const parsed = mapFixtures().map((f) => {
   const result = readDiagram(JSON.parse(f.text));
   if (!result.ok) throw new Error(`${f.name}: ${result.reason}`);
   return [f.name, result.diagram] as [string, ViewDiagram];

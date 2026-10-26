@@ -17,8 +17,8 @@ test("RCH-02 ACC-05 SKL-02 build:release assembles the plugin with its manifests
   expect(marketplace).toMatchObject({ name: "aisus", owner: { name: "aisus" }, plugins: [{ name: "aisus", source: "./", version: pkg.version }] });
   expect(PLUGIN_SKILLS).toEqual(["aisus-architecture", "aisus-refresh", "aisus-audit", "aisus-tour"]);
   const files: Record<string, string[]> = {
-    "aisus-architecture": ["SKILL.md", "scripts/validate.mjs", "scripts/render-html.mjs", "references/archify-format.md"],
-    "aisus-refresh": ["SKILL.md", "scripts/validate.mjs", "scripts/render-html.mjs", "references/archify-format.md"],
+    "aisus-architecture": ["SKILL.md", "scripts/validate.mjs", "scripts/render-html.mjs", "references/map-format.md"],
+    "aisus-refresh": ["SKILL.md", "scripts/validate.mjs", "scripts/render-html.mjs", "references/map-format.md"],
     "aisus-audit": ["SKILL.md", "agents/openai.yaml", "scripts/audit-record.mjs"],
     "aisus-tour": ["SKILL.md", "agents/openai.yaml", "scripts/tour-record.mjs"],
   };

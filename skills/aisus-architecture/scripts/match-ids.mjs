@@ -129,7 +129,7 @@ function matchIds(earlier, draft) {
 
 // packages/core/model/runFolder.ts
 import { basename, dirname as dirname2, join, resolve, sep } from "node:path";
-var ARCHIFY_DIR = ".archify";
+var MAP_DIR = ".archify";
 var DRAFT_FILE = "draft.json";
 var CANDIDATE_FILE = "candidate.json";
 var RUN_NAME_PATTERN = /^([a-z0-9]+)-(.+)-(\d{8}-\d{6})(?:-(\d+))?$/;
@@ -146,18 +146,18 @@ function parseRunName(name) {
 function locateDraft(arg, cwd) {
   const draft = resolve(cwd, arg);
   const runDir = dirname2(draft);
-  const archify = dirname2(runDir);
+  const maps = dirname2(runDir);
   const run = basename(runDir);
-  if (basename(draft) !== DRAFT_FILE || basename(archify) !== ARCHIFY_DIR) {
-    throw new Error(`expected a path of the form <repo>/${ARCHIFY_DIR}/<run>/${DRAFT_FILE}, got ${arg}`);
+  if (basename(draft) !== DRAFT_FILE || basename(maps) !== MAP_DIR) {
+    throw new Error(`expected a path of the form <repo>/${MAP_DIR}/<run>/${DRAFT_FILE}, got ${arg}`);
   }
   const kind = mapKindOf(run);
   if (kind === null) throw new Error(`run folder "${run}" does not match architecture-<slug>-<YYYYMMDD-HHMMSS>[-N] or sequence-<slug>-<YYYYMMDD-HHMMSS>[-N]`);
-  return { root: dirname2(archify), run, slug: parseRunName(run).slug, draft, kind };
+  return { root: dirname2(maps), run, slug: parseRunName(run).slug, draft, kind };
 }
 
 // packages/core/agent/match-ids.ts
-var USAGE = `usage: node match-ids.mjs <repo>/${ARCHIFY_DIR}/<run>/draft.json --previous <repo>/${ARCHIFY_DIR}/<run>/${CANDIDATE_FILE}`;
+var USAGE = `usage: node match-ids.mjs <repo>/${MAP_DIR}/<run>/draft.json --previous <repo>/${MAP_DIR}/<run>/${CANDIDATE_FILE}`;
 function fail(message) {
   process.stderr.write(`match-ids.mjs: ${message}
 `);
@@ -172,7 +172,7 @@ function main(args) {
     return fail(error.message);
   }
   const previous = resolve2(process.cwd(), args[2]);
-  if (basename2(previous) !== CANDIDATE_FILE || basename2(dirname3(dirname3(previous))) !== ARCHIFY_DIR) return fail(USAGE);
+  if (basename2(previous) !== CANDIDATE_FILE || basename2(dirname3(dirname3(previous))) !== MAP_DIR) return fail(USAGE);
   let draft;
   let earlier;
   try {

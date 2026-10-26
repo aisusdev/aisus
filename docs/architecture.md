@@ -42,7 +42,7 @@ Pure TypeScript shared by the scripts, the extension host and the webview. No `v
 
 | File | Responsibility | Node APIs |
 |---|---|---|
-| `types.ts` | Archify v1 types (`ArchifyDoc`, `Component`, `SourceRef`, …), `Issue {code, pointer, message}`, `stringifyDocument` (2-space JSON + newline), `pointerToken`. Documents stay plain parsed JSON, so unmodelled fields survive rewrites (FR-MOD-01). | none (browser-safe) |
+| `types.ts` | Archify v1 types (`ArchitectureDoc`, `Component`, `SourceRef`, …), `Issue {code, pointer, message}`, `stringifyDocument` (2-space JSON + newline), `pointerToken`. Documents stay plain parsed JSON, so unmodelled fields survive rewrites (FR-MOD-01). | none (browser-safe) |
 | `schema.ts` | `validateArchitecture(value)`: Ajv draft 2020-12 (`ajv/dist/2020`, `allErrors`, `strict: false`) over the vendored `schemas/*.schema.json`, `$ref`s resolved by `$id` in memory; errors → `Issue` with JSON pointers (FR-MOD-02). | none |
 | `checks.ts` | `semanticChecks(doc)`: duplicate IDs, unknown references, missing sources, overlapping/equal boundaries; `boundaryRelation` (FR-VAL-04). | none (browser-safe) |
 | `deny.ts` | `isDenied(path)`: citation deny-list, any segment, case-insensitive (FR-VAL-05). | none |
@@ -145,7 +145,7 @@ The learning-session skill ([ADRs 0029–0036](adr/0029-learning-modes-in-one-ag
 * `SKILL.md`: the bug-hunt loop — `status` every turn, clarify → `plan` → implement → `inject` → announce touched files only → `report`/`verify` per the user's hunt → `complete`; the never-reveal and never-edit-during-hunting rules; `pause`/`resume`/`restore`/`abandon` lifecycle mapping.
 * `references/bug-taxonomy.md`: the three inject kinds with difficulty tiers T1/T2/T3, injection-point selection and the disclosure/hint ladder.
 * `agents/openai.yaml`: Codex display name and `allow_implicit_invocation: false`.
-* `references/archify-format.md`: authoring guidance adapted from the prototype's system prompt, with validation described as the `validate.mjs` steps (FR-SKL-03).
+* `references/map-format.md`: authoring guidance adapted from the prototype's system prompt, with validation described as the `validate.mjs` steps (FR-SKL-03).
 * `references/example.json`: vendored Archify candidate, a shape example only.
 
 ### `apps/vscode/src/`

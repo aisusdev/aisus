@@ -115,7 +115,7 @@ describe("NFR-QUAL-03 module boundaries", () => {
     ["packages/core/model/git.ts", 'import { spawnSync } from "node:child_process";'],
     ["packages/core/model/schema.ts", 'import Ajv2020 from "ajv/dist/2020";'],
     ["packages/core/layout/elk.ts", 'import ELK from "elkjs/lib/elk.bundled.js";'],
-    ["packages/core/layout/elk.ts", 'import type { ArchifyDoc } from "../model/types";'],
+    ["packages/core/layout/elk.ts", 'import type { ArchitectureDoc } from "../model/types";'],
   ])("%s allows %s", (file, source) => {
     expect(boundaryViolations(file, source)).toEqual([]);
   });

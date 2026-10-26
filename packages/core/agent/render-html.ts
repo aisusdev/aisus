@@ -5,7 +5,7 @@ import { readFileSync, realpathSync, writeFileSync } from "node:fs";
 import { basename, dirname, join, resolve } from "node:path";
 import { assertWritable, isWithin } from "../model/confine";
 import { pageOutput, renderPage } from "../model/page";
-import { ARCHIFY_DIR, CANDIDATE_FILE, RUN_NAME_PATTERN } from "../model/runFolder";
+import { MAP_DIR, CANDIDATE_FILE, RUN_NAME_PATTERN } from "../model/runFolder";
 import { readDiagram } from "../model/tolerant";
 import { isJsonObject, type Repository } from "../model/types";
 
@@ -19,13 +19,13 @@ function fail(message: string): number {
 
 function main(args: string[]): number {
   const share = args[1] === "--share";
-  if (args.length < 1 || args.length > 2 || (args.length === 2 && !share)) return fail(`usage: node render-html.mjs <repo>/${ARCHIFY_DIR}/<run>/${CANDIDATE_FILE} [--share]`);
+  if (args.length < 1 || args.length > 2 || (args.length === 2 && !share)) return fail(`usage: node render-html.mjs <repo>/${MAP_DIR}/<run>/${CANDIDATE_FILE} [--share]`);
   const candidate = resolve(process.cwd(), args[0]!);
   const runDir = dirname(candidate);
   const run = basename(runDir);
   const root = dirname(dirname(runDir));
-  if (basename(candidate) !== CANDIDATE_FILE || basename(dirname(runDir)) !== ARCHIFY_DIR || !RUN_NAME_PATTERN.test(run)) {
-    return fail(`expected a path of the form <repo>/${ARCHIFY_DIR}/<run>/${CANDIDATE_FILE}, got ${args[0]}`);
+  if (basename(candidate) !== CANDIDATE_FILE || basename(dirname(runDir)) !== MAP_DIR || !RUN_NAME_PATTERN.test(run)) {
+    return fail(`expected a path of the form <repo>/${MAP_DIR}/<run>/${CANDIDATE_FILE}, got ${args[0]}`);
   }
   let doc: unknown;
   try {
@@ -46,7 +46,7 @@ function main(args: string[]): number {
   } catch (error) {
     return fail(`cannot write ${name}: ${(error as Error).message}`);
   }
-  process.stdout.write(`${JSON.stringify({ status: "written", page: `${ARCHIFY_DIR}/${run}/${name}` }, null, 2)}\n`);
+  process.stdout.write(`${JSON.stringify({ status: "written", page: `${MAP_DIR}/${run}/${name}` }, null, 2)}\n`);
   return 0;
 }
 

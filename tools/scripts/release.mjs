@@ -28,7 +28,7 @@ export function buildRelease(out) {
     ...(pkg.homepage ? { homepage: pkg.homepage } : {}),
     ...(repository ? { repository } : {}),
     ...(pkg.license ? { license: pkg.license } : {}),
-    keywords: ["architecture", "diagram", "archify", "code-map"],
+    keywords: ["architecture", "diagram", "code-map"],
   };
   writeFileSync(join(plugin, ".claude-plugin/plugin.json"), `${JSON.stringify(manifest, null, 2)}\n`);
   const marketplace = { name: "aisus", owner: { name: "aisus" }, plugins: [{ name: "aisus", source: "./", description: DESCRIPTION, version: pkg.version }] };

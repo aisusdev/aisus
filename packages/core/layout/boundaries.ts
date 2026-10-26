@@ -3,9 +3,9 @@ import type { ViewDiagram } from "../model/tolerant";
 import { boundingBox, pad } from "./geom";
 import type { Rect } from "./scene";
 
-/** Authored mode: padding left, top and right of a boundary rectangle (Archify). */
+/** Authored mode: padding left, top and right of a boundary rectangle. */
 const AUTHORED_PAD_SIDE = 30;
-/** Authored mode: padding below, leaving room for the label (Archify). */
+/** Authored mode: padding below, leaving room for the label. */
 const AUTHORED_PAD_BOTTOM = 50;
 /** Auto mode: padding of a boundary that is not placed in the ELK hierarchy. */
 const OVERLAY_PAD = 16;

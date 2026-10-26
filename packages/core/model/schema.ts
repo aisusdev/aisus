@@ -1,4 +1,4 @@
-// JSON Schema validation against the vendored Archify schemas (FR-MOD-02, ADR 0013).
+// JSON Schema validation against the vendored map schemas (FR-MOD-02, ADR 0013).
 //
 // Both schemas are bundled; the architecture schema's `common.schema.json#/$defs/...`
 // references resolve by `$id` against the in-memory common schema, so nothing is fetched.

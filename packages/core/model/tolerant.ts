@@ -1,4 +1,4 @@
-// Tolerant reading of Archify documents for the viewer (FR-VIEW-03, ADR 0012). No schema
+// Tolerant reading of map documents for the viewer (FR-VIEW-03, ADR 0012). No schema
 // validation: whatever can be drawn is kept, the rest is skipped. Browser-safe: no imports
 // besides types.
 import type { BoundaryKind, ComponentType, GridLayout, MessageVariant, Point, SourceRef, Variant } from "./types";

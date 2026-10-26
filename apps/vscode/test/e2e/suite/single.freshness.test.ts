@@ -6,7 +6,7 @@ import { dirname, join } from "node:path";
 import * as vscode from "vscode";
 import type { TestHook } from "../../../src/extension";
 import { fingerprint, writeFingerprints } from "@aisus/core/model/fingerprints";
-import type { ArchifyDoc } from "@aisus/core/model/types";
+import type { ArchitectureDoc } from "@aisus/core/model/types";
 import { setup, suite, suiteSetup, teardown, test } from "../tdd";
 import { pause } from "../until";
 
@@ -51,7 +51,7 @@ suite("FRS-03 freshness on the map", () => {
       ],
     };
     const candidate = write(root, `.archify/${RUN}/candidate.json`, JSON.stringify(doc));
-    writeFingerprints(root, dirname(candidate), fingerprint(doc as unknown as ArchifyDoc, root, null));
+    writeFingerprints(root, dirname(candidate), fingerprint(doc as unknown as ArchitectureDoc, root, null));
   });
 
   teardown(async () => {

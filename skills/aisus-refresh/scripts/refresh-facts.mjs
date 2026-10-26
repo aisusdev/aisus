@@ -58,7 +58,7 @@ import { dirname as dirname3, join as join2 } from "node:path";
 // packages/core/model/runFolder.ts
 import { closeSync, fsyncSync, mkdirSync, openSync, realpathSync as realpathSync2, renameSync, rmSync, statSync, unlinkSync, writeSync } from "node:fs";
 import { basename, dirname as dirname2, join, resolve, sep } from "node:path";
-var ARCHIFY_DIR = ".archify";
+var MAP_DIR = ".archify";
 var DRAFT_FILE = "draft.json";
 var CANDIDATE_FILE = "candidate.json";
 var SLUG_MAX = 40;
@@ -94,7 +94,7 @@ function isInside(parentReal, childReal) {
   return childReal.startsWith(parentReal.endsWith(sep) ? parentReal : parentReal + sep);
 }
 function createRunFolder(root, slug, timestamp, options = {}) {
-  const dir = options.dir ?? ARCHIFY_DIR;
+  const dir = options.dir ?? MAP_DIR;
   const prefix = options.prefix ?? "architecture";
   if (dir === "." || dir === ".." || /[/\\]/.test(dir)) throw new Error(`"${dir}" is not a valid run folder directory`);
   if (!/^[a-z0-9]+$/.test(prefix)) throw new Error(`"${prefix}" is not a valid run folder prefix`);
@@ -871,7 +871,7 @@ function components(doc) {
   });
 }
 function planRefresh(root, run2, globs = []) {
-  const runDir = join6(root, ARCHIFY_DIR, run2);
+  const runDir = join6(root, MAP_DIR, run2);
   const focus = readRunRecord(runDir)?.focus ?? "";
   const previous = readLineage(runDir);
   const git = collectGitFacts(root);
@@ -1176,26 +1176,26 @@ function main(args) {
   if (typeof parsed === "string") return fail(parsed);
   const root = process.cwd();
   const base = parsed.from.replace(/^\.archify\//, "").replace(/\/+$/, "");
-  if (!/^[a-z0-9]+-[A-Za-z0-9._-]+$/.test(base) || base.includes("..")) return fail(`--from names a run folder in ${ARCHIFY_DIR}/, such as architecture-app-20261018-120000`);
-  const baseDir = join8(root, ARCHIFY_DIR, base);
+  if (!/^[a-z0-9]+-[A-Za-z0-9._-]+$/.test(base) || base.includes("..")) return fail(`--from names a run folder in ${MAP_DIR}/, such as architecture-app-20261018-120000`);
+  const baseDir = join8(root, MAP_DIR, base);
   let doc;
   try {
     const candidate = join8(baseDir, CANDIDATE_FILE);
-    if (!isWithin(realpathSync4(root), realpathSync4(candidate))) return fail(`${ARCHIFY_DIR}/${base}/${CANDIDATE_FILE} lies outside the repository`);
+    if (!isWithin(realpathSync4(root), realpathSync4(candidate))) return fail(`${MAP_DIR}/${base}/${CANDIDATE_FILE} lies outside the repository`);
     doc = JSON.parse(readFileSync6(candidate, "utf8"));
   } catch (error) {
-    return fail(`cannot read ${ARCHIFY_DIR}/${base}/${CANDIDATE_FILE}: ${error.message}`);
+    return fail(`cannot read ${MAP_DIR}/${base}/${CANDIDATE_FILE}: ${error.message}`);
   }
   const globs = parsed.paths.map(globToRegExp);
   const plan = planRefresh(root, base, globs);
   if (plan.mode === "regenerate") {
-    process.stdout.write(`${JSON.stringify({ mode: "regenerate", reason: plan.reason, focus: plan.focus, base: { runFolder: `${ARCHIFY_DIR}/${base}` } }, null, 2)}
+    process.stdout.write(`${JSON.stringify({ mode: "regenerate", reason: plan.reason, focus: plan.focus, base: { runFolder: `${MAP_DIR}/${base}` } }, null, 2)}
 `);
     return 0;
   }
   const prints = readFingerprints(baseDir);
   const revision = plan.base;
-  const outsideMaps = (path) => !path.startsWith(`${ARCHIFY_DIR}/`);
+  const outsideMaps = (path) => !path.startsWith(`${MAP_DIR}/`);
   const changes = (numstatSince(root, revision) ?? []).filter((change) => outsideMaps(change.path));
   const untracked = untrackedFiles(root).filter(outsideMaps);
   const freshness = mapFreshness(prints, fileReader(root), renamesSince(root, revision));
@@ -1212,7 +1212,7 @@ function main(args) {
   let run2;
   try {
     run2 = createRunFolder(root, slugify(focus, basename2(root)), runTimestamp(/* @__PURE__ */ new Date()));
-    const runDir = join8(root, ARCHIFY_DIR, run2);
+    const runDir = join8(root, MAP_DIR, run2);
     writeRunRecord(root, runDir, newRunRecord({ kind: "refresh", focus, paths: parsed.paths, base, skillVersion: SKILL_VERSION }));
     const draft = join8(runDir, DRAFT_FILE);
     assertWritable(root, draft);
@@ -1229,10 +1229,10 @@ function main(args) {
     mode: "update",
     reason: "update",
     root,
-    runFolder: `${ARCHIFY_DIR}/${run2}`,
-    draft: `${ARCHIFY_DIR}/${run2}/${DRAFT_FILE}`,
-    base: { runFolder: `${ARCHIFY_DIR}/${base}`, revision, createdAt: prints?.createdAt ?? null, fingerprints: prints !== null },
-    changeFile: `${ARCHIFY_DIR}/${run2}/${CHANGE_FILE}`,
+    runFolder: `${MAP_DIR}/${run2}`,
+    draft: `${MAP_DIR}/${run2}/${DRAFT_FILE}`,
+    base: { runFolder: `${MAP_DIR}/${base}`, revision, createdAt: prints?.createdAt ?? null, fingerprints: prints !== null },
+    changeFile: `${MAP_DIR}/${run2}/${CHANGE_FILE}`,
     paths: parsed.paths,
     boxes: report.boxes,
     stale: report.stale,

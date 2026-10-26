@@ -7,7 +7,7 @@ import { collectChanges, groupByBox, renderChange, runChanges, type ChangeMap } 
 import { assertWritable } from "./confine";
 import { collectGitFacts, commitInfo, contextDiffSince, isAncestorOfHead, MAX_DIRTY_PATHS, untrackedFiles, type GitFacts } from "./git";
 import { inScope } from "./refresh";
-import { ARCHIFY_DIR, CANDIDATE_FILE, parseRunFolderName } from "./runFolder";
+import { MAP_DIR, CANDIDATE_FILE, parseRunFolderName } from "./runFolder";
 import { readRunRecord } from "./runRecord";
 import { writeJson } from "./session";
 import { readFingerprints } from "./staleness";
@@ -199,7 +199,7 @@ function components(doc: unknown): { id: string; label: string; sources: { path:
  * limited to `globs` when given (FRS-08). Takes git's facts before any new run folder exists.
  */
 export function planRefresh(root: string, run: string, globs: readonly RegExp[] = []): RefreshPlan {
-  const runDir = join(root, ARCHIFY_DIR, run);
+  const runDir = join(root, MAP_DIR, run);
   const focus = readRunRecord(runDir)?.focus ?? "";
   const previous = readLineage(runDir);
   const git = collectGitFacts(root);
@@ -249,14 +249,14 @@ export function previousMap(root: string, slug: string, except: string | null = 
   let best: { run: string; key: string } | null = null;
   let names: string[];
   try {
-    names = readdirSync(join(root, ARCHIFY_DIR));
+    names = readdirSync(join(root, MAP_DIR));
   } catch {
     return null;
   }
   for (const run of names) {
     const parsed = parseRunFolderName(run);
-    if (parsed === null || parsed.slug !== slug || run === except || !existsSync(join(root, ARCHIFY_DIR, run, CANDIDATE_FILE))) continue;
-    if (readRunRecord(join(root, ARCHIFY_DIR, run))?.kind === "drill") continue;
+    if (parsed === null || parsed.slug !== slug || run === except || !existsSync(join(root, MAP_DIR, run, CANDIDATE_FILE))) continue;
+    if (readRunRecord(join(root, MAP_DIR, run))?.kind === "drill") continue;
     const key = `${parsed.timestamp}-${String(parsed.n).padStart(6, "0")}`;
     if (best === null || key > best.key) best = { run, key };
   }

@@ -5,10 +5,10 @@ import { readFileSync, realpathSync, writeFileSync } from "node:fs";
 import { basename, dirname, resolve } from "node:path";
 import { assertWritable, isWithin } from "../model/confine";
 import { matchIds } from "../model/matchIds";
-import { ARCHIFY_DIR, CANDIDATE_FILE, locateDraft } from "../model/runFolder";
+import { MAP_DIR, CANDIDATE_FILE, locateDraft } from "../model/runFolder";
 import { isJsonObject } from "../model/types";
 
-const USAGE = `usage: node match-ids.mjs <repo>/${ARCHIFY_DIR}/<run>/draft.json --previous <repo>/${ARCHIFY_DIR}/<run>/${CANDIDATE_FILE}`;
+const USAGE = `usage: node match-ids.mjs <repo>/${MAP_DIR}/<run>/draft.json --previous <repo>/${MAP_DIR}/<run>/${CANDIDATE_FILE}`;
 
 function fail(message: string): number {
   process.stderr.write(`match-ids.mjs: ${message}\n`);
@@ -24,7 +24,7 @@ function main(args: string[]): number {
     return fail((error as Error).message);
   }
   const previous = resolve(process.cwd(), args[2]!);
-  if (basename(previous) !== CANDIDATE_FILE || basename(dirname(dirname(previous))) !== ARCHIFY_DIR) return fail(USAGE);
+  if (basename(previous) !== CANDIDATE_FILE || basename(dirname(dirname(previous))) !== MAP_DIR) return fail(USAGE);
   let draft: unknown;
   let earlier: unknown;
   try {

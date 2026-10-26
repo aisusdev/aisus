@@ -77,11 +77,11 @@ describe("FR-WAT-01 decisions", () => {
 
 describe("FR-WAT-01 candidates from any event in a run folder", () => {
   test("an event anywhere in a run folder concerns that folder's candidate.json", () => {
-    const archify = "/r/.archify";
-    expect(candidateOf(archify, "/r/.archify/run-a", "/")).toBe("/r/.archify/run-a/candidate.json");
-    expect(candidateOf(archify, "/r/.archify/run-a/.candidate.json.tmp-1-2", "/")).toBe("/r/.archify/run-a/candidate.json");
-    expect(candidateOf(archify, "/r/.archify", "/")).toBeUndefined();
-    expect(candidateOf(archify, "/r/.archifyx/run-a", "/")).toBeUndefined();
+    const maps = "/r/.archify";
+    expect(candidateOf(maps, "/r/.archify/run-a", "/")).toBe("/r/.archify/run-a/candidate.json");
+    expect(candidateOf(maps, "/r/.archify/run-a/.candidate.json.tmp-1-2", "/")).toBe("/r/.archify/run-a/candidate.json");
+    expect(candidateOf(maps, "/r/.archify", "/")).toBeUndefined();
+    expect(candidateOf(maps, "/r/.archifyx/run-a", "/")).toBeUndefined();
   });
 
   test("a candidate is new once, then a change, and new again after it was deleted", () => {

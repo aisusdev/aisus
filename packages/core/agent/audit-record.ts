@@ -6,8 +6,8 @@ import { basename, dirname, join, resolve } from "node:path";
 import { AUDIT_DRAFT_FILE, AUDIT_FILE, checkAuditDraft, type AuditDraft } from "../model/audit";
 import { checkCitations } from "../model/citations";
 import { assertWritable } from "../model/confine";
-import { ARCHIFY_DIR, CANDIDATE_FILE, parseRunFolderName } from "../model/runFolder";
-import type { ArchifyDoc, Issue } from "../model/types";
+import { MAP_DIR, CANDIDATE_FILE, parseRunFolderName } from "../model/runFolder";
+import type { ArchitectureDoc, Issue } from "../model/types";
 
 const HINT = "Fix each error in audit-draft.json and run audit-record.mjs again.";
 
@@ -17,20 +17,20 @@ function print(value: unknown): void {
 
 function main(args: string[]): number {
   if (args.length !== 1) {
-    process.stderr.write(`audit-record.mjs: usage: node audit-record.mjs <repo>/${ARCHIFY_DIR}/<run>/${AUDIT_DRAFT_FILE}\n`);
+    process.stderr.write(`audit-record.mjs: usage: node audit-record.mjs <repo>/${MAP_DIR}/<run>/${AUDIT_DRAFT_FILE}\n`);
     return 2;
   }
   const draftPath = resolve(process.cwd(), args[0]!);
   const runDir = dirname(draftPath);
-  const archify = dirname(runDir);
-  if (basename(draftPath) !== AUDIT_DRAFT_FILE || basename(archify) !== ARCHIFY_DIR || !parseRunFolderName(basename(runDir))) {
-    process.stderr.write(`audit-record.mjs: expected a path of the form <repo>/${ARCHIFY_DIR}/<run>/${AUDIT_DRAFT_FILE}, got ${args[0]}\n`);
+  const maps = dirname(runDir);
+  if (basename(draftPath) !== AUDIT_DRAFT_FILE || basename(maps) !== MAP_DIR || !parseRunFolderName(basename(runDir))) {
+    process.stderr.write(`audit-record.mjs: expected a path of the form <repo>/${MAP_DIR}/<run>/${AUDIT_DRAFT_FILE}, got ${args[0]}\n`);
     return 2;
   }
-  const root = dirname(archify);
-  let map: ArchifyDoc;
+  const root = dirname(maps);
+  let map: ArchitectureDoc;
   try {
-    map = JSON.parse(readFileSync(join(runDir, CANDIDATE_FILE), "utf8")) as ArchifyDoc;
+    map = JSON.parse(readFileSync(join(runDir, CANDIDATE_FILE), "utf8")) as ArchitectureDoc;
   } catch (error) {
     process.stderr.write(`audit-record.mjs: the run has no readable ${CANDIDATE_FILE}: ${(error as Error).message}\n`);
     return 2;
@@ -47,7 +47,7 @@ function main(args: string[]): number {
   if (issues.length === 0) {
     // The evidence passes the same path, deny-list and line checks as a map citation.
     const draft = value as AuditDraft;
-    const asCitations = { ...map, components: draft.arrows.map((arrow, index) => ({ id: `arrow-${index}`, type: "external", label: "", sources: arrow.evidence })) } as unknown as ArchifyDoc;
+    const asCitations = { ...map, components: draft.arrows.map((arrow, index) => ({ id: `arrow-${index}`, type: "external", label: "", sources: arrow.evidence })) } as unknown as ArchitectureDoc;
     issues = checkCitations(asCitations, root).map((issue) => ({ ...issue, pointer: issue.pointer.replace(/^\/components\/(\d+)\/sources\//, "/arrows/$1/evidence/") }));
   }
   if (issues.length > 0) {
@@ -67,7 +67,7 @@ function main(args: string[]): number {
   const count = (verdict: string): number => draft.boxes.filter((box) => box.verdict === verdict).length;
   print({
     status: "recorded",
-    audit: `${ARCHIFY_DIR}/${basename(runDir)}/${AUDIT_FILE}`,
+    audit: `${MAP_DIR}/${basename(runDir)}/${AUDIT_FILE}`,
     boxes: { supports: count("supports"), partial: count("partial"), contradicts: count("contradicts") },
     arrowsWithoutEvidence: draft.arrows.filter((arrow) => arrow.evidence.length === 0).length,
   });

@@ -13,7 +13,7 @@ import { globToRegExp } from "./refresh";
 import { isTestPath, listFiles } from "./repoSize";
 import { checkRules, readRules, type Violation } from "./rules";
 import type { ImportRef } from "./evidence/paths";
-import { ARCHIFY_DIR, CANDIDATE_FILE } from "./runFolder";
+import { MAP_DIR, CANDIDATE_FILE } from "./runFolder";
 import { readRunRecord } from "./runRecord";
 import { fileReader, mapFreshness, readFingerprints } from "./staleness";
 import { readDiagram, type ViewDiagram } from "./tolerant";
@@ -103,23 +103,23 @@ export function runCheck(options: CheckOptions): CheckOutcome {
   if (!config.ok) return config;
   const run = options.map ?? config.config.map ?? mainMap(root);
   if (run === null) return { ok: false, reason: `No map to check against. Generate one with an empty focus, or name one with --map or "map" in ${CONFIG_FILE}.` };
-  const runDir = join(root, ARCHIFY_DIR, run);
+  const runDir = join(root, MAP_DIR, run);
   let diagram: ViewDiagram;
   try {
     const read = readDiagram(JSON.parse(readFileSync(join(runDir, CANDIDATE_FILE), "utf8")));
-    if (!read.ok) return { ok: false, reason: `${ARCHIFY_DIR}/${run}/${CANDIDATE_FILE}: ${read.reason}` };
+    if (!read.ok) return { ok: false, reason: `${MAP_DIR}/${run}/${CANDIDATE_FILE}: ${read.reason}` };
     diagram = read.diagram;
   } catch (error) {
-    return { ok: false, reason: `Cannot read ${ARCHIFY_DIR}/${run}/${CANDIDATE_FILE}: ${(error as Error).message}` };
+    return { ok: false, reason: `Cannot read ${MAP_DIR}/${run}/${CANDIDATE_FILE}: ${(error as Error).message}` };
   }
 
   const shared = mergeBase(root, base, head ?? "HEAD");
   if (shared === null) return { ok: false, reason: `No common commit between ${base} and ${head ?? "HEAD"}.` };
   const diff = diffBetween(root, shared, head ?? null);
   if (diff === null) return { ok: false, reason: `git diff ${shared} ${head ?? ""} failed.` };
-  const changes: FileChange[] = parseDiff(diff).filter((change) => !change.path.startsWith(`${ARCHIFY_DIR}/`));
+  const changes: FileChange[] = parseDiff(diff).filter((change) => !change.path.startsWith(`${MAP_DIR}/`));
   if (head === undefined) {
-    for (const path of untrackedFiles(root).filter((file) => !file.startsWith(`${ARCHIFY_DIR}/`))) {
+    for (const path of untrackedFiles(root).filter((file) => !file.startsWith(`${MAP_DIR}/`))) {
       const bytes = fileReader(root)(path);
       changes.push({ path, oldPath: path, status: "added", hunks: [], added: bytes === null ? 0 : countLines(bytes) });
     }

@@ -6,7 +6,7 @@ import type { Scene } from "@aisus/core/layout/scene";
 import { parseDiagram } from "@aisus/core/model/tolerant";
 import type { ViewDiagram } from "@aisus/core/model/tolerant";
 import type { BoundaryKind, ComponentType, Variant } from "@aisus/core/model/types";
-import { archifyFixtures } from "../unit/support/fixtures";
+import { mapFixtures } from "../unit/support/fixtures";
 import { renderScene } from "@aisus/viewer/render";
 import { contentGroup, fixedMeasure, gridScene } from "./support/scene";
 
@@ -40,7 +40,7 @@ const ALL_KINDS: ViewDiagram = {
 };
 
 describe("FR-VIEW-05 renderScene", () => {
-  test.each(archifyFixtures().map((fixture) => [fixture.name, fixture.text] as const))(
+  test.each(mapFixtures().map((fixture) => [fixture.name, fixture.text] as const))(
     "%s: one element per component, connection and boundary, classed by type, variant and kind",
     (_name, text) => {
       const result = parseDiagram(text);

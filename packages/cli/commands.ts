@@ -14,7 +14,7 @@ import { collectGitFacts, currentBranch, diffFor, renamesSince } from "@aisus/co
 import { checkSkill, diffSize, type AgentId, type SkillHashes } from "@aisus/core/model/integrity";
 import { pageOutput, renderPage } from "@aisus/core/model/page";
 import { runPreflight } from "@aisus/core/model/preflight";
-import { ARCHIFY_DIR, CANDIDATE_FILE } from "@aisus/core/model/runFolder";
+import { MAP_DIR, CANDIDATE_FILE } from "@aisus/core/model/runFolder";
 import { fileReader, mapFreshness, readFingerprints } from "@aisus/core/model/staleness";
 import { readDiagram } from "@aisus/core/model/tolerant";
 import { checkUpload, githubSlug, mapPayload } from "@aisus/core/model/upload";
@@ -61,11 +61,11 @@ function chosenMap(args: CliArgs): { run: string; dir: string; doc: unknown } | 
   const run = one(args, "--map") ?? config.config.map ?? mainMap(args.root);
   if (run === undefined || run === null) return "No map. Generate one with an empty focus, or name one with --map.";
   if (!/^[a-z0-9]+-[A-Za-z0-9._-]+$/.test(run)) return "--map names a run folder in .archify/";
-  const dir = join(args.root, ARCHIFY_DIR, run);
+  const dir = join(args.root, MAP_DIR, run);
   try {
     return { run, dir, doc: JSON.parse(readFileSync(join(dir, CANDIDATE_FILE), "utf8")) };
   } catch (error) {
-    return `Cannot read ${ARCHIFY_DIR}/${run}/${CANDIDATE_FILE}: ${(error as Error).message}`;
+    return `Cannot read ${MAP_DIR}/${run}/${CANDIDATE_FILE}: ${(error as Error).message}`;
   }
 }
 
@@ -162,7 +162,7 @@ export function exportPage(args: CliArgs): CommandResult {
   } catch (error) {
     return usage(`cannot write the page: ${(error as Error).message}`);
   }
-  const page = `${ARCHIFY_DIR}/${map.run}/${name}`;
+  const page = `${MAP_DIR}/${map.run}/${name}`;
   return { exitCode: 0, json: { status: "written", page }, markdown: `Wrote \`${page}\`.\n` };
 }
 

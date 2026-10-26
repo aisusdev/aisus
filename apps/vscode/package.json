@@ -1,7 +1,7 @@
 {
   "name": "aisus",
   "displayName": "aisus",
-  "description": "View a repository's architecture as an Archify diagram and open the code behind each node.",
+  "description": "View a repository's architecture as a map and open the code behind each node.",
   "icon": "media/icon.png",
   "preview": true,
   "repository": {
@@ -15,7 +15,6 @@
   "keywords": [
     "architecture",
     "diagram",
-    "archify",
     "code map",
     "documentation",
     "claude code",

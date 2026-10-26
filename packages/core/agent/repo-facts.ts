@@ -11,7 +11,7 @@ import { collectGitFacts, commitInfo } from "../model/git";
 import { LINEAGE_FILE, planRefresh, previousMap, writeRunFile, type Lineage } from "../model/lineage";
 import { skillEstimates } from "../model/estimate";
 import { READ_BUDGET, repoSize, sizeFacts } from "../model/repoSize";
-import { ARCHIFY_DIR, CANDIDATE_FILE, createRunFolder, DRAFT_FILE, parseRunFolderName, runTimestamp, SEQUENCE_PREFIX, slugify } from "../model/runFolder";
+import { MAP_DIR, CANDIDATE_FILE, createRunFolder, DRAFT_FILE, parseRunFolderName, runTimestamp, SEQUENCE_PREFIX, slugify } from "../model/runFolder";
 import { newRunRecord, writeRunRecord } from "../model/runRecord";
 
 /** The skill version, filled in by the build. */
@@ -38,8 +38,8 @@ function main(args: string[]): number {
     return 2;
   }
   const root = process.cwd();
-  if (parent !== null && (!parseRunFolderName(parent) || !existsSync(join(root, ARCHIFY_DIR, parent, CANDIDATE_FILE)))) {
-    process.stderr.write(`repo-facts.mjs: --parent names no accepted map in ${ARCHIFY_DIR}/: ${parent}\n`);
+  if (parent !== null && (!parseRunFolderName(parent) || !existsSync(join(root, MAP_DIR, parent, CANDIDATE_FILE)))) {
+    process.stderr.write(`repo-facts.mjs: --parent names no accepted map in ${MAP_DIR}/: ${parent}\n`);
     return 2;
   }
   // Git facts come first, so the new run folder is not among the dirty paths.
@@ -67,8 +67,8 @@ function main(args: string[]): number {
   let run: string;
   try {
     run = createRunFolder(root, slug, runTimestamp(new Date()), sequence ? { prefix: SEQUENCE_PREFIX } : {});
-    writeRunRecord(root, join(root, ARCHIFY_DIR, run), newRunRecord({ focus, skillVersion: SKILL_VERSION, ...(parent === null ? {} : { kind: "drill" as const, parent }) }));
-    if (!sequence) writeRunFile(root, join(root, ARCHIFY_DIR, run), LINEAGE_FILE, lineage);
+    writeRunRecord(root, join(root, MAP_DIR, run), newRunRecord({ focus, skillVersion: SKILL_VERSION, ...(parent === null ? {} : { kind: "drill" as const, parent }) }));
+    if (!sequence) writeRunFile(root, join(root, MAP_DIR, run), LINEAGE_FILE, lineage);
   } catch (error) {
     process.stderr.write(`repo-facts.mjs: ${(error as Error).message}\n`);
     return 2;
@@ -76,9 +76,9 @@ function main(args: string[]): number {
   const size = repoSize(root);
   const facts = {
     root,
-    runFolder: `${ARCHIFY_DIR}/${run}`,
-    draft: `${ARCHIFY_DIR}/${run}/${DRAFT_FILE}`,
-    previous: previous === null ? null : `${ARCHIFY_DIR}/${previous}/${CANDIDATE_FILE}`,
+    runFolder: `${MAP_DIR}/${run}`,
+    draft: `${MAP_DIR}/${run}/${DRAFT_FILE}`,
+    previous: previous === null ? null : `${MAP_DIR}/${previous}/${CANDIDATE_FILE}`,
     git: git && { head: git.head, origin: git.origin, dirtyCount: git.dirtyCount, dirty: git.dirty },
     size,
     estimate: skillEstimates(sizeFacts(size), "full"),

@@ -1,6 +1,6 @@
 // Semantic checks JSON Schema cannot express (FR-VAL-04), ported from the prototype's
 // `archalign-model/src/checks.rs` (Submission profile: every rule is an error). Browser-safe.
-import type { ArchifyDoc, Issue } from "./types";
+import type { ArchitectureDoc, Issue } from "./types";
 
 export type BoundaryRelation = "disjoint" | "equal" | "contains" | "containedBy" | "partialOverlap";
 
@@ -16,7 +16,7 @@ export function boundaryRelation(a: ReadonlySet<string>, b: ReadonlySet<string>)
 }
 
 /** Duplicate IDs, unresolved references, components without sources, overlapping boundaries. */
-export function semanticChecks(doc: ArchifyDoc): Issue[] {
+export function semanticChecks(doc: ArchitectureDoc): Issue[] {
   const issues: Issue[] = [];
 
   const firstComponent = new Map<string, number>();

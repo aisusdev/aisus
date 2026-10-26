@@ -2,7 +2,7 @@
 import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { assertWritable } from "./confine";
-import { ARCHIFY_DIR } from "./runFolder";
+import { MAP_DIR } from "./runFolder";
 import { writeJson } from "./session";
 import { isJsonObject } from "./types";
 
@@ -93,7 +93,7 @@ export function updateRunRecord(root: string, runDir: string, patch: Partial<Run
 /** The folder names in `root/.archify`, taken before a run so the one it creates can be found. */
 export function runFolderNames(root: string): Set<string> {
   try {
-    return new Set(readdirSync(join(root, ARCHIFY_DIR)));
+    return new Set(readdirSync(join(root, MAP_DIR)));
   } catch {
     return new Set();
   }
@@ -104,7 +104,7 @@ export function newRunSince(root: string, before: ReadonlySet<string>): { runFol
   let found: { runFolder: string; dir: string; record: RunRecord } | null = null;
   for (const runFolder of runFolderNames(root)) {
     if (before.has(runFolder)) continue;
-    const dir = join(root, ARCHIFY_DIR, runFolder);
+    const dir = join(root, MAP_DIR, runFolder);
     const record = readRunRecord(dir);
     if (record !== null && (found === null || record.createdAt > found.record.createdAt)) found = { runFolder, dir, record };
   }

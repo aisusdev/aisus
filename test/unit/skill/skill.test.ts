@@ -34,7 +34,7 @@ describe("FR-SKL-01 skill frontmatter", () => {
     expect(parsed?.fields).toEqual({
       name: "aisus-architecture",
       description:
-        "Generate an Archify architecture diagram of this repository for the aisus VS Code viewer. Invoke manually with an optional focus.",
+        "Generate an architecture map of this repository for the aisus VS Code viewer. Invoke manually with an optional focus.",
       triggers: "[user]",
       "disable-model-invocation": "true",
       "allowed-tools":
@@ -51,7 +51,7 @@ describe("FR-SKL-01 skill frontmatter", () => {
 });
 
 describe("FR-SKL-03 format reference", () => {
-  const reference = read("references/archify-format.md");
+  const reference = read("references/map-format.md");
 
   test.each(["list_dir", "read_file", "grep", "repo_meta", "submit_diagram"])("does not mention the prototype tool %s", (tool) => {
     expect(reference.toLowerCase()).not.toContain(tool);
@@ -118,7 +118,7 @@ describe("CST-05 exploration budget", () => {
 
 describe("ACC-01 behaviour over names", () => {
   test("the format reference asks for behaviour ranges, observed labels and real groupings", () => {
-    const reference = readFileSync(join(skillDir, "references/archify-format.md"), "utf8");
+    const reference = readFileSync(join(skillDir, "references/map-format.md"), "utf8");
     expect(reference).toContain("cites at least one range that shows its behaviour: a call site, a handler body, a registration, a query or a write");
     expect(reference).toContain("Each label states behaviour you observed");
     expect(reference).toContain("A group needs a shared runtime role, owner or boundary; shared naming alone is not one.");

@@ -3,10 +3,10 @@
 import { symlinkSync } from "node:fs";
 import { describe, expect, test } from "vitest";
 import { checkCitations, citationPathOk, countLines, MAX_CITED_BYTES } from "@aisus/core/model/citations";
-import type { ArchifyDoc, SourceRef } from "@aisus/core/model/types";
+import type { ArchitectureDoc, SourceRef } from "@aisus/core/model/types";
 import { put, tempDir } from "../support/temp";
 
-function doc(sources: SourceRef[]): ArchifyDoc {
+function doc(sources: SourceRef[]): ArchitectureDoc {
   return {
     schema_version: 1,
     diagram_type: "architecture",
@@ -122,7 +122,7 @@ describe("FR-VAL-05 citations against a temp repo", () => {
 
   test("pointers name the component and source index", () => {
     const root = repo();
-    const d: ArchifyDoc = {
+    const d: ArchitectureDoc = {
       ...doc([{ path: "src/a.ts" }]),
       components: [
         { id: "a", type: "backend", label: "A", sources: [{ path: "src/a.ts" }] },

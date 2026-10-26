@@ -1,7 +1,7 @@
 // SAF-03: the secret scan rejects credential-shaped strings and leaves real maps alone.
 import { describe, expect, test } from "vitest";
 import { findSecrets, secretKind } from "@aisus/core/model/secrets";
-import { archifyFixtures } from "../support/fixtures";
+import { mapFixtures } from "../support/fixtures";
 
 describe("SAF-03 secret scan", () => {
   test.each([
@@ -30,8 +30,8 @@ describe("SAF-03 secret scan", () => {
     expect(findSecrets(doc).map((issue) => issue.pointer)).toEqual(["/components/0/label", "/x~1y"]);
   });
 
-  test("the vendored Archify fixtures contain nothing secret-shaped", () => {
-    const fixtures = archifyFixtures();
+  test("the vendored fixtures contain nothing secret-shaped", () => {
+    const fixtures = mapFixtures();
     expect(fixtures.length).toBeGreaterThan(0);
     for (const fixture of fixtures) expect(findSecrets(JSON.parse(fixture.text)), fixture.name).toEqual([]);
   });

@@ -9,7 +9,7 @@ import { diffMaps } from "@aisus/core/model/diff";
 import { listCandidates, type Candidate } from "@aisus/core/model/discovery";
 import { readLineage, readRunChanges, type Lineage } from "@aisus/core/model/lineage";
 import type { Comparison } from "@aisus/core/model/messages";
-import { ARCHIFY_DIR, CANDIDATE_FILE, parseRunFolderName } from "@aisus/core/model/runFolder";
+import { MAP_DIR, CANDIDATE_FILE, parseRunFolderName } from "@aisus/core/model/runFolder";
 import { parseDiagram, type ViewDiagram } from "@aisus/core/model/tolerant";
 import { isJsonObject } from "@aisus/core/model/types";
 import { onAction } from "./notify";
@@ -41,7 +41,7 @@ export function readMap(file: string): ViewDiagram | null {
 /** The run folder of `file` when it is `<root>/.archify/<run>/candidate.json`, else `null`. */
 function runOf(root: string, file: string): string | null {
   const runDir = dirname(file);
-  return basename(file) === CANDIDATE_FILE && dirname(runDir) === join(root, ARCHIFY_DIR) ? basename(runDir) : null;
+  return basename(file) === CANDIDATE_FILE && dirname(runDir) === join(root, MAP_DIR) ? basename(runDir) : null;
 }
 
 /** Each run's lineage, read at most once. */
@@ -49,7 +49,7 @@ function lineages(root: string): (run: string) => Lineage | null {
   const cache = new Map<string, Lineage | null>();
   return (run) => {
     if (run.includes("/") || run.includes("\\") || run === "." || run === "..") return null;
-    if (!cache.has(run)) cache.set(run, readLineage(join(root, ARCHIFY_DIR, run)));
+    if (!cache.has(run)) cache.set(run, readLineage(join(root, MAP_DIR, run)));
     return cache.get(run)!;
   };
 }
@@ -70,7 +70,7 @@ function facts(root: string, file: string, map: ReadMap | null, candidates: read
 /** The earlier map `file`'s run continues, when its candidate still exists (FRS-10). */
 export function defaultBaseline(root: string, file: string): string | null {
   const run = runOf(root, file);
-  const previous = run === null ? null : readLineage(join(root, ARCHIFY_DIR, run))?.previousRun;
+  const previous = run === null ? null : readLineage(join(root, MAP_DIR, run))?.previousRun;
   if (!previous || previous === run) return null;
   return listCandidates(root).find((candidate) => candidate.runFolder === previous)?.file ?? null;
 }
@@ -83,7 +83,7 @@ export function buildComparison(root: string, file: string, baseline: string, sh
   const candidates = listCandidates(root);
   const lineageOf = lineages(root);
   const run = runOf(root, file);
-  const changes = run === null ? null : readRunChanges(join(root, ARCHIFY_DIR, run));
+  const changes = run === null ? null : readRunChanges(join(root, MAP_DIR, run));
   const context = compareRuns(facts(root, file, current, candidates, -1, lineageOf), facts(root, baseline, earlier, candidates, Number.MAX_SAFE_INTEGER, lineageOf), lineageOf, changes !== null);
   const touched = context.keptAvailable && changes !== null ? new Set(changes.touched.map((box) => box.id)) : new Set<string>();
   return {

@@ -50,7 +50,7 @@ Before you go on, tell the user the estimate in one line. Use `estimate.claude.t
 
 ## 3. Read the format reference
 
-Read `${CLAUDE_SKILL_DIR}/references/archify-format.md` completely.
+Read `${CLAUDE_SKILL_DIR}/references/map-format.md` completely.
 
 ## 4. Re-examine only what changed
 

@@ -1,15 +1,15 @@
 // Finding `<root>/.archify/*/candidate.json` and ordering them newest first (FR-VIEW-02).
 import { readdirSync, realpathSync, statSync } from "node:fs";
 import { basename, dirname, join, sep } from "node:path";
-import { ARCHIFY_DIR, CANDIDATE_FILE, mapKindOf, parseRunName, SEQUENCE_PREFIX, type MapKind } from "./runFolder";
+import { MAP_DIR, CANDIDATE_FILE, mapKindOf, parseRunName, SEQUENCE_PREFIX, type MapKind } from "./runFolder";
 
 /**
  * The repo root for a diagram file: `<R>` when the file is `<R>/.archify/<run>/<name>`,
  * otherwise `fallbackRoot` (the chosen workspace folder; FR-VIEW-01).
  */
 export function repoRootFor(file: string, fallbackRoot: string): string {
-  const archify = dirname(dirname(file));
-  return basename(archify) === ARCHIFY_DIR ? dirname(archify) : fallbackRoot;
+  const maps = dirname(dirname(file));
+  return basename(maps) === MAP_DIR ? dirname(maps) : fallbackRoot;
 }
 
 export interface Candidate {
@@ -51,7 +51,7 @@ export function listCandidates(root: string, kind: MapKind | "all" = "architectu
   let folders: string[];
   try {
     rootReal = realpathSync(root);
-    folders = readdirSync(join(root, ARCHIFY_DIR));
+    folders = readdirSync(join(root, MAP_DIR));
   } catch {
     return [];
   }
@@ -59,7 +59,7 @@ export function listCandidates(root: string, kind: MapKind | "all" = "architectu
   for (const runFolder of folders) {
     const sequence = mapKindOf(runFolder) === SEQUENCE_PREFIX;
     if (kind !== "all" && sequence !== (kind === "sequence")) continue;
-    const file = join(root, ARCHIFY_DIR, runFolder, CANDIDATE_FILE);
+    const file = join(root, MAP_DIR, runFolder, CANDIDATE_FILE);
     try {
       const real = realpathSync(file);
       if (!real.startsWith(rootReal + sep)) continue;

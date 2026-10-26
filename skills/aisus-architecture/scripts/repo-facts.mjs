@@ -391,7 +391,7 @@ function inScope(path, globs) {
 // packages/core/model/runFolder.ts
 import { closeSync, fsyncSync, mkdirSync, openSync, realpathSync as realpathSync3, renameSync, rmSync, statSync as statSync2, unlinkSync, writeSync } from "node:fs";
 import { basename, dirname as dirname2, join as join2, resolve, sep } from "node:path";
-var ARCHIFY_DIR = ".archify";
+var MAP_DIR = ".archify";
 var DRAFT_FILE = "draft.json";
 var CANDIDATE_FILE = "candidate.json";
 var SLUG_MAX = 40;
@@ -433,7 +433,7 @@ function isInside(parentReal, childReal) {
   return childReal.startsWith(parentReal.endsWith(sep) ? parentReal : parentReal + sep);
 }
 function createRunFolder(root, slug, timestamp, options = {}) {
-  const dir = options.dir ?? ARCHIFY_DIR;
+  const dir = options.dir ?? MAP_DIR;
   const prefix = options.prefix ?? "architecture";
   if (dir === "." || dir === ".." || /[/\\]/.test(dir)) throw new Error(`"${dir}" is not a valid run folder directory`);
   if (!/^[a-z0-9]+$/.test(prefix)) throw new Error(`"${prefix}" is not a valid run folder prefix`);
@@ -609,7 +609,7 @@ function components(doc) {
   });
 }
 function planRefresh(root, run2, globs = []) {
-  const runDir = join6(root, ARCHIFY_DIR, run2);
+  const runDir = join6(root, MAP_DIR, run2);
   const focus = readRunRecord(runDir)?.focus ?? "";
   const previous = readLineage(runDir);
   const git = collectGitFacts(root);
@@ -657,14 +657,14 @@ function previousMap(root, slug, except = null) {
   let best = null;
   let names;
   try {
-    names = readdirSync2(join6(root, ARCHIFY_DIR));
+    names = readdirSync2(join6(root, MAP_DIR));
   } catch {
     return null;
   }
   for (const run2 of names) {
     const parsed = parseRunFolderName(run2);
-    if (parsed === null || parsed.slug !== slug || run2 === except || !existsSync2(join6(root, ARCHIFY_DIR, run2, CANDIDATE_FILE))) continue;
-    if (readRunRecord(join6(root, ARCHIFY_DIR, run2))?.kind === "drill") continue;
+    if (parsed === null || parsed.slug !== slug || run2 === except || !existsSync2(join6(root, MAP_DIR, run2, CANDIDATE_FILE))) continue;
+    if (readRunRecord(join6(root, MAP_DIR, run2))?.kind === "drill") continue;
     const key = `${parsed.timestamp}-${String(parsed.n).padStart(6, "0")}`;
     if (best === null || key > best.key) best = { run: run2, key };
   }
@@ -1008,8 +1008,8 @@ function main(args) {
     return 2;
   }
   const root = process.cwd();
-  if (parent !== null && (!parseRunFolderName(parent) || !existsSync3(join8(root, ARCHIFY_DIR, parent, CANDIDATE_FILE)))) {
-    process.stderr.write(`repo-facts.mjs: --parent names no accepted map in ${ARCHIFY_DIR}/: ${parent}
+  if (parent !== null && (!parseRunFolderName(parent) || !existsSync3(join8(root, MAP_DIR, parent, CANDIDATE_FILE)))) {
+    process.stderr.write(`repo-facts.mjs: --parent names no accepted map in ${MAP_DIR}/: ${parent}
 `);
     return 2;
   }
@@ -1037,8 +1037,8 @@ function main(args) {
   let run2;
   try {
     run2 = createRunFolder(root, slug, runTimestamp(/* @__PURE__ */ new Date()), sequence ? { prefix: SEQUENCE_PREFIX } : {});
-    writeRunRecord(root, join8(root, ARCHIFY_DIR, run2), newRunRecord({ focus, skillVersion: SKILL_VERSION, ...parent === null ? {} : { kind: "drill", parent } }));
-    if (!sequence) writeRunFile(root, join8(root, ARCHIFY_DIR, run2), LINEAGE_FILE, lineage);
+    writeRunRecord(root, join8(root, MAP_DIR, run2), newRunRecord({ focus, skillVersion: SKILL_VERSION, ...parent === null ? {} : { kind: "drill", parent } }));
+    if (!sequence) writeRunFile(root, join8(root, MAP_DIR, run2), LINEAGE_FILE, lineage);
   } catch (error) {
     process.stderr.write(`repo-facts.mjs: ${error.message}
 `);
@@ -1047,9 +1047,9 @@ function main(args) {
   const size = repoSize(root);
   const facts = {
     root,
-    runFolder: `${ARCHIFY_DIR}/${run2}`,
-    draft: `${ARCHIFY_DIR}/${run2}/${DRAFT_FILE}`,
-    previous: previous === null ? null : `${ARCHIFY_DIR}/${previous}/${CANDIDATE_FILE}`,
+    runFolder: `${MAP_DIR}/${run2}`,
+    draft: `${MAP_DIR}/${run2}/${DRAFT_FILE}`,
+    previous: previous === null ? null : `${MAP_DIR}/${previous}/${CANDIDATE_FILE}`,
     git: git && { head: git.head, origin: git.origin, dirtyCount: git.dirtyCount, dirty: git.dirty },
     size,
     estimate: skillEstimates(sizeFacts(size), "full"),

@@ -122,7 +122,7 @@ function collectGitFacts(root2, env = process.env) {
 // packages/core/model/runFolder.ts
 import { closeSync, fsyncSync, mkdirSync, openSync, realpathSync as realpathSync2, renameSync, rmSync, statSync as statSync2, unlinkSync, writeSync } from "node:fs";
 import { basename, dirname, join as join2, resolve, sep } from "node:path";
-var ARCHIFY_DIR = ".archify";
+var MAP_DIR = ".archify";
 var SLUG_MAX = 40;
 var RUN_NAME_PATTERN = /^([a-z0-9]+)-(.+)-(\d{8}-\d{6})(?:-(\d+))?$/;
 var MAX_COLLISIONS = 1e3;
@@ -156,7 +156,7 @@ function isInside(parentReal, childReal) {
   return childReal.startsWith(parentReal.endsWith(sep) ? parentReal : parentReal + sep);
 }
 function createRunFolder(root2, slug, timestamp, options = {}) {
-  const dir = options.dir ?? ARCHIFY_DIR;
+  const dir = options.dir ?? MAP_DIR;
   const prefix = options.prefix ?? "architecture";
   if (dir === "." || dir === ".." || /[/\\]/.test(dir)) throw new Error(`"${dir}" is not a valid run folder directory`);
   if (!/^[a-z0-9]+$/.test(prefix)) throw new Error(`"${prefix}" is not a valid run folder prefix`);

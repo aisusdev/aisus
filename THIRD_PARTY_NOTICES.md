@@ -11,11 +11,11 @@ Unofficial; not affiliated with Archify. Includes material derived from Archify 
 - Material derived from Archify in this repository:
   - `packages/core/model/schemas/architecture.schema.json` and `common.schema.json`
     (copied from `archify/schemas/`);
-  - `fixtures/archify/**` (architecture JSON copied from `archify/examples/`, `examples/`,
+  - `fixtures/maps/**` (architecture JSON copied from `archify/examples/`, `examples/`,
     `docs/cases/`, `archify/test/fixtures/`, plus one Archify-skill run candidate);
   - `skills/aisus-architecture/references/example.json` (the Archify-skill run candidate,
-    `fixtures/archify/skill-run/archify-runtime.architecture.json`);
-  - `skills/aisus-architecture/references/archify-format.md` (authoring guidance condensed
+    `fixtures/maps/skill-run/archify-runtime.architecture.json`);
+  - `skills/aisus-architecture/references/map-format.md` (authoring guidance condensed
     from `archify/SKILL.md` and `archify/references/`).
 
 ```text

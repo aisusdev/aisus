@@ -12,7 +12,7 @@ import { foldersAt, numstatSince, renamesSince, untrackedFiles } from "../model/
 import { CHANGE_FILE, CHANGES_FILE, LINEAGE_FILE, planRefresh, writeRunFile } from "../model/lineage";
 import { globToRegExp, refreshReport } from "../model/refresh";
 import { repoSize, sizeFacts } from "../model/repoSize";
-import { ARCHIFY_DIR, CANDIDATE_FILE, createRunFolder, DRAFT_FILE, runTimestamp, slugify } from "../model/runFolder";
+import { MAP_DIR, CANDIDATE_FILE, createRunFolder, DRAFT_FILE, runTimestamp, slugify } from "../model/runFolder";
 import { newRunRecord, writeRunRecord } from "../model/runRecord";
 import { stripAppOwned } from "../model/submission";
 import { isJsonObject } from "../model/types";
@@ -67,27 +67,27 @@ function main(args: string[]): number {
   if (typeof parsed === "string") return fail(parsed);
   const root = process.cwd();
   const base = parsed.from.replace(/^\.archify\//, "").replace(/\/+$/, "");
-  if (!/^[a-z0-9]+-[A-Za-z0-9._-]+$/.test(base) || base.includes("..")) return fail(`--from names a run folder in ${ARCHIFY_DIR}/, such as architecture-app-20261018-120000`);
-  const baseDir = join(root, ARCHIFY_DIR, base);
+  if (!/^[a-z0-9]+-[A-Za-z0-9._-]+$/.test(base) || base.includes("..")) return fail(`--from names a run folder in ${MAP_DIR}/, such as architecture-app-20261018-120000`);
+  const baseDir = join(root, MAP_DIR, base);
   let doc: unknown;
   try {
     const candidate = join(baseDir, CANDIDATE_FILE);
-    if (!isWithin(realpathSync(root), realpathSync(candidate))) return fail(`${ARCHIFY_DIR}/${base}/${CANDIDATE_FILE} lies outside the repository`);
+    if (!isWithin(realpathSync(root), realpathSync(candidate))) return fail(`${MAP_DIR}/${base}/${CANDIDATE_FILE} lies outside the repository`);
     doc = JSON.parse(readFileSync(candidate, "utf8"));
   } catch (error) {
-    return fail(`cannot read ${ARCHIFY_DIR}/${base}/${CANDIDATE_FILE}: ${(error as Error).message}`);
+    return fail(`cannot read ${MAP_DIR}/${base}/${CANDIDATE_FILE}: ${(error as Error).message}`);
   }
 
   const globs = parsed.paths.map(globToRegExp);
   // The plan takes git's facts first, so the new run folder is not among the changes.
   const plan = planRefresh(root, base, globs);
   if (plan.mode === "regenerate") {
-    process.stdout.write(`${JSON.stringify({ mode: "regenerate", reason: plan.reason, focus: plan.focus, base: { runFolder: `${ARCHIFY_DIR}/${base}` } }, null, 2)}\n`);
+    process.stdout.write(`${JSON.stringify({ mode: "regenerate", reason: plan.reason, focus: plan.focus, base: { runFolder: `${MAP_DIR}/${base}` } }, null, 2)}\n`);
     return 0;
   }
   const prints = readFingerprints(baseDir);
   const revision = plan.base;
-  const outsideMaps = (path: string): boolean => !path.startsWith(`${ARCHIFY_DIR}/`);
+  const outsideMaps = (path: string): boolean => !path.startsWith(`${MAP_DIR}/`);
   const changes = (numstatSince(root, revision) ?? []).filter((change) => outsideMaps(change.path));
   const untracked = untrackedFiles(root).filter(outsideMaps);
   const freshness = mapFreshness(prints, fileReader(root), renamesSince(root, revision));
@@ -105,7 +105,7 @@ function main(args: string[]): number {
   let run: string;
   try {
     run = createRunFolder(root, slugify(focus, basename(root)), runTimestamp(new Date()));
-    const runDir = join(root, ARCHIFY_DIR, run);
+    const runDir = join(root, MAP_DIR, run);
     writeRunRecord(root, runDir, newRunRecord({ kind: "refresh", focus, paths: parsed.paths, base, skillVersion: SKILL_VERSION }));
     const draft = join(runDir, DRAFT_FILE);
     assertWritable(root, draft);
@@ -122,10 +122,10 @@ function main(args: string[]): number {
     mode: "update",
     reason: "update",
     root,
-    runFolder: `${ARCHIFY_DIR}/${run}`,
-    draft: `${ARCHIFY_DIR}/${run}/${DRAFT_FILE}`,
-    base: { runFolder: `${ARCHIFY_DIR}/${base}`, revision, createdAt: prints?.createdAt ?? null, fingerprints: prints !== null },
-    changeFile: `${ARCHIFY_DIR}/${run}/${CHANGE_FILE}`,
+    runFolder: `${MAP_DIR}/${run}`,
+    draft: `${MAP_DIR}/${run}/${DRAFT_FILE}`,
+    base: { runFolder: `${MAP_DIR}/${base}`, revision, createdAt: prints?.createdAt ?? null, fingerprints: prints !== null },
+    changeFile: `${MAP_DIR}/${run}/${CHANGE_FILE}`,
     paths: parsed.paths,
     boxes: report.boxes,
     stale: report.stale,

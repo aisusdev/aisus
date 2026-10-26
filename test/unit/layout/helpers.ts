@@ -9,7 +9,7 @@ export const fixedAdvance: MeasureText = (text, sizePx) => ({ width: [...text].l
 
 export const VIEWPORT = { width: 1600, height: 1000 };
 
-/** A diagram from a partial Archify document; fails the test if the tolerant reader rejects it. */
+/** A diagram from a partial map document; fails the test if the tolerant reader rejects it. */
 export function diagramOf(doc: Record<string, unknown>): ViewDiagram {
   const result = readDiagram({ schema_version: 1, diagram_type: "architecture", meta: { title: "t" }, ...doc });
   if (!result.ok) throw new Error(result.reason);

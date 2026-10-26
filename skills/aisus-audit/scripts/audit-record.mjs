@@ -7738,7 +7738,7 @@ function assertWritable(root, path) {
 }
 
 // packages/core/model/runFolder.ts
-var ARCHIFY_DIR = ".archify";
+var MAP_DIR = ".archify";
 var CANDIDATE_FILE = "candidate.json";
 var RUN_NAME_PATTERN = /^([a-z0-9]+)-(.+)-(\d{8}-\d{6})(?:-(\d+))?$/;
 function parseRunName(name) {
@@ -7760,19 +7760,19 @@ function print(value) {
 }
 function main(args) {
   if (args.length !== 1) {
-    process.stderr.write(`audit-record.mjs: usage: node audit-record.mjs <repo>/${ARCHIFY_DIR}/<run>/${AUDIT_DRAFT_FILE}
+    process.stderr.write(`audit-record.mjs: usage: node audit-record.mjs <repo>/${MAP_DIR}/<run>/${AUDIT_DRAFT_FILE}
 `);
     return 2;
   }
   const draftPath = resolve(process.cwd(), args[0]);
   const runDir = dirname2(draftPath);
-  const archify = dirname2(runDir);
-  if (basename(draftPath) !== AUDIT_DRAFT_FILE || basename(archify) !== ARCHIFY_DIR || !parseRunFolderName(basename(runDir))) {
-    process.stderr.write(`audit-record.mjs: expected a path of the form <repo>/${ARCHIFY_DIR}/<run>/${AUDIT_DRAFT_FILE}, got ${args[0]}
+  const maps = dirname2(runDir);
+  if (basename(draftPath) !== AUDIT_DRAFT_FILE || basename(maps) !== MAP_DIR || !parseRunFolderName(basename(runDir))) {
+    process.stderr.write(`audit-record.mjs: expected a path of the form <repo>/${MAP_DIR}/<run>/${AUDIT_DRAFT_FILE}, got ${args[0]}
 `);
     return 2;
   }
-  const root = dirname2(archify);
+  const root = dirname2(maps);
   let map;
   try {
     map = JSON.parse(readFileSync(join2(runDir, CANDIDATE_FILE), "utf8"));
@@ -7814,7 +7814,7 @@ function main(args) {
   const count = (verdict) => draft.boxes.filter((box) => box.verdict === verdict).length;
   print({
     status: "recorded",
-    audit: `${ARCHIFY_DIR}/${basename(runDir)}/${AUDIT_FILE}`,
+    audit: `${MAP_DIR}/${basename(runDir)}/${AUDIT_FILE}`,
     boxes: { supports: count("supports"), partial: count("partial"), contradicts: count("contradicts") },
     arrowsWithoutEvidence: draft.arrows.filter((arrow) => arrow.evidence.length === 0).length
   });

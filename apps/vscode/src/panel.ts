@@ -11,7 +11,7 @@ import type { MapDiff } from "@aisus/core/model/diff";
 import { EVIDENCE_FILE } from "@aisus/core/model/evidence";
 import { readTour, TOUR_FILE, type TourStop } from "@aisus/core/model/tour";
 import { readRunRecord } from "@aisus/core/model/runRecord";
-import { ARCHIFY_DIR, CANDIDATE_FILE } from "@aisus/core/model/runFolder";
+import { MAP_DIR, CANDIDATE_FILE } from "@aisus/core/model/runFolder";
 import type { FinishedTour } from "@aisus/core/model/practiceLog";
 import type { MapFreshness } from "@aisus/core/model/staleness";
 import { uncertainty } from "@aisus/core/model/uncertainty";
@@ -368,7 +368,7 @@ export class ArchitecturePanel {
   /** VWR-05: tells the map which overview it came from, when it is a drill-down of one. */
   sendOverview(): void {
     const parent = this.shown.kind === "diagram" && this.file !== "" ? (readRunRecord(dirname(this.file))?.parent ?? null) : null;
-    this.parent = parent !== null && existsSync(join(this.root, ARCHIFY_DIR, parent, CANDIDATE_FILE)) ? parent : null;
+    this.parent = parent !== null && existsSync(join(this.root, MAP_DIR, parent, CANDIDATE_FILE)) ? parent : null;
     const message: HostMessage = { type: "overview", parent: this.parent };
     void this.panel.webview.postMessage(message);
   }
@@ -545,7 +545,7 @@ export class ArchitecturePanel {
         await this.openTourStop(message.index);
         return;
       case "backToOverview":
-        if (this.parent !== null) ArchitecturePanel.show(this.extensionUri, this.root, join(this.root, ARCHIFY_DIR, this.parent, CANDIDATE_FILE));
+        if (this.parent !== null) ArchitecturePanel.show(this.extensionUri, this.root, join(this.root, MAP_DIR, this.parent, CANDIDATE_FILE));
         return;
       case "image":
         this.answerImage(message.request, typeof message.data === "string" ? message.data : null);

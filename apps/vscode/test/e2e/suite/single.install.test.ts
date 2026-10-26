@@ -30,13 +30,13 @@ suite("FR-INS-01 Install Agent Skills", () => {
 
   test("SAF-06 FRS-05 ACC-05 SKL-02 a fresh install copies every skill, links .claude and leaves .devin and .gitignore alone", async () => {
     await vscode.commands.executeCommand("aisus.installSkills");
-    for (const file of ["SKILL.md", "agents/openai.yaml", "references/archify-format.md", "references/example.json", "scripts/validate.mjs", "scripts/repo-facts.mjs"]) {
+    for (const file of ["SKILL.md", "agents/openai.yaml", "references/map-format.md", "references/example.json", "scripts/validate.mjs", "scripts/repo-facts.mjs"]) {
       assert.ok(existsSync(join(home, ".agents/skills/aisus-architecture", file)), file);
     }
     for (const file of ["SKILL.md", "agents/openai.yaml", "references/bug-taxonomy.md", "scripts/session.mjs", "scripts/session-hook.mjs"]) {
       assert.ok(existsSync(join(home, ".agents/skills/aisus-bugfix", file)), file);
     }
-    for (const file of ["SKILL.md", "agents/openai.yaml", "references/archify-format.md", "scripts/refresh-facts.mjs", "scripts/validate.mjs"]) {
+    for (const file of ["SKILL.md", "agents/openai.yaml", "references/map-format.md", "scripts/refresh-facts.mjs", "scripts/validate.mjs"]) {
       assert.ok(existsSync(join(home, ".agents/skills/aisus-refresh", file)), file);
     }
     for (const file of ["SKILL.md", "agents/openai.yaml", "scripts/audit-record.mjs"]) {

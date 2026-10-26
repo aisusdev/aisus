@@ -74,7 +74,7 @@ function pageOutput(run, doc) {
 }
 
 // packages/core/model/runFolder.ts
-var ARCHIFY_DIR = ".archify";
+var MAP_DIR = ".archify";
 var CANDIDATE_FILE = "candidate.json";
 var RUN_NAME_PATTERN = /^([a-z0-9]+)-(.+)-(\d{8}-\d{6})(?:-(\d+))?$/;
 
@@ -7928,13 +7928,13 @@ function fail(message) {
 }
 function main(args) {
   const share = args[1] === "--share";
-  if (args.length < 1 || args.length > 2 || args.length === 2 && !share) return fail(`usage: node render-html.mjs <repo>/${ARCHIFY_DIR}/<run>/${CANDIDATE_FILE} [--share]`);
+  if (args.length < 1 || args.length > 2 || args.length === 2 && !share) return fail(`usage: node render-html.mjs <repo>/${MAP_DIR}/<run>/${CANDIDATE_FILE} [--share]`);
   const candidate = resolve(process.cwd(), args[0]);
   const runDir = dirname2(candidate);
   const run = basename(runDir);
   const root = dirname2(dirname2(runDir));
-  if (basename(candidate) !== CANDIDATE_FILE || basename(dirname2(runDir)) !== ARCHIFY_DIR || !RUN_NAME_PATTERN.test(run)) {
-    return fail(`expected a path of the form <repo>/${ARCHIFY_DIR}/<run>/${CANDIDATE_FILE}, got ${args[0]}`);
+  if (basename(candidate) !== CANDIDATE_FILE || basename(dirname2(runDir)) !== MAP_DIR || !RUN_NAME_PATTERN.test(run)) {
+    return fail(`expected a path of the form <repo>/${MAP_DIR}/<run>/${CANDIDATE_FILE}, got ${args[0]}`);
   }
   let doc;
   try {
@@ -7955,7 +7955,7 @@ function main(args) {
   } catch (error) {
     return fail(`cannot write ${name}: ${error.message}`);
   }
-  process.stdout.write(`${JSON.stringify({ status: "written", page: `${ARCHIFY_DIR}/${run}/${name}` }, null, 2)}
+  process.stdout.write(`${JSON.stringify({ status: "written", page: `${MAP_DIR}/${run}/${name}` }, null, 2)}
 `);
   return 0;
 }

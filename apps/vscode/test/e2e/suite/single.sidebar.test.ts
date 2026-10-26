@@ -174,7 +174,7 @@ suite("UI-01 aisus sidebar", () => {
 
   test("UI-02 a replayed stream shows feed, tokens and acceptance, records the run and opens the map", async () => {
     agents(["claude"]);
-    const candidate = join(repositoryRoot(), "fixtures/archify/examples/rag-pipeline.architecture.json");
+    const candidate = join(repositoryRoot(), "fixtures/maps/examples/rag-pipeline.architecture.json");
     Object.assign(process.env, { AISUS_STUB_STREAM: stream("claude-generate.jsonl"), AISUS_STUB_CANDIDATE: candidate, AISUS_STUB_DELAY: "200" });
     await reveal();
     await hook.postFromHome({ type: "generate", focus: "rag" });

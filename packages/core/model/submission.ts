@@ -4,7 +4,7 @@
 import { semanticChecks } from "./checks";
 import { validateArchitecture, validateSequence } from "./schema";
 import { sequenceChecks } from "./sequence";
-import { isJsonObject, pointerToken, type ArchifyDoc, type Issue, type JsonObject, type MapDoc, type Repository, type SequenceDoc } from "./types";
+import { isJsonObject, pointerToken, type ArchitectureDoc, type Issue, type JsonObject, type MapDoc, type Repository, type SequenceDoc } from "./types";
 import { findSecrets } from "./secrets";
 
 const META_DROPS = ["viewBox", "views", "animation", "translations", "visual_preset", "engineering_profile"];
@@ -110,6 +110,6 @@ export function checkSubmission(value: unknown, app: AppOwned, checkCitations: (
   }
   const schemaErrors = validateArchitecture(value);
   if (schemaErrors.length > 0) return { removed, errors: schemaErrors };
-  const doc = value as ArchifyDoc;
+  const doc = value as ArchitectureDoc;
   return { removed, errors: [...semanticChecks(doc), ...findSecrets(doc), ...checkCitations(doc)] };
 }

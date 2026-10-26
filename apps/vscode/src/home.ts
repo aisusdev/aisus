@@ -9,7 +9,7 @@ import { untrackedFiles, numstatSince } from "@aisus/core/model/git";
 import { healthItems, uncoveredLines, type HealthItem, type HealthKind } from "@aisus/core/model/health";
 import { listMaps } from "@aisus/core/model/maps";
 import type { MapKind } from "@aisus/core/model/runFolder";
-import { ARCHIFY_DIR, CANDIDATE_FILE } from "@aisus/core/model/runFolder";
+import { MAP_DIR, CANDIDATE_FILE } from "@aisus/core/model/runFolder";
 import { fileReader, readFingerprints } from "@aisus/core/model/staleness";
 import type { HomeHostMessage, HomeState, HomeWebviewMessage, MapItem, SessionSummary } from "@aisus/core/model/messages";
 import { runPreflight, type Check } from "@aisus/core/model/preflight";
@@ -164,7 +164,7 @@ export class HomeView implements vscode.WebviewViewProvider, vscode.Disposable {
       return;
     }
     if (map === null) return;
-    ArchitecturePanel.show(this.context.extensionUri, root, join(root, ARCHIFY_DIR, map, CANDIDATE_FILE));
+    ArchitecturePanel.show(this.context.extensionUri, root, join(root, MAP_DIR, map, CANDIDATE_FILE));
     if (item === "hotspot") ArchitecturePanel.setHotspotsShown(true);
     if (item === "uncovered") await vscode.commands.executeCommand("aisus.showChanges");
   }
@@ -175,7 +175,7 @@ export class HomeView implements vscode.WebviewViewProvider, vscode.Disposable {
     if (cached !== undefined && Date.now() - cached.at < HEALTH_TTL_MS) return cached.items;
     const { map, components } = rulesMap(root);
     if (map === null) return null;
-    const candidate = join(root, ARCHIFY_DIR, map, CANDIDATE_FILE);
+    const candidate = join(root, MAP_DIR, map, CANDIDATE_FILE);
     const state = this.freshness.of(root, candidate);
     const revision = readFingerprints(dirname(candidate))?.revision ?? null;
     const changes = revision === null ? null : numstatSince(root, revision);

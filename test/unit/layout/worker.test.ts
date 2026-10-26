@@ -8,7 +8,7 @@ import { runInThread } from "@aisus/core/layout/elkInThread";
 import { layoutDiagram } from "@aisus/core/layout/layout";
 import { readDiagram, type ViewDiagram } from "@aisus/core/model/tolerant";
 import { workerRunner } from "@aisus/viewer/layoutWorkers";
-import { archifyFixtures } from "../support/fixtures";
+import { mapFixtures } from "../support/fixtures";
 import { fixedAdvance, VIEWPORT } from "./helpers";
 
 /**
@@ -27,7 +27,7 @@ function sandboxWorker(source: string): Worker {
 }
 
 /** Every fixture with its positions removed, so ELK lays it out. */
-const diagrams: [string, ViewDiagram][] = archifyFixtures().map((fixture) => {
+const diagrams: [string, ViewDiagram][] = mapFixtures().map((fixture) => {
   const result = readDiagram(JSON.parse(fixture.text));
   if (!result.ok) throw new Error(`${fixture.name}: ${result.reason}`);
   return [fixture.name, { ...result.diagram, components: result.diagram.components.map(({ pos: _pos, row: _row, col: _col, ...rest }) => rest) }];

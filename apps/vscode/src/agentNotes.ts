@@ -6,7 +6,7 @@ import * as vscode from "vscode";
 import { claudeNeedsNotes, mergeNotes, notesBlock } from "@aisus/core/model/agentNotes";
 import { loadConfig } from "@aisus/core/model/check";
 import { readRules } from "@aisus/core/model/rules";
-import { ARCHIFY_DIR, CANDIDATE_FILE } from "@aisus/core/model/runFolder";
+import { MAP_DIR, CANDIDATE_FILE } from "@aisus/core/model/runFolder";
 import { readDiagram } from "@aisus/core/model/tolerant";
 import { pickRepoRoot } from "./folders";
 import { confirmWrite } from "./previewWrite";
@@ -25,7 +25,7 @@ export async function writeAgentNotesCommand(): Promise<void> {
   if (!folder) return;
   const root = folder.uri.fsPath;
   const { map } = rulesMap(root);
-  const read = map === null ? null : readDiagram(JSON.parse(readText(join(root, ARCHIFY_DIR, map, CANDIDATE_FILE)) ?? "null"));
+  const read = map === null ? null : readDiagram(JSON.parse(readText(join(root, MAP_DIR, map, CANDIDATE_FILE)) ?? "null"));
   if (map === null || read === null || !read.ok) {
     void vscode.window.showInformationMessage("The notes come from the main map. Generate a map with an empty focus first.");
     return;

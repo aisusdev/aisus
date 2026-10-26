@@ -12,7 +12,7 @@ import { diffMaps } from "@aisus/core/model/diff";
 import { defaultBranch, fileAt } from "@aisus/core/model/git";
 import { parseDiagram } from "@aisus/core/model/tolerant";
 import type { ReviewView } from "@aisus/core/model/messages";
-import { ARCHIFY_DIR, CANDIDATE_FILE } from "@aisus/core/model/runFolder";
+import { MAP_DIR, CANDIDATE_FILE } from "@aisus/core/model/runFolder";
 import { chosenAgent, foundAgents } from "./generate";
 import { compareMapsCommand, readMap } from "./compare";
 import { onAction, openFolder } from "./notify";
@@ -109,7 +109,7 @@ export class Review implements vscode.Disposable {
     const mainAtBase = baseMap(root, outcome.report.mergeBase);
     this.branch = mainAtBase !== null && newerRun(outcome.report.map, mainAtBase) ? { map: outcome.report.map, base: mainAtBase, mergeBase: outcome.report.mergeBase } : null;
     this.lastScope = { scope, base, head };
-    const file = join(root, ARCHIFY_DIR, outcome.report.map, CANDIDATE_FILE);
+    const file = join(root, MAP_DIR, outcome.report.map, CANDIDATE_FILE);
     const map = ArchitecturePanel.show(this.context.extensionUri, root, file, true);
     const report = outcome.report;
     map.showChanges({ scope, strong: report.touched.strong.map((box) => box.id), weak: report.touched.weak.map((box) => box.id), uncovered: report.uncovered });
@@ -125,10 +125,10 @@ export class Review implements vscode.Disposable {
     if (this.result === null || this.branch === null) return;
     const { root } = this.result;
     const { map, base, mergeBase } = this.branch;
-    const older = fileAt(root, mergeBase, `${ARCHIFY_DIR}/${base}/${CANDIDATE_FILE}`);
+    const older = fileAt(root, mergeBase, `${MAP_DIR}/${base}/${CANDIDATE_FILE}`);
     const parsed = older === null ? null : parseDiagram(older.toString("utf8"));
-    const panel = ArchitecturePanel.show(this.context.extensionUri, root, join(root, ARCHIFY_DIR, map, CANDIDATE_FILE), true);
-    const shown = panel.components().length > 0 ? readMap(join(root, ARCHIFY_DIR, map, CANDIDATE_FILE)) : null;
+    const panel = ArchitecturePanel.show(this.context.extensionUri, root, join(root, MAP_DIR, map, CANDIDATE_FILE), true);
+    const shown = panel.components().length > 0 ? readMap(join(root, MAP_DIR, map, CANDIDATE_FILE)) : null;
     if (parsed === null || !parsed.ok || shown === null) {
       onAction(vscode.window.showErrorMessage(`Cannot read the base map ${base} at ${mergeBase.slice(0, 7)}.`, "Compare With…"), "Compare With…", compareMapsCommand);
       return;
@@ -140,7 +140,7 @@ export class Review implements vscode.Disposable {
   async updateBranchMap(): Promise<void> {
     if (this.result === null) return;
     const { root, report } = this.result;
-    const file = join(root, ARCHIFY_DIR, report.map, CANDIDATE_FILE);
+    const file = join(root, MAP_DIR, report.map, CANDIDATE_FILE);
     const paths = branchPaths(report, readMap(file)?.components ?? []);
     if (paths.length === 0) return;
     this.runs.dismiss();
@@ -172,7 +172,7 @@ export class Review implements vscode.Disposable {
   /** Add to map: a refresh of the reviewed map limited to the candidate's folder. */
   async addToMap(dir: string): Promise<void> {
     if (!this.candidate(dir) || !this.result) return;
-    const file = join(this.result.root, ARCHIFY_DIR, this.result.report.map, CANDIDATE_FILE);
+    const file = join(this.result.root, MAP_DIR, this.result.report.map, CANDIDATE_FILE);
     this.runs.dismiss();
     await refreshArchitectureCommand(this.context, this.runs, file, [dir], chosenAgent(this.context, foundAgents()) ?? undefined);
   }

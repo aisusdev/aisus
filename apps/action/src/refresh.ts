@@ -16,7 +16,7 @@ import type { DeltaReport } from "@aisus/core/model/delta";
 import { diffMaps, diffSummary } from "@aisus/core/model/diff";
 import { planRefresh, REDRAW_REASONS } from "@aisus/core/model/lineage";
 import { globToRegExp, refreshArgs } from "@aisus/core/model/refresh";
-import { ARCHIFY_DIR, CANDIDATE_FILE } from "@aisus/core/model/runFolder";
+import { MAP_DIR, CANDIDATE_FILE } from "@aisus/core/model/runFolder";
 import { newRunSince, runFolderNames } from "@aisus/core/model/runRecord";
 import { readDiagram } from "@aisus/core/model/tolerant";
 import { findOnPath } from "@aisus/core/model/which";
@@ -96,11 +96,11 @@ export function runRefresh(input: { root: string; map: string; agent: RefreshAge
     const tokens = usage.input + usage.output + usage.cacheRead + usage.cacheWrite;
     const made = newRunSince(input.root, before);
     if (made === null || made.record.phase !== "accepted") return { ok: false, reason: `the refresh ended without an accepted map (exit ${result.status ?? "none"}).` };
-    const read = (run: string): ReturnType<typeof readDiagram> => readDiagram(JSON.parse(readFileSync(join(input.root, ARCHIFY_DIR, run, CANDIDATE_FILE), "utf8")));
+    const read = (run: string): ReturnType<typeof readDiagram> => readDiagram(JSON.parse(readFileSync(join(input.root, MAP_DIR, run, CANDIDATE_FILE), "utf8")));
     const older = read(input.map);
     const newer = read(made.runFolder);
     const summary = older.ok && newer.ok ? diffSummary(diffMaps(older.diagram, newer.diagram)) : "the map changed";
-    const folder = `${ARCHIFY_DIR}/${made.runFolder}`;
+    const folder = `${MAP_DIR}/${made.runFolder}`;
     const committed =
       git(input.root, ["add", "-f", "--", folder]) !== null &&
       git(input.root, ["-c", "user.name=aisus", "-c", "user.email=aisus@users.noreply.github.com", "-c", "commit.gpgsign=false", "commit", "-q", "-m", `Update the architecture map for this pull request\n\n${summary}.`, "--", folder]) !== null &&

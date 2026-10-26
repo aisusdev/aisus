@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://aisus.dev/schemas/upload.schema.json",
   "title": "aisus cloud upload",
-  "description": "What aisus cloud accepts: an Archify map with its sidecars, or a check result, and metadata. Never code.",
+  "description": "What aisus cloud accepts: an architecture map with its sidecars, or a check result, and metadata. Never code.",
   "type": "object",
   "additionalProperties": false,
   "required": ["repo", "commit", "branch", "kind", "meta"],
@@ -11,7 +11,7 @@
     "commit": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
     "branch": { "type": "string", "minLength": 1, "maxLength": 255 },
     "kind": { "enum": ["map", "check"] },
-    "map": { "type": "object", "description": "An Archify map, checked against the vendored Archify schemas." },
+    "map": { "type": "object", "description": "An architecture map, checked against the vendored map schemas." },
     "sidecars": {
       "type": "object",
       "additionalProperties": false,

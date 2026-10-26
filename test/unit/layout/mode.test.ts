@@ -3,12 +3,12 @@ import { describe, expect, test } from "vitest";
 import { autoNodeSize } from "@aisus/core/layout/measure";
 import { authoredRects } from "@aisus/core/layout/mode";
 import { readDiagram } from "@aisus/core/model/tolerant";
-import { archifyFixtures } from "../support/fixtures";
+import { mapFixtures } from "../support/fixtures";
 import { comp, diagramOf, fixedAdvance, lay, rectOf } from "./helpers";
 
 describe("FR-LAY-01 mode", () => {
   test("the archify-repo-grid fixture resolves to the prototype's positions", async () => {
-    const fixture = archifyFixtures().find((f) => f.name === "examples/archify-repo-grid.architecture.json")!;
+    const fixture = mapFixtures().find((f) => f.name === "examples/archify-repo-grid.architecture.json")!;
     const result = readDiagram(JSON.parse(fixture.text));
     if (!result.ok) throw new Error(result.reason);
     const scene = await lay(result.diagram);
@@ -36,7 +36,7 @@ describe("FR-LAY-01 mode", () => {
     expect(rectOf(scene, "b")).toEqual({ x: 400, y: 0, w: 120, h: 60 });
   });
 
-  test("grid cells use Archify's defaults for missing grid fields", () => {
+  test("grid cells use the format's defaults for missing grid fields", () => {
     const rects = authoredRects(diagramOf({ layout: { mode: "grid" }, components: [comp("a", { row: 0, col: 0 }), comp("b", { row: 1, col: 2 })] }));
     // origin [40,80]; step (130+30) × (64+40).
     expect(rects).toEqual([

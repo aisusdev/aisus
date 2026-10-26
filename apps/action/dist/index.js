@@ -7902,7 +7902,7 @@ var import_node_fs = require("node:fs");
 var import_node_path = require("node:path");
 
 // packages/core/model/runFolder.ts
-var ARCHIFY_DIR = ".archify";
+var MAP_DIR = ".archify";
 var CANDIDATE_FILE = "candidate.json";
 var RUN_NAME_PATTERN = /^([a-z0-9]+)-(.+)-(\d{8}-\d{6})(?:-(\d+))?$/;
 var SEQUENCE_PREFIX = "sequence";
@@ -7935,7 +7935,7 @@ function listCandidates(root, kind = "architecture") {
   let folders;
   try {
     rootReal = (0, import_node_fs.realpathSync)(root);
-    folders = (0, import_node_fs.readdirSync)((0, import_node_path.join)(root, ARCHIFY_DIR));
+    folders = (0, import_node_fs.readdirSync)((0, import_node_path.join)(root, MAP_DIR));
   } catch {
     return [];
   }
@@ -7943,7 +7943,7 @@ function listCandidates(root, kind = "architecture") {
   for (const runFolder of folders) {
     const sequence = mapKindOf(runFolder) === SEQUENCE_PREFIX;
     if (kind !== "all" && sequence !== (kind === "sequence")) continue;
-    const file = (0, import_node_path.join)(root, ARCHIFY_DIR, runFolder, CANDIDATE_FILE);
+    const file = (0, import_node_path.join)(root, MAP_DIR, runFolder, CANDIDATE_FILE);
     try {
       const real = (0, import_node_fs.realpathSync)(file);
       if (!real.startsWith(rootReal + import_node_path.sep)) continue;
@@ -8490,7 +8490,7 @@ function readRunRecord(runDir) {
 }
 function runFolderNames(root) {
   try {
-    return new Set((0, import_node_fs5.readdirSync)((0, import_node_path4.join)(root, ARCHIFY_DIR)));
+    return new Set((0, import_node_fs5.readdirSync)((0, import_node_path4.join)(root, MAP_DIR)));
   } catch {
     return /* @__PURE__ */ new Set();
   }
@@ -8499,7 +8499,7 @@ function newRunSince(root, before) {
   let found = null;
   for (const runFolder of runFolderNames(root)) {
     if (before.has(runFolder)) continue;
-    const dir = (0, import_node_path4.join)(root, ARCHIFY_DIR, runFolder);
+    const dir = (0, import_node_path4.join)(root, MAP_DIR, runFolder);
     const record3 = readRunRecord(dir);
     if (record3 !== null && (found === null || record3.createdAt > found.record.createdAt)) found = { runFolder, dir, record: record3 };
   }
@@ -8875,22 +8875,22 @@ function runCheck(options) {
   if (!config.ok) return config;
   const run2 = options.map ?? config.config.map ?? mainMap(root);
   if (run2 === null) return { ok: false, reason: `No map to check against. Generate one with an empty focus, or name one with --map or "map" in ${CONFIG_FILE}.` };
-  const runDir = (0, import_node_path6.join)(root, ARCHIFY_DIR, run2);
+  const runDir = (0, import_node_path6.join)(root, MAP_DIR, run2);
   let diagram;
   try {
     const read2 = readDiagram(JSON.parse((0, import_node_fs7.readFileSync)((0, import_node_path6.join)(runDir, CANDIDATE_FILE), "utf8")));
-    if (!read2.ok) return { ok: false, reason: `${ARCHIFY_DIR}/${run2}/${CANDIDATE_FILE}: ${read2.reason}` };
+    if (!read2.ok) return { ok: false, reason: `${MAP_DIR}/${run2}/${CANDIDATE_FILE}: ${read2.reason}` };
     diagram = read2.diagram;
   } catch (error) {
-    return { ok: false, reason: `Cannot read ${ARCHIFY_DIR}/${run2}/${CANDIDATE_FILE}: ${error.message}` };
+    return { ok: false, reason: `Cannot read ${MAP_DIR}/${run2}/${CANDIDATE_FILE}: ${error.message}` };
   }
   const shared = mergeBase(root, base, head ?? "HEAD");
   if (shared === null) return { ok: false, reason: `No common commit between ${base} and ${head ?? "HEAD"}.` };
   const diff = diffBetween(root, shared, head ?? null);
   if (diff === null) return { ok: false, reason: `git diff ${shared} ${head ?? ""} failed.` };
-  const changes = parseDiff(diff).filter((change) => !change.path.startsWith(`${ARCHIFY_DIR}/`));
+  const changes = parseDiff(diff).filter((change) => !change.path.startsWith(`${MAP_DIR}/`));
   if (head === void 0) {
-    for (const path2 of untrackedFiles(root).filter((file) => !file.startsWith(`${ARCHIFY_DIR}/`))) {
+    for (const path2 of untrackedFiles(root).filter((file) => !file.startsWith(`${MAP_DIR}/`))) {
       const bytes = fileReader(root)(path2);
       changes.push({ path: path2, oldPath: path2, status: "added", hunks: [], added: bytes === null ? 0 : countLines(bytes) });
     }
@@ -9033,8 +9033,8 @@ var import__ = __toESM(require__());
 // packages/core/model/schemas/architecture.schema.json
 var architecture_schema_default = {
   $schema: "https://json-schema.org/draft/2020-12/schema",
-  $id: "https://github.com/tt-a1i/archify/schemas/architecture.schema.json",
-  title: "Archify Architecture Diagram",
+  $id: "https://aisus.dev/schemas/architecture.schema.json",
+  title: "Architecture Map",
   type: "object",
   additionalProperties: false,
   required: ["schema_version", "diagram_type", "meta", "components"],
@@ -9187,8 +9187,8 @@ var architecture_schema_default = {
 // packages/core/model/schemas/common.schema.json
 var common_schema_default = {
   $schema: "https://json-schema.org/draft/2020-12/schema",
-  $id: "https://github.com/tt-a1i/archify/schemas/common.schema.json",
-  title: "Archify Shared Definitions",
+  $id: "https://aisus.dev/schemas/common.schema.json",
+  title: "Map Shared Definitions",
   $defs: {
     id: {
       type: "string",
@@ -9403,7 +9403,7 @@ var upload_schema_default = {
   $schema: "https://json-schema.org/draft/2020-12/schema",
   $id: "https://aisus.dev/schemas/upload.schema.json",
   title: "aisus cloud upload",
-  description: "What aisus cloud accepts: an Archify map with its sidecars, or a check result, and metadata. Never code.",
+  description: "What aisus cloud accepts: an architecture map with its sidecars, or a check result, and metadata. Never code.",
   type: "object",
   additionalProperties: false,
   required: ["repo", "commit", "branch", "kind", "meta"],
@@ -9412,7 +9412,7 @@ var upload_schema_default = {
     commit: { type: "string", pattern: "^[0-9a-f]{40}$" },
     branch: { type: "string", minLength: 1, maxLength: 255 },
     kind: { enum: ["map", "check"] },
-    map: { type: "object", description: "An Archify map, checked against the vendored Archify schemas." },
+    map: { type: "object", description: "An architecture map, checked against the vendored map schemas." },
     sidecars: {
       type: "object",
       additionalProperties: false,
@@ -10341,7 +10341,7 @@ function components(doc) {
   });
 }
 function planRefresh(root, run2, globs = []) {
-  const runDir = (0, import_node_path8.join)(root, ARCHIFY_DIR, run2);
+  const runDir = (0, import_node_path8.join)(root, MAP_DIR, run2);
   const focus = readRunRecord(runDir)?.focus ?? "";
   const previous = readLineage(runDir);
   const git2 = collectGitFacts(root);
@@ -10434,11 +10434,11 @@ function runRefresh(input2) {
     const tokens = usage.input + usage.output + usage.cacheRead + usage.cacheWrite;
     const made = newRunSince(input2.root, before);
     if (made === null || made.record.phase !== "accepted") return { ok: false, reason: `the refresh ended without an accepted map (exit ${result.status ?? "none"}).` };
-    const read = (run2) => readDiagram(JSON.parse((0, import_node_fs10.readFileSync)((0, import_node_path9.join)(input2.root, ARCHIFY_DIR, run2, CANDIDATE_FILE), "utf8")));
+    const read = (run2) => readDiagram(JSON.parse((0, import_node_fs10.readFileSync)((0, import_node_path9.join)(input2.root, MAP_DIR, run2, CANDIDATE_FILE), "utf8")));
     const older = read(input2.map);
     const newer = read(made.runFolder);
     const summary = older.ok && newer.ok ? diffSummary(diffMaps(older.diagram, newer.diagram)) : "the map changed";
-    const folder = `${ARCHIFY_DIR}/${made.runFolder}`;
+    const folder = `${MAP_DIR}/${made.runFolder}`;
     const committed = git(input2.root, ["add", "-f", "--", folder]) !== null && git(input2.root, ["-c", "user.name=aisus", "-c", "user.email=aisus@users.noreply.github.com", "-c", "commit.gpgsign=false", "commit", "-q", "-m", `Update the architecture map for this pull request
 
 ${summary}.`, "--", folder]) !== null && git(input2.root, ["push", "-q", "origin", `HEAD:refs/heads/${input2.headRef}`]) !== null;

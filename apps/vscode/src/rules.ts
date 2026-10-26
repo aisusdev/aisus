@@ -9,7 +9,7 @@ import { untrackedFiles } from "@aisus/core/model/git";
 import { Ownership } from "@aisus/core/model/ownership";
 import { isTestPath, listFiles, skipped } from "@aisus/core/model/repoSize";
 import { checkRules, readRules, type Violation } from "@aisus/core/model/rules";
-import { ARCHIFY_DIR, CANDIDATE_FILE } from "@aisus/core/model/runFolder";
+import { MAP_DIR, CANDIDATE_FILE } from "@aisus/core/model/runFolder";
 import { fileReader } from "@aisus/core/model/staleness";
 import { readDiagram } from "@aisus/core/model/tolerant";
 
@@ -36,7 +36,7 @@ export function rulesMap(root: string): { map: string | null; components: { id: 
   const map = config.ok ? (config.config.map ?? mainMap(root)) : mainMap(root);
   if (map === null) return { map, components: [] };
   try {
-    const read = readDiagram(JSON.parse(readFileSync(join(root, ARCHIFY_DIR, map, CANDIDATE_FILE), "utf8")));
+    const read = readDiagram(JSON.parse(readFileSync(join(root, MAP_DIR, map, CANDIDATE_FILE), "utf8")));
     return { map, components: read.ok ? read.diagram.components : [] };
   } catch {
     // Without a readable map only path: rule ends match.
@@ -104,7 +104,7 @@ export class RulesService implements vscode.Disposable {
       }),
       vscode.workspace.onDidChangeWorkspaceFolders(() => this.checkAll()),
     );
-    for (const pattern of [`aisus.config.json`, `${ARCHIFY_DIR}/*/${CANDIDATE_FILE}`]) {
+    for (const pattern of [`aisus.config.json`, `${MAP_DIR}/*/${CANDIDATE_FILE}`]) {
       const watcher = vscode.workspace.createFileSystemWatcher(`**/${pattern}`);
       for (const event of [watcher.onDidCreate, watcher.onDidChange, watcher.onDidDelete]) event((uri) => this.saved(uri));
       this.disposables.push(watcher);

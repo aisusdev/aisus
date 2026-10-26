@@ -1,7 +1,7 @@
 // CLD-02 and CLD-09: what aisus cloud accepts, checked the same way by the server and by
-// `aisus.mjs publish` before it sends. An upload is an Archify map with its sidecars, or a
+// `aisus.mjs publish` before it sends. An upload is an architecture map with its sidecars, or a
 // check result, plus metadata; no object may carry extra properties, the map must pass the
-// vendored Archify schemas, and nothing may look like a secret (SAF-03).
+// vendored map schemas, and nothing may look like a secret (SAF-03).
 import Ajv2020 from "ajv/dist/2020";
 import type { ErrorObject, ValidateFunction } from "ajv";
 import { validateArchitecture } from "./schema";

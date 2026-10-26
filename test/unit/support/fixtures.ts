@@ -3,14 +3,14 @@ import { join, relative } from "node:path";
 import { repoRoot } from "./sourceScan";
 
 export interface Fixture {
-  /** Path below `fixtures/archify/`, e.g. `examples/archify-repo.architecture.json`. */
+  /** Path below `fixtures/maps/`, e.g. `examples/archify-repo.architecture.json`. */
   name: string;
   text: string;
 }
 
-/** The 24 vendored Archify fixtures, sorted by name. */
-export function archifyFixtures(): Fixture[] {
-  const base = join(repoRoot, "fixtures/archify");
+/** The 24 vendored fixtures, sorted by name. */
+export function mapFixtures(): Fixture[] {
+  const base = join(repoRoot, "fixtures/maps");
   const out: Fixture[] = [];
   const walk = (dir: string): void => {
     for (const entry of readdirSync(dir).sort()) {

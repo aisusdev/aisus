@@ -2,9 +2,9 @@
 import { describe, expect, test } from "vitest";
 import { validateArchitecture } from "@aisus/core/model/schema";
 import { stringifyDocument } from "@aisus/core/model/types";
-import { archifyFixtures } from "../support/fixtures";
+import { mapFixtures } from "../support/fixtures";
 
-const fixtures = archifyFixtures();
+const fixtures = mapFixtures();
 
 function base(): Record<string, unknown> & { components: Record<string, unknown>[] } {
   return {

@@ -1,9 +1,9 @@
 // FR-VAL-04: one test per semantic rule, asserting the pointer (ported from validation.rs).
 import { describe, expect, test } from "vitest";
 import { boundaryRelation, semanticChecks } from "@aisus/core/model/checks";
-import type { ArchifyDoc } from "@aisus/core/model/types";
+import type { ArchitectureDoc } from "@aisus/core/model/types";
 
-function base(): ArchifyDoc {
+function base(): ArchitectureDoc {
   return {
     schema_version: 1,
     diagram_type: "architecture",

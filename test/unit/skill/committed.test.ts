@@ -25,6 +25,6 @@ test.each(Object.entries(SCRIPTS))("RCH-02 ACC-05 SKL-02 SEQ-02 %s's committed s
 });
 
 test("RCH-02 the refresh skill's references are the architecture skill's", () => {
-  const reference = (name: string): string => readFileSync(join(repoRoot, "skills", name, "references/archify-format.md"), "utf8");
+  const reference = (name: string): string => readFileSync(join(repoRoot, "skills", name, "references/map-format.md"), "utf8");
   expect(reference("aisus-refresh")).toBe(reference("aisus-architecture"));
 });

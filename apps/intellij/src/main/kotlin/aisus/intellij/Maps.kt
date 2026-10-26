@@ -16,10 +16,10 @@ object Maps {
     private val STAMP = Regex("""(\d{8}-\d{6})(?:-(\d+))?$""")
 
     fun list(root: Path): List<MapFile> {
-        val archify = root.resolve(".archify")
-        if (!archify.isDirectory()) return emptyList()
+        val maps = root.resolve(".archify")
+        if (!maps.isDirectory()) return emptyList()
         val runs = try {
-            Files.list(archify).use { stream -> stream.filter { it.isDirectory() }.toList() }
+            Files.list(maps).use { stream -> stream.filter { it.isDirectory() }.toList() }
         } catch (e: IOException) {
             return emptyList()
         }

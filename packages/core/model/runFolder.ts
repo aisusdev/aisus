@@ -3,7 +3,7 @@
 import { closeSync, fsyncSync, mkdirSync, openSync, realpathSync, renameSync, rmSync, statSync, unlinkSync, writeSync } from "node:fs";
 import { basename, dirname, join, resolve, sep } from "node:path";
 
-export const ARCHIFY_DIR = ".archify";
+export const MAP_DIR = ".archify";
 export const DRAFT_FILE = "draft.json";
 export const CANDIDATE_FILE = "candidate.json";
 /** Longest run-folder slug. */
@@ -95,7 +95,7 @@ function isInside(parentReal: string, childReal: string): boolean {
 }
 
 export interface RunFolderOptions {
-  /** Directory under the root that holds run folders; default {@link ARCHIFY_DIR}. */
+  /** Directory under the root that holds run folders; default {@link MAP_DIR}. */
   dir?: string;
   /**
    * Run-name prefix for `<prefix>-<slug>-<timestamp>`, one `[a-z0-9]+` segment so the name
@@ -110,7 +110,7 @@ export interface RunFolderOptions {
  * base directory is not a folder inside the root or the name is not one path segment.
  */
 export function createRunFolder(root: string, slug: string, timestamp: string, options: RunFolderOptions = {}): string {
-  const dir = options.dir ?? ARCHIFY_DIR;
+  const dir = options.dir ?? MAP_DIR;
   const prefix = options.prefix ?? "architecture";
   if (dir === "." || dir === ".." || /[/\\]/.test(dir)) throw new Error(`"${dir}" is not a valid run folder directory`);
   if (!/^[a-z0-9]+$/.test(prefix)) throw new Error(`"${prefix}" is not a valid run folder prefix`);
@@ -155,14 +155,14 @@ export interface DraftLocation {
 export function locateDraft(arg: string, cwd: string): DraftLocation {
   const draft = resolve(cwd, arg);
   const runDir = dirname(draft);
-  const archify = dirname(runDir);
+  const maps = dirname(runDir);
   const run = basename(runDir);
-  if (basename(draft) !== DRAFT_FILE || basename(archify) !== ARCHIFY_DIR) {
-    throw new Error(`expected a path of the form <repo>/${ARCHIFY_DIR}/<run>/${DRAFT_FILE}, got ${arg}`);
+  if (basename(draft) !== DRAFT_FILE || basename(maps) !== MAP_DIR) {
+    throw new Error(`expected a path of the form <repo>/${MAP_DIR}/<run>/${DRAFT_FILE}, got ${arg}`);
   }
   const kind = mapKindOf(run);
   if (kind === null) throw new Error(`run folder "${run}" does not match architecture-<slug>-<YYYYMMDD-HHMMSS>[-N] or sequence-<slug>-<YYYYMMDD-HHMMSS>[-N]`);
-  return { root: dirname(archify), run, slug: parseRunName(run)!.slug, draft, kind };
+  return { root: dirname(maps), run, slug: parseRunName(run)!.slug, draft, kind };
 }
 
 /**

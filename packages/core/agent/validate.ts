@@ -9,7 +9,7 @@ import { importLanguage, importLinks } from "../model/evidence/graph";
 import { isTestPath, listFiles } from "../model/repoSize";
 import { fingerprint, writeFingerprints } from "../model/fingerprints";
 import { collectGitFacts, repositoryFromGit } from "../model/git";
-import { ARCHIFY_DIR, CANDIDATE_FILE, locateDraft, publishCandidate, type DraftLocation } from "../model/runFolder";
+import { MAP_DIR, CANDIDATE_FILE, locateDraft, publishCandidate, type DraftLocation } from "../model/runFolder";
 import { newRunRecord, readRunRecord, RUN_FILE, updateRunRecord, type RunRecord } from "../model/runRecord";
 import { writeJson } from "../model/session";
 import { checkSubmission, REMOVED_FIELD_MESSAGE } from "../model/submission";
@@ -53,7 +53,7 @@ function usageError(message: string): number {
 
 function main(args: string[]): number {
   if (args.length !== 1) {
-    return usageError(`usage: node validate.mjs <repo>/${ARCHIFY_DIR}/<run>/draft.json`);
+    return usageError(`usage: node validate.mjs <repo>/${MAP_DIR}/<run>/draft.json`);
   }
   let location: DraftLocation;
   let text: string;
@@ -89,7 +89,7 @@ function main(args: string[]): number {
   const { removed, errors } = checkSubmission(
     value,
     {
-      output: `${ARCHIFY_DIR}/${location.run}/${location.slug}.html`,
+      output: `${MAP_DIR}/${location.run}/${location.slug}.html`,
       repository: git ? repositoryFromGit(git) : null,
       kind: location.kind,
     },
@@ -127,7 +127,7 @@ function main(args: string[]): number {
   }
   const report: Report = {
     status: "accepted",
-    candidate: `${ARCHIFY_DIR}/${location.run}/${CANDIDATE_FILE}`,
+    candidate: `${MAP_DIR}/${location.run}/${CANDIDATE_FILE}`,
     errors: [],
     warnings,
     ...(evidence === null ? {} : { evidence: evidence.findings }),

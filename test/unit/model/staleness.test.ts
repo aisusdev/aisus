@@ -5,7 +5,7 @@ import { describe, expect, test } from "vitest";
 import { fingerprint } from "@aisus/core/model/fingerprints";
 import { renamesSince } from "@aisus/core/model/git";
 import { fileReader, mapFreshness } from "@aisus/core/model/staleness";
-import type { ArchifyDoc } from "@aisus/core/model/types";
+import type { ArchitectureDoc } from "@aisus/core/model/types";
 import { git, gitRepo, put, tempDir } from "../support/temp";
 
 const SOURCE = ["import x from 'x';", "", "export function handle(req) {", "  const body = parse(req);", "  return save(body);", "}", ""].join("\n");
@@ -17,7 +17,7 @@ const DOC = {
     { id: "docs", sources: [{ path: "src/b.ts" }] },
     { id: "both", sources: [{ path: "src/b.ts" }, { path: "src/a.ts", line: 3, end_line: 6 }] },
   ],
-} as unknown as ArchifyDoc;
+} as unknown as ArchitectureDoc;
 
 function mapped(root: string): ReturnType<typeof fingerprint> {
   return fingerprint(DOC, root, null);
@@ -64,7 +64,7 @@ describe("FRS-02 staleness", () => {
     const root = tempDir();
     const block = SOURCE.split("\n").slice(2, 6).join("\n");
     put(root, "src/deep.ts", `${"// pad\n".repeat(30)}${block}\n`);
-    const doc = { components: [{ id: "deep", sources: [{ path: "src/deep.ts", line: 31, end_line: 34 }] }] } as unknown as ArchifyDoc;
+    const doc = { components: [{ id: "deep", sources: [{ path: "src/deep.ts", line: 31, end_line: 34 }] }] } as unknown as ArchitectureDoc;
     const prints = fingerprint(doc, root, null);
     put(root, "src/deep.ts", `${block}\n${"// pad\n".repeat(30)}// one more\n${block}\n`);
     expect(stateNow(root, prints).citations[0]!.now).toEqual({ path: "src/deep.ts", line: 36, end_line: 39 });

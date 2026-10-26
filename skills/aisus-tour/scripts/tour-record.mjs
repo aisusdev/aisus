@@ -7646,7 +7646,7 @@ function assertWritable(root, path) {
 }
 
 // packages/core/model/runFolder.ts
-var ARCHIFY_DIR = ".archify";
+var MAP_DIR = ".archify";
 var CANDIDATE_FILE = "candidate.json";
 var RUN_NAME_PATTERN = /^([a-z0-9]+)-(.+)-(\d{8}-\d{6})(?:-(\d+))?$/;
 function parseRunName(name) {
@@ -7727,19 +7727,19 @@ function print(value) {
 }
 function main(args) {
   if (args.length !== 1) {
-    process.stderr.write(`tour-record.mjs: usage: node tour-record.mjs <repo>/${ARCHIFY_DIR}/<run>/${TOUR_DRAFT_FILE}
+    process.stderr.write(`tour-record.mjs: usage: node tour-record.mjs <repo>/${MAP_DIR}/<run>/${TOUR_DRAFT_FILE}
 `);
     return 2;
   }
   const draftPath = resolve(process.cwd(), args[0]);
   const runDir = dirname2(draftPath);
-  const archify = dirname2(runDir);
-  if (basename(draftPath) !== TOUR_DRAFT_FILE || basename(archify) !== ARCHIFY_DIR || !parseRunFolderName(basename(runDir))) {
-    process.stderr.write(`tour-record.mjs: expected a path of the form <repo>/${ARCHIFY_DIR}/<run>/${TOUR_DRAFT_FILE}, got ${args[0]}
+  const maps = dirname2(runDir);
+  if (basename(draftPath) !== TOUR_DRAFT_FILE || basename(maps) !== MAP_DIR || !parseRunFolderName(basename(runDir))) {
+    process.stderr.write(`tour-record.mjs: expected a path of the form <repo>/${MAP_DIR}/<run>/${TOUR_DRAFT_FILE}, got ${args[0]}
 `);
     return 2;
   }
-  const root = dirname2(archify);
+  const root = dirname2(maps);
   let map;
   try {
     map = JSON.parse(readFileSync(join2(runDir, CANDIDATE_FILE), "utf8"));
@@ -7777,7 +7777,7 @@ function main(args) {
 `);
     return 2;
   }
-  print({ status: "recorded", tour: `${ARCHIFY_DIR}/${basename(runDir)}/${TOUR_FILE}`, stops: draft.stops.length });
+  print({ status: "recorded", tour: `${MAP_DIR}/${basename(runDir)}/${TOUR_FILE}`, stops: draft.stops.length });
   return 0;
 }
 process.exitCode = main(process.argv.slice(2));

@@ -5,9 +5,9 @@ import { readFileSync, rmSync, writeFileSync } from "node:fs";
 import { basename, dirname, join, resolve } from "node:path";
 import { checkCitations } from "../model/citations";
 import { assertWritable } from "../model/confine";
-import { ARCHIFY_DIR, CANDIDATE_FILE, parseRunFolderName } from "../model/runFolder";
+import { MAP_DIR, CANDIDATE_FILE, parseRunFolderName } from "../model/runFolder";
 import { checkTourDraft, TOUR_DRAFT_FILE, TOUR_FILE, type TourDraft } from "../model/tour";
-import type { ArchifyDoc, Issue } from "../model/types";
+import type { ArchitectureDoc, Issue } from "../model/types";
 
 const HINT = "Fix each error in tour-draft.json and run tour-record.mjs again.";
 
@@ -17,20 +17,20 @@ function print(value: unknown): void {
 
 function main(args: string[]): number {
   if (args.length !== 1) {
-    process.stderr.write(`tour-record.mjs: usage: node tour-record.mjs <repo>/${ARCHIFY_DIR}/<run>/${TOUR_DRAFT_FILE}\n`);
+    process.stderr.write(`tour-record.mjs: usage: node tour-record.mjs <repo>/${MAP_DIR}/<run>/${TOUR_DRAFT_FILE}\n`);
     return 2;
   }
   const draftPath = resolve(process.cwd(), args[0]!);
   const runDir = dirname(draftPath);
-  const archify = dirname(runDir);
-  if (basename(draftPath) !== TOUR_DRAFT_FILE || basename(archify) !== ARCHIFY_DIR || !parseRunFolderName(basename(runDir))) {
-    process.stderr.write(`tour-record.mjs: expected a path of the form <repo>/${ARCHIFY_DIR}/<run>/${TOUR_DRAFT_FILE}, got ${args[0]}\n`);
+  const maps = dirname(runDir);
+  if (basename(draftPath) !== TOUR_DRAFT_FILE || basename(maps) !== MAP_DIR || !parseRunFolderName(basename(runDir))) {
+    process.stderr.write(`tour-record.mjs: expected a path of the form <repo>/${MAP_DIR}/<run>/${TOUR_DRAFT_FILE}, got ${args[0]}\n`);
     return 2;
   }
-  const root = dirname(archify);
-  let map: ArchifyDoc;
+  const root = dirname(maps);
+  let map: ArchitectureDoc;
   try {
-    map = JSON.parse(readFileSync(join(runDir, CANDIDATE_FILE), "utf8")) as ArchifyDoc;
+    map = JSON.parse(readFileSync(join(runDir, CANDIDATE_FILE), "utf8")) as ArchitectureDoc;
   } catch (error) {
     process.stderr.write(`tour-record.mjs: the run has no readable ${CANDIDATE_FILE}: ${(error as Error).message}\n`);
     return 2;
@@ -46,7 +46,7 @@ function main(args: string[]): number {
   if (issues.length === 0) {
     // Each stop's citation passes the same path, deny-list and line checks as a map citation.
     const draft = value as TourDraft;
-    const asCitations = { ...map, components: draft.stops.map((stop, index) => ({ id: `stop-${index}`, type: "external", label: "", sources: [stop.citation] })) } as unknown as ArchifyDoc;
+    const asCitations = { ...map, components: draft.stops.map((stop, index) => ({ id: `stop-${index}`, type: "external", label: "", sources: [stop.citation] })) } as unknown as ArchitectureDoc;
     issues = checkCitations(asCitations, root).map((issue) => ({ ...issue, pointer: issue.pointer.replace(/^\/components\/(\d+)\/sources\/0/, "/stops/$1/citation") }));
   }
   if (issues.length > 0) {
@@ -63,7 +63,7 @@ function main(args: string[]): number {
     process.stderr.write(`tour-record.mjs: cannot write ${TOUR_FILE}: ${(error as Error).message}\n`);
     return 2;
   }
-  print({ status: "recorded", tour: `${ARCHIFY_DIR}/${basename(runDir)}/${TOUR_FILE}`, stops: draft.stops.length });
+  print({ status: "recorded", tour: `${MAP_DIR}/${basename(runDir)}/${TOUR_FILE}`, stops: draft.stops.length });
   return 0;
 }
 

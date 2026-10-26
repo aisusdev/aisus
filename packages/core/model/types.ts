@@ -1,4 +1,4 @@
-// Archify JSON v1 architecture diagrams: the subset aisus reads (FR-MOD-01).
+// Architecture maps in JSON v1: the subset aisus reads (FR-MOD-01).
 //
 // Documents are handled as plain parsed JSON values typed with these interfaces. Nothing
 // re-serialises through a field list, so fields not modelled here (`cards`, `legend`,
@@ -71,7 +71,7 @@ export interface Boundary {
   wraps: string[];
 }
 
-export interface ArchifyDoc {
+export interface ArchitectureDoc {
   schema_version: 1;
   diagram_type: "architecture";
   meta: Meta;
@@ -121,7 +121,7 @@ export interface SequenceDoc {
 }
 
 /** Either kind of map the validator accepts. */
-export type MapDoc = ArchifyDoc | SequenceDoc;
+export type MapDoc = ArchitectureDoc | SequenceDoc;
 
 /** Categories of validator findings; the validator prefixes each message with its code. */
 export type IssueCode =
