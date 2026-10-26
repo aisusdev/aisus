@@ -69,6 +69,9 @@ export class HomeView implements vscode.WebviewViewProvider, vscode.Disposable {
   /** CLD-19: each folder's cloud status, and when its maps were last pulled. */
   private readonly cloudStatus = new Map<string, CloudStatus>();
   private readonly cloudPulledAt = new Map<string, string>();
+  private readonly cloudChanged = new vscode.EventEmitter<CloudStatus>();
+  /** CLD-19: fires with each cloud status the sidebar records, for the status bar's warning. */
+  readonly onDidChangeCloud = this.cloudChanged.event;
 
   constructor(
     private readonly context: vscode.ExtensionContext,
@@ -133,8 +136,10 @@ export class HomeView implements vscode.WebviewViewProvider, vscode.Disposable {
    */
   async pullCloudMaps(): Promise<void> {
     const root = this.root();
-    if (root === null || !this.visible) return;
-    this.cloudStatus.set(root, await this.pullStatus(root));
+    if (root === null || (!this.visible && cloudEnabled())) return;
+    const status = await this.pullStatus(root);
+    this.cloudStatus.set(root, status);
+    this.cloudChanged.fire(status);
     this.send();
   }
 
@@ -473,6 +478,7 @@ export class HomeView implements vscode.WebviewViewProvider, vscode.Disposable {
 
   dispose(): void {
     for (const disposable of this.disposables.splice(0)) disposable.dispose();
+    this.cloudChanged.dispose();
   }
 }
 

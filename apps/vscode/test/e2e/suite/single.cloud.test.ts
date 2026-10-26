@@ -190,6 +190,19 @@ suite("CLD-12 CLD-16 aisus cloud in VS Code", () => {
     assert.equal((JSON.parse(readFileSync(pulled, "utf8")) as { meta: { title: string } }).meta.title, "Team map");
   });
 
+  test("CLD-19 the status bar warns while aisus cloud can't be reached, and the warning goes once it can", async () => {
+    const host = cloud.url.replace("http://", "");
+    await cloud.close();
+    await vscode.workspace.getConfiguration("aisus").update("cloud.enabled", true, vscode.ConfigurationTarget.Global);
+    await vscode.commands.executeCommand("workbench.view.extension.aisus");
+    await until(() => hook.cloudWarningText() !== null, "the status bar to warn about the cloud");
+    assert.equal(hook.cloudWarningText(), `$(cloud) ${host} unreachable`);
+    cloud = await fakeCloud();
+    cloud.branchMaps = { defaultBranch: "main", team: null, personal: null, main: null, mainHistory: [] };
+    await vscode.workspace.getConfiguration("aisus").update("cloud.url", cloud.url, vscode.ConfigurationTarget.Global);
+    await until(() => hook.cloudWarningText() === null, "the status bar warning to go");
+  });
+
   test("CLD-19 with a GitHub sign-in and a reachable cloud, the sidebar says it is connected as the signed-in account", async () => {
     cloud.branchMaps = { defaultBranch: "main", team: null, personal: null, main: null, mainHistory: [] };
     const since = new Date().toISOString();

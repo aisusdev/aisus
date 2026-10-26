@@ -196,7 +196,7 @@ The learning-session skill ([ADRs 0029–0036](adr/0029-learning-modes-in-one-ag
 | `exportPage.ts` | RCH-01: Export Page from the map and the maps list, from `dist/page.js` and `dist/page.css`. |
 | `saveImage.ts` | VWR-06: Save Image in the map's menu asks for a file through a save dialog, and the file's extension picks SVG or PNG. The panel asks the map to draw itself (`image`), waits up to 10 s for the answer, checks that it is SVG text or a PNG data URL, and writes it. |
 | `showInMap.ts` | UI-03, UI-05: Show in Map (marks the citing boxes, keeps the editor active), Map this folder, Open code from a box's menu. |
-| `statusBar.ts` | UI-04: the status bar item (idle, the running clock, changed boxes), whose command focuses the sidebar. |
+| `statusBar.ts` | UI-04: the status bar item (idle, the running clock, changed boxes), whose command focuses the sidebar. CLD-19: a second item, on the warning background, shows only while aisus cloud can't be reached and also focuses the sidebar. |
 
 ### `packages/cli/`
 

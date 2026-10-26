@@ -2,6 +2,7 @@
 // and the shown map's changed boxes once the change overlay reports them. A click opens the sidebar.
 import * as vscode from "vscode";
 import { statusText } from "@aisus/core/model/home";
+import type { CloudStatus } from "@aisus/core/model/messages";
 import type { Runs } from "./runs";
 
 export class StatusItem implements vscode.Disposable {
@@ -45,6 +46,41 @@ export class StatusItem implements vscode.Disposable {
   dispose(): void {
     clearInterval(this.timer);
     this.listener.dispose();
+    this.item.dispose();
+  }
+}
+
+/**
+ * CLD-19: a status bar item that shows only while aisus cloud can't be reached, so the outage shows
+ * with the sidebar closed. A click opens the sidebar, whose cloud strip offers Try again.
+ */
+export class CloudWarningItem implements vscode.Disposable {
+  private readonly item = vscode.window.createStatusBarItem("aisus.cloudWarning", vscode.StatusBarAlignment.Right, 99);
+  private shown = false;
+
+  constructor() {
+    this.item.name = "aisus cloud";
+    this.item.command = "aisus.home.focus";
+    this.item.backgroundColor = new vscode.ThemeColor("statusBarItem.warningBackground");
+  }
+
+  /** The text shown now, or `null` while hidden, for the e2e tests. */
+  get text(): string | null {
+    return this.shown ? this.item.text : null;
+  }
+
+  set status(status: CloudStatus) {
+    this.shown = status.state === "unreachable";
+    if (status.state !== "unreachable") {
+      this.item.hide();
+      return;
+    }
+    this.item.text = `$(cloud) ${status.host} unreachable`;
+    this.item.tooltip = `aisus cloud can't be reached at ${status.host}. Open the aisus sidebar to try again.`;
+    this.item.show();
+  }
+
+  dispose(): void {
     this.item.dispose();
   }
 }

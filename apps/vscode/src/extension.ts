@@ -35,7 +35,7 @@ import { Runs } from "./runs";
 import { SessionPanel } from "./sessionPanel";
 import { SessionWatcher } from "./sessionWatcher";
 import { mapFolderCommand, openBoxCodeCommand, showInMapCommand } from "./showInMap";
-import { StatusItem } from "./statusBar";
+import { CloudWarningItem, StatusItem } from "./statusBar";
 import { CandidateWatcher } from "./watcher";
 
 /** Returned by `activate()` for the e2e tests only (FR-TEST-01); not a user-facing API. */
@@ -67,6 +67,8 @@ export interface TestHook {
   postFromHome(message: HomeWebviewMessage): Promise<void>;
   runCard(): RunCard | null;
   statusText(): string;
+  /** CLD-19: the cloud warning's text, or `null` while it is hidden. */
+  cloudWarningText(): string | null;
   /** Sets whether the first-run data note counts as shown (SET-03). */
   setDataNoteShown(shown: boolean): Thenable<void>;
 }
@@ -98,6 +100,8 @@ export function activate(context: vscode.ExtensionContext): TestHook {
   const home = new HomeView(context, runs, ask, freshness, review, rules, practice, [candidates.onDidChange, sessions.onDidChange, freshness.onDidChange]);
   const status = new StatusItem(runs);
   const counts = ArchitecturePanel.onDidCountChanges((changed) => (status.changed = changed));
+  const cloudWarning = new CloudWarningItem();
+  const cloudStatus = home.onDidChangeCloud((cloud) => (cloudWarning.status = cloud));
   const toured = ArchitecturePanel.onTourFinished((tour) => void practice.recordTour(tour));
   const running = runs.onDidChange(() => void vscode.commands.executeCommand("setContext", "aisus.running", runs.current?.status === "running"));
   context.subscriptions.push(
@@ -111,6 +115,8 @@ export function activate(context: vscode.ExtensionContext): TestHook {
     rules,
     ArchitecturePanel.useRules(rules),
     counts,
+    cloudWarning,
+    cloudStatus,
     toured,
     candidates,
     sessions,
@@ -180,6 +186,7 @@ export function activate(context: vscode.ExtensionContext): TestHook {
     postFromHome: (message) => home.handleMessage(message),
     runCard: () => runs.current,
     statusText: () => status.text,
+    cloudWarningText: () => cloudWarning.text,
     setDataNoteShown: (shown) => resetDataNote(context, shown),
   };
 }
