@@ -34,6 +34,9 @@ function fakeGitHub(existing: Comment[] = []): GitHubClient & { comments: Commen
       calls.push(`update ${id}`);
       comments.find((comment) => comment.id === id)!.body = body;
     },
+    async mergedPulls() {
+      return [];
+    },
   };
 }
 

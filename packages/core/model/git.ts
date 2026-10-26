@@ -331,6 +331,21 @@ export function isAncestorOfHead(root: string, revision: string, env: NodeJS.Pro
   return run(program, root, [...GIT_PREFIX, "merge-base", "--is-ancestor", revision, "HEAD"]) !== null;
 }
 
+/** CLD-16: whether `ancestor` is `of` or one of its ancestors. */
+export function isAncestor(root: string, ancestor: string, of: string, env: NodeJS.ProcessEnv = process.env): boolean {
+  const program = gitProgram(env);
+  if (program === undefined || !REVISION_PATTERN.test(ancestor) || !REVISION_PATTERN.test(of)) return false;
+  return run(program, root, [...GIT_PREFIX, "merge-base", "--is-ancestor", ancestor, of]) !== null;
+}
+
+/** CLD-16: the commits on `to` that `from` lacks, or `null` when git cannot tell. */
+export function commitsBetween(root: string, from: string, to: string, env: NodeJS.ProcessEnv = process.env): number | null {
+  const program = gitProgram(env);
+  if (program === undefined || !REVISION_PATTERN.test(from) || !REVISION_PATTERN.test(to)) return null;
+  const output = run(program, root, [...GIT_PREFIX, "rev-list", "--count", `${from}..${to}`])?.trim();
+  return output === undefined || !/^\d+$/.test(output) ? null : Number(output);
+}
+
 /** A commit's subject and committer date, or `null` when git cannot tell. */
 export function commitInfo(root: string, revision: string, env: NodeJS.ProcessEnv = process.env): { subject: string; committedAt: string } | null {
   const program = gitProgram(env);

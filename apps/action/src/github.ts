@@ -1,4 +1,4 @@
-// PRC-04: the GitHub REST calls the Action makes, behind an interface the tests replace.
+// PRC-04 and CLD-17: the GitHub REST calls the Action makes, behind an interface the tests replace.
 
 export interface Comment {
   id: number;
@@ -9,6 +9,8 @@ export interface GitHubClient {
   listComments(issue: number): Promise<Comment[]>;
   createComment(issue: number, body: string): Promise<void>;
   updateComment(id: number, body: string): Promise<void>;
+  /** CLD-17: the merged pull requests whose merge made commit `sha`, with their head branches. */
+  mergedPulls(sha: string): Promise<{ number: number; headRef: string }[]>;
 }
 
 /** The client for `owner/repo` on `api`, authenticated with `token`. */
@@ -33,6 +35,10 @@ export function restClient(api: string, repository: string, token: string): GitH
     },
     async updateComment(id, body) {
       await call("PATCH", `/issues/comments/${id}`, { body });
+    },
+    async mergedPulls(sha) {
+      const pulls = (await call("GET", `/commits/${sha}/pulls`)) as { number: number; merged_at: string | null; head: { ref: string } }[];
+      return pulls.filter((pull) => pull.merged_at !== null).map((pull) => ({ number: pull.number, headRef: pull.head.ref }));
     },
   };
 }

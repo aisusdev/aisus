@@ -89,11 +89,19 @@ function uniqueKeys<T>(items: readonly T[], keyOf: (item: T) => string): string[
   });
 }
 
-/**
- * How `after` differs from `before`. `touched` holds the older map's ids of boxes whose cited code
- * changed (FRS-08); an unchanged box among them is marked kept.
- */
-export function diffMaps(before: MapLike, after: MapLike, touched: ReadonlySet<string> = new Set()): MapDiff {
+export interface MapPairing {
+  /** Older box id to the newer box id it pairs with. */
+  boxes: Map<string, string>;
+  /** Newer arrow index to the older arrow index it pairs with. */
+  arrows: Map<number, number>;
+  /** Newer boundary index to the older boundary index it pairs with. */
+  boundaries: Map<number, number>;
+  /** The newer boundaries paired by their members rather than their label. */
+  relabelled: Set<number>;
+}
+
+/** Which elements of `after` are the same elements as in `before`. */
+export function pairMaps(before: MapLike, after: MapLike): MapPairing {
   // Older id to newer id: the same id, or a box citing mostly the same files.
   const newIds = new Set(after.components.map((box) => box.id));
   const oldIds = new Set(before.components.map((box) => box.id));
@@ -108,10 +116,7 @@ export function diffMaps(before: MapLike, after: MapLike, touched: ReadonlySet<s
     }
     if (best !== null) renamed.set(box.id, best.id);
   }
-  const olderOf = new Map([...renamed].map(([older, newer]) => [newer, older]));
-  const olderBox = new Map(before.components.map((box) => [box.id, box]));
 
-  // Boundaries first: their matching decides each box's boundary set.
   const beforeBoundaries = before.boundaries ?? [];
   const afterBoundaries = after.boundaries ?? [];
   const mapIds = (ids: readonly string[]): Set<string> => new Set(ids.map((id) => renamed.get(id) ?? `\0${id}`));
@@ -137,6 +142,34 @@ export function diffMaps(before: MapLike, after: MapLike, touched: ReadonlySet<s
     usedBefore.add(match);
     relabelled.add(index);
   });
+
+  const end = (id: string): string => renamed.get(id) ?? `\0${id}`;
+  const beforeArrowKeys = uniqueKeys(before.connections, (arrow) => `${end(arrow.from)}\0${end(arrow.to)}`);
+  const beforeArrowIndex = new Map(beforeArrowKeys.map((key, index) => [key, index]));
+  const arrows = new Map<number, number>();
+  uniqueKeys(after.connections, (arrow) => `${arrow.from}\0${arrow.to}`).forEach((key, index) => {
+    const match = beforeArrowIndex.get(key);
+    if (match !== undefined) arrows.set(index, match);
+  });
+  return { boxes: renamed, arrows, boundaries: pairedBefore, relabelled };
+}
+
+/**
+ * How `after` differs from `before`. `touched` holds the older map's ids of boxes whose cited code
+ * changed (FRS-08); an unchanged box among them is marked kept.
+ */
+export function diffMaps(before: MapLike, after: MapLike, touched: ReadonlySet<string> = new Set()): MapDiff {
+  const { boxes: renamed, arrows: pairedArrows, boundaries: pairedBefore, relabelled } = pairMaps(before, after);
+  const olderOf = new Map([...renamed].map(([older, newer]) => [newer, older]));
+  const olderBox = new Map(before.components.map((box) => [box.id, box]));
+
+  // Boundaries first: their matching decides each box's boundary set.
+  const beforeBoundaries = before.boundaries ?? [];
+  const afterBoundaries = after.boundaries ?? [];
+  const mapIds = (ids: readonly string[]): Set<string> => new Set(ids.map((id) => renamed.get(id) ?? `\0${id}`));
+  const beforeKeys = uniqueKeys(beforeBoundaries, (boundary) => boundary.label);
+  const afterKeys = uniqueKeys(afterBoundaries, (boundary) => boundary.label);
+  const usedBefore = new Set(pairedBefore.values());
   const boundaries = afterBoundaries.map((boundary, index): ElementDiff => {
     const match = pairedBefore.get(index);
     if (match === undefined) return ADDED;
@@ -169,16 +202,11 @@ export function diffMaps(before: MapLike, after: MapLike, touched: ReadonlySet<s
     return changedOrNot(fields);
   });
 
-  const end = (id: string): string => renamed.get(id) ?? `\0${id}`;
-  const beforeArrowKeys = uniqueKeys(before.connections, (arrow) => `${end(arrow.from)}\0${end(arrow.to)}`);
-  const beforeArrowIndex = new Map(beforeArrowKeys.map((key, index) => [key, index]));
-  const matchedArrows = new Set<number>();
-  const arrows = uniqueKeys(after.connections, (arrow) => `${arrow.from}\0${arrow.to}`).map((key, index): ElementDiff => {
-    const match = beforeArrowIndex.get(key);
+  const matchedArrows = new Set(pairedArrows.values());
+  const arrows = after.connections.map((arrow, index): ElementDiff => {
+    const match = pairedArrows.get(index);
     if (match === undefined) return ADDED;
-    matchedArrows.add(match);
     const old = before.connections[match]!;
-    const arrow = after.connections[index]!;
     const fields: FieldChange[] = [];
     text(fields, "label", old.label, arrow.label);
     text(fields, "variant", old.variant ?? "default", arrow.variant ?? "default");

@@ -1,5 +1,5 @@
 name: aisus check
-description: Compares a pull request with the repository's architecture map and comments what it touches.
+description: Compares a pull request with the repository's architecture map and comments what it touches. On a push to the default branch with upload, merges the landed branch's map into the default branch's map in aisus cloud.
 inputs:
   fail-on:
     description: "Comma-separated findings that fail the job: stale, new-box."
@@ -14,7 +14,7 @@ inputs:
     required: false
     default: "true"
   upload:
-    description: "Whether to upload the check and its map to aisus cloud through OIDC (needs `permissions: id-token: write`). Nothing leaves the runner without it."
+    description: "Whether to upload the check and its map to aisus cloud through OIDC (needs `permissions: id-token: write`), and on a push to the default branch to merge the landed branch's map. Nothing leaves the runner without it."
     required: false
     default: "false"
   cloud-url:

@@ -1,7 +1,8 @@
 // PRC-04: the aisus check on a pull request. It runs PRC-01 from origin/<base> to HEAD, posts or
 // updates one comment marked <!-- aisus-check --> and sets the job result from fail-on. Only with
 // `upload` does it send the check and its map to aisus cloud (CLD-09), and only with `refresh` does
-// it run an agent to update the map (PRC-05).
+// it run an agent to update the map (PRC-05). On a push to the default branch with `upload`, it
+// merges the landed branch's map into the default branch's (CLD-17).
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { actionsOidcToken, postUpload } from "@aisus/cloud-client/client";
@@ -12,6 +13,7 @@ import { collectGitFacts } from "@aisus/core/model/git";
 import { CANDIDATE_FILE, MAP_DIR } from "@aisus/core/model/runFolder";
 import { checkPayload, checkUpload } from "@aisus/core/model/upload";
 import type { GitHubClient } from "./github";
+import { mergeOnPush } from "./merge";
 import { refreshDecision, refreshLines, runRefresh } from "./refresh";
 
 /** Items per list in the comment; GitHub caps a comment at 65,536 characters. */
@@ -69,10 +71,46 @@ async function uploadCheck(context: ActionContext, pull: NonNullable<ReturnType<
   return { ok: true, page: `${cloud.replace(/\/+$/, "")}/${repo}/pull/${pull.number}` };
 }
 
+/** CLD-17: a push event's branch, pushed commit and default branch, or `null`. */
+function pushEvent(event: unknown): { branch: string; after: string; defaultBranch: string } | null {
+  const typed = event as { ref?: unknown; after?: unknown; repository?: { default_branch?: unknown } } | null;
+  if (typeof typed?.ref !== "string" || !typed.ref.startsWith("refs/heads/") || typeof typed.after !== "string" || typeof typed.repository?.default_branch !== "string") return null;
+  return { branch: typed.ref.slice("refs/heads/".length), after: typed.after, defaultBranch: typed.repository.default_branch };
+}
+
+/** CLD-17: on a push to the default branch with `upload`, the landed branch's map merged into the default branch's. */
+async function runMerge(context: ActionContext, push: NonNullable<ReturnType<typeof pushEvent>>): Promise<ActionResult> {
+  if (push.branch !== push.defaultBranch) {
+    context.log(`Maps merge on pushes to ${push.defaultBranch} only; this push is to ${push.branch}.`);
+    return { exitCode: 0, result: "pass", comment: null };
+  }
+  if (input(context.env, "upload") !== "true") {
+    context.log("Maps merge only with upload: true.");
+    return { exitCode: 0, result: "pass", comment: null };
+  }
+  const cloud = input(context.env, "cloud-url") || context.env["AISUS_CLOUD_URL"] || "";
+  if (cloud === "") {
+    context.log("Merging maps needs the cloud-url input.");
+    return { exitCode: 1, result: "error", comment: null };
+  }
+  const outcome = await mergeOnPush({ root: context.root, repo: context.env["GITHUB_REPOSITORY"] ?? "", cloud, defaultBranch: push.defaultBranch, after: push.after, client: context.client, env: context.env, ...(context.fetcher ? { fetcher: context.fetcher } : {}), log: context.log }).catch(
+    (error: unknown) => ({ uploaded: false as const, reason: error instanceof Error ? error.message : String(error) }),
+  );
+  if (!outcome.uploaded) {
+    context.log(`No merged map uploaded: ${outcome.reason}.`);
+    return { exitCode: 0, result: "pass", comment: null };
+  }
+  const conflicts = outcome.conflicts.length === 0 ? "" : ` ${outcome.conflicts.length} ${outcome.conflicts.length === 1 ? "element conflicted and keeps" : "elements conflicted and keep"} ${push.defaultBranch}'s version: ${outcome.conflicts.map((conflict) => conflict.name).join(", ")}.`;
+  context.log(`Merged the map of ${outcome.branch} (#${outcome.pull}) into ${push.defaultBranch}'s map.${conflicts}`);
+  return { exitCode: 0, result: "pass", comment: null };
+}
+
 export async function runAction(context: ActionContext): Promise<ActionResult> {
+  const push = pushEvent(context.event);
+  if (push !== null) return runMerge(context, push);
   const pull = pullRequest(context.event);
   if (pull === null) {
-    context.log("aisus check runs on pull_request events; this event has no pull request.");
+    context.log("aisus check runs on pull_request events and on pushes to the default branch; this event is neither.");
     return { exitCode: 1, result: "error", comment: null };
   }
   const failOn = input(context.env, "fail-on").split(",").map((entry) => entry.trim()).filter((entry) => entry !== "");

@@ -7454,7 +7454,7 @@ var require__ = __commonJS({
 });
 
 // apps/action/src/index.ts
-var import_node_fs12 = require("node:fs");
+var import_node_fs13 = require("node:fs");
 
 // apps/action/src/github.ts
 function restClient(api, repository, token) {
@@ -7478,13 +7478,17 @@ function restClient(api, repository, token) {
     },
     async updateComment(id, body) {
       await call("PATCH", `/issues/comments/${id}`, { body });
+    },
+    async mergedPulls(sha) {
+      const pulls = await call("GET", `/commits/${sha}/pulls`);
+      return pulls.filter((pull) => pull.merged_at !== null).map((pull) => ({ number: pull.number, headRef: pull.head.ref }));
     }
   };
 }
 
 // apps/action/src/main.ts
-var import_node_fs11 = require("node:fs");
-var import_node_path10 = require("node:path");
+var import_node_fs12 = require("node:fs");
+var import_node_path11 = require("node:path");
 
 // packages/cloud-client/client.ts
 var CLOUD_AUDIENCE = "aisus-cloud";
@@ -7499,6 +7503,21 @@ async function postUpload(cloud, bearer, payload, fetcher = fetch) {
   const message = body?.message;
   return { ok: false, status: response.status, body, message: typeof message === "string" ? message : `aisus cloud answered ${response.status}` };
 }
+async function getJson(url, bearer, fetcher) {
+  const response = await fetcher(url, { headers: { Authorization: `Bearer ${bearer}`, Accept: "application/json" } });
+  const body = await response.json().catch(() => null);
+  if (!response.ok) {
+    const message = body?.message;
+    throw new Error(typeof message === "string" ? message : `aisus cloud answered ${response.status}`);
+  }
+  return body;
+}
+function pullMaps(cloud, bearer, repo, branch, fetcher = fetch) {
+  return getJson(`${cloud.replace(/\/+$/, "")}/api/v1/repos/${repo}/maps?branch=${encodeURIComponent(branch)}`, bearer, fetcher);
+}
+async function pullMap(cloud, bearer, repo, id, fetcher = fetch) {
+  return (await getJson(`${cloud.replace(/\/+$/, "")}/api/v1/repos/${repo}/maps?id=${id}`, bearer, fetcher)).entry;
+}
 async function actionsOidcToken(env, fetcher = fetch) {
   const url = env["ACTIONS_ID_TOKEN_REQUEST_URL"];
   const token = env["ACTIONS_ID_TOKEN_REQUEST_TOKEN"];
@@ -7511,8 +7530,8 @@ async function actionsOidcToken(env, fetcher = fetch) {
 }
 
 // packages/core/model/check.ts
-var import_node_fs7 = require("node:fs");
-var import_node_path6 = require("node:path");
+var import_node_fs8 = require("node:fs");
+var import_node_path7 = require("node:path");
 
 // packages/core/model/changes.ts
 var REVISION_PATTERN = /^(?!-)[A-Za-z0-9._/~^@{}-]+$/;
@@ -8382,6 +8401,11 @@ function isAncestorOfHead(root, revision, env = process.env) {
   if (program === void 0 || !REVISION_PATTERN.test(revision)) return false;
   return run(program, root, [...GIT_PREFIX, "merge-base", "--is-ancestor", revision, "HEAD"]) !== null;
 }
+function isAncestor(root, ancestor, of, env = process.env) {
+  const program = gitProgram(env);
+  if (program === void 0 || !REVISION_PATTERN.test(ancestor) || !REVISION_PATTERN.test(of)) return false;
+  return run(program, root, [...GIT_PREFIX, "merge-base", "--is-ancestor", ancestor, of]) !== null;
+}
 function commitInfo(root, revision, env = process.env) {
   const program = gitProgram(env);
   if (program === void 0 || !REVISION_PATTERN.test(revision)) return null;
@@ -8507,11 +8531,27 @@ function newRunSince(root, before) {
 }
 
 // packages/core/model/staleness.ts
-var import_node_fs6 = require("node:fs");
-var import_node_path5 = require("node:path");
+var import_node_fs7 = require("node:fs");
+var import_node_path6 = require("node:path");
 
 // packages/core/model/fingerprints.ts
 var import_node_crypto = require("node:crypto");
+var import_node_fs6 = require("node:fs");
+var import_node_path5 = require("node:path");
+
+// packages/core/model/sequence.ts
+function isSequence(doc) {
+  return doc.diagram_type === "sequence";
+}
+function citedItems(doc) {
+  if (!isSequence(doc)) return doc.components.map((component, i) => ({ id: component.id, pointer: `/components/${i}`, sources: component.sources ?? [] }));
+  return [
+    ...doc.participants.map((participant, i) => ({ id: participant.id, pointer: `/participants/${i}`, sources: participant.sources ?? [] })),
+    ...doc.messages.map((message, i) => ({ id: message.id, pointer: `/messages/${i}`, sources: message.sources ?? [] }))
+  ];
+}
+
+// packages/core/model/fingerprints.ts
 var FINGERPRINTS_FILE = "fingerprints.json";
 function gitBlobId(bytes) {
   return (0, import_node_crypto.createHash)("sha1").update(`blob ${bytes.length}\0`).update(bytes).digest("hex");
@@ -8525,12 +8565,36 @@ function hashLines(lines) {
 function looseLines(lines) {
   return lines.map((line) => line.trimStart());
 }
+function fingerprint(doc, root, revision, now = /* @__PURE__ */ new Date()) {
+  const contents = /* @__PURE__ */ new Map();
+  const citations = [];
+  for (const item of citedItems(doc)) {
+    item.sources.forEach((source, index) => {
+      let bytes = contents.get(source.path);
+      if (bytes === void 0) {
+        bytes = (0, import_node_fs6.readFileSync)((0, import_node_path5.join)(root, ...source.path.split("/")));
+        contents.set(source.path, bytes);
+      }
+      const print = { component: item.id, index, path: source.path, blob: gitBlobId(bytes) };
+      if (source.line !== void 0) {
+        print.line = source.line;
+        const end = source.end_line ?? source.line;
+        if (source.end_line !== void 0) print.end_line = source.end_line;
+        const block = normalizedLines(bytes.toString("utf8")).slice(source.line - 1, end);
+        print.range = hashLines(block);
+        print.loose = hashLines(looseLines(block));
+      }
+      citations.push(print);
+    });
+  }
+  return { schema: 1, revision, createdAt: now.toISOString(), citations };
+}
 
 // packages/core/model/staleness.ts
 var ORDER = ["fresh", "unknown", "moved", "edited", "missing"];
 function readFingerprints(runDir) {
   try {
-    const value = JSON.parse((0, import_node_fs6.readFileSync)((0, import_node_path5.join)(runDir, FINGERPRINTS_FILE), "utf8"));
+    const value = JSON.parse((0, import_node_fs7.readFileSync)((0, import_node_path6.join)(runDir, FINGERPRINTS_FILE), "utf8"));
     return isJsonObject(value) && value["schema"] === 1 && Array.isArray(value["citations"]) ? value : null;
   } catch {
     return null;
@@ -8588,7 +8652,7 @@ function mapFreshness(prints, read, renames) {
 function fileReader(root) {
   return (path2) => {
     try {
-      return (0, import_node_fs6.readFileSync)((0, import_node_path5.join)(root, ...path2.split("/")));
+      return (0, import_node_fs7.readFileSync)((0, import_node_path6.join)(root, ...path2.split("/")));
     } catch {
       return null;
     }
@@ -8822,7 +8886,7 @@ function readDiagram(value) {
 function loadConfig(root) {
   let text4;
   try {
-    text4 = (0, import_node_fs7.readFileSync)((0, import_node_path6.join)(root, CONFIG_FILE), "utf8");
+    text4 = (0, import_node_fs8.readFileSync)((0, import_node_path7.join)(root, CONFIG_FILE), "utf8");
   } catch {
     return { ok: true, config: {} };
   }
@@ -8837,7 +8901,7 @@ function loadConfig(root) {
 }
 function mainMap(root) {
   for (const candidate of listCandidates(root)) {
-    if ((readRunRecord((0, import_node_path6.dirname)(candidate.file))?.focus ?? "") === "") return candidate.runFolder;
+    if ((readRunRecord((0, import_node_path7.dirname)(candidate.file))?.focus ?? "") === "") return candidate.runFolder;
   }
   return null;
 }
@@ -8851,7 +8915,7 @@ function filesOnDisk(root, dir) {
   const walk2 = (rel) => {
     let names;
     try {
-      names = (0, import_node_fs7.readdirSync)((0, import_node_path6.join)(root, rel));
+      names = (0, import_node_fs8.readdirSync)((0, import_node_path7.join)(root, rel));
     } catch {
       return;
     }
@@ -8859,7 +8923,7 @@ function filesOnDisk(root, dir) {
       if (name2 === ".git" || name2 === "node_modules") continue;
       const path2 = rel === "" ? name2 : `${rel}/${name2}`;
       try {
-        if ((0, import_node_fs7.statSync)((0, import_node_path6.join)(root, path2)).isDirectory()) walk2(path2);
+        if ((0, import_node_fs8.statSync)((0, import_node_path7.join)(root, path2)).isDirectory()) walk2(path2);
         else out.push(path2);
       } catch {
       }
@@ -8875,10 +8939,10 @@ function runCheck(options) {
   if (!config.ok) return config;
   const run2 = options.map ?? config.config.map ?? mainMap(root);
   if (run2 === null) return { ok: false, reason: `No map to check against. Generate one with an empty focus, or name one with --map or "map" in ${CONFIG_FILE}.` };
-  const runDir = (0, import_node_path6.join)(root, MAP_DIR, run2);
+  const runDir = (0, import_node_path7.join)(root, MAP_DIR, run2);
   let diagram;
   try {
-    const read2 = readDiagram(JSON.parse((0, import_node_fs7.readFileSync)((0, import_node_path6.join)(runDir, CANDIDATE_FILE), "utf8")));
+    const read2 = readDiagram(JSON.parse((0, import_node_fs8.readFileSync)((0, import_node_path7.join)(runDir, CANDIDATE_FILE), "utf8")));
     if (!read2.ok) return { ok: false, reason: `${MAP_DIR}/${run2}/${CANDIDATE_FILE}: ${read2.reason}` };
     diagram = read2.diagram;
   } catch (error) {
@@ -9412,6 +9476,7 @@ var upload_schema_default = {
     commit: { type: "string", pattern: "^[0-9a-f]{40}$" },
     branch: { type: "string", minLength: 1, maxLength: 255 },
     kind: { enum: ["map", "check"] },
+    space: { enum: ["team", "personal"], description: "CLD-14: the team's space, the default, or the uploader's own." },
     map: { type: "object", description: "An architecture map, checked against the vendored map schemas." },
     sidecars: {
       type: "object",
@@ -9463,7 +9528,31 @@ var upload_schema_default = {
         costUsd: { type: "number", minimum: 0 },
         skillVersion: { type: "string", maxLength: 40 },
         pull: { type: "integer", minimum: 1 },
-        defaultBranch: { type: "string", minLength: 1, maxLength: 255 }
+        defaultBranch: { type: "string", minLength: 1, maxLength: 255 },
+        merge: {
+          type: "object",
+          description: "CLD-17: the branch a merged map came from, its pull request and the elements that conflicted.",
+          additionalProperties: false,
+          required: ["branch", "conflicts"],
+          properties: {
+            branch: { type: "string", minLength: 1, maxLength: 255 },
+            pull: { type: "integer", minimum: 1 },
+            conflicts: {
+              type: "array",
+              maxItems: 500,
+              items: {
+                type: "object",
+                additionalProperties: false,
+                required: ["kind", "name", "reason"],
+                properties: {
+                  kind: { enum: ["box", "arrow", "boundary"] },
+                  name: { $ref: "#/$defs/shortText" },
+                  reason: { enum: ["both-changed", "changed-and-removed"] }
+                }
+              }
+            }
+          }
+        }
       }
     },
     run: {
@@ -9754,6 +9843,18 @@ function checkUpload(value) {
   const mapIssues = upload.map === void 0 ? [] : validateArchitecture(upload.map).map((issue) => ({ ...issue, pointer: `/map${issue.pointer}` }));
   return [...mapIssues, ...findSecrets(value)];
 }
+function mapPayload(input2) {
+  const record3 = input2.record ?? {};
+  const meta = { run: input2.run };
+  if (record3.focus) meta.focus = record3.focus;
+  if (record3.agent) meta.agent = record3.agent;
+  if (record3.tokens) meta["tokens"] = record3.tokens;
+  if (record3.costUsd !== void 0) meta["costUsd"] = record3.costUsd;
+  if (record3.skillVersion) meta["skillVersion"] = record3.skillVersion;
+  if (input2.defaultBranch) meta.defaultBranch = input2.defaultBranch;
+  const sidecars = Object.fromEntries(Object.entries(input2.sidecars).filter(([, value]) => value !== void 0 && value !== null));
+  return { repo: input2.repo, commit: input2.commit, branch: input2.branch, kind: "map", map: input2.map, ...Object.keys(sidecars).length > 0 ? { sidecars } : {}, meta };
+}
 function checkPayload(input2) {
   return {
     repo: input2.repo,
@@ -9766,11 +9867,422 @@ function checkPayload(input2) {
   };
 }
 
+// packages/core/model/diff.ts
+var SAME_FILES = 0.5;
+var UNCHANGED = { status: "unchanged", fields: [] };
+var ADDED = { status: "added", fields: [] };
+var files = (box) => new Set((box.sources ?? []).map((source) => source.path));
+function overlap(a, b) {
+  const left = files(a);
+  const right = files(b);
+  const shared = [...left].filter((path2) => right.has(path2)).length;
+  const union = (/* @__PURE__ */ new Set([...left, ...right])).size;
+  return union === 0 ? 0 : shared / union;
+}
+function sameSet(a, b) {
+  return a.size === b.size && [...a].every((item) => b.has(item));
+}
+function text(fields, field, before, after) {
+  if ((before ?? null) !== (after ?? null)) fields.push({ field, before: before ?? null, after: after ?? null });
+}
+var changedOrNot = (fields) => fields.length === 0 ? UNCHANGED : { status: "changed", fields };
+function uniqueKeys(items, keyOf) {
+  const seen = /* @__PURE__ */ new Map();
+  return items.map((item) => {
+    const key = keyOf(item);
+    const n = (seen.get(key) ?? 0) + 1;
+    seen.set(key, n);
+    return n === 1 ? key : `${key}#${n}`;
+  });
+}
+function pairMaps(before, after) {
+  const newIds = new Set(after.components.map((box) => box.id));
+  const oldIds = new Set(before.components.map((box) => box.id));
+  const renamed = /* @__PURE__ */ new Map();
+  for (const box of before.components) if (newIds.has(box.id)) renamed.set(box.id, box.id);
+  const unmatchedNew = after.components.filter((box) => !oldIds.has(box.id));
+  for (const box of before.components.filter((entry) => !newIds.has(entry.id))) {
+    let best = null;
+    for (const candidate of unmatchedNew) {
+      const score = overlap(box, candidate);
+      if (score >= SAME_FILES && (best === null || score > best.score) && ![...renamed.values()].includes(candidate.id)) best = { id: candidate.id, score };
+    }
+    if (best !== null) renamed.set(box.id, best.id);
+  }
+  const beforeBoundaries = before.boundaries ?? [];
+  const afterBoundaries = after.boundaries ?? [];
+  const mapIds = (ids) => new Set(ids.map((id) => renamed.get(id) ?? `\0${id}`));
+  const beforeKeys = uniqueKeys(beforeBoundaries, (boundary) => boundary.label);
+  const afterKeys = uniqueKeys(afterBoundaries, (boundary) => boundary.label);
+  const beforeIndex = new Map(beforeKeys.map((key, index) => [key, index]));
+  const pairedBefore = /* @__PURE__ */ new Map();
+  const usedBefore = /* @__PURE__ */ new Set();
+  afterKeys.forEach((key, index) => {
+    const match = beforeIndex.get(key);
+    if (match !== void 0) {
+      pairedBefore.set(index, match);
+      usedBefore.add(match);
+    }
+  });
+  const relabelled = /* @__PURE__ */ new Set();
+  afterBoundaries.forEach((boundary, index) => {
+    if (pairedBefore.has(index)) return;
+    const members = new Set(boundary.wraps);
+    const match = beforeBoundaries.findIndex((old, k) => !usedBefore.has(k) && sameSet(mapIds(old.wraps), members));
+    if (match < 0) return;
+    pairedBefore.set(index, match);
+    usedBefore.add(match);
+    relabelled.add(index);
+  });
+  const end = (id) => renamed.get(id) ?? `\0${id}`;
+  const beforeArrowKeys = uniqueKeys(before.connections, (arrow) => `${end(arrow.from)}\0${end(arrow.to)}`);
+  const beforeArrowIndex = new Map(beforeArrowKeys.map((key, index) => [key, index]));
+  const arrows = /* @__PURE__ */ new Map();
+  uniqueKeys(after.connections, (arrow) => `${arrow.from}\0${arrow.to}`).forEach((key, index) => {
+    const match = beforeArrowIndex.get(key);
+    if (match !== void 0) arrows.set(index, match);
+  });
+  return { boxes: renamed, arrows, boundaries: pairedBefore, relabelled };
+}
+function diffMaps(before, after, touched = /* @__PURE__ */ new Set()) {
+  const { boxes: renamed, arrows: pairedArrows, boundaries: pairedBefore, relabelled } = pairMaps(before, after);
+  const olderOf = new Map([...renamed].map(([older, newer]) => [newer, older]));
+  const olderBox = new Map(before.components.map((box) => [box.id, box]));
+  const beforeBoundaries = before.boundaries ?? [];
+  const afterBoundaries = after.boundaries ?? [];
+  const mapIds = (ids) => new Set(ids.map((id) => renamed.get(id) ?? `\0${id}`));
+  const beforeKeys = uniqueKeys(beforeBoundaries, (boundary) => boundary.label);
+  const afterKeys = uniqueKeys(afterBoundaries, (boundary) => boundary.label);
+  const usedBefore = new Set(pairedBefore.values());
+  const boundaries = afterBoundaries.map((boundary, index) => {
+    const match = pairedBefore.get(index);
+    if (match === void 0) return ADDED;
+    const old = beforeBoundaries[match];
+    const fields = [];
+    if (relabelled.has(index)) text(fields, "label", old.label, boundary.label);
+    text(fields, "kind", old.kind, boundary.kind);
+    if (!sameSet(mapIds(old.wraps), new Set(boundary.wraps))) fields.push({ field: "members" });
+    return relabelled.has(index) ? { status: "renamed", fields } : changedOrNot(fields);
+  });
+  const afterKeyOf = new Map([...pairedBefore].map(([index, match]) => [beforeKeys[match], afterKeys[index]]));
+  const boundariesOf = (list, keys, rename, id) => new Set(list.flatMap((boundary, index) => boundary.wraps.includes(id) ? [rename(keys[index])] : []));
+  const keptIds = new Set([...touched].map((id) => renamed.get(id) ?? id));
+  const boxes = after.components.map((box) => {
+    const older = olderOf.get(box.id);
+    const old = older === void 0 ? void 0 : olderBox.get(older);
+    if (old === void 0) return ADDED;
+    const fields = [];
+    text(fields, "id", old.id, box.id);
+    text(fields, "label", old.label, box.label);
+    text(fields, "sublabel", old.sublabel, box.sublabel);
+    text(fields, "tag", old.tag, box.tag);
+    text(fields, "type", old.type, box.type);
+    if (!sameSet(files(old), files(box))) fields.push({ field: "sources" });
+    const was = boundariesOf(beforeBoundaries, beforeKeys, (key) => afterKeyOf.get(key) ?? `\0${key}`, old.id);
+    if (!sameSet(was, boundariesOf(afterBoundaries, afterKeys, (key) => key, box.id))) fields.push({ field: "boundary" });
+    if (fields.length === 0 && keptIds.has(box.id)) return { status: "kept", fields };
+    return changedOrNot(fields);
+  });
+  const matchedArrows = new Set(pairedArrows.values());
+  const arrows = after.connections.map((arrow, index) => {
+    const match = pairedArrows.get(index);
+    if (match === void 0) return ADDED;
+    const old = before.connections[match];
+    const fields = [];
+    text(fields, "label", old.label, arrow.label);
+    text(fields, "variant", old.variant ?? "default", arrow.variant ?? "default");
+    return changedOrNot(fields);
+  });
+  const labelOf = (id) => olderBox.get(id)?.label ?? id;
+  const removed = {
+    boxes: before.components.filter((box) => !renamed.has(box.id)).map((box) => ({ id: box.id, label: box.label })),
+    arrows: before.connections.filter((_, index) => !matchedArrows.has(index)).map((arrow) => ({ name: `${labelOf(arrow.from)} \u2192 ${labelOf(arrow.to)}${arrow.label ? ` (${arrow.label})` : ""}` })),
+    boundaries: beforeBoundaries.filter((_, index) => !usedBefore.has(index)).map((boundary) => ({ label: boundary.label }))
+  };
+  const all = [...boxes, ...arrows, ...boundaries];
+  return {
+    boxes,
+    arrows,
+    boundaries,
+    removed,
+    counts: {
+      added: all.filter((entry) => entry.status === "added").length,
+      removed: removed.boxes.length + removed.arrows.length + removed.boundaries.length,
+      changed: all.filter((entry) => entry.status === "changed" || entry.status === "renamed").length
+    }
+  };
+}
+function diffSummary(diff) {
+  return `${diff.counts.added} added \xB7 ${diff.counts.removed} removed \xB7 ${diff.counts.changed} changed`;
+}
+
+// packages/core/model/mergeMaps.ts
+var EMPTY = { components: [], connections: [], boundaries: [] };
+function asMap(value) {
+  const map = value;
+  return { components: map.components ?? [], connections: map.connections ?? [], boundaries: map.boundaries ?? [] };
+}
+var unchanged = (diff) => diff.counts.added + diff.counts.removed + diff.counts.changed === 0;
+var boxChanged = (diff, index) => diff.boxes[index].fields.some((field) => field.field !== "boundary");
+var sameBox = (a, b) => unchanged(diffMaps({ components: [a], connections: [] }, { components: [{ ...b, id: a.id }], connections: [] }));
+var sameArrow = (a, b) => (a.label ?? null) === (b.label ?? null) && (a.variant ?? "default") === (b.variant ?? "default");
+var sameHead = (a, b) => a.label === b.label && (a.kind ?? null) === (b.kind ?? null);
+var invert = (map) => new Map([...map].map(([key, value]) => [value, key]));
+function arrowName(arrow, boxes) {
+  const labelOf = (id) => boxes.find((box) => box.id === id)?.label ?? id;
+  return `${labelOf(arrow.from)} \u2192 ${labelOf(arrow.to)}${arrow.label ? ` (${arrow.label})` : ""}`;
+}
+function idsIn(ids, toResult) {
+  return ids.flatMap((id) => {
+    const moved = toResult.get(id);
+    return moved === void 0 ? [] : [moved];
+  });
+}
+function moveArrow(arrow, toResult) {
+  const from = toResult.get(arrow.from);
+  const to = toResult.get(arrow.to);
+  return from === void 0 || to === void 0 ? null : { ...arrow, from, to };
+}
+function mergeMaps(base, ours, theirs) {
+  const o = asMap(ours);
+  const t = asMap(theirs);
+  const b = base === null ? EMPTY : asMap(base);
+  const oursDiff = diffMaps(b, o);
+  const theirsDiff = diffMaps(b, t);
+  if (base !== null && unchanged(theirsDiff)) return { map: ours, outcome: "ours", conflicts: [] };
+  if (base !== null && unchanged(oursDiff)) return { map: theirs, outcome: "theirs", conflicts: [] };
+  const conflicts = [];
+  const oursPairs = pairMaps(b, o);
+  const theirsPairs = pairMaps(b, t);
+  const placed = [];
+  const baseOfOurs = invert(oursPairs.boxes);
+  const baseOfTheirs = invert(theirsPairs.boxes);
+  const theirsBoxIndex = new Map(t.components.map((box, index) => [box.id, index]));
+  const handledTheirs = /* @__PURE__ */ new Set();
+  o.components.forEach((box, index) => {
+    const baseId = baseOfOurs.get(box.id);
+    if (baseId === void 0) {
+      placed.push({ box, fromTheirs: false, oursId: box.id, theirsIds: [] });
+      return;
+    }
+    const oursChanged = boxChanged(oursDiff, index);
+    const theirsId = theirsPairs.boxes.get(baseId);
+    if (theirsId === void 0) {
+      if (!oursChanged) return;
+      conflicts.push({ kind: "box", name: box.label, reason: "changed-and-removed" });
+      placed.push({ box, fromTheirs: false, oursId: box.id, theirsIds: [] });
+      return;
+    }
+    handledTheirs.add(theirsId);
+    const theirsIndex = theirsBoxIndex.get(theirsId);
+    const other = t.components[theirsIndex];
+    const theirsChanged = boxChanged(theirsDiff, theirsIndex);
+    if (theirsChanged && !oursChanged) {
+      placed.push({ box: other, fromTheirs: true, oursId: box.id, theirsIds: [theirsId] });
+      return;
+    }
+    if (oursChanged && theirsChanged && !sameBox(box, other)) conflicts.push({ kind: "box", name: box.label, reason: "both-changed" });
+    placed.push({ box, fromTheirs: false, oursId: box.id, theirsIds: [theirsId] });
+  });
+  const theirsAdded = [];
+  t.components.forEach((box, index) => {
+    if (handledTheirs.has(box.id)) return;
+    if (!baseOfTheirs.has(box.id)) theirsAdded.push(box);
+    else if (boxChanged(theirsDiff, index)) conflicts.push({ kind: "box", name: box.label, reason: "changed-and-removed" });
+  });
+  const oursAdded = o.components.filter((box) => !baseOfOurs.has(box.id));
+  const oursOfAdded = invert(pairMaps({ components: oursAdded, connections: [] }, { components: theirsAdded, connections: [] }).boxes);
+  for (const box of theirsAdded) {
+    const oursId = oursOfAdded.get(box.id);
+    const twin = oursId === void 0 ? void 0 : placed.find((entry) => entry.oursId === oursId);
+    if (twin === void 0) {
+      placed.push({ box, fromTheirs: true, theirsIds: [box.id] });
+      continue;
+    }
+    twin.theirsIds.push(box.id);
+    if (!sameBox(twin.box, box)) conflicts.push({ kind: "box", name: twin.box.label, reason: "both-changed" });
+  }
+  const taken = new Set(placed.filter((entry) => !entry.fromTheirs).map((entry) => entry.box.id));
+  const freshId = (id) => {
+    let candidate = id;
+    for (let n = 2; taken.has(candidate); n++) candidate = `${id}-${n}`;
+    taken.add(candidate);
+    return candidate;
+  };
+  const components2 = [];
+  const oursToResult = /* @__PURE__ */ new Map();
+  const theirsToResult = /* @__PURE__ */ new Map();
+  for (const entry of placed) {
+    const id = entry.fromTheirs ? freshId(entry.box.id) : entry.box.id;
+    components2.push(id === entry.box.id ? entry.box : { ...entry.box, id });
+    if (entry.oursId !== void 0) oursToResult.set(entry.oursId, id);
+    for (const theirsId of entry.theirsIds) theirsToResult.set(theirsId, id);
+  }
+  const connections = [];
+  const oursAddedArrows = [];
+  const theirsOfBaseArrow = invert(theirsPairs.arrows);
+  const handledTheirsArrows = /* @__PURE__ */ new Set();
+  o.connections.forEach((arrow, index) => {
+    const baseIndex = oursPairs.arrows.get(index);
+    const mine = moveArrow(arrow, oursToResult);
+    if (baseIndex === void 0) {
+      if (mine === null) return;
+      connections.push(mine);
+      oursAddedArrows.push(mine);
+      return;
+    }
+    const oursChanged = oursDiff.arrows[index].status === "changed";
+    const theirsIndex = theirsOfBaseArrow.get(baseIndex);
+    if (theirsIndex === void 0) {
+      if (!oursChanged) return;
+      conflicts.push({ kind: "arrow", name: arrowName(arrow, o.components), reason: "changed-and-removed" });
+      if (mine !== null) connections.push(mine);
+      return;
+    }
+    handledTheirsArrows.add(theirsIndex);
+    const other = t.connections[theirsIndex];
+    const theirsChanged = theirsDiff.arrows[theirsIndex].status === "changed";
+    if (oursChanged && theirsChanged && !sameArrow(arrow, other)) conflicts.push({ kind: "arrow", name: arrowName(arrow, o.components), reason: "both-changed" });
+    const winner = theirsChanged && !oursChanged ? moveArrow(other, theirsToResult) : mine;
+    if (winner !== null) connections.push(winner);
+  });
+  const theirsAddedArrows = [];
+  t.connections.forEach((arrow, index) => {
+    if (handledTheirsArrows.has(index)) return;
+    if (theirsPairs.arrows.has(index)) {
+      if (theirsDiff.arrows[index].status === "changed") conflicts.push({ kind: "arrow", name: arrowName(arrow, t.components), reason: "changed-and-removed" });
+      return;
+    }
+    const moved = moveArrow(arrow, theirsToResult);
+    if (moved !== null) theirsAddedArrows.push(moved);
+  });
+  const arrowTwins = pairMaps({ components: components2, connections: oursAddedArrows }, { components: components2, connections: theirsAddedArrows }).arrows;
+  theirsAddedArrows.forEach((arrow, index) => {
+    const twin = arrowTwins.get(index);
+    if (twin === void 0) connections.push(arrow);
+    else if (!sameArrow(oursAddedArrows[twin], arrow)) conflicts.push({ kind: "arrow", name: arrowName(oursAddedArrows[twin], components2), reason: "both-changed" });
+  });
+  const baseToResult = /* @__PURE__ */ new Map();
+  for (const box of b.components) {
+    const id = oursToResult.get(oursPairs.boxes.get(box.id) ?? "") ?? theirsToResult.get(theirsPairs.boxes.get(box.id) ?? "");
+    if (id !== void 0) baseToResult.set(box.id, id);
+  }
+  const oursBoundaries = o.boundaries ?? [];
+  const theirsBoundaries = t.boundaries ?? [];
+  const baseBoundaries = b.boundaries ?? [];
+  const theirsBoxes = new Set(theirsToResult.values());
+  const kept = [];
+  const oursAddedBoundaries = [];
+  const theirsOfBaseBoundary = invert(theirsPairs.boundaries);
+  const handledTheirsBoundaries = /* @__PURE__ */ new Set();
+  oursBoundaries.forEach((boundary, index) => {
+    const baseIndex = oursPairs.boundaries.get(index);
+    const mine = { boundary: { ...boundary, wraps: idsIn(boundary.wraps, oursToResult) }, hadMembers: boundary.wraps.length > 0 };
+    if (baseIndex === void 0) {
+      kept.push(mine);
+      oursAddedBoundaries.push(mine);
+      return;
+    }
+    const oursChanged = oursDiff.boundaries[index].status !== "unchanged";
+    const theirsIndex = theirsOfBaseBoundary.get(baseIndex);
+    if (theirsIndex === void 0) {
+      if (!oursChanged) return;
+      conflicts.push({ kind: "boundary", name: boundary.label, reason: "changed-and-removed" });
+      kept.push(mine);
+      return;
+    }
+    handledTheirsBoundaries.add(theirsIndex);
+    const other = theirsBoundaries[theirsIndex];
+    const old = baseBoundaries[baseIndex];
+    const oursHead = !sameHead(boundary, old);
+    const theirsHead = !sameHead(other, old);
+    if (oursHead && theirsHead && !sameHead(boundary, other)) conflicts.push({ kind: "boundary", name: boundary.label, reason: "both-changed" });
+    const mineIds = mine.boundary.wraps;
+    const theirIds = idsIn(other.wraps, theirsToResult);
+    const baseIds = idsIn(old.wraps, baseToResult);
+    const wraps = [
+      ...mineIds.filter((id) => !baseIds.includes(id) || theirIds.includes(id) || !theirsBoxes.has(id)),
+      ...theirIds.filter((id) => !baseIds.includes(id) && !mineIds.includes(id))
+    ];
+    const head = theirsHead && !oursHead ? other : boundary;
+    kept.push({ boundary: { ...head, wraps }, hadMembers: boundary.wraps.length > 0 || other.wraps.length > 0 });
+  });
+  const theirsAddedBoundaries = [];
+  theirsBoundaries.forEach((boundary, index) => {
+    if (handledTheirsBoundaries.has(index)) return;
+    if (theirsPairs.boundaries.has(index)) {
+      if (theirsDiff.boundaries[index].status !== "unchanged") conflicts.push({ kind: "boundary", name: boundary.label, reason: "changed-and-removed" });
+      return;
+    }
+    theirsAddedBoundaries.push({ boundary: { ...boundary, wraps: idsIn(boundary.wraps, theirsToResult) }, hadMembers: boundary.wraps.length > 0 });
+  });
+  const boundaryTwins = pairMaps(
+    { components: components2, connections: [], boundaries: oursAddedBoundaries.map((entry) => entry.boundary) },
+    { components: components2, connections: [], boundaries: theirsAddedBoundaries.map((entry) => entry.boundary) }
+  ).boundaries;
+  theirsAddedBoundaries.forEach((entry, index) => {
+    const twinIndex = boundaryTwins.get(index);
+    if (twinIndex === void 0) {
+      kept.push(entry);
+      return;
+    }
+    const twin = oursAddedBoundaries[twinIndex];
+    if (!sameHead(twin.boundary, entry.boundary)) conflicts.push({ kind: "boundary", name: twin.boundary.label, reason: "both-changed" });
+    twin.boundary.wraps = [...twin.boundary.wraps, ...entry.boundary.wraps.filter((id) => !twin.boundary.wraps.includes(id))];
+    twin.hadMembers ||= entry.hadMembers;
+  });
+  const boundaries = kept.filter((entry) => entry.boundary.wraps.length > 0 || !entry.hadMembers).map((entry) => entry.boundary);
+  const map = { ...ours, components: components2, connections };
+  if (boundaries.length > 0 || ours.boundaries !== void 0) map.boundaries = boundaries;
+  return { map, outcome: "merged", conflicts };
+}
+
+// apps/action/src/merge.ts
+async function mergeOnPush(context) {
+  const [pull] = await context.client.mergedPulls(context.after);
+  if (pull === void 0) return { uploaded: false, reason: `no merged pull request made ${context.after.slice(0, 7)}` };
+  const token = await actionsOidcToken(context.env, context.fetcher);
+  const maps = await pullMaps(context.cloud, token, context.repo, pull.headRef, context.fetcher);
+  const theirs = maps.team;
+  if (theirs === null) return { uploaded: false, reason: `${pull.headRef} has no map in aisus cloud` };
+  const ours = maps.main;
+  let result;
+  if (ours === null) {
+    result = { map: theirs.map, outcome: "theirs", conflicts: [] };
+  } else {
+    const baseRow = maps.mainHistory.find((row) => isAncestor(context.root, row.commit, theirs.commit, context.env)) ?? null;
+    if (baseRow === null && isAncestor(context.root, ours.commit, theirs.commit, context.env)) {
+      result = { map: theirs.map, outcome: "theirs", conflicts: [] };
+    } else {
+      const base = baseRow === null ? null : baseRow.id === ours.id ? ours.map : (await pullMap(context.cloud, token, context.repo, baseRow.id, context.fetcher)).map;
+      result = mergeMaps(base, ours.map, theirs.map);
+    }
+  }
+  const head = collectGitFacts(context.root, context.env)?.head ?? context.after;
+  const prints = fingerprint(result.map, context.root, head);
+  const payload = mapPayload({
+    repo: context.repo,
+    commit: head,
+    branch: context.defaultBranch,
+    run: `architecture-merge-${pull.number}`,
+    map: result.map,
+    record: null,
+    sidecars: { fingerprints: prints },
+    defaultBranch: context.defaultBranch
+  });
+  payload.meta.merge = { branch: pull.headRef, pull: pull.number, conflicts: result.conflicts };
+  const issues = checkUpload(payload);
+  if (issues.length > 0) return { uploaded: false, reason: `the merged map would be refused: ${issues.map((issue) => `${issue.pointer} ${issue.message}`).join("; ")}` };
+  const sent = await postUpload(context.cloud, token, payload, context.fetcher);
+  if (!sent.ok) return { uploaded: false, reason: sent.message };
+  return { uploaded: true, outcome: result.outcome, branch: pull.headRef, pull: pull.number, conflicts: result.conflicts };
+}
+
 // apps/action/src/refresh.ts
 var import_node_child_process2 = require("node:child_process");
-var import_node_fs10 = require("node:fs");
+var import_node_fs11 = require("node:fs");
 var import_node_os = require("node:os");
-var import_node_path9 = require("node:path");
+var import_node_path10 = require("node:path");
 
 // packages/core/model/agents.ts
 var SKILL_SCRIPTS = {
@@ -9800,23 +10312,23 @@ function skillPrompt(cli, skill, args) {
 }
 
 // packages/core/model/agentHome.ts
-var import_node_fs8 = require("node:fs");
-var import_node_path7 = require("node:path");
+var import_node_fs9 = require("node:fs");
+var import_node_path8 = require("node:path");
 function agentHome(home, agent, skill) {
   for (const base of [".agents", ".claude"]) {
-    (0, import_node_fs8.mkdirSync)((0, import_node_path7.join)(home, base, "skills"), { recursive: true });
-    if (skill !== null) (0, import_node_fs8.cpSync)(skill.source, (0, import_node_path7.join)(home, base, "skills", skill.name), { recursive: true });
+    (0, import_node_fs9.mkdirSync)((0, import_node_path8.join)(home, base, "skills"), { recursive: true });
+    if (skill !== null) (0, import_node_fs9.cpSync)(skill.source, (0, import_node_path8.join)(home, base, "skills", skill.name), { recursive: true });
   }
   if (agent === "claude") {
-    (0, import_node_fs8.writeFileSync)((0, import_node_path7.join)(home, ".claude", "settings.json"), `${JSON.stringify({ disableAllHooks: true }, null, 2)}
+    (0, import_node_fs9.writeFileSync)((0, import_node_path8.join)(home, ".claude", "settings.json"), `${JSON.stringify({ disableAllHooks: true }, null, 2)}
 `);
-    return { CLAUDE_CONFIG_DIR: (0, import_node_path7.join)(home, ".claude") };
+    return { CLAUDE_CONFIG_DIR: (0, import_node_path8.join)(home, ".claude") };
   }
-  (0, import_node_fs8.mkdirSync)((0, import_node_path7.join)(home, ".codex"), { recursive: true });
-  return { CODEX_HOME: (0, import_node_path7.join)(home, ".codex") };
+  (0, import_node_fs9.mkdirSync)((0, import_node_path8.join)(home, ".codex"), { recursive: true });
+  return { CODEX_HOME: (0, import_node_path8.join)(home, ".codex") };
 }
 function agentHomePreview(home, agent) {
-  return agent === "claude" ? { CLAUDE_CONFIG_DIR: (0, import_node_path7.join)(home, ".claude") } : { CODEX_HOME: (0, import_node_path7.join)(home, ".codex") };
+  return agent === "claude" ? { CLAUDE_CONFIG_DIR: (0, import_node_path8.join)(home, ".claude") } : { CODEX_HOME: (0, import_node_path8.join)(home, ".codex") };
 }
 
 // packages/core/model/agentStream/feed.ts
@@ -9852,7 +10364,7 @@ function validatorItem(output) {
 function record(value) {
   return typeof value === "object" && value !== null && !Array.isArray(value) ? value : {};
 }
-function text(value) {
+function text2(value) {
   return typeof value === "string" ? value : "";
 }
 function count(value) {
@@ -9868,25 +10380,25 @@ function usageOf(value) {
   };
 }
 function toolItem(name2, input2) {
-  const path2 = text(input2["file_path"]) || text(input2["path"]);
+  const path2 = text2(input2["file_path"]) || text2(input2["path"]);
   switch (name2) {
     case "Read":
       return { kind: "read", text: `Reading ${path2}` };
     case "Grep":
     case "Glob":
-      return { kind: "search", text: `Searching for ${clip(text(input2["pattern"]), 60)}` };
+      return { kind: "search", text: `Searching for ${clip(text2(input2["pattern"]), 60)}` };
     case "Write":
     case "Edit":
       return { kind: "write", text: path2.endsWith("draft.json") ? "Writing the draft" : `Writing ${path2}` };
     case "Bash":
-      return commandItem(text(input2["command"]));
+      return commandItem(text2(input2["command"]));
     default:
       return { kind: "command", text: `Using ${name2}` };
   }
 }
 function resultText(content) {
   if (typeof content === "string") return content;
-  if (Array.isArray(content)) return content.map((block) => text(record(block)["text"])).join("\n");
+  if (Array.isArray(content)) return content.map((block) => text2(record(block)["text"])).join("\n");
   return "";
 }
 function claudeParser() {
@@ -9906,10 +10418,10 @@ function claudeParser() {
           const items = [];
           let answer = "";
           for (const block of content) {
-            if (block["type"] === "tool_use") items.push(toolItem(text(block["name"]), record(block["input"])));
-            if (block["type"] === "text" && text(block["text"]).trim() !== "") {
-              items.push({ kind: "message", text: clip(text(block["text"])) });
-              answer += text(block["text"]);
+            if (block["type"] === "tool_use") items.push(toolItem(text2(block["name"]), record(block["input"])));
+            if (block["type"] === "text" && text2(block["text"]).trim() !== "") {
+              items.push({ kind: "message", text: clip(text2(block["text"])) });
+              answer += text2(block["text"]);
             }
           }
           const step = usageOf(message["usage"]);
@@ -9927,18 +10439,18 @@ function claudeParser() {
           const denials = (Array.isArray(event["permission_denials"]) ? event["permission_denials"] : []).map((denial) => {
             const entry = record(denial);
             const input2 = record(entry["tool_input"]);
-            return `${text(entry["tool_name"])}: ${clip(text(input2["command"]) || text(input2["file_path"]) || "", 80)}`;
+            return `${text2(entry["tool_name"])}: ${clip(text2(input2["command"]) || text2(input2["file_path"]) || "", 80)}`;
           });
           const ok = event["subtype"] === "success" && event["is_error"] !== true;
           return {
-            items: ok ? [] : [{ kind: "error", text: clip(text(event["result"]) || `The run ended with ${text(event["subtype"])}`) }],
+            items: ok ? [] : [{ kind: "error", text: clip(text2(event["result"]) || `The run ended with ${text2(event["subtype"])}`) }],
             usage: event["usage"] === void 0 ? { ...total } : usageOf(event["usage"]),
             end: {
               ok,
               costUsd: typeof event["total_cost_usd"] === "number" ? event["total_cost_usd"] : null,
               denials,
-              sessionId: text(event["session_id"]) || null,
-              ...ok && text(event["result"]).trim() !== "" ? { finalAnswer: text(event["result"]) } : {}
+              sessionId: text2(event["session_id"]) || null,
+              ...ok && text2(event["result"]).trim() !== "" ? { finalAnswer: text2(event["result"]) } : {}
             }
           };
         }
@@ -9953,7 +10465,7 @@ function claudeParser() {
 function record2(value) {
   return typeof value === "object" && value !== null && !Array.isArray(value) ? value : {};
 }
-function text2(value) {
+function text3(value) {
   return typeof value === "string" ? value : "";
 }
 function count2(value) {
@@ -9972,21 +10484,21 @@ function codexParser() {
       const item = record2(event["item"]);
       switch (event["type"]) {
         case "item.started":
-          return item["type"] === "command_execution" ? { items: [commandItem(text2(item["command"]))] } : { items: [] };
+          return item["type"] === "command_execution" ? { items: [commandItem(text3(item["command"]))] } : { items: [] };
         case "item.completed": {
           if (item["type"] === "command_execution") {
-            const verdict2 = validatorItem(text2(item["aggregated_output"]));
+            const verdict2 = validatorItem(text3(item["aggregated_output"]));
             return { items: verdict2 ? [verdict2] : [] };
           }
           if (item["type"] === "file_change") {
             const items = (Array.isArray(item["changes"]) ? item["changes"] : []).map((change) => {
-              const path2 = text2(record2(change)["path"]);
+              const path2 = text3(record2(change)["path"]);
               return { kind: "write", text: path2.endsWith("draft.json") ? "Writing the draft" : `Writing ${path2}` };
             });
             return { items };
           }
-          if (item["type"] === "agent_message" && text2(item["text"]).trim() !== "") {
-            return { items: [{ kind: "message", text: clip(text2(item["text"])) }], answer: text2(item["text"]) };
+          if (item["type"] === "agent_message" && text3(item["text"]).trim() !== "") {
+            return { items: [{ kind: "message", text: clip(text3(item["text"])) }], answer: text3(item["text"]) };
           }
           return { items: [] };
         }
@@ -9999,9 +10511,9 @@ function codexParser() {
           return { items: [], usage: { ...total } };
         }
         case "turn.failed":
-          return { items: [{ kind: "error", text: clip(text2(record2(event["error"])["message"]) || "The turn failed") }] };
+          return { items: [{ kind: "error", text: clip(text3(record2(event["error"])["message"]) || "The turn failed") }] };
         case "error":
-          return { items: [{ kind: "error", text: clip(text2(event["message"]) || "Codex reported an error") }] };
+          return { items: [{ kind: "error", text: clip(text3(event["message"]) || "Codex reported an error") }] };
         default:
           return { items: [] };
       }
@@ -10040,145 +10552,9 @@ function branchPaths(report, components2) {
   return [.../* @__PURE__ */ new Set([...report.candidates.map((candidate) => candidate.dir), ...cited])].sort();
 }
 
-// packages/core/model/diff.ts
-var SAME_FILES = 0.5;
-var UNCHANGED = { status: "unchanged", fields: [] };
-var ADDED = { status: "added", fields: [] };
-var files = (box) => new Set((box.sources ?? []).map((source) => source.path));
-function overlap(a, b) {
-  const left = files(a);
-  const right = files(b);
-  const shared = [...left].filter((path2) => right.has(path2)).length;
-  const union = (/* @__PURE__ */ new Set([...left, ...right])).size;
-  return union === 0 ? 0 : shared / union;
-}
-function sameSet(a, b) {
-  return a.size === b.size && [...a].every((item) => b.has(item));
-}
-function text3(fields, field, before, after) {
-  if ((before ?? null) !== (after ?? null)) fields.push({ field, before: before ?? null, after: after ?? null });
-}
-var changedOrNot = (fields) => fields.length === 0 ? UNCHANGED : { status: "changed", fields };
-function uniqueKeys(items, keyOf) {
-  const seen = /* @__PURE__ */ new Map();
-  return items.map((item) => {
-    const key = keyOf(item);
-    const n = (seen.get(key) ?? 0) + 1;
-    seen.set(key, n);
-    return n === 1 ? key : `${key}#${n}`;
-  });
-}
-function diffMaps(before, after, touched = /* @__PURE__ */ new Set()) {
-  const newIds = new Set(after.components.map((box) => box.id));
-  const oldIds = new Set(before.components.map((box) => box.id));
-  const renamed = /* @__PURE__ */ new Map();
-  for (const box of before.components) if (newIds.has(box.id)) renamed.set(box.id, box.id);
-  const unmatchedNew = after.components.filter((box) => !oldIds.has(box.id));
-  for (const box of before.components.filter((entry) => !newIds.has(entry.id))) {
-    let best = null;
-    for (const candidate of unmatchedNew) {
-      const score = overlap(box, candidate);
-      if (score >= SAME_FILES && (best === null || score > best.score) && ![...renamed.values()].includes(candidate.id)) best = { id: candidate.id, score };
-    }
-    if (best !== null) renamed.set(box.id, best.id);
-  }
-  const olderOf = new Map([...renamed].map(([older, newer]) => [newer, older]));
-  const olderBox = new Map(before.components.map((box) => [box.id, box]));
-  const beforeBoundaries = before.boundaries ?? [];
-  const afterBoundaries = after.boundaries ?? [];
-  const mapIds = (ids) => new Set(ids.map((id) => renamed.get(id) ?? `\0${id}`));
-  const beforeKeys = uniqueKeys(beforeBoundaries, (boundary) => boundary.label);
-  const afterKeys = uniqueKeys(afterBoundaries, (boundary) => boundary.label);
-  const beforeIndex = new Map(beforeKeys.map((key, index) => [key, index]));
-  const pairedBefore = /* @__PURE__ */ new Map();
-  const usedBefore = /* @__PURE__ */ new Set();
-  afterKeys.forEach((key, index) => {
-    const match = beforeIndex.get(key);
-    if (match !== void 0) {
-      pairedBefore.set(index, match);
-      usedBefore.add(match);
-    }
-  });
-  const relabelled = /* @__PURE__ */ new Set();
-  afterBoundaries.forEach((boundary, index) => {
-    if (pairedBefore.has(index)) return;
-    const members = new Set(boundary.wraps);
-    const match = beforeBoundaries.findIndex((old, k) => !usedBefore.has(k) && sameSet(mapIds(old.wraps), members));
-    if (match < 0) return;
-    pairedBefore.set(index, match);
-    usedBefore.add(match);
-    relabelled.add(index);
-  });
-  const boundaries = afterBoundaries.map((boundary, index) => {
-    const match = pairedBefore.get(index);
-    if (match === void 0) return ADDED;
-    const old = beforeBoundaries[match];
-    const fields = [];
-    if (relabelled.has(index)) text3(fields, "label", old.label, boundary.label);
-    text3(fields, "kind", old.kind, boundary.kind);
-    if (!sameSet(mapIds(old.wraps), new Set(boundary.wraps))) fields.push({ field: "members" });
-    return relabelled.has(index) ? { status: "renamed", fields } : changedOrNot(fields);
-  });
-  const afterKeyOf = new Map([...pairedBefore].map(([index, match]) => [beforeKeys[match], afterKeys[index]]));
-  const boundariesOf = (list, keys, rename, id) => new Set(list.flatMap((boundary, index) => boundary.wraps.includes(id) ? [rename(keys[index])] : []));
-  const keptIds = new Set([...touched].map((id) => renamed.get(id) ?? id));
-  const boxes = after.components.map((box) => {
-    const older = olderOf.get(box.id);
-    const old = older === void 0 ? void 0 : olderBox.get(older);
-    if (old === void 0) return ADDED;
-    const fields = [];
-    text3(fields, "id", old.id, box.id);
-    text3(fields, "label", old.label, box.label);
-    text3(fields, "sublabel", old.sublabel, box.sublabel);
-    text3(fields, "tag", old.tag, box.tag);
-    text3(fields, "type", old.type, box.type);
-    if (!sameSet(files(old), files(box))) fields.push({ field: "sources" });
-    const was = boundariesOf(beforeBoundaries, beforeKeys, (key) => afterKeyOf.get(key) ?? `\0${key}`, old.id);
-    if (!sameSet(was, boundariesOf(afterBoundaries, afterKeys, (key) => key, box.id))) fields.push({ field: "boundary" });
-    if (fields.length === 0 && keptIds.has(box.id)) return { status: "kept", fields };
-    return changedOrNot(fields);
-  });
-  const end = (id) => renamed.get(id) ?? `\0${id}`;
-  const beforeArrowKeys = uniqueKeys(before.connections, (arrow) => `${end(arrow.from)}\0${end(arrow.to)}`);
-  const beforeArrowIndex = new Map(beforeArrowKeys.map((key, index) => [key, index]));
-  const matchedArrows = /* @__PURE__ */ new Set();
-  const arrows = uniqueKeys(after.connections, (arrow) => `${arrow.from}\0${arrow.to}`).map((key, index) => {
-    const match = beforeArrowIndex.get(key);
-    if (match === void 0) return ADDED;
-    matchedArrows.add(match);
-    const old = before.connections[match];
-    const arrow = after.connections[index];
-    const fields = [];
-    text3(fields, "label", old.label, arrow.label);
-    text3(fields, "variant", old.variant ?? "default", arrow.variant ?? "default");
-    return changedOrNot(fields);
-  });
-  const labelOf = (id) => olderBox.get(id)?.label ?? id;
-  const removed = {
-    boxes: before.components.filter((box) => !renamed.has(box.id)).map((box) => ({ id: box.id, label: box.label })),
-    arrows: before.connections.filter((_, index) => !matchedArrows.has(index)).map((arrow) => ({ name: `${labelOf(arrow.from)} \u2192 ${labelOf(arrow.to)}${arrow.label ? ` (${arrow.label})` : ""}` })),
-    boundaries: beforeBoundaries.filter((_, index) => !usedBefore.has(index)).map((boundary) => ({ label: boundary.label }))
-  };
-  const all = [...boxes, ...arrows, ...boundaries];
-  return {
-    boxes,
-    arrows,
-    boundaries,
-    removed,
-    counts: {
-      added: all.filter((entry) => entry.status === "added").length,
-      removed: removed.boxes.length + removed.arrows.length + removed.boundaries.length,
-      changed: all.filter((entry) => entry.status === "changed" || entry.status === "renamed").length
-    }
-  };
-}
-function diffSummary(diff) {
-  return `${diff.counts.added} added \xB7 ${diff.counts.removed} removed \xB7 ${diff.counts.changed} changed`;
-}
-
 // packages/core/model/lineage.ts
-var import_node_fs9 = require("node:fs");
-var import_node_path8 = require("node:path");
+var import_node_fs10 = require("node:fs");
+var import_node_path9 = require("node:path");
 
 // packages/core/model/changeMap.ts
 var OWN_OUTPUT = ".aisus";
@@ -10316,13 +10692,13 @@ function parseLineage(value) {
 }
 function readJsonFile(path2) {
   try {
-    return JSON.parse((0, import_node_fs9.readFileSync)(path2, "utf8"));
+    return JSON.parse((0, import_node_fs10.readFileSync)(path2, "utf8"));
   } catch {
     return void 0;
   }
 }
 function readLineage(runDir) {
-  return parseLineage(readJsonFile((0, import_node_path8.join)(runDir, LINEAGE_FILE)));
+  return parseLineage(readJsonFile((0, import_node_path9.join)(runDir, LINEAGE_FILE)));
 }
 function redrawReason(facts) {
   if (!facts.hasGit) return "no-git";
@@ -10341,7 +10717,7 @@ function components(doc) {
   });
 }
 function planRefresh(root, run2, globs = []) {
-  const runDir = (0, import_node_path8.join)(root, MAP_DIR, run2);
+  const runDir = (0, import_node_path9.join)(root, MAP_DIR, run2);
   const focus = readRunRecord(runDir)?.focus ?? "";
   const previous = readLineage(runDir);
   const git2 = collectGitFacts(root);
@@ -10350,17 +10726,17 @@ function planRefresh(root, run2, globs = []) {
   if (reason !== null) return { mode: "regenerate", reason, focus };
   const diff = contextDiffSince(root, base);
   if (diff === null || git2 === null) return { mode: "regenerate", reason: "base-unreachable", focus };
-  const boxes = components(readJsonFile((0, import_node_path8.join)(runDir, CANDIDATE_FILE)));
+  const boxes = components(readJsonFile((0, import_node_path9.join)(runDir, CANDIDATE_FILE)));
   const cited = new Set(boxes.flatMap((box) => box.sources.map((source) => source.path)));
   const files2 = collectChanges({
     diff,
     untracked: untrackedFiles(root),
     previousDirty: previous?.dirty ?? [],
     cited,
-    exists: (path2) => (0, import_node_fs9.existsSync)((0, import_node_path8.join)(root, path2)),
+    exists: (path2) => (0, import_node_fs10.existsSync)((0, import_node_path9.join)(root, path2)),
     readUntracked: (path2) => {
       try {
-        const bytes = (0, import_node_fs9.readFileSync)((0, import_node_path8.join)(root, path2));
+        const bytes = (0, import_node_fs10.readFileSync)((0, import_node_path9.join)(root, path2));
         return bytes.includes(0) ? null : bytes.toString("utf8");
       } catch {
         return null;
@@ -10407,7 +10783,7 @@ function refreshDecision(input2) {
   return { run: true, agent, paths: paths2 };
 }
 function refreshCommand(agent, map, paths2, home, env) {
-  const skillDir = (0, import_node_path9.join)(home, agent === "claude" ? ".claude" : ".agents", "skills", "aisus-refresh");
+  const skillDir = (0, import_node_path10.join)(home, agent === "claude" ? ".claude" : ".agents", "skills", "aisus-refresh");
   const args = headlessArgs(agent, skillPrompt(agent, "aisus-refresh", refreshArgs(map, paths2)), { skillDir, scripts: SKILL_SCRIPTS["aisus-refresh"] });
   const key = env[REFRESH_KEYS[agent]] ?? "";
   const keys = agent === "claude" ? { ANTHROPIC_API_KEY: key } : { OPENAI_API_KEY: key, CODEX_API_KEY: key };
@@ -10424,7 +10800,7 @@ function runRefresh(input2) {
   if (plan.mode === "regenerate") return { ok: false, reason: `the map is due a full drawing, because ${REDRAW_REASONS[plan.reason]}. Run Generate with its focus and commit the new map.` };
   const binary = findOnPath(input2.agent, input2.env);
   if (binary === void 0) return { ok: false, reason: `refresh: ${input2.agent} needs the ${input2.agent} CLI on PATH; install it in an earlier step.` };
-  const home = (0, import_node_fs10.mkdtempSync)((0, import_node_path9.join)((0, import_node_os.tmpdir)(), "aisus-refresh-"));
+  const home = (0, import_node_fs11.mkdtempSync)((0, import_node_path10.join)((0, import_node_os.tmpdir)(), "aisus-refresh-"));
   try {
     agentHome(home, input2.agent, { name: "aisus-refresh", source: input2.skillSource });
     const { args, env } = refreshCommand(input2.agent, input2.map, input2.paths, home, input2.env);
@@ -10434,7 +10810,7 @@ function runRefresh(input2) {
     const tokens = usage.input + usage.output + usage.cacheRead + usage.cacheWrite;
     const made = newRunSince(input2.root, before);
     if (made === null || made.record.phase !== "accepted") return { ok: false, reason: `the refresh ended without an accepted map (exit ${result.status ?? "none"}).` };
-    const read = (run2) => readDiagram(JSON.parse((0, import_node_fs10.readFileSync)((0, import_node_path9.join)(input2.root, MAP_DIR, run2, CANDIDATE_FILE), "utf8")));
+    const read = (run2) => readDiagram(JSON.parse((0, import_node_fs11.readFileSync)((0, import_node_path10.join)(input2.root, MAP_DIR, run2, CANDIDATE_FILE), "utf8")));
     const older = read(input2.map);
     const newer = read(made.runFolder);
     const summary = older.ok && newer.ok ? diffSummary(diffMaps(older.diagram, newer.diagram)) : "the map changed";
@@ -10445,7 +10821,7 @@ ${summary}.`, "--", folder]) !== null && git(input2.root, ["push", "-q", "origin
     if (!committed) return { ok: false, reason: `the new map ${made.runFolder} could not be committed and pushed to ${input2.headRef}.` };
     return { ok: true, run: made.runFolder, summary, tokens };
   } finally {
-    (0, import_node_fs10.rmSync)(home, { recursive: true, force: true });
+    (0, import_node_fs11.rmSync)(home, { recursive: true, force: true });
   }
 }
 function refreshLines(outcome) {
@@ -10471,7 +10847,7 @@ async function uploadCheck(context, pull, report, run2) {
   if (cloud === "") return { ok: false, reason: "upload needs the cloud-url input." };
   const head = collectGitFacts(context.root)?.head;
   if (head === void 0) return { ok: false, reason: "upload needs the checked-out commit." };
-  const map = JSON.parse((0, import_node_fs11.readFileSync)((0, import_node_path10.join)(context.root, MAP_DIR, run2, CANDIDATE_FILE), "utf8"));
+  const map = JSON.parse((0, import_node_fs12.readFileSync)((0, import_node_path11.join)(context.root, MAP_DIR, run2, CANDIDATE_FILE), "utf8"));
   const payload = checkPayload({ repo, commit: head, branch: pull.headRef, pull: pull.number, check: report, map, run: run2, ...pull.defaultBranch ? { defaultBranch: pull.defaultBranch } : {} });
   const issues = checkUpload(payload);
   if (issues.length > 0) return { ok: false, reason: `the upload would be refused: ${issues.map((issue) => `${issue.pointer} ${issue.message}`).join("; ")}` };
@@ -10480,10 +10856,42 @@ async function uploadCheck(context, pull, report, run2) {
   if (!result.ok) return { ok: false, reason: result.message };
   return { ok: true, page: `${cloud.replace(/\/+$/, "")}/${repo}/pull/${pull.number}` };
 }
+function pushEvent(event) {
+  const typed = event;
+  if (typeof typed?.ref !== "string" || !typed.ref.startsWith("refs/heads/") || typeof typed.after !== "string" || typeof typed.repository?.default_branch !== "string") return null;
+  return { branch: typed.ref.slice("refs/heads/".length), after: typed.after, defaultBranch: typed.repository.default_branch };
+}
+async function runMerge(context, push) {
+  if (push.branch !== push.defaultBranch) {
+    context.log(`Maps merge on pushes to ${push.defaultBranch} only; this push is to ${push.branch}.`);
+    return { exitCode: 0, result: "pass", comment: null };
+  }
+  if (input(context.env, "upload") !== "true") {
+    context.log("Maps merge only with upload: true.");
+    return { exitCode: 0, result: "pass", comment: null };
+  }
+  const cloud = input(context.env, "cloud-url") || context.env["AISUS_CLOUD_URL"] || "";
+  if (cloud === "") {
+    context.log("Merging maps needs the cloud-url input.");
+    return { exitCode: 1, result: "error", comment: null };
+  }
+  const outcome = await mergeOnPush({ root: context.root, repo: context.env["GITHUB_REPOSITORY"] ?? "", cloud, defaultBranch: push.defaultBranch, after: push.after, client: context.client, env: context.env, ...context.fetcher ? { fetcher: context.fetcher } : {}, log: context.log }).catch(
+    (error) => ({ uploaded: false, reason: error instanceof Error ? error.message : String(error) })
+  );
+  if (!outcome.uploaded) {
+    context.log(`No merged map uploaded: ${outcome.reason}.`);
+    return { exitCode: 0, result: "pass", comment: null };
+  }
+  const conflicts = outcome.conflicts.length === 0 ? "" : ` ${outcome.conflicts.length} ${outcome.conflicts.length === 1 ? "element conflicted and keeps" : "elements conflicted and keep"} ${push.defaultBranch}'s version: ${outcome.conflicts.map((conflict) => conflict.name).join(", ")}.`;
+  context.log(`Merged the map of ${outcome.branch} (#${outcome.pull}) into ${push.defaultBranch}'s map.${conflicts}`);
+  return { exitCode: 0, result: "pass", comment: null };
+}
 async function runAction(context) {
+  const push = pushEvent(context.event);
+  if (push !== null) return runMerge(context, push);
   const pull = pullRequest(context.event);
   if (pull === null) {
-    context.log("aisus check runs on pull_request events; this event has no pull request.");
+    context.log("aisus check runs on pull_request events and on pushes to the default branch; this event is neither.");
     return { exitCode: 1, result: "error", comment: null };
   }
   const failOn = input(context.env, "fail-on").split(",").map((entry) => entry.trim()).filter((entry) => entry !== "");
@@ -10507,7 +10915,7 @@ async function runAction(context) {
   let update = [];
   const decision = refreshDecision({ refresh: input(context.env, "refresh"), env: context.env, event: context.event, report, components: diagram.components, head: collectGitFacts(context.root)?.head ?? null });
   if (decision.run) {
-    const outcome2 = runRefresh({ root: context.root, map: report.map, agent: decision.agent, paths: decision.paths, headRef: pull.headRef, skillSource: (0, import_node_path10.join)(__dirname, "..", "..", "skills", "aisus-refresh"), env: context.env });
+    const outcome2 = runRefresh({ root: context.root, map: report.map, agent: decision.agent, paths: decision.paths, headRef: pull.headRef, skillSource: (0, import_node_path11.join)(__dirname, "..", "..", "skills", "aisus-refresh"), env: context.env });
     update = refreshLines(outcome2);
     context.log(outcome2.ok ? `Map updated in ${outcome2.run}.` : `Map not updated: ${outcome2.reason}`);
   } else if (decision.reason !== null) {
@@ -10529,13 +10937,13 @@ async function runAction(context) {
 // apps/action/src/index.ts
 async function main() {
   const env = process.env;
-  const event = JSON.parse((0, import_node_fs12.readFileSync)(env["GITHUB_EVENT_PATH"] ?? "", "utf8"));
+  const event = JSON.parse((0, import_node_fs13.readFileSync)(env["GITHUB_EVENT_PATH"] ?? "", "utf8"));
   const client = restClient(env["GITHUB_API_URL"] ?? "https://api.github.com", env["GITHUB_REPOSITORY"] ?? "", env["INPUT_GITHUB-TOKEN"] ?? "");
   const outcome = await runAction({ env, root: env["GITHUB_WORKSPACE"] ?? process.cwd(), event, client, log: (line) => process.stdout.write(`${line}
 `) });
-  if (env["GITHUB_OUTPUT"]) (0, import_node_fs12.appendFileSync)(env["GITHUB_OUTPUT"], `result=${outcome.result}
+  if (env["GITHUB_OUTPUT"]) (0, import_node_fs13.appendFileSync)(env["GITHUB_OUTPUT"], `result=${outcome.result}
 `);
-  if (env["GITHUB_STEP_SUMMARY"] && outcome.comment !== null) (0, import_node_fs12.appendFileSync)(env["GITHUB_STEP_SUMMARY"], `${outcome.comment}
+  if (env["GITHUB_STEP_SUMMARY"] && outcome.comment !== null) (0, import_node_fs13.appendFileSync)(env["GITHUB_STEP_SUMMARY"], `${outcome.comment}
 `);
   return outcome.exitCode;
 }
