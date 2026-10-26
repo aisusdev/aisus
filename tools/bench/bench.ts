@@ -59,7 +59,7 @@ export async function main(argv: readonly string[], env: NodeJS.ProcessEnv, writ
       skill === null ? `make ${home} with no skill` : `make ${home} holding only ${skill}, with hooks off`,
     ];
     const planned = runs.map(({ question, run }) => {
-      const prompt = benchPrompt(options.agent, options.kind, { base: "<base run>", map: ".archify/<base run>/candidate.json", ...(question ? { question } : {}) });
+      const prompt = benchPrompt(options.agent, options.kind, { base: "<base run>", map: ".aisus/maps/<base run>/candidate.json", ...(question ? { question } : {}) });
       return { run, cwd: work, argv: [binary ?? `<${options.agent} not found on PATH>`, ...benchArgs(options.agent, options.kind, prompt, home)], env: redactEnv(options.agent, benchEnv(options.agent, home, homeEnv, env)), shell: SPAWN.shell, steps };
     });
     write(`${JSON.stringify({ plan, runs: planned }, null, 2)}\n`);

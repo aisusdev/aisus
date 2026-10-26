@@ -29,8 +29,8 @@ function git(root: string, ...args: string[]): void {
 function drawnAtHead(root: string, run: string, updates = 0): void {
   const head = spawnSync("git", ["rev-parse", "HEAD"], { cwd: root, encoding: "utf8" }).stdout.trim();
   const lineage = { schema: 1, mode: "regenerate", reason: "no-previous", previousRun: null, baseRevision: null, revision: head, baseCommit: null, headCommit: null, dirty: [], dirtyCount: 0, updatesSinceRegeneration: updates };
-  mkdirSync(join(root, ".archify", run), { recursive: true });
-  writeFileSync(join(root, ".archify", run, "lineage.json"), JSON.stringify(lineage));
+  mkdirSync(join(root, ".aisus/maps", run), { recursive: true });
+  writeFileSync(join(root, ".aisus/maps", run, "lineage.json"), JSON.stringify(lineage));
 }
 
 function nextTerminal(): Promise<vscode.Terminal> {
@@ -69,7 +69,7 @@ suite("PRC-02 Review changes", () => {
     await vscode.workspace.getConfiguration("aisus").update("runMode", "terminal", vscode.ConfigurationTarget.Global);
 
     write(root, "src/api/handler.ts", "export const handle = () => save();\n");
-    write(root, `.archify/${RUN}/candidate.json`, JSON.stringify({ meta: { title: "Shop" }, components: [{ id: "api", type: "backend", label: "API", sources: [{ path: "src/api/handler.ts", line: 1 }] }] }));
+    write(root, `.aisus/maps/${RUN}/candidate.json`, JSON.stringify({ meta: { title: "Shop" }, components: [{ id: "api", type: "backend", label: "API", sources: [{ path: "src/api/handler.ts", line: 1 }] }] }));
     git(root, "init", "-q");
     git(root, "add", "-f", ".");
     git(root, "commit", "-qm", "map");
@@ -87,7 +87,7 @@ suite("PRC-02 Review changes", () => {
     await vscode.commands.executeCommand("workbench.action.closeAllEditors");
     await vscode.workspace.getConfiguration("aisus").update("runMode", undefined, vscode.ConfigurationTarget.Global);
     for (const dir of cleanup.splice(0)) rmSync(dir, { recursive: true, force: true });
-    for (const path of [".archify", "src", ".git", "aisus.config.json"]) rmSync(join(root, path), { recursive: true, force: true });
+    for (const path of [".aisus/maps", "src", ".git", "aisus.config.json"]) rmSync(join(root, path), { recursive: true, force: true });
     for (const dir of [".agents", ".claude"]) rmSync(join(homedir(), dir), { recursive: true, force: true });
   });
 
@@ -129,7 +129,7 @@ suite("PRC-02 Review changes", () => {
     const BRANCH = "architecture-branch-20261019-090000";
     write(
       root,
-      `.archify/${BRANCH}/candidate.json`,
+      `.aisus/maps/${BRANCH}/candidate.json`,
       JSON.stringify({
         meta: { title: "Shop" },
         components: [
@@ -152,7 +152,7 @@ suite("PRC-02 Review changes", () => {
     const compare = hook.panelCompare();
     assert.match(compare?.against ?? "", /^the base map at [0-9a-f]{7}$/);
     assert.deepEqual(compare?.diff.boxes.map((entry) => entry.status), ["unchanged", "added"]);
-    assert.equal(hook.panelState().file, join(root, ".archify", BRANCH, "candidate.json"));
+    assert.equal(hook.panelState().file, join(root, ".aisus/maps", BRANCH, "candidate.json"));
 
     const opened = nextTerminal();
     await hook.postFromHome({ type: "updateBranchMap" });

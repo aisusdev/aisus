@@ -26,7 +26,7 @@ suite("FRS-10 Changes panel", () => {
   let hook: TestHook;
   let ui: UiStubs;
   let root: string;
-  const candidate = (run: string): string => join(root, ".archify", run, "candidate.json");
+  const candidate = (run: string): string => join(root, ".aisus/maps", run, "candidate.json");
 
   suiteSetup(async () => {
     hook = (await vscode.extensions.getExtension("aisus.aisus")!.activate()) as TestHook;
@@ -39,17 +39,17 @@ suite("FRS-10 Changes panel", () => {
     write(root, "src/db.ts", "export const db = 1;\n");
     write(root, "src/mail.ts", "export const mail = 1;\n");
     const box = (id: string, label: string, path: string) => ({ id, type: "backend", label, sources: [{ path, line: 1 }] });
-    write(root, `.archify/${BASE}/candidate.json`, { meta: { title: "Shop" }, components: [box("api", "API", "src/api.ts"), box("db", "DB", "src/db.ts")] });
-    write(root, `.archify/${BASE}/lineage.json`, lineage("regenerate", null));
-    write(root, `.archify/${REFRESH}/candidate.json`, { meta: { title: "Shop" }, components: [box("api", "API", "src/api.ts"), box("db", "DB", "src/db.ts"), box("mail", "Mail", "src/mail.ts")], connections: [{ from: "api", to: "mail" }] });
-    write(root, `.archify/${REFRESH}/lineage.json`, lineage("update", BASE));
-    write(root, `.archify/${REFRESH}/changes.json`, { schema: 1, baseRevision: "a".repeat(40), revision: "b".repeat(40), touched: [{ id: "db", files: [{ status: "modified", path: "src/db.ts" }] }], uncited: [{ status: "added", path: "src/new.ts" }] });
+    write(root, `.aisus/maps/${BASE}/candidate.json`, { meta: { title: "Shop" }, components: [box("api", "API", "src/api.ts"), box("db", "DB", "src/db.ts")] });
+    write(root, `.aisus/maps/${BASE}/lineage.json`, lineage("regenerate", null));
+    write(root, `.aisus/maps/${REFRESH}/candidate.json`, { meta: { title: "Shop" }, components: [box("api", "API", "src/api.ts"), box("db", "DB", "src/db.ts"), box("mail", "Mail", "src/mail.ts")], connections: [{ from: "api", to: "mail" }] });
+    write(root, `.aisus/maps/${REFRESH}/lineage.json`, lineage("update", BASE));
+    write(root, `.aisus/maps/${REFRESH}/changes.json`, { schema: 1, baseRevision: "a".repeat(40), revision: "b".repeat(40), touched: [{ id: "db", files: [{ status: "modified", path: "src/db.ts" }] }], uncited: [{ status: "added", path: "src/new.ts" }] });
   });
 
   teardown(async () => {
     ui.restore();
     await vscode.commands.executeCommand("workbench.action.closeAllEditors");
-    for (const path of [".archify", "src"]) rmSync(join(root, path), { recursive: true, force: true });
+    for (const path of [".aisus/maps", "src"]) rmSync(join(root, path), { recursive: true, force: true });
   });
 
   async function open(run: string): Promise<void> {

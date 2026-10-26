@@ -59,7 +59,7 @@ describe("SAF-04 launch arguments", () => {
       "Bash(node /h/.claude/skills/aisus-architecture/scripts/match-ids.mjs *)",
       "Bash(node /h/.claude/skills/aisus-architecture/scripts/validate.mjs *)",
       "Bash(node /h/.claude/skills/aisus-architecture/scripts/render-html.mjs *)",
-      "Edit(./.archify/**)",
+      "Edit(./.aisus/maps/**)",
     ]);
     expect(forbiddenIn(argv)).toEqual([]);
   });
@@ -75,7 +75,7 @@ describe("SAF-04 launch arguments", () => {
       "Bash(node /h/.claude/skills/aisus-refresh/scripts/refresh-facts.mjs *)",
       "Bash(node /h/.claude/skills/aisus-refresh/scripts/validate.mjs *)",
       "Bash(node /h/.claude/skills/aisus-refresh/scripts/render-html.mjs *)",
-      "Edit(./.archify/**)",
+      "Edit(./.aisus/maps/**)",
     ]);
     expect(forbiddenIn(argv)).toEqual([]);
   });
@@ -83,7 +83,7 @@ describe("SAF-04 launch arguments", () => {
   test("ACC-05 an audit names the audit skill, may give work to subagents, and may run only its recorder", () => {
     expect(skillPrompt("claude", "aisus-audit", "architecture-a-20261018-120000")).toBe("/aisus-audit architecture-a-20261018-120000");
     const argv = headlessArgs("claude", "/aisus-audit x", { skillDir: "/h/.claude/skills/aisus-audit", scripts: SKILL_SCRIPTS["aisus-audit"], subagents: true });
-    expect(argv.slice(argv.indexOf("--allowedTools") + 1)).toEqual(["Read", "Grep", "Glob", "Task", "Bash(node /h/.claude/skills/aisus-audit/scripts/audit-record.mjs *)", "Edit(./.archify/**)"]);
+    expect(argv.slice(argv.indexOf("--allowedTools") + 1)).toEqual(["Read", "Grep", "Glob", "Task", "Bash(node /h/.claude/skills/aisus-audit/scripts/audit-record.mjs *)", "Edit(./.aisus/maps/**)"]);
     expect(forbiddenIn(argv)).toEqual([]);
   });
 

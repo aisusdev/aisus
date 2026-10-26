@@ -1,6 +1,6 @@
 // FR-RF-01 slug/run-folder rules (ported from the prototype's repo/tests/run_storage.rs and
 // storage.rs) plus draft location and atomic publish (FR-VAL-01, FR-VAL-06).
-import { existsSync, readdirSync, readFileSync, symlinkSync, writeFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync, rmSync, symlinkSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, test } from "vitest";
 import {
@@ -44,10 +44,10 @@ describe("FR-RF-01 run folders", () => {
     expect(runTimestamp(new Date())).toMatch(/^\d{8}-\d{6}$/);
   });
 
-  test("the run folder is created together with .archify", () => {
+  test("the run folder is created together with .aisus/maps", () => {
     const root = tempDir();
     expect(createRunFolder(root, "api", "20261010-093000")).toBe("architecture-api-20261010-093000");
-    expect(existsSync(join(root, ".archify/architecture-api-20261010-093000"))).toBe(true);
+    expect(existsSync(join(root, ".aisus/maps/architecture-api-20261010-093000"))).toBe(true);
   });
 
   test("collisions get -2, -3 suffixes", () => {
@@ -61,16 +61,19 @@ describe("FR-RF-01 run folders", () => {
     ]);
   });
 
-  test("fails when .archify links outside the root, is a file, or the name is not one segment", () => {
-    const base = tempDir();
-    put(base, "elsewhere/.keep", "");
-    put(base, "repo/.keep", "");
-    symlinkSync(join(base, "elsewhere"), join(base, "repo/.archify"));
-    expect(() => createRunFolder(join(base, "repo"), "api", "20261010-093000")).toThrow(/inside the repository root/);
-    expect(readdirSync(join(base, "elsewhere"))).toEqual([".keep"]);
+  test("fails when .aisus or .aisus/maps links outside the root, is a file, or the name is not one segment", () => {
+    for (const linked of [".aisus", ".aisus/maps"]) {
+      const base = tempDir();
+      put(base, "elsewhere/.keep", "");
+      put(base, "repo/.aisus/.keep", "");
+      if (linked === ".aisus") rmSync(join(base, "repo/.aisus"), { recursive: true });
+      symlinkSync(join(base, "elsewhere"), join(base, "repo", linked));
+      expect(() => createRunFolder(join(base, "repo"), "api", "20261010-093000")).toThrow(/inside the repository root/);
+      expect(readdirSync(join(base, "elsewhere"))).toEqual([".keep"]);
+    }
 
     const fileRoot = tempDir();
-    writeFileSync(join(fileRoot, ".archify"), "not a folder");
+    put(fileRoot, ".aisus/maps", "not a folder");
     expect(() => createRunFolder(fileRoot, "api", "20261010-093000")).toThrow();
 
     expect(() => createRunFolder(tempDir(), "a/b", "20261010-093000")).toThrow(/not a valid run folder name/);
@@ -91,19 +94,19 @@ describe("FR-RF-01 run folders", () => {
 describe("FR-VAL-01 draft location", () => {
   test("SEQ-01 absolute and relative paths resolve to the repo root, the run and its kind", () => {
     const root = tempDir();
-    const rel = ".archify/architecture-api-20261010-093000/draft.json";
+    const rel = ".aisus/maps/architecture-api-20261010-093000/draft.json";
     const expected = { root, run: "architecture-api-20261010-093000", slug: "api", draft: join(root, rel), kind: "architecture" };
     expect(locateDraft(join(root, rel), "/")).toEqual(expected);
     expect(locateDraft(rel, root)).toEqual(expected);
     expect(locateDraft(`../${rel}`, join(root, "src"))).toEqual(expected);
-    expect(locateDraft(".archify/sequence-log-in-20261010-093000/draft.json", root)).toMatchObject({ run: "sequence-log-in-20261010-093000", slug: "log-in", kind: "sequence" });
+    expect(locateDraft(".aisus/maps/sequence-log-in-20261010-093000/draft.json", root)).toMatchObject({ run: "sequence-log-in-20261010-093000", slug: "log-in", kind: "sequence" });
   });
 
   test.each([
-    [".archify/architecture-api-20261010-093000/candidate.json", /expected a path/],
+    [".aisus/maps/architecture-api-20261010-093000/candidate.json", /expected a path/],
     ["runs/architecture-api-20261010-093000/draft.json", /expected a path/],
-    [".archify/hand-made/draft.json", /does not match/],
-    [".archify/session-api-20261010-093000/draft.json", /does not match/],
+    [".aisus/maps/hand-made/draft.json", /does not match/],
+    [".aisus/maps/session-api-20261010-093000/draft.json", /does not match/],
   ])("%s is a usage error", (arg, message) => {
     expect(() => locateDraft(arg, tempDir())).toThrow(message);
   });
@@ -112,16 +115,16 @@ describe("FR-VAL-01 draft location", () => {
 describe("FR-VAL-06 publish", () => {
   test("writes candidate.json, deletes the draft and leaves no temp files", () => {
     const root = tempDir();
-    const draft = put(root, ".archify/architecture-api-20261010-093000/draft.json", "{}");
+    const draft = put(root, ".aisus/maps/architecture-api-20261010-093000/draft.json", "{}");
     publishCandidate(draft, '{"a":1}\n');
-    const dir = join(root, ".archify/architecture-api-20261010-093000");
+    const dir = join(root, ".aisus/maps/architecture-api-20261010-093000");
     expect(readdirSync(dir)).toEqual(["candidate.json"]);
     expect(readFileSync(join(dir, "candidate.json"), "utf8")).toBe('{"a":1}\n');
   });
 
   test("replaces an existing candidate", () => {
     const root = tempDir();
-    const dir = ".archify/architecture-api-20261010-093000";
+    const dir = ".aisus/maps/architecture-api-20261010-093000";
     put(root, `${dir}/candidate.json`, "old");
     const draft = put(root, `${dir}/draft.json`, "{}");
     publishCandidate(draft, "new\n");

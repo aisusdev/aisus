@@ -1,7 +1,7 @@
 // A stand-in agent CLI for the UI-02 and UI-06 tests. It ignores its arguments except to record
 // them, and acts per AISUS_STUB:
 // - "replay" (the default): prints the lines of AISUS_STUB_STREAM; with AISUS_STUB_CANDIDATE,
-//   first writes that diagram as an accepted run in .archify/ under the working directory.
+//   first writes that diagram as an accepted run in .aisus/maps/ under the working directory.
 // - "hang": starts a child that never exits, writes both pids to AISUS_STUB_PIDS, then waits.
 // AISUS_STUB_ARGS, when set, receives the argument vector as JSON. `--version` prints a version.
 import { spawn } from "node:child_process";
@@ -22,7 +22,7 @@ if (process.argv[2] === "--version") {
   if (env.AISUS_STUB_CANDIDATE) {
     const now = new Date();
     const stamp = now.toISOString().replace(/[-:]/g, "").replace("T", "-").slice(0, 15);
-    const dir = join(process.cwd(), ".archify", `architecture-stub-${stamp}`);
+    const dir = join(process.cwd(), ".aisus/maps", `architecture-stub-${stamp}`);
     mkdirSync(dir, { recursive: true });
     copyFileSync(env.AISUS_STUB_CANDIDATE, join(dir, "candidate.json"));
     const record = { schema: 1, kind: "full", focus: "", paths: [], base: null, parent: null, createdAt: now.toISOString(), skillVersion: "stub", phase: "accepted", attempts: 1, finishedAt: now.toISOString() };

@@ -1,4 +1,4 @@
-// `node <skill>/scripts/audit-record.mjs <repo>/.archify/<run>/audit-draft.json`, run with cwd = repo
+// `node <skill>/scripts/audit-record.mjs <repo>/.aisus/maps/<run>/audit-draft.json`, run with cwd = repo
 // root (ACC-05): checks the audit skill's draft against the map and the code, writes audit.json beside
 // the map, and removes the draft. Prints one JSON object: recorded, or rejected with the errors.
 import { readFileSync, rmSync, writeFileSync } from "node:fs";
@@ -6,7 +6,7 @@ import { basename, dirname, join, resolve } from "node:path";
 import { AUDIT_DRAFT_FILE, AUDIT_FILE, checkAuditDraft, type AuditDraft } from "../model/audit";
 import { checkCitations } from "../model/citations";
 import { assertWritable } from "../model/confine";
-import { MAP_DIR, CANDIDATE_FILE, parseRunFolderName } from "../model/runFolder";
+import { MAP_DIR, CANDIDATE_FILE, mapRootOf, parseRunFolderName } from "../model/runFolder";
 import type { ArchitectureDoc, Issue } from "../model/types";
 
 const HINT = "Fix each error in audit-draft.json and run audit-record.mjs again.";
@@ -22,12 +22,11 @@ function main(args: string[]): number {
   }
   const draftPath = resolve(process.cwd(), args[0]!);
   const runDir = dirname(draftPath);
-  const maps = dirname(runDir);
-  if (basename(draftPath) !== AUDIT_DRAFT_FILE || basename(maps) !== MAP_DIR || !parseRunFolderName(basename(runDir))) {
+  const root = mapRootOf(runDir);
+  if (basename(draftPath) !== AUDIT_DRAFT_FILE || root === null || !parseRunFolderName(basename(runDir))) {
     process.stderr.write(`audit-record.mjs: expected a path of the form <repo>/${MAP_DIR}/<run>/${AUDIT_DRAFT_FILE}, got ${args[0]}\n`);
     return 2;
   }
-  const root = dirname(maps);
   let map: ArchitectureDoc;
   try {
     map = JSON.parse(readFileSync(join(runDir, CANDIDATE_FILE), "utf8")) as ArchitectureDoc;

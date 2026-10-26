@@ -66,7 +66,7 @@ function main(args: string[]): number {
   const parsed = parseArgs(args);
   if (typeof parsed === "string") return fail(parsed);
   const root = process.cwd();
-  const base = parsed.from.replace(/^\.archify\//, "").replace(/\/+$/, "");
+  const base = parsed.from.replace(`${MAP_DIR}/`, "").replace(/\/+$/, "");
   if (!/^[a-z0-9]+-[A-Za-z0-9._-]+$/.test(base) || base.includes("..")) return fail(`--from names a run folder in ${MAP_DIR}/, such as architecture-app-20261018-120000`);
   const baseDir = join(root, MAP_DIR, base);
   let doc: unknown;

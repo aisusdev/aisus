@@ -3,7 +3,7 @@
 // Rules apply to every `/`-separated segment, case-insensitively (on case-insensitive file
 // systems `.ENV` opens the same file as `.env`). Browser-safe: no imports.
 
-const DENIED_NAMES = [".git", ".archify", ".npmrc", ".pypirc", ".netrc"];
+const DENIED_NAMES = [".git", ".aisus", ".npmrc", ".pypirc", ".netrc"];
 const ENV_EXCEPTIONS = [".env.example", ".env.sample"];
 const DENIED_PREFIXES = ["id_rsa", "id_ed25519"];
 const DENIED_EXTENSIONS = ["pem", "key", "p12", "pfx"];

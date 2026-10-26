@@ -36,7 +36,7 @@ function hunting(): string {
 }
 
 describe("no session", () => {
-  test("every event is inert without .aisus/active", () => {
+  test("every event is inert without .aisus/sessions/active", () => {
     const root = tempDir();
     for (const payload of [preTool("edit", { file_path: "a.ts" }), event("UserPromptSubmit"), event("PostCompaction"), event("SessionStart")]) {
       const run = runHook(payload, { cwd: root });
@@ -47,8 +47,8 @@ describe("no session", () => {
 
   test("a corrupt session.json cannot jam the agent", () => {
     const root = tempDir();
-    put(root, ".aisus/active", "bugfix-x-20260101-000000\n");
-    put(root, ".aisus/bugfix-x-20260101-000000/session.json", "{corrupt");
+    put(root, ".aisus/sessions/active", "bugfix-x-20260101-000000\n");
+    put(root, ".aisus/sessions/bugfix-x-20260101-000000/session.json", "{corrupt");
     const run = runHook(preTool("edit"), { cwd: root });
     expect(run.status).toBe(0);
     expect(run.stdout).toBe("");
@@ -99,7 +99,7 @@ describe("phase sensitivity", () => {
   test("abandon un-seeds the repo and disarms the hook", () => {
     const root = hunting();
     runScript("session", ["abandon"], { cwd: root });
-    expect(existsSync(join(root, ".aisus/active"))).toBe(false);
+    expect(existsSync(join(root, ".aisus/sessions/active"))).toBe(false);
     const run = runHook(preTool("edit"), { cwd: root });
     expect(run.status).toBe(0);
     expect(run.stdout).toBe("");
@@ -145,8 +145,8 @@ describe("robustness", () => {
 
   test("a removed session.json mid-hunt disarms rather than blocks", () => {
     const root = hunting();
-    const run = readFileSync(join(root, ".aisus/active"), "utf8").trim();
-    writeFileSync(join(root, ".aisus", run, "session.json"), "{bad json");
+    const run = readFileSync(join(root, ".aisus/sessions/active"), "utf8").trim();
+    writeFileSync(join(root, ".aisus/sessions", run, "session.json"), "{bad json");
     const edit = runHook(preTool("edit"), { cwd: root });
     expect(edit.status).toBe(0);
   });

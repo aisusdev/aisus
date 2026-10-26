@@ -1,4 +1,4 @@
-// `node .agents/skills/aisus-architecture/scripts/validate.mjs <repo>/.archify/<run>/draft.json`
+// `node .agents/skills/aisus-architecture/scripts/validate.mjs <repo>/.aisus/maps/<run>/draft.json`
 // (FR-VAL-01..06). Contract and exit codes: ADR 0017. Bundled to a dependency-free ESM file.
 import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";

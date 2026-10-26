@@ -65,6 +65,6 @@ export function renderPage(data: PageData, assets: PageAssets): string {
 export function pageOutput(run: string, doc: unknown): string {
   const meta = typeof doc === "object" && doc !== null ? (doc as { meta?: { output?: unknown } }).meta : undefined;
   const output = typeof meta?.output === "string" ? meta.output : "";
-  const name = output.startsWith(`.archify/${run}/`) ? output.slice(`.archify/${run}/`.length) : "";
+  const name = output.startsWith(`.aisus/maps/${run}/`) ? output.slice(`.aisus/maps/${run}/`.length) : "";
   return /^[a-z0-9][a-z0-9-]*\.html$/.test(name) ? name : "diagram.html";
 }

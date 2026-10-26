@@ -36,7 +36,7 @@ function mappedRepo(focus = ""): { root: string; run: string } {
   git(root, "add", ".");
   git(root, "commit", "-qm", "map");
   git(root, "checkout", "-qb", "feature");
-  return { root, run: facts.runFolder.replace(".archify/", "") };
+  return { root, run: facts.runFolder.replace(".aisus/maps/", "") };
 }
 
 function commit(root: string, message: string): void {
@@ -128,7 +128,7 @@ describe("PRC-01 the map, ownership and config", () => {
     put(root, focused.draft, JSON.stringify({ meta: { title: "Payments" }, components: [{ id: "p", type: "backend", label: "P", sources: [{ path: "lib/util.ts" }] }] }));
     expect(runScript("validate", [focused.draft], { cwd: root }).status).toBe(0);
     expect(mainMap(root)).toBe(run);
-    const other = focused.runFolder.replace(".archify/", "");
+    const other = focused.runFolder.replace(".aisus/maps/", "");
     expect(runCheck({ root, base: "main", map: other })).toMatchObject({ ok: true, report: { map: other } });
     writeFileSync(join(root, "aisus.config.json"), JSON.stringify({ map: other }));
     expect(runCheck({ root, base: "main" })).toMatchObject({ ok: true, report: { map: other } });
@@ -162,7 +162,7 @@ describe("PRC-01 the map, ownership and config", () => {
     expect(readConfig({ map: "architecture-a-20261018-120000", ignore: ["docs/**"], check: { failOn: ["stale", "new-box"] }, rules: [] })).toMatchObject({ ok: true });
     expect(readConfig({ map: "../x", ignore: "docs", check: { failOn: ["everything"], other: 1 }, rules: {}, extra: true })).toEqual({
       ok: false,
-      errors: ['unknown key "extra"', '"map" must name a run folder in .archify/', '"ignore" must be a list of globs', '"rules" must be a list', 'unknown key "check.other"', '"check.failOn" may list only stale, new-box, new-arrow, violation'],
+      errors: ['unknown key "extra"', '"map" must name a run folder in .aisus/maps/', '"ignore" must be a list of globs', '"rules" must be a list', 'unknown key "check.other"', '"check.failOn" may list only stale, new-box, new-arrow, violation'],
     });
     expect(withIgnored({ ignore: ["a/**"] }, "src/payments")).toEqual({ ignore: ["a/**", "src/payments/**"] });
     expect(withIgnored({ ignore: ["src/payments/**"] }, "src/payments")).toEqual({ ignore: ["src/payments/**"] });
@@ -170,7 +170,7 @@ describe("PRC-01 the map, ownership and config", () => {
 
   test("source and test files are told apart by name", () => {
     expect(["a.ts", "x/y.py", "Main.java"].every(isSourceFile)).toBe(true);
-    expect(["README.md", "a.json", ".archify/x/candidate.json", "Makefile"].some(isSourceFile)).toBe(false);
+    expect(["README.md", "a.json", ".aisus/maps/x/candidate.json", "Makefile"].some(isSourceFile)).toBe(false);
     expect(["a.test.ts", "tests/x.py", "pkg/x_test.go", "test_x.py", "src/__tests__/a.js"].every(isTestFile)).toBe(true);
     expect(isTestFile("src/contest.ts")).toBe(false);
   });
@@ -241,7 +241,7 @@ describe("PRC-06 import-aware delta", () => {
     git(root, "checkout", "-q", "main");
     git(root, "merge", "-q", "feature");
     // A ui box on main, with an arrow to the API.
-    const candidate = join(root, ".archify", run, "candidate.json");
+    const candidate = join(root, ".aisus/maps", run, "candidate.json");
     const map = JSON.parse(readFileSync(candidate, "utf8"));
     map.components.push({ id: "ui", type: "frontend", label: "UI", sources: [{ path: "src/ui/app.ts", line: 1 }] });
     map.connections.push({ from: "ui", to: "api", label: "calls" });

@@ -115,21 +115,21 @@ suite("Learning session launcher", () => {
     assert.equal(String(options.shellPath), claude);
     assert.deepEqual(options.shellArgs, ["/aisus-bugfix add a helper"]);
 
-    mkdirSync(join(root, ".aisus"), { recursive: true });
-    writeFileSync(join(root, ".aisus/active"), "bugfix-demo-20261019-120000\n");
+    mkdirSync(join(root, ".aisus/sessions"), { recursive: true });
+    writeFileSync(join(root, ".aisus/sessions/active"), "bugfix-demo-20261019-120000\n");
     await pause(800);
     assert.ok(existsSync(join(root, ".claude/settings.local.json")), "hooks kept while the lock exists");
-    rmSync(join(root, ".aisus/active"));
+    rmSync(join(root, ".aisus/sessions/active"));
     await until(() => !existsSync(join(root, ".claude/settings.local.json")), "the Claude Code hooks removed after the lock went");
   });
 
   test("SAF-06 the session's hook entries go when its lock goes", async () => {
-    mkdirSync(join(root, ".aisus"), { recursive: true });
-    writeFileSync(join(root, ".aisus/active"), "bugfix-demo-20261018-120000\n");
+    mkdirSync(join(root, ".aisus/sessions"), { recursive: true });
+    writeFileSync(join(root, ".aisus/sessions/active"), "bugfix-demo-20261018-120000\n");
     mergeHooks(root);
     await pause(800); // the watcher sees the lock appear and keeps the hooks
     assert.ok(existsSync(join(root, HOOKS)), "hooks kept while the lock exists");
-    rmSync(join(root, ".aisus/active"));
+    rmSync(join(root, ".aisus/sessions/active"));
     await until(() => !existsSync(join(root, HOOKS)), "hooks removed after the lock went");
   });
 });

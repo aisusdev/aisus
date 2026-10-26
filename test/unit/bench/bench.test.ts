@@ -57,7 +57,7 @@ test("CST-06 FRS-09 a dry run prints the argv and the whole environment of each 
     `Bash(node ${skill}/match-ids.mjs *)`,
     `Bash(node ${skill}/validate.mjs *)`,
     `Bash(node ${skill}/render-html.mjs *)`,
-    "Edit(./.archify/**)",
+    "Edit(./.aisus/maps/**)",
   ]);
   expect(run!.env).toEqual({ PATH: bin, HOME: home, LANG: "C.UTF-8", CLAUDE_CONFIG_DIR: join(home, ".claude"), ANTHROPIC_API_KEY: "<redacted>" });
   expect(run!.shell).toBe(false);

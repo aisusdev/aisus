@@ -24,11 +24,11 @@ class BridgeTest {
 
     @Test
     fun `load carries the map as JSON with script tags escaped, and refuses a map that is not an object`() {
-        val message = Bridge.load(map, "/repo/.archify/run/candidate.json")!!
+        val message = Bridge.load(map, "/repo/.aisus/maps/run/candidate.json")!!
         assertFalse(message.contains("</script"))
         val parsed = JsonParser.parseString(message).asJsonObject
         assertEquals("load", parsed.get("type").asString)
-        assertEquals("/repo/.archify/run/candidate.json", parsed.get("file").asString)
+        assertEquals("/repo/.aisus/maps/run/candidate.json", parsed.get("file").asString)
         assertEquals("api", parsed.getAsJsonObject("doc").getAsJsonArray("components")[0].asJsonObject.get("id").asString)
         assertNull(Bridge.load("[1, 2]", "x"))
         assertNull(Bridge.load("}); alert(1); ({", "x"))

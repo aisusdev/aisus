@@ -3,7 +3,7 @@
 import { expect, test } from "vitest";
 import { checkUpload, mapPayload } from "@aisus/core/model/upload";
 
-const MAP = { schema_version: 1, diagram_type: "architecture", meta: { title: "Shop", output: ".archify/architecture-shop-20261018-120000/shop.html" }, components: [{ id: "api", type: "backend", label: "API" }] };
+const MAP = { schema_version: 1, diagram_type: "architecture", meta: { title: "Shop", output: ".aisus/maps/architecture-shop-20261018-120000/shop.html" }, components: [{ id: "api", type: "backend", label: "API" }] };
 const RECORD = {
   schema: 1,
   kind: "full",

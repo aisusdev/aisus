@@ -25,8 +25,8 @@ function write(root: string, rel: string, content: string): string {
 function drawnAtHead(root: string, run: string, updates = 0): void {
   const head = spawnSync("git", ["rev-parse", "HEAD"], { cwd: root, encoding: "utf8" }).stdout.trim();
   const lineage = { schema: 1, mode: "regenerate", reason: "no-previous", previousRun: null, baseRevision: null, revision: head, baseCommit: null, headCommit: null, dirty: [], dirtyCount: 0, updatesSinceRegeneration: updates };
-  mkdirSync(join(root, ".archify", run), { recursive: true });
-  writeFileSync(join(root, ".archify", run, "lineage.json"), JSON.stringify(lineage));
+  mkdirSync(join(root, ".aisus/maps", run), { recursive: true });
+  writeFileSync(join(root, ".aisus/maps", run, "lineage.json"), JSON.stringify(lineage));
 }
 
 function git(root: string, ...args: string[]): void {
@@ -82,7 +82,7 @@ suite("FRS-06 Refresh from the UI", () => {
     write(root, "src/a.ts", "export const a = 1;\n");
     candidate = write(
       root,
-      `.archify/${RUN}/candidate.json`,
+      `.aisus/maps/${RUN}/candidate.json`,
       JSON.stringify({ meta: { title: "Shop" }, components: [{ id: "api", label: "API", type: "backend", sources: [{ path: "src/a.ts", line: 1 }, { path: "src/a.ts" }] }] }),
     );
     git(root, "init", "-q");
@@ -101,7 +101,7 @@ suite("FRS-06 Refresh from the UI", () => {
     await vscode.commands.executeCommand("workbench.action.closeAllEditors");
     await vscode.workspace.getConfiguration("aisus").update("runMode", undefined, vscode.ConfigurationTarget.Global);
     for (const dir of cleanup.splice(0)) rmSync(dir, { recursive: true, force: true });
-    for (const dir of [".archify", "src", ".git"]) rmSync(join(root, dir), { recursive: true, force: true });
+    for (const dir of [".aisus/maps", "src", ".git"]) rmSync(join(root, dir), { recursive: true, force: true });
     for (const dir of [".agents", ".claude"]) rmSync(join(homedir(), dir), { recursive: true, force: true });
   });
 
@@ -142,7 +142,7 @@ suite("FRS-06 Refresh from the UI", () => {
     const offer = ui.infos.find((call) => call.message === "Saved your note on API in feedback.json.");
     assert.deepEqual(offer?.rest, ["Refresh this box"]);
     assert.equal(prompt, `/aisus-refresh --from ${RUN} --paths src/a.ts`);
-    const feedback = JSON.parse(readFileSync(join(root, ".archify", RUN, "feedback.json"), "utf8")) as { schema: number; notes: { component: string; note: string; createdAt: string }[] };
+    const feedback = JSON.parse(readFileSync(join(root, ".aisus/maps", RUN, "feedback.json"), "utf8")) as { schema: number; notes: { component: string; note: string; createdAt: string }[] };
     assert.equal(feedback.schema, 1);
     assert.deepEqual(feedback.notes.map((note) => [note.component, note.note]), [["api", "It also handles refunds."]]);
     assert.match(feedback.notes[0]!.createdAt, /^\d{4}-\d{2}-\d{2}T/);
@@ -152,7 +152,7 @@ suite("FRS-06 Refresh from the UI", () => {
     ui.answers.inputBox.push("The cited line is the old client.");
     ui.answers.info.push(undefined);
     await vscode.commands.executeCommand("aisus.flagBox", { componentId: "api", webview: "aisus.architecture" });
-    const notes = (JSON.parse(readFileSync(join(root, ".archify", RUN, "feedback.json"), "utf8")) as typeof feedback).notes;
+    const notes = (JSON.parse(readFileSync(join(root, ".aisus/maps", RUN, "feedback.json"), "utf8")) as typeof feedback).notes;
     assert.deepEqual(notes.map((note) => note.note), ["It also handles refunds.", "The cited line is the old client."]);
   });
 
@@ -169,7 +169,7 @@ suite("FRS-06 Refresh from the UI", () => {
   });
 
   test("FRS-08 a map due a full drawing is drawn again with its focus", async () => {
-    write(root, `.archify/${RUN}/run.json`, JSON.stringify({ schema: 1, kind: "full", focus: "checkout", paths: [], base: null, parent: null, createdAt: "2026-10-18T12:00:00.000Z", skillVersion: "test", phase: "accepted", attempts: 1 }));
+    write(root, `.aisus/maps/${RUN}/run.json`, JSON.stringify({ schema: 1, kind: "full", focus: "checkout", paths: [], base: null, parent: null, createdAt: "2026-10-18T12:00:00.000Z", skillVersion: "test", phase: "accepted", attempts: 1 }));
     drawnAtHead(root, RUN, 5);
     await vscode.commands.executeCommand("aisus.openArchitecture");
     await until(() => hook.panelState().open, "the map");
@@ -178,7 +178,7 @@ suite("FRS-06 Refresh from the UI", () => {
   });
 
   test("FRS-06 without a map Refresh is Generate", async () => {
-    rmSync(join(root, ".archify"), { recursive: true, force: true });
+    rmSync(join(root, ".aisus/maps"), { recursive: true, force: true });
     ui.answers.inputBox.push(undefined);
     await vscode.commands.executeCommand("aisus.refreshArchitecture");
     assert.deepEqual(ui.inputBoxes, [{ prompt: "Focus (optional)" }]);

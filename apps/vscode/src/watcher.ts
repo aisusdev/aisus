@@ -1,4 +1,4 @@
-// Watches `<folder>/.archify/` in every workspace folder and acts on run folders' candidates
+// Watches `<folder>/.aisus/maps/` in every workspace folder and acts on run folders' candidates
 // (FR-WAT-01, ADR 0026). Any event in a run folder rechecks its candidate.json, because file
 // watchers can miss a file created inside a folder created a moment before. A listing every
 // 2 s catches candidates whose events never arrived, which happens on WSL under load.
@@ -6,7 +6,7 @@ import { existsSync } from "node:fs";
 import { basename, dirname, join, sep } from "node:path";
 import * as vscode from "vscode";
 import { listCandidates } from "@aisus/core/model/discovery";
-import { mapKindOf } from "@aisus/core/model/runFolder";
+import { MAP_DIR, mapKindOf } from "@aisus/core/model/runFolder";
 import { ArchitecturePanel } from "./panel";
 import { candidateOf, ChangeBatch, DELETED_MESSAGE, noteCandidate, watchAction } from "./watchLogic";
 
@@ -68,12 +68,12 @@ export class CandidateWatcher implements vscode.Disposable {
     for (const folder of folders) {
       const root = folder.uri.fsPath;
       this.known.set(root, new Set(listCandidates(root, "all").map((candidate) => candidate.file)));
-      const maps = join(root, ".archify");
+      const maps = join(root, MAP_DIR);
       const onEvent = (uri: vscode.Uri): void => {
         const candidate = candidateOf(maps, uri.fsPath, sep);
         if (candidate !== undefined) this.batch.add(candidate, false);
       };
-      const watcher = vscode.workspace.createFileSystemWatcher(new vscode.RelativePattern(folder, ".archify/**"));
+      const watcher = vscode.workspace.createFileSystemWatcher(new vscode.RelativePattern(folder, `${MAP_DIR}/**`));
       watcher.onDidCreate(onEvent);
       watcher.onDidChange(onEvent);
       watcher.onDidDelete(onEvent);

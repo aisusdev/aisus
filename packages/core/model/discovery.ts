@@ -1,19 +1,18 @@
-// Finding `<root>/.archify/*/candidate.json` and ordering them newest first (FR-VIEW-02).
+// Finding `<root>/.aisus/maps/*/candidate.json` and ordering them newest first (FR-VIEW-02).
 import { readdirSync, realpathSync, statSync } from "node:fs";
 import { basename, dirname, join, sep } from "node:path";
-import { MAP_DIR, CANDIDATE_FILE, mapKindOf, parseRunName, SEQUENCE_PREFIX, type MapKind } from "./runFolder";
+import { MAP_DIR, CANDIDATE_FILE, mapKindOf, mapRootOf, parseRunName, SEQUENCE_PREFIX, type MapKind } from "./runFolder";
 
 /**
- * The repo root for a diagram file: `<R>` when the file is `<R>/.archify/<run>/<name>`,
+ * The repo root for a diagram file: `<R>` when the file is `<R>/.aisus/maps/<run>/<name>`,
  * otherwise `fallbackRoot` (the chosen workspace folder; FR-VIEW-01).
  */
 export function repoRootFor(file: string, fallbackRoot: string): string {
-  const maps = dirname(dirname(file));
-  return basename(maps) === MAP_DIR ? dirname(maps) : fallbackRoot;
+  return mapRootOf(dirname(file)) ?? fallbackRoot;
 }
 
 export interface Candidate {
-  /** Run folder name below `.archify/`. */
+  /** Run folder name below `.aisus/maps/`. */
   runFolder: string;
   /** Absolute path of `candidate.json`. */
   file: string;
@@ -41,8 +40,8 @@ export function compareCandidates(a: Candidate, b: Candidate): number {
 }
 
 /**
- * Every `.archify/<folder>/candidate.json` under `root` that is a regular file whose real
- * path stays inside the root, newest first. A missing `.archify` gives `[]`. By default only
+ * Every `.aisus/maps/<folder>/candidate.json` under `root` that is a regular file whose real
+ * path stays inside the root, newest first. A missing `.aisus/maps` gives `[]`. By default only
  * architecture maps are listed, which is every folder but a `sequence-…` run (SEQ-01);
  * `"sequence"` lists only those, and `"all"` both.
  */

@@ -11,7 +11,7 @@ describe("SAF-05 write confinement", () => {
   test("a new nested path and an existing file inside the root are writable", () => {
     const root = tempDir();
     put(root, "aisus.config.json", "{}");
-    expect(() => assertWritable(root, join(root, ".archify/run/candidate.json"))).not.toThrow();
+    expect(() => assertWritable(root, join(root, ".aisus/maps/run/candidate.json"))).not.toThrow();
     expect(() => assertWritable(root, join(root, "aisus.config.json"))).not.toThrow();
   });
 
@@ -20,8 +20,8 @@ describe("SAF-05 write confinement", () => {
     [".devin", ".devin/hooks.v1.json"],
     [".claude", ".claude/skills/aisus-architecture/SKILL.md"],
     [".agents/skills", ".agents/skills/aisus-architecture/SKILL.md"],
-    [".archify/architecture-x-20261018-120000", ".archify/architecture-x-20261018-120000/candidate.json"],
-    [".aisus/bugfix-x-20261018-120000", ".aisus/bugfix-x-20261018-120000/session.json"],
+    [".aisus/maps/architecture-x-20261018-120000", ".aisus/maps/architecture-x-20261018-120000/candidate.json"],
+    [".aisus/sessions/bugfix-x-20261018-120000", ".aisus/sessions/bugfix-x-20261018-120000/session.json"],
   ])("%s linked outside the root makes %s unwritable", (linked, target) => {
     const root = tempDir();
     const outside = tempDir();

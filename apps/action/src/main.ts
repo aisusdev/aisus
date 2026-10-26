@@ -9,6 +9,7 @@ import { runCheck } from "@aisus/core/model/check";
 import { FAIL_ON, type FailOn } from "@aisus/core/model/config";
 import { COMMENT_MARKER, deltaMarkdown, deltaMermaid } from "@aisus/core/model/deltaMarkdown";
 import { collectGitFacts } from "@aisus/core/model/git";
+import { CANDIDATE_FILE, MAP_DIR } from "@aisus/core/model/runFolder";
 import { checkPayload, checkUpload } from "@aisus/core/model/upload";
 import type { GitHubClient } from "./github";
 import { refreshDecision, refreshLines, runRefresh } from "./refresh";
@@ -58,7 +59,7 @@ async function uploadCheck(context: ActionContext, pull: NonNullable<ReturnType<
   if (cloud === "") return { ok: false, reason: "upload needs the cloud-url input." };
   const head = collectGitFacts(context.root)?.head;
   if (head === undefined) return { ok: false, reason: "upload needs the checked-out commit." };
-  const map: unknown = JSON.parse(readFileSync(join(context.root, ".archify", run, "candidate.json"), "utf8"));
+  const map: unknown = JSON.parse(readFileSync(join(context.root, MAP_DIR, run, CANDIDATE_FILE), "utf8"));
   const payload = checkPayload({ repo, commit: head, branch: pull.headRef, pull: pull.number, check: report, map, run, ...(pull.defaultBranch ? { defaultBranch: pull.defaultBranch } : {}) });
   const issues = checkUpload(payload);
   if (issues.length > 0) return { ok: false, reason: `the upload would be refused: ${issues.map((issue) => `${issue.pointer} ${issue.message}`).join("; ")}` };

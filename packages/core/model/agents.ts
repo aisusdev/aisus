@@ -64,7 +64,7 @@ export function headlessArgs(cli: "claude" | "codex", prompt: string, options: H
         "Glob",
         ...(options.subagents ? ["Task"] : []),
         ...(options.scripts ?? SKILL_SCRIPTS["aisus-architecture"]).map((script) => `Bash(node ${options.skillDir}/scripts/${script} *)`),
-        "Edit(./.archify/**)",
+        "Edit(./.aisus/maps/**)",
       ];
   const resume = options.resume === undefined ? [] : ["--resume", options.resume];
   return ["-p", prompt, "--output-format", "stream-json", "--verbose", "--permission-mode", "dontAsk", ...resume, "--allowedTools", ...tools];

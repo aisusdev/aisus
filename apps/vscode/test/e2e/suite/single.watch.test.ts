@@ -45,21 +45,21 @@ suite("FR-WAT-01 watching candidates", () => {
   teardown(async () => {
     ui.restore();
     await vscode.commands.executeCommand("workbench.action.closeAllEditors");
-    rmSync(join(root, ".archify"), { recursive: true, force: true });
+    rmSync(join(root, ".aisus/maps"), { recursive: true, force: true });
   });
 
   test("a new newest candidate loads into the open panel", async () => {
-    const old = write(root, `.archify/${OLD}/candidate.json`, diagram("Old"));
+    const old = write(root, `.aisus/maps/${OLD}/candidate.json`, diagram("Old"));
     await vscode.commands.executeCommand("aisus.openArchitecture");
     assert.equal(hook.panelState().file, old);
-    const newest = write(root, `.archify/${NEW}/candidate.json`, diagram("New"));
+    const newest = write(root, `.aisus/maps/${NEW}/candidate.json`, diagram("New"));
     await until(() => hook.panelState().file === newest, "the panel to switch to the new candidate");
     await until(() => panelLabel() === "Architecture: New", "the new title");
     assert.equal(ui.infos.length, 0, "no notification while the panel shows that folder");
   });
 
   test("a change to the shown file reloads it", async () => {
-    const file = write(root, `.archify/${OLD}/candidate.json`, diagram("Before"));
+    const file = write(root, `.aisus/maps/${OLD}/candidate.json`, diagram("Before"));
     await vscode.commands.executeCommand("aisus.openArchitecture");
     await until(() => panelLabel() === "Architecture: Before", "the first title");
     writeFileSync(file, diagram("After"));
@@ -68,9 +68,9 @@ suite("FR-WAT-01 watching candidates", () => {
   });
 
   test("without a panel a new candidate is announced and Open opens it", async () => {
-    mkdirSync(join(root, ".archify"), { recursive: true });
+    mkdirSync(join(root, ".aisus/maps"), { recursive: true });
     ui.answers.info.push("Open");
-    const file = write(root, `.archify/${NEW}/candidate.json`, diagram("Announced"));
+    const file = write(root, `.aisus/maps/${NEW}/candidate.json`, diagram("Announced"));
     await until(() => ui.infos.length > 0, "the notification");
     assert.equal(ui.infos[0]!.message, `New architecture diagram: \`${NEW}\``);
     assert.deepEqual(ui.infos[0]!.rest, ["Open"]);
@@ -78,11 +78,11 @@ suite("FR-WAT-01 watching candidates", () => {
   });
 
   test("an older candidate appearing does not replace the shown newest one", async () => {
-    const newest = write(root, `.archify/${NEW}/candidate.json`, diagram("New"));
+    const newest = write(root, `.aisus/maps/${NEW}/candidate.json`, diagram("New"));
     await vscode.commands.executeCommand("aisus.openArchitecture");
-    write(root, `.archify/${OLD}/candidate.json`, diagram("Old"));
-    write(root, `.archify/architecture-watch-20261011-130000/candidate.json`, diagram("Newer"));
+    write(root, `.aisus/maps/${OLD}/candidate.json`, diagram("Old"));
+    write(root, `.aisus/maps/architecture-watch-20261011-130000/candidate.json`, diagram("Newer"));
     await until(() => hook.panelState().file !== newest, "the newer candidate to load");
-    assert.equal(hook.panelState().file, join(root, ".archify/architecture-watch-20261011-130000/candidate.json"));
+    assert.equal(hook.panelState().file, join(root, ".aisus/maps/architecture-watch-20261011-130000/candidate.json"));
   });
 });

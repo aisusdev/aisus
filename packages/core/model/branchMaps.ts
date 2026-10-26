@@ -18,9 +18,9 @@ export function newerRun(a: string, b: string): boolean {
 export function baseMap(root: string, revision: string, env: NodeJS.ProcessEnv = process.env): string | null {
   const runs = new Set(
     filesAt(root, revision, MAP_DIR, env)
-      .map((path) => path.split("/"))
-      .filter((parts) => parts.length === 3 && parts[2] === CANDIDATE_FILE && parseRunFolderName(parts[1]!) !== null)
-      .map((parts) => parts[1]!),
+      .map((path) => path.slice(MAP_DIR.length + 1).split("/"))
+      .filter((parts) => parts.length === 2 && parts[1] === CANDIDATE_FILE && parseRunFolderName(parts[0]!) !== null)
+      .map((parts) => parts[0]!),
   );
   const unfocused = [...runs].filter((run) => {
     const record = fileAt(root, revision, `${MAP_DIR}/${run}/${RUN_FILE}`, env);

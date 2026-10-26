@@ -12,9 +12,7 @@ This guide is for the agent that takes over aisus. Read AGENTS.md first, because
 
 ## Unfinished work, in order
 
-1. **The toolkit cut.** Read the section "A toolkit for sustainable development" in `docs/progress-v0.3.md`. Its two proposal tables are approved. Nothing from them is built yet.
-   - Maps move from the old map folder (the constant in `packages/core/model/runFolder.ts`) to `.aisus/maps/<run>/`, and learning sessions move to `.aisus/sessions/<run>/`.
-   - The git exclude lines aisus writes change to match. A plain `.aisus/` line written earlier must go, because it would hide committed maps.
+1. **The toolkit cut.** Read the section "A toolkit for sustainable development" in `docs/progress-v0.3.md`. Its two proposal tables are approved. The renames and the move to `.aisus/maps/` and `.aisus/sessions/` are built (ADR 0070). The rest is not.
    - Skills installed into a repository become real copies in `.agents/skills/` and `.claude/skills/`, with no symbolic link.
    - Every link names `aisusdev/aisus`.
    - Every file copied from the open-source project named in `THIRD_PARTY_NOTICES.md` gets replaced with aisus's own: the two map schemas in `packages/core/model/schemas/` (`architecture` and `common`), every fixture under `fixtures/`, `skills/aisus-architecture/references/example.json`, and both skills' format guides under `references/`.

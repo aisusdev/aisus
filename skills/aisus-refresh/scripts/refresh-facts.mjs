@@ -58,7 +58,7 @@ import { dirname as dirname3, join as join2 } from "node:path";
 // packages/core/model/runFolder.ts
 import { closeSync, fsyncSync, mkdirSync, openSync, realpathSync as realpathSync2, renameSync, rmSync, statSync, unlinkSync, writeSync } from "node:fs";
 import { basename, dirname as dirname2, join, resolve, sep } from "node:path";
-var MAP_DIR = ".archify";
+var MAP_DIR = ".aisus/maps";
 var DRAFT_FILE = "draft.json";
 var CANDIDATE_FILE = "candidate.json";
 var SLUG_MAX = 40;
@@ -96,11 +96,18 @@ function isInside(parentReal, childReal) {
 function createRunFolder(root, slug, timestamp, options = {}) {
   const dir = options.dir ?? MAP_DIR;
   const prefix = options.prefix ?? "architecture";
-  if (dir === "." || dir === ".." || /[/\\]/.test(dir)) throw new Error(`"${dir}" is not a valid run folder directory`);
+  if (dir.includes("\\") || dir.split("/").some((part) => part === "" || part === "." || part === "..")) {
+    throw new Error(`"${dir}" is not a valid run folder directory`);
+  }
   if (!/^[a-z0-9]+$/.test(prefix)) throw new Error(`"${prefix}" is not a valid run folder prefix`);
   const base = `${prefix}-${slug}-${timestamp}`;
   if (!parseRunName(base) || /[/\\]/.test(base)) throw new Error(`"${base}" is not a valid run folder name`);
   const parent = join(root, dir);
+  try {
+    assertWritable(root, parent);
+  } catch {
+    throw new Error(`${dir} must be a folder inside the repository root`);
+  }
   mkdirSync(parent, { recursive: true });
   const parentReal = realpathSync2(parent);
   if (!isInside(realpathSync2(root), parentReal) || !statSync(parentReal).isDirectory()) {
@@ -638,7 +645,7 @@ import { existsSync as existsSync2, readdirSync as readdirSync2, readFileSync as
 import { join as join6 } from "node:path";
 
 // packages/core/model/deny.ts
-var DENIED_NAMES = [".git", ".archify", ".npmrc", ".pypirc", ".netrc"];
+var DENIED_NAMES = [".git", ".aisus", ".npmrc", ".pypirc", ".netrc"];
 var ENV_EXCEPTIONS = [".env.example", ".env.sample"];
 var DENIED_PREFIXES = ["id_rsa", "id_ed25519"];
 var DENIED_EXTENSIONS = ["pem", "key", "p12", "pfx"];
@@ -655,7 +662,7 @@ function isDenied(path) {
 }
 
 // packages/core/model/changeMap.ts
-var OWN_OUTPUT = ".archify";
+var OWN_OUTPUT = ".aisus";
 var isOwnOutput = (path) => path !== void 0 && (path === OWN_OUTPUT || path.startsWith(`${OWN_OUTPUT}/`));
 var paths = (entry) => entry.oldPath === void 0 ? [entry.path] : [entry.path, entry.oldPath];
 function nameOnly(entry, note) {
@@ -1175,7 +1182,7 @@ function main(args) {
   const parsed = parseArgs(args);
   if (typeof parsed === "string") return fail(parsed);
   const root = process.cwd();
-  const base = parsed.from.replace(/^\.archify\//, "").replace(/\/+$/, "");
+  const base = parsed.from.replace(`${MAP_DIR}/`, "").replace(/\/+$/, "");
   if (!/^[a-z0-9]+-[A-Za-z0-9._-]+$/.test(base) || base.includes("..")) return fail(`--from names a run folder in ${MAP_DIR}/, such as architecture-app-20261018-120000`);
   const baseDir = join8(root, MAP_DIR, base);
   let doc;

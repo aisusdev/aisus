@@ -46,16 +46,16 @@ describe("FRS-09 id matching", () => {
 
   test("match-ids.mjs rewrites the draft in place and reports how many boxes kept an earlier id", () => {
     const root = tempDir();
-    const run = ".archify/architecture-app-20261025-100000";
-    put(root, ".archify/architecture-app-20261024-100000/candidate.json", JSON.stringify(EARLIER));
+    const run = ".aisus/maps/architecture-app-20261025-100000";
+    put(root, ".aisus/maps/architecture-app-20261024-100000/candidate.json", JSON.stringify(EARLIER));
     put(root, `${run}/draft.json`, JSON.stringify({ meta: { title: "App" }, components: [box("http", "HTTP", "src/api.ts", "src/routes.ts")] }));
-    const result = runScript("match-ids", [`${run}/draft.json`, "--previous", ".archify/architecture-app-20261024-100000/candidate.json"], { cwd: root });
+    const result = runScript("match-ids", [`${run}/draft.json`, "--previous", ".aisus/maps/architecture-app-20261024-100000/candidate.json"], { cwd: root });
     expect(result.stderr).toBe("");
     expect(result.json()).toEqual({ status: "matched", kept: 1, boxes: 1 });
     expect(JSON.parse(readFileSync(`${root}/${run}/draft.json`, "utf8"))).toEqual({ meta: { title: "App" }, components: [box("api", "HTTP", "src/api.ts", "src/routes.ts")] });
 
     put(root, `${run}/draft.json`, "[]");
-    const bad = runScript("match-ids", [`${run}/draft.json`, "--previous", ".archify/architecture-app-20261024-100000/candidate.json"], { cwd: root });
+    const bad = runScript("match-ids", [`${run}/draft.json`, "--previous", ".aisus/maps/architecture-app-20261024-100000/candidate.json"], { cwd: root });
     expect(bad.status).toBe(2);
     expect(bad.stderr).toContain("no components list");
   });

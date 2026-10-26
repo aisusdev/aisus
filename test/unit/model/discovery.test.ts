@@ -6,7 +6,7 @@ import { listCandidates, repoRootFor } from "@aisus/core/model/discovery";
 import { put, tempDir } from "../support/temp";
 
 function candidate(root: string, folder: string, mtimeSeconds: number): void {
-  const file = put(root, `.archify/${folder}/candidate.json`, "{}");
+  const file = put(root, `.aisus/maps/${folder}/candidate.json`, "{}");
   utimesSync(file, mtimeSeconds, mtimeSeconds);
 }
 
@@ -37,28 +37,28 @@ describe("FR-VIEW-02 newest candidate", () => {
     const base = tempDir();
     const root = join(base, "repo");
     candidate(root, "architecture-kept-20260101-000000", 1_000);
-    put(root, ".archify/architecture-failed-20270101-000000/draft.json", "{}");
-    put(root, ".archify/stray.json", "{}");
-    mkdirSync(join(root, ".archify/architecture-dir-20280101-000000/candidate.json"), { recursive: true });
+    put(root, ".aisus/maps/architecture-failed-20270101-000000/draft.json", "{}");
+    put(root, ".aisus/maps/stray.json", "{}");
+    mkdirSync(join(root, ".aisus/maps/architecture-dir-20280101-000000/candidate.json"), { recursive: true });
     put(base, "outside/candidate.json", "{}");
-    symlinkSync(join(base, "outside"), join(root, ".archify/architecture-linked-20990101-000000"));
+    symlinkSync(join(base, "outside"), join(root, ".aisus/maps/architecture-linked-20990101-000000"));
     const entries = listCandidates(root);
     expect(entries.map((c) => c.runFolder)).toEqual(["architecture-kept-20260101-000000"]);
-    expect(entries[0]!.file).toBe(join(root, ".archify/architecture-kept-20260101-000000/candidate.json"));
+    expect(entries[0]!.file).toBe(join(root, ".aisus/maps/architecture-kept-20260101-000000/candidate.json"));
   });
 
-  test("no .archify folder gives an empty list", () => {
+  test("no .aisus/maps folder gives an empty list", () => {
     expect(listCandidates(tempDir())).toEqual([]);
   });
 });
 
 describe("FR-VIEW-01 repo root of a browsed file", () => {
   test.each([
-    ["/w/repo/.archify/architecture-x-20260101-000000/candidate.json", "/w/repo"],
-    ["/w/repo/.archify/hand-made/other.json", "/w/repo"],
-    ["/w/other/.archify/run/candidate.json", "/w/other"],
+    ["/w/repo/.aisus/maps/architecture-x-20260101-000000/candidate.json", "/w/repo"],
+    ["/w/repo/.aisus/maps/hand-made/other.json", "/w/repo"],
+    ["/w/other/.aisus/maps/run/candidate.json", "/w/other"],
     ["/w/repo/docs/diagram.json", "/w/folder"],
-    ["/w/repo/.archify/candidate.json", "/w/folder"],
+    ["/w/repo/.aisus/maps/candidate.json", "/w/folder"],
   ])("%s → %s", (file, expected) => {
     expect(repoRootFor(file, "/w/folder")).toBe(expected);
   });

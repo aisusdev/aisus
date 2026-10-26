@@ -71,12 +71,12 @@ describe("UI-04 status bar", () => {
 describe("UI-01 maps list", () => {
   test("each candidate is listed newest first with its title, boxes and run record", () => {
     const root = tempDir();
-    const older = join(root, ".archify/architecture-old-20261001-090000");
+    const older = join(root, ".aisus/maps/architecture-old-20261001-090000");
     put(older, "candidate.json", JSON.stringify({ meta: { title: "Old map" }, components: [{ id: "a", label: "A", type: "backend" }] }));
-    const newer = join(root, ".archify/architecture-pay-20261017-090000");
+    const newer = join(root, ".aisus/maps/architecture-pay-20261017-090000");
     put(newer, "candidate.json", JSON.stringify({ components: [{ id: "a", label: "A", type: "backend" }, { id: "b", label: "B", type: "frontend" }] }));
     writeRunRecord(root, newer, { ...newRunRecord({ focus: "payments", skillVersion: "0.3.0" }, new Date("2026-10-17T09:00:00Z")), agent: "Codex" });
-    mkdirSync(join(root, ".archify/architecture-running-20261018-090000"));
+    mkdirSync(join(root, ".aisus/maps/architecture-running-20261018-090000"));
 
     const maps = listMaps(root);
     expect(maps.map((item) => [item.runFolder, item.title, item.boxes, item.focus, item.agent])).toEqual([
@@ -88,14 +88,14 @@ describe("UI-01 maps list", () => {
 
   test("an unreadable candidate is still listed, by folder", () => {
     const root = tempDir();
-    put(root, ".archify/architecture-bad-20261001-090000/candidate.json", "{ not json");
+    put(root, ".aisus/maps/architecture-bad-20261001-090000/candidate.json", "{ not json");
     expect(listMaps(root).map((item) => [item.title, item.boxes])).toEqual([[null, null]]);
   });
 });
 
 describe("CST-04 the run a Generate made", () => {
   function runAt(root: string, folder: string, at: string): void {
-    const dir = join(root, ".archify", folder);
+    const dir = join(root, ".aisus/maps", folder);
     mkdirSync(dir, { recursive: true });
     writeRunRecord(root, dir, newRunRecord({ focus: folder, skillVersion: "x" }, new Date(at)));
   }
@@ -105,13 +105,13 @@ describe("CST-04 the run a Generate made", () => {
     runAt(root, "architecture-before-20261018-110000", "2026-10-18T11:00:00Z");
     const before = runFolderNames(root);
     expect(newRunSince(root, before)).toBeNull();
-    mkdirSync(join(root, ".archify/no-record"));
+    mkdirSync(join(root, ".aisus/maps/no-record"));
     runAt(root, "architecture-a-20261018-120000", "2026-10-18T12:00:00Z");
     runAt(root, "architecture-b-20261018-120100", "2026-10-18T12:01:00Z");
     expect(newRunSince(root, before)?.runFolder).toBe("architecture-b-20261018-120100");
   });
 
-  test("a folder without .archify gives an empty snapshot", () => {
+  test("a folder without .aisus/maps gives an empty snapshot", () => {
     expect(runFolderNames(tempDir()).size).toBe(0);
   });
 });

@@ -53,7 +53,7 @@ test("PRC-05 the agent runs the sidebar's headless argv for the refresh, in a fr
       `Bash(node ${skill}/refresh-facts.mjs *)`,
       `Bash(node ${skill}/validate.mjs *)`,
       `Bash(node ${skill}/render-html.mjs *)`,
-      "Edit(./.archify/**)",
+      "Edit(./.aisus/maps/**)",
     ],
     env: { PATH: "/usr/bin", HOME: home, LANG: "C.UTF-8", CLAUDE_CONFIG_DIR: join(home, ".claude"), ANTHROPIC_API_KEY: "sk-ant" },
   });
@@ -66,7 +66,7 @@ test("PRC-05 the agent runs the sidebar's headless argv for the refresh, in a fr
 test("FRS-08 PRC-05 a map due a full drawing is not updated, and the comment gives the reason", () => {
   const root = gitRepo({ "src/api/handler.ts": "export {};\n" });
   const map = "architecture-shop-20261019-120000";
-  put(root, `.archify/${map}/candidate.json`, JSON.stringify({ components: [{ id: "api", label: "API", sources: [{ path: "src/api/handler.ts" }] }] }));
+  put(root, `.aisus/maps/${map}/candidate.json`, JSON.stringify({ components: [{ id: "api", label: "API", sources: [{ path: "src/api/handler.ts" }] }] }));
   const outcome = runRefresh({ root, map, agent: "claude", paths: [], headRef: "feature", skillSource: "/nowhere", env: { PATH: "" } });
   expect(outcome).toEqual({ ok: false, reason: "the map is due a full drawing, because the commit the map was drawn at is unknown. Run Generate with its focus and commit the new map." });
 });

@@ -24,7 +24,7 @@ The arguments are: $ARGUMENTS
 
 ## 2. Read the map
 
-Read `.archify/<run folder>/candidate.json`. Keep its `components` (the boxes) and `connections` (the arrows), and number the arrows from 0 in the order they appear.
+Read `.aisus/maps/<run folder>/candidate.json`. Keep its `components` (the boxes) and `connections` (the arrows), and number the arrows from 0 in the order they appear.
 
 ## 3. Judge each box by its own citations
 
@@ -42,7 +42,7 @@ For each arrow, search the code of its two boxes for where they work together: a
 
 ## 5. Write the draft
 
-Write `.archify/<run folder>/audit-draft.json`, and nothing else, in this shape:
+Write `.aisus/maps/<run folder>/audit-draft.json`, and nothing else, in this shape:
 
 ```json
 {
@@ -58,7 +58,7 @@ Give every box exactly one entry and every arrow exactly one entry, with the arr
 Run:
 
 ```sh
-node ${CLAUDE_SKILL_DIR}/scripts/audit-record.mjs .archify/<run folder>/audit-draft.json
+node ${CLAUDE_SKILL_DIR}/scripts/audit-record.mjs .aisus/maps/<run folder>/audit-draft.json
 ```
 
 It prints one JSON object. On `recorded`, go on. On `rejected`, fix each listed error in `audit-draft.json` and run it again, at most 3 times. If it exits with 2, stop and report its stderr.

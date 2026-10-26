@@ -111,9 +111,9 @@ export type WebviewMessage =
 
 /** What the session webview renders — public `session.json` fields plus the leaderboard. */
 export interface SessionView {
-  /** The shown run folder name (`.aisus/<run>`), or `null` when no session exists. */
+  /** The shown run folder name (`.aisus/sessions/<run>`), or `null` when no session exists. */
   run: string | null;
-  /** Whether `.aisus/active` names a live run — `false` means the shown run is history. */
+  /** Whether `.aisus/sessions/active` names a live run — `false` means the shown run is history. */
   live: boolean;
   mode: string;
   phase: string;

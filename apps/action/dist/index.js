@@ -7778,7 +7778,7 @@ function readConfig(value) {
   if (!isJsonObject(value)) return { ok: false, errors: ["the config must be a JSON object"] };
   const errors = [];
   for (const key of Object.keys(value)) if (!["map", "ignore", "check", "rules"].includes(key)) errors.push(`unknown key "${key}"`);
-  if (value["map"] !== void 0 && (typeof value["map"] !== "string" || !/^[a-z0-9]+-[A-Za-z0-9._-]+$/.test(value["map"]))) errors.push('"map" must name a run folder in .archify/');
+  if (value["map"] !== void 0 && (typeof value["map"] !== "string" || !/^[a-z0-9]+-[A-Za-z0-9._-]+$/.test(value["map"]))) errors.push('"map" must name a run folder in .aisus/maps/');
   if (value["ignore"] !== void 0 && !strings(value["ignore"])) errors.push('"ignore" must be a list of globs');
   if (value["rules"] !== void 0) errors.push(...readRules(value["rules"]).errors);
   const check = value["check"];
@@ -7802,7 +7802,7 @@ var SOURCE_EXTENSIONS = new Set(
   "ts tsx js jsx mjs cjs py go rs java kt kts scala rb php cs fs c h cc cpp cxx hpp m mm swift dart lua sh sql vue svelte ex exs erl hs clj elm zig nim r jl".split(" ")
 );
 function isSourceFile(path2) {
-  if (path2.startsWith(".archify/")) return false;
+  if (path2.startsWith(".aisus/")) return false;
   const dot = path2.lastIndexOf(".");
   return dot > path2.lastIndexOf("/") && SOURCE_EXTENSIONS.has(path2.slice(dot + 1).toLowerCase());
 }
@@ -7902,7 +7902,7 @@ var import_node_fs = require("node:fs");
 var import_node_path = require("node:path");
 
 // packages/core/model/runFolder.ts
-var MAP_DIR = ".archify";
+var MAP_DIR = ".aisus/maps";
 var CANDIDATE_FILE = "candidate.json";
 var RUN_NAME_PATTERN = /^([a-z0-9]+)-(.+)-(\d{8}-\d{6})(?:-(\d+))?$/;
 var SEQUENCE_PREFIX = "sequence";
@@ -8412,7 +8412,7 @@ var import_node_fs4 = require("node:fs");
 var import_node_path3 = require("node:path");
 
 // packages/core/model/deny.ts
-var DENIED_NAMES = [".git", ".archify", ".npmrc", ".pypirc", ".netrc"];
+var DENIED_NAMES = [".git", ".aisus", ".npmrc", ".pypirc", ".netrc"];
 var ENV_EXCEPTIONS = [".env.example", ".env.sample"];
 var DENIED_PREFIXES = ["id_rsa", "id_ed25519"];
 var DENIED_EXTENSIONS = ["pem", "key", "p12", "pfx"];
@@ -9788,7 +9788,7 @@ function headlessArgs(cli, prompt, options) {
     "Glob",
     ...options.subagents ? ["Task"] : [],
     ...(options.scripts ?? SKILL_SCRIPTS["aisus-architecture"]).map((script) => `Bash(node ${options.skillDir}/scripts/${script} *)`),
-    "Edit(./.archify/**)"
+    "Edit(./.aisus/maps/**)"
   ];
   const resume = options.resume === void 0 ? [] : ["--resume", options.resume];
   return ["-p", prompt, "--output-format", "stream-json", "--verbose", "--permission-mode", "dontAsk", ...resume, "--allowedTools", ...tools];
@@ -10181,7 +10181,7 @@ var import_node_fs9 = require("node:fs");
 var import_node_path8 = require("node:path");
 
 // packages/core/model/changeMap.ts
-var OWN_OUTPUT = ".archify";
+var OWN_OUTPUT = ".aisus";
 var isOwnOutput = (path2) => path2 !== void 0 && (path2 === OWN_OUTPUT || path2.startsWith(`${OWN_OUTPUT}/`));
 var paths = (entry) => entry.oldPath === void 0 ? [entry.path] : [entry.path, entry.oldPath];
 function nameOnly(entry, note) {
@@ -10471,7 +10471,7 @@ async function uploadCheck(context, pull, report, run2) {
   if (cloud === "") return { ok: false, reason: "upload needs the cloud-url input." };
   const head = collectGitFacts(context.root)?.head;
   if (head === void 0) return { ok: false, reason: "upload needs the checked-out commit." };
-  const map = JSON.parse((0, import_node_fs11.readFileSync)((0, import_node_path10.join)(context.root, ".archify", run2, "candidate.json"), "utf8"));
+  const map = JSON.parse((0, import_node_fs11.readFileSync)((0, import_node_path10.join)(context.root, MAP_DIR, run2, CANDIDATE_FILE), "utf8"));
   const payload = checkPayload({ repo, commit: head, branch: pull.headRef, pull: pull.number, check: report, map, run: run2, ...pull.defaultBranch ? { defaultBranch: pull.defaultBranch } : {} });
   const issues = checkUpload(payload);
   if (issues.length > 0) return { ok: false, reason: `the upload would be refused: ${issues.map((issue) => `${issue.pointer} ${issue.message}`).join("; ")}` };

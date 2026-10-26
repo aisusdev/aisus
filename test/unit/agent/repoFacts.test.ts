@@ -18,7 +18,7 @@ describe("FR-RF-01 repo-facts CLI", () => {
     const facts = run.json();
     expect(Object.keys(facts)).toEqual(["root", "runFolder", "draft", "previous", "git", "size", "estimate", "budget"]);
     expect(facts.root).toBe(root);
-    const name = facts.runFolder.replace(/^\.archify\//, "");
+    const name = facts.runFolder.replace(/^\.aisus\/maps\//, "");
     expect(name).toMatch(RUN_NAME);
     expect(RUN_NAME.exec(name)![1]).toBe("payment-service-retries-queues");
     expect(facts.draft).toBe(`${facts.runFolder}/draft.json`);
@@ -59,7 +59,7 @@ describe("FR-RF-01 repo-facts CLI", () => {
     const root = join(tempDir(), "My Repo!");
     put(root, "README.md", "x\n");
     const facts = runScript("repo-facts", [], { cwd: root, env: envWithoutGit() }).json();
-    expect(RUN_NAME.exec(facts.runFolder.slice(".archify/".length))![1]).toBe("my-repo");
+    expect(RUN_NAME.exec(facts.runFolder.slice(".aisus/maps/".length))![1]).toBe("my-repo");
     expect(basename(facts.root)).toBe("My Repo!");
   });
 
@@ -67,7 +67,7 @@ describe("FR-RF-01 repo-facts CLI", () => {
     const root = join(tempDir(), "backend_api");
     put(root, "README.md", "x\n");
     const facts = runScript("repo-facts", ["--focus", ""], { cwd: root, env: envWithoutGit() }).json();
-    expect(RUN_NAME.exec(facts.runFolder.slice(".archify/".length))![1]).toBe("backend-api");
+    expect(RUN_NAME.exec(facts.runFolder.slice(".aisus/maps/".length))![1]).toBe("backend-api");
   });
 
   test("a name collision appends -2", () => {
@@ -75,10 +75,10 @@ describe("FR-RF-01 repo-facts CLI", () => {
     // Occupy the base name for every second the run could start in, so it must collide.
     const now = Date.now();
     const taken = [0, 1, 2, 3, 4, 5].map((s) => `architecture-api-${runTimestamp(new Date(now + s * 1000))}`);
-    for (const name of taken) mkdirSync(join(root, ".archify", name), { recursive: true });
-    const name = runScript("repo-facts", ["--focus", "api"], { cwd: root }).json().runFolder.slice(".archify/".length);
+    for (const name of taken) mkdirSync(join(root, ".aisus/maps", name), { recursive: true });
+    const name = runScript("repo-facts", ["--focus", "api"], { cwd: root }).json().runFolder.slice(".aisus/maps/".length);
     expect(taken.map((base) => `${base}-2`)).toContain(name);
-    expect(existsSync(join(root, ".archify", name))).toBe(true);
+    expect(existsSync(join(root, ".aisus/maps", name))).toBe(true);
   });
 
   test("CST-04 git facts come from the repo root and exclude the new run folder", () => {
@@ -108,9 +108,10 @@ describe("FR-RF-01 repo-facts CLI", () => {
     expect(run.stderr).toMatch(/usage/);
   });
 
-  test("an unusable .archify exits 2", () => {
+  test("an unusable .aisus/maps exits 2", () => {
     const root = tempDir();
-    writeFileSync(join(root, ".archify"), "not a folder");
+    mkdirSync(join(root, ".aisus"));
+    writeFileSync(join(root, ".aisus/maps"), "not a folder");
     const run = runScript("repo-facts", [], { cwd: root });
     expect(run.status).toBe(2);
     expect(run.stdout).toBe("");
@@ -123,7 +124,7 @@ describe("FRS-09 the earlier map of the same focus", () => {
     const facts = runScript("repo-facts", ["--focus", focus], { cwd: root }).json();
     put(root, facts.draft, JSON.stringify({ meta: { title: "App" }, components: [{ id: "api", type: "backend", label: "API", sources: [{ path: "src/app.ts" }] }] }));
     expect(runScript("validate", [facts.draft], { cwd: root }).status).toBe(0);
-    return facts.runFolder.replace(".archify/", "");
+    return facts.runFolder.replace(".aisus/maps/", "");
   }
 
   test("a run records the newest accepted map with its focus as the run it continues, and prints its candidate", () => {
@@ -136,18 +137,18 @@ describe("FRS-09 the earlier map of the same focus", () => {
     const newer = accepted(root, "payments");
     accepted(root, "billing");
     const draftOnly = runScript("repo-facts", ["--focus", "payments"], { cwd: root }).json();
-    expect(draftOnly.runFolder > `.archify/${newer}`).toBe(true);
+    expect(draftOnly.runFolder > `.aisus/maps/${newer}`).toBe(true);
     expect(older < newer).toBe(true);
 
     const facts = runScript("repo-facts", ["--focus", "payments"], { cwd: root }).json();
-    expect(facts.previous).toBe(`.archify/${newer}/candidate.json`);
+    expect(facts.previous).toBe(`.aisus/maps/${newer}/candidate.json`);
     expect(JSON.parse(readFileSync(join(root, facts.runFolder, "lineage.json"), "utf8"))).toMatchObject({ mode: "regenerate", reason: "requested", previousRun: newer });
   });
 
   test("a map due a full drawing names its reason, and a drill-down continues no map", () => {
     const root = gitRepo({ "src/app.ts": "export {};\n" });
     const map = accepted(root, "payments");
-    const lineageFile = join(root, ".archify", map, "lineage.json");
+    const lineageFile = join(root, ".aisus/maps", map, "lineage.json");
     writeFileSync(lineageFile, JSON.stringify({ ...JSON.parse(readFileSync(lineageFile, "utf8")), updatesSinceRegeneration: 5 }));
     const facts = runScript("repo-facts", ["--focus", "payments"], { cwd: root }).json();
     expect(JSON.parse(readFileSync(join(root, facts.runFolder, "lineage.json"), "utf8"))).toMatchObject({ reason: "scheduled", previousRun: map });
@@ -162,7 +163,7 @@ describe("SEQ-02 sequence runs", () => {
     const run = runScript("repo-facts", ["--kind", "sequence", "--focus", "Log in with GitHub"], { cwd: root, env: envWithoutGit() });
     expect(run.status).toBe(0);
     const facts = run.json();
-    expect(facts.runFolder).toMatch(/^\.archify\/sequence-log-in-with-github-\d{8}-\d{6}$/);
+    expect(facts.runFolder).toMatch(/^\.aisus\/maps\/sequence-log-in-with-github-\d{8}-\d{6}$/);
     expect(facts.previous).toBeNull();
     expect(readdirSync(join(root, facts.runFolder))).toEqual(["run.json"]);
   });
@@ -174,6 +175,6 @@ describe("SEQ-02 sequence runs", () => {
       expect(run.status).toBe(2);
       expect(run.stderr).toMatch(/needs --focus/);
     }
-    expect(existsSync(join(root, ".archify"))).toBe(false);
+    expect(existsSync(join(root, ".aisus/maps"))).toBe(false);
   });
 });

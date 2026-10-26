@@ -24,7 +24,7 @@ The arguments are: $ARGUMENTS
 
 ## 2. Read the map
 
-Read `.archify/<run folder>/candidate.json`. Keep its `components` (the boxes) and `connections` (the arrows).
+Read `.aisus/maps/<run folder>/candidate.json`. Keep its `components` (the boxes) and `connections` (the arrows).
 
 ## 3. Choose the stops
 
@@ -43,7 +43,7 @@ Read the code of the stop's box before writing it. For each stop, write:
 
 ## 5. Write the draft
 
-Write `.archify/<run folder>/tour-draft.json`, and nothing else, in this shape:
+Write `.aisus/maps/<run folder>/tour-draft.json`, and nothing else, in this shape:
 
 ```json
 {
@@ -65,7 +65,7 @@ Write `.archify/<run folder>/tour-draft.json`, and nothing else, in this shape:
 Run:
 
 ```sh
-node ${CLAUDE_SKILL_DIR}/scripts/tour-record.mjs .archify/<run folder>/tour-draft.json
+node ${CLAUDE_SKILL_DIR}/scripts/tour-record.mjs .aisus/maps/<run folder>/tour-draft.json
 ```
 
 It prints one JSON object. On `recorded`, go on. On `rejected`, fix each listed error in `tour-draft.json` and run it again, at most 3 times. If it exits with 2, stop and report its stderr.

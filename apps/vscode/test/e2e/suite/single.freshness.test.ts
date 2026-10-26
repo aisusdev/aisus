@@ -50,13 +50,13 @@ suite("FRS-03 freshness on the map", () => {
         { id: "docs", type: "external", label: "Docs", sources: [{ path: "src/b.ts" }] },
       ],
     };
-    const candidate = write(root, `.archify/${RUN}/candidate.json`, JSON.stringify(doc));
+    const candidate = write(root, `.aisus/maps/${RUN}/candidate.json`, JSON.stringify(doc));
     writeFingerprints(root, dirname(candidate), fingerprint(doc as unknown as ArchitectureDoc, root, null));
   });
 
   teardown(async () => {
     await vscode.commands.executeCommand("workbench.action.closeAllEditors");
-    for (const dir of [".archify", "src"]) rmSync(join(root, dir), { recursive: true, force: true });
+    for (const dir of [".aisus/maps", "src"]) rmSync(join(root, dir), { recursive: true, force: true });
   });
 
   test("FRS-03 editing a cited block badges its box within 3 s and the counts follow", async () => {

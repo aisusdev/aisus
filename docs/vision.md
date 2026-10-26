@@ -174,7 +174,7 @@ For comparison: AppMap Team $15 per developer, CodeViz Teams $50 per seat, IcePa
 | Cloud name and domain | Needed for OAuth callbacks, the Action's OIDC audience and the site |
 | Cloud hosting | Proposal: a managed Node host with managed Postgres; the self-host image covers Enterprise |
 | Extension network exception | Not at deploy: uploads go through the CLI and the Action only. CLD-12 (iterate) would let one opt-in file reach the cloud |
-| Committed maps | PR checks need the map committed in `.archify/`; the README will say so |
+| Committed maps | PR checks need the map committed in `.aisus/maps/`; the README will say so |
 
 ## Problems found in the current code
 

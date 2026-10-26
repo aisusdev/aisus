@@ -1,11 +1,11 @@
 // FR-VAL-01..06 against the built validate.mjs, run with `node` as a child process.
-import { chmodSync, readdirSync, readFileSync, symlinkSync } from "node:fs";
+import { chmodSync, mkdirSync, readdirSync, readFileSync, symlinkSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, test } from "vitest";
 import { envWithoutGit, git, put, runScript, tempDir } from "../support/temp";
 
 const RUN = "architecture-demo-api-20261011-120000";
-const DRAFT = `.archify/${RUN}/draft.json`;
+const DRAFT = `.aisus/maps/${RUN}/draft.json`;
 
 type Json = Record<string, unknown>;
 
@@ -36,11 +36,11 @@ function setup(draft: unknown, options: { rawDraft?: string; root?: string } = {
 }
 
 function runFiles(root: string): string[] {
-  return readdirSync(join(root, ".archify", RUN)).sort();
+  return readdirSync(join(root, ".aisus/maps", RUN)).sort();
 }
 
 function candidate(root: string): Json & { meta: Json; components: Json[]; connections: Json[]; boundaries: Json[] } {
-  return JSON.parse(readFileSync(join(root, ".archify", RUN, "candidate.json"), "utf8"));
+  return JSON.parse(readFileSync(join(root, ".aisus/maps", RUN, "candidate.json"), "utf8"));
 }
 
 describe("FR-VAL-01 CLI exit paths", () => {
@@ -49,7 +49,7 @@ describe("FR-VAL-01 CLI exit paths", () => {
     const run = runScript("validate", [DRAFT], { cwd: root, env: envWithoutGit() });
     expect(run.status).toBe(0);
     expect(run.stderr).toBe("");
-    expect(run.json()).toEqual({ status: "accepted", candidate: `.archify/${RUN}/candidate.json`, errors: [], warnings: [], evidence: [HTTP_NOT_CHECKED] });
+    expect(run.json()).toEqual({ status: "accepted", candidate: `.aisus/maps/${RUN}/candidate.json`, errors: [], warnings: [], evidence: [HTTP_NOT_CHECKED] });
   });
 
   test("rejected: exit 1, errors with pointers, the hint, no candidate", () => {
@@ -75,10 +75,11 @@ describe("FR-VAL-01 CLI exit paths", () => {
     expect(run.json().errors).toEqual([{ pointer: "/components/0/sublabel", message: "SecretLike: looks like a secret (AWS access key). Remove it from the diagram." }]);
   });
 
-  test("SAF-05 .archify linked outside the root is an I/O error and writes no candidate there", () => {
+  test("SAF-05 .aisus/maps linked outside the root is an I/O error and writes no candidate there", () => {
     const root = tempDir();
     const outside = tempDir();
-    symlinkSync(outside, join(root, ".archify"), process.platform === "win32" ? "junction" : "dir");
+    mkdirSync(join(root, ".aisus"));
+    symlinkSync(outside, join(root, ".aisus/maps"), process.platform === "win32" ? "junction" : "dir");
     setup(draftDoc(), { root });
     const run = runScript("validate", [DRAFT], { cwd: root });
     expect(run.status).toBe(2);
@@ -104,12 +105,12 @@ describe("FR-VAL-01 CLI exit paths", () => {
   test.each([
     ["no arguments", [] as string[]],
     ["two arguments", [DRAFT, DRAFT]],
-    ["a path that is not draft.json", [`.archify/${RUN}/candidate.json`]],
-    ["a run folder with a non-run name", [".archify/hand-made/draft.json"]],
-    ["a missing draft (I/O error)", [`.archify/${RUN.replace("api", "web")}/draft.json`]],
+    ["a path that is not draft.json", [`.aisus/maps/${RUN}/candidate.json`]],
+    ["a run folder with a non-run name", [".aisus/maps/hand-made/draft.json"]],
+    ["a missing draft (I/O error)", [`.aisus/maps/${RUN.replace("api", "web")}/draft.json`]],
   ])("usage or I/O error (%s): exit 2, message on stderr, nothing on stdout", (_case, args) => {
     const { root } = setup(draftDoc());
-    put(root, ".archify/hand-made/draft.json", "{}");
+    put(root, ".aisus/maps/hand-made/draft.json", "{}");
     const run = runScript("validate", args, { cwd: root });
     expect(run.status).toBe(2);
     expect(run.stdout).toBe("");
@@ -120,7 +121,7 @@ describe("FR-VAL-01 CLI exit paths", () => {
     const doc = draftDoc();
     doc.components[1]!["type"] = "nope";
     const { root } = setup(doc);
-    const runJson = () => JSON.parse(readFileSync(join(root, ".archify", RUN, "run.json"), "utf8"));
+    const runJson = () => JSON.parse(readFileSync(join(root, ".aisus/maps", RUN, "run.json"), "utf8"));
     expect(runScript("validate", [DRAFT], { cwd: root }).status).toBe(1);
     expect(runJson()).toMatchObject({ phase: "rejected", attempts: 1 });
     setup(draftDoc(), { root });
@@ -141,7 +142,7 @@ describe("FR-VAL-01 CLI exit paths", () => {
 
     setup(draftDoc(), { root });
     expect(runScript("validate", [DRAFT], { cwd: root }).status).toBe(0);
-    const prints = JSON.parse(readFileSync(join(root, ".archify", RUN, "fingerprints.json"), "utf8"));
+    const prints = JSON.parse(readFileSync(join(root, ".aisus/maps", RUN, "fingerprints.json"), "utf8"));
     expect(prints.revision).toBe(git(root, "rev-parse", "HEAD").trim());
     expect(prints.citations.map((print: Json) => [print["component"], print["index"], print["path"], print["blob"]])).toEqual([
       ["web", 0, "src/web.ts", git(root, "hash-object", "--no-filters", "src/web.ts").trim()],
@@ -157,7 +158,7 @@ describe("FR-VAL-01 CLI exit paths", () => {
     const report = runScript("validate", [DRAFT], { cwd: root }).json();
     const finding = { code: "DeclarationOnly", pointer: "/components/1", component: "api", message: expect.stringContaining("a call site") };
     expect(report.evidence).toEqual([finding, HTTP_NOT_CHECKED]);
-    expect(JSON.parse(readFileSync(join(root, ".archify", RUN, "evidence.json"), "utf8"))).toEqual({ schema: 1, findings: [finding, HTTP_NOT_CHECKED] });
+    expect(JSON.parse(readFileSync(join(root, ".aisus/maps", RUN, "evidence.json"), "utf8"))).toEqual({ schema: 1, findings: [finding, HTTP_NOT_CHECKED] });
   });
 
   test("ACC-01 ACC-02 a revised draft in an accepted run folder replaces the candidate and its sidecars", () => {
@@ -174,16 +175,16 @@ describe("FR-VAL-01 CLI exit paths", () => {
     expect(revised.status).toBe(0);
     expect(revised.json().evidence).toEqual([HTTP_NOT_CHECKED]);
     expect(candidate(root).components[1]!["label"]).toBe("Saves models");
-    expect(JSON.parse(readFileSync(join(root, ".archify", RUN, "evidence.json"), "utf8")).findings).toEqual([HTTP_NOT_CHECKED]);
-    const prints = JSON.parse(readFileSync(join(root, ".archify", RUN, "fingerprints.json"), "utf8"));
+    expect(JSON.parse(readFileSync(join(root, ".aisus/maps", RUN, "evidence.json"), "utf8")).findings).toEqual([HTTP_NOT_CHECKED]);
+    const prints = JSON.parse(readFileSync(join(root, ".aisus/maps", RUN, "fingerprints.json"), "utf8"));
     expect(prints.citations[1]).toMatchObject({ component: "api", path: "src/model.ts", line: 4 });
-    expect(JSON.parse(readFileSync(join(root, ".archify", RUN, "run.json"), "utf8"))).toMatchObject({ phase: "accepted", attempts: 2 });
+    expect(JSON.parse(readFileSync(join(root, ".aisus/maps", RUN, "run.json"), "utf8"))).toMatchObject({ phase: "accepted", attempts: 2 });
     expect(runFiles(root)).toEqual(["candidate.json", "evidence.json", "fingerprints.json", "run.json"]);
   });
 
   test("CST-04 a read-only run folder is an I/O error: exit 2 and the draft stays", () => {
     const { root, draftText } = setup(draftDoc());
-    const dir = join(root, ".archify", RUN);
+    const dir = join(root, ".aisus/maps", RUN);
     chmodSync(dir, 0o555);
     try {
       const run = runScript("validate", [DRAFT], { cwd: root });
@@ -261,7 +262,7 @@ describe("FR-VAL-02 app-owned fields", () => {
     expect(Object.keys(out).slice(0, 2)).toEqual(["schema_version", "diagram_type"]);
     expect(out["schema_version"]).toBe(1);
     expect(out["diagram_type"]).toBe("architecture");
-    expect(out.meta).toMatchObject({ locale: "en", quality_profile: "showcase", output: `.archify/${RUN}/demo-api.html`, legend: { mode: "auto" } });
+    expect(out.meta).toMatchObject({ locale: "en", quality_profile: "showcase", output: `.aisus/maps/${RUN}/demo-api.html`, legend: { mode: "auto" } });
     expect(out["cards"]).toEqual(draftDoc()["cards"]);
   });
 
@@ -337,7 +338,7 @@ describe("FR-VAL-06 publish", () => {
     const { root } = setup(draftDoc());
     expect(runScript("validate", [DRAFT], { cwd: root, env: envWithoutGit() }).status).toBe(0);
     expect(runFiles(root)).toEqual(["candidate.json", "evidence.json", "fingerprints.json", "run.json"]);
-    const text = readFileSync(join(root, ".archify", RUN, "candidate.json"), "utf8");
+    const text = readFileSync(join(root, ".aisus/maps", RUN, "candidate.json"), "utf8");
     expect(text).toBe(`${JSON.stringify(JSON.parse(text), null, 2)}\n`);
   });
 
@@ -355,7 +356,7 @@ describe("FR-VAL-06 publish", () => {
 
 describe("SEQ-01 sequence drafts", () => {
   const SEQ_RUN = "sequence-login-20261025-090000";
-  const SEQ_DRAFT = `.archify/${SEQ_RUN}/draft.json`;
+  const SEQ_DRAFT = `.aisus/maps/${SEQ_RUN}/draft.json`;
 
   function sequenceDraft(): Json & { messages: Json[] } {
     return {
@@ -377,12 +378,12 @@ describe("SEQ-01 sequence drafts", () => {
     put(root, "src/api.ts", "1\n2\n");
     put(root, SEQ_DRAFT, JSON.stringify(sequenceDraft()));
     const run = runScript("validate", [SEQ_DRAFT], { cwd: root, env: envWithoutGit() });
-    expect(run.json()).toEqual({ status: "accepted", candidate: `.archify/${SEQ_RUN}/candidate.json`, errors: [], warnings: [] });
+    expect(run.json()).toEqual({ status: "accepted", candidate: `.aisus/maps/${SEQ_RUN}/candidate.json`, errors: [], warnings: [] });
     expect(run.status).toBe(0);
-    expect(readdirSync(join(root, ".archify", SEQ_RUN)).sort()).toEqual(["candidate.json", "fingerprints.json", "run.json"]);
-    const doc = JSON.parse(readFileSync(join(root, ".archify", SEQ_RUN, "candidate.json"), "utf8"));
-    expect([doc.diagram_type, doc.meta.output]).toEqual(["sequence", `.archify/${SEQ_RUN}/login.html`]);
-    const prints = JSON.parse(readFileSync(join(root, ".archify", SEQ_RUN, "fingerprints.json"), "utf8"));
+    expect(readdirSync(join(root, ".aisus/maps", SEQ_RUN)).sort()).toEqual(["candidate.json", "fingerprints.json", "run.json"]);
+    const doc = JSON.parse(readFileSync(join(root, ".aisus/maps", SEQ_RUN, "candidate.json"), "utf8"));
+    expect([doc.diagram_type, doc.meta.output]).toEqual(["sequence", `.aisus/maps/${SEQ_RUN}/login.html`]);
+    const prints = JSON.parse(readFileSync(join(root, ".aisus/maps", SEQ_RUN, "fingerprints.json"), "utf8"));
     expect(prints.citations.map((print: Json) => [print["component"], print["path"]])).toEqual([["web", "src/web.ts"], ["api", "src/api.ts"], ["post", "src/web.ts"]]);
   });
 

@@ -6,7 +6,7 @@ import { expect, test } from "vitest";
 import { put, runScript, tempDir } from "../support/temp";
 
 const RUN = "architecture-shop-20261019-120000";
-const DRAFT = `.archify/${RUN}/tour-draft.json`;
+const DRAFT = `.aisus/maps/${RUN}/tour-draft.json`;
 
 /** A repository with an accepted map of web and api boxes. */
 function toured(draft: unknown): string {
@@ -16,7 +16,7 @@ function toured(draft: unknown): string {
   put(root, ".env", "KEY=1\n");
   put(
     root,
-    `.archify/${RUN}/candidate.json`,
+    `.aisus/maps/${RUN}/candidate.json`,
     JSON.stringify({
       schema_version: 1,
       diagram_type: "architecture",
@@ -40,8 +40,8 @@ test("SKL-02 a draft of four to twelve stops on the map's boxes is recorded as t
   const run = runScript("tour-record", [DRAFT], { cwd: root });
   expect(run.stderr).toBe("");
   expect(run.status).toBe(0);
-  expect(run.json()).toEqual({ status: "recorded", tour: `.archify/${RUN}/tour.json`, stops: 4 });
-  expect(JSON.parse(readFileSync(join(root, ".archify", RUN, "tour.json"), "utf8"))).toEqual({ schema: 1, createdAt: expect.stringMatching(/^\d{4}-\d{2}-\d{2}T/), ...GOOD });
+  expect(run.json()).toEqual({ status: "recorded", tour: `.aisus/maps/${RUN}/tour.json`, stops: 4 });
+  expect(JSON.parse(readFileSync(join(root, ".aisus/maps", RUN, "tour.json"), "utf8"))).toEqual({ schema: 1, createdAt: expect.stringMatching(/^\d{4}-\d{2}-\d{2}T/), ...GOOD });
   expect(existsSync(join(root, DRAFT))).toBe(false);
 });
 

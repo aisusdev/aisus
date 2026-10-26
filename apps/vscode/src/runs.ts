@@ -7,7 +7,7 @@ import type { StreamParser } from "@aisus/core/model/agentStream/feed";
 import type { RunState } from "@aisus/core/model/agentStream/tracker";
 import type { RunEstimate } from "@aisus/core/model/estimate";
 import type { ComposerCli, RunCard, RunMode } from "@aisus/core/model/messages";
-import { CANDIDATE_FILE } from "@aisus/core/model/runFolder";
+import { CANDIDATE_FILE, MAP_DIR } from "@aisus/core/model/runFolder";
 import type { LaunchTask } from "./generate";
 import { onAction } from "./notify";
 import { newRunRecord, newRunSince, RUN_FILE, runFolderNames, updateRunRecord } from "@aisus/core/model/runRecord";
@@ -148,7 +148,7 @@ export class Runs implements vscode.Disposable {
     this.record(request, card);
     this.changed.fire();
     if (state.status !== "cancelled" && card.phase === "accepted" && card.runFolder !== null) {
-      const file = join(request.root, ".archify", card.runFolder, CANDIDATE_FILE);
+      const file = join(request.root, MAP_DIR, card.runFolder, CANDIDATE_FILE);
       if (existsSync(file)) ArchitecturePanel.show(this.extensionUri, request.root, file);
     }
   }
@@ -169,7 +169,7 @@ export class Runs implements vscode.Disposable {
   /** Adds what the extension knows to run.json (CST-04): agent, mode, tokens, cost and the estimate (CST-03). */
   private record(request: RunRequest, card: RunCard): void {
     if (card.runFolder === null) return;
-    const dir = join(request.root, ".archify", card.runFolder);
+    const dir = join(request.root, MAP_DIR, card.runFolder);
     const tokens = card.usage.input + card.usage.output > 0 ? { tokens: { ...card.usage } } : {};
     const cost = card.costUsd === null ? {} : { costUsd: card.costUsd };
     const estimate = request.estimate === null ? {} : { estimate: { ...request.estimate.range, model: request.estimate.model } };

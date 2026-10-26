@@ -195,7 +195,7 @@ function components(doc: unknown): { id: string; label: string; sources: { path:
 }
 
 /**
- * Whether the map in `.archify/<run>` can be updated, and if so the change since it was made,
+ * Whether the map in `.aisus/maps/<run>` can be updated, and if so the change since it was made,
  * limited to `globs` when given (FRS-08). Takes git's facts before any new run folder exists.
  */
 export function planRefresh(root: string, run: string, globs: readonly RegExp[] = []): RefreshPlan {
@@ -244,7 +244,7 @@ export function planRefresh(root: string, run: string, globs: readonly RegExp[] 
   return { mode: "update", focus, base: base!, git, map, change, lineage, changes: runChanges(map, base!, git.head) };
 }
 
-/** The newest accepted map in `.archify/` with `slug`, other than `except`, or `null` (FRS-09). */
+/** The newest accepted map in `.aisus/maps/` with `slug`, other than `except`, or `null` (FRS-09). */
 export function previousMap(root: string, slug: string, except: string | null = null): string | null {
   let best: { run: string; key: string } | null = null;
   let names: string[];

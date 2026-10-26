@@ -5,7 +5,7 @@ import type { Lineage } from "./lineage";
 
 /** What the host knows about one map. */
 export interface RunFacts {
-  /** The run folder, or the file's name outside `.archify/`. */
+  /** The run folder, or the file's name outside `.aisus/maps/`. */
   runFolder: string;
   /** The focus slug from the run folder's name, or `null`. */
   slug: string | null;

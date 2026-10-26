@@ -51,7 +51,7 @@ suite("UI-03 Show in Map and UI-05 menus", () => {
     fileB = write(root, "src/b.ts", "export const b = 2;\n");
     write(
       root,
-      `.archify/${RUN}/candidate.json`,
+      `.aisus/maps/${RUN}/candidate.json`,
       JSON.stringify({
         components: [
           { id: "a", label: "A", type: "backend", sources: [{ path: "src/a.ts", line: 1 }] },
@@ -77,7 +77,7 @@ suite("UI-03 Show in Map and UI-05 menus", () => {
     await vscode.commands.executeCommand("workbench.action.closeAllEditors");
     await vscode.workspace.getConfiguration("aisus").update("runMode", undefined, vscode.ConfigurationTarget.Global);
     for (const dir of cleanup.splice(0)) rmSync(dir, { recursive: true, force: true });
-    for (const dir of [".archify", "src"]) rmSync(join(root, dir), { recursive: true, force: true });
+    for (const dir of [".aisus/maps", "src"]) rmSync(join(root, dir), { recursive: true, force: true });
     for (const dir of [".agents", ".claude"]) rmSync(join(homedir(), dir), { recursive: true, force: true });
   });
 
@@ -86,7 +86,7 @@ suite("UI-03 Show in Map and UI-05 menus", () => {
     await vscode.commands.executeCommand("aisus.showInMap");
     await until(() => hook.panelHighlight()?.ids.join() === "a", "box a to be marked");
     assert.deepEqual(hook.panelHighlight(), { ids: ["a"], file: "src/a.ts", follow: false });
-    assert.equal(hook.panelState().file, join(root, ".archify", RUN, "candidate.json"));
+    assert.equal(hook.panelState().file, join(root, ".aisus/maps", RUN, "candidate.json"));
     assert.equal(vscode.window.activeTextEditor?.document.uri.fsPath, fileA);
   });
 
@@ -101,7 +101,7 @@ suite("UI-03 Show in Map and UI-05 menus", () => {
   });
 
   test("UI-03 a folder without a map opens an empty map whose button maps the folder", async () => {
-    rmSync(join(root, ".archify"), { recursive: true, force: true });
+    rmSync(join(root, ".aisus/maps"), { recursive: true, force: true });
     await vscode.window.showTextDocument(vscode.Uri.file(fileA));
     await vscode.commands.executeCommand("aisus.showInMap");
     await until(() => hook.panelState().open, "the map panel");

@@ -61,7 +61,7 @@ Read the draft and the `changeFile` first. The `changeFile` shows each changed h
 - For each file in `uncovered` and each folder in `newFolders`, decide whether it adds behaviour the map should show. Add a box only for a real runtime role, cited at a range that shows the behaviour.
 - With `paths`, change nothing outside that scope.
 
-Keep every other box, connection and boundary exactly as it is, including its `id`. Apart from the draft and the `changeFile`, never open, search or cite `.git/`, `.archify/`, `.env` files (except `.env.example` and `.env.sample`), `.npmrc`, `.pypirc`, `.netrc`, files whose names start with `id_rsa` or `id_ed25519`, or files ending in `.pem`, `.key`, `.p12` or `.pfx`.
+Keep every other box, connection and boundary exactly as it is, including its `id`. Apart from the draft and the `changeFile`, never open, search or cite `.git/`, `.aisus/`, `.env` files (except `.env.example` and `.env.sample`), `.npmrc`, `.pypirc`, `.netrc`, files whose names start with `id_rsa` or `id_ed25519`, or files ending in `.pem`, `.key`, `.p12` or `.pfx`.
 
 ## 5. Write the draft
 

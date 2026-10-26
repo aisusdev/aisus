@@ -1,9 +1,11 @@
-// Run folders under `<repo>/.archify/` (FR-RF-01, FR-VAL-01, FR-VAL-06), ported from the
+// Run folders under `<repo>/.aisus/maps/` (FR-RF-01, FR-VAL-01, FR-VAL-06), ported from the
 // prototype's `archalign-repo/src/storage.rs` (slugify, run folders, atomic writes).
 import { closeSync, fsyncSync, mkdirSync, openSync, realpathSync, renameSync, rmSync, statSync, unlinkSync, writeSync } from "node:fs";
 import { basename, dirname, join, resolve, sep } from "node:path";
+import { assertWritable } from "./confine";
 
-export const MAP_DIR = ".archify";
+/** Where maps live, below the repository root. Maps here are meant to be committed. */
+export const MAP_DIR = ".aisus/maps";
 export const DRAFT_FILE = "draft.json";
 export const CANDIDATE_FILE = "candidate.json";
 /** Longest run-folder slug. */
@@ -83,7 +85,7 @@ export interface RunFolderName {
   n: number;
 }
 
-/** The `architecture-…` specialisation of {@link parseRunName} for `.archify` runs. */
+/** The `architecture-…` specialisation of {@link parseRunName} for map runs. */
 export function parseRunFolderName(name: string): RunFolderName | null {
   const parsed = parseRunName(name);
   if (parsed === null || parsed.prefix !== "architecture") return null;
@@ -112,11 +114,18 @@ export interface RunFolderOptions {
 export function createRunFolder(root: string, slug: string, timestamp: string, options: RunFolderOptions = {}): string {
   const dir = options.dir ?? MAP_DIR;
   const prefix = options.prefix ?? "architecture";
-  if (dir === "." || dir === ".." || /[/\\]/.test(dir)) throw new Error(`"${dir}" is not a valid run folder directory`);
+  if (dir.includes("\\") || dir.split("/").some((part) => part === "" || part === "." || part === "..")) {
+    throw new Error(`"${dir}" is not a valid run folder directory`);
+  }
   if (!/^[a-z0-9]+$/.test(prefix)) throw new Error(`"${prefix}" is not a valid run folder prefix`);
   const base = `${prefix}-${slug}-${timestamp}`;
   if (!parseRunName(base) || /[/\\]/.test(base)) throw new Error(`"${base}" is not a valid run folder name`);
   const parent = join(root, dir);
+  try {
+    assertWritable(root, parent);
+  } catch {
+    throw new Error(`${dir} must be a folder inside the repository root`);
+  }
   mkdirSync(parent, { recursive: true });
   const parentReal = realpathSync(parent);
   if (!isInside(realpathSync(root), parentReal) || !statSync(parentReal).isDirectory()) {
@@ -149,20 +158,26 @@ export interface DraftLocation {
 
 /**
  * Interprets a validator argument (absolute or relative to `cwd`) as
- * `<R>/.archify/<run>/draft.json`, with `<run>` an architecture or sequence run folder name. Throws with a usage
+ * `<R>/.aisus/maps/<run>/draft.json`, with `<run>` an architecture or sequence run folder name. Throws with a usage
  * message otherwise.
  */
 export function locateDraft(arg: string, cwd: string): DraftLocation {
   const draft = resolve(cwd, arg);
   const runDir = dirname(draft);
-  const maps = dirname(runDir);
+  const root = mapRootOf(runDir);
   const run = basename(runDir);
-  if (basename(draft) !== DRAFT_FILE || basename(maps) !== MAP_DIR) {
+  if (basename(draft) !== DRAFT_FILE || root === null) {
     throw new Error(`expected a path of the form <repo>/${MAP_DIR}/<run>/${DRAFT_FILE}, got ${arg}`);
   }
   const kind = mapKindOf(run);
   if (kind === null) throw new Error(`run folder "${run}" does not match architecture-<slug>-<YYYYMMDD-HHMMSS>[-N] or sequence-<slug>-<YYYYMMDD-HHMMSS>[-N]`);
-  return { root: dirname(maps), run, slug: parseRunName(run)!.slug, draft, kind };
+  return { root, run, slug: parseRunName(run)!.slug, draft, kind };
+}
+
+/** The repository root `<R>` when `runDir` is `<R>/.aisus/maps/<run>`, else `null`. */
+export function mapRootOf(runDir: string): string | null {
+  const root = dirname(dirname(dirname(runDir)));
+  return join(root, MAP_DIR) === dirname(runDir) ? root : null;
 }
 
 /**

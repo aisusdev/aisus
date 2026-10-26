@@ -2979,7 +2979,7 @@ var require_compile = __commonJS({
       const schOrFunc = root.refs[ref];
       if (schOrFunc)
         return schOrFunc;
-      let _sch = resolve2.call(this, root, ref);
+      let _sch = resolve3.call(this, root, ref);
       if (_sch === void 0) {
         const schema = (_a = root.localRefs) === null || _a === void 0 ? void 0 : _a[ref];
         const { schemaId } = this.opts;
@@ -3006,7 +3006,7 @@ var require_compile = __commonJS({
     function sameSchemaEnv(s1, s2) {
       return s1.schema === s2.schema && s1.root === s2.root && s1.baseId === s2.baseId;
     }
-    function resolve2(root, ref) {
+    function resolve3(root, ref) {
       let sch;
       while (typeof (sch = this.refs[ref]) == "string")
         ref = sch;
@@ -3836,7 +3836,7 @@ var require_fast_uri = __commonJS({
       }
       return uri;
     }
-    function resolve2(baseURI, relativeURI, options) {
+    function resolve3(baseURI, relativeURI, options) {
       const schemelessOptions = options ? Object.assign({ scheme: "null" }, options) : { scheme: "null" };
       const {
         parsed: baseParsed,
@@ -4205,7 +4205,7 @@ var require_fast_uri = __commonJS({
     var fastUri = {
       SCHEMES,
       normalize,
-      resolve: resolve2,
+      resolve: resolve3,
       resolveComponent,
       equal,
       serialize,
@@ -7454,7 +7454,7 @@ var require__ = __commonJS({
 
 // packages/core/agent/tour-record.ts
 import { readFileSync, rmSync, writeFileSync } from "node:fs";
-import { basename, dirname as dirname2, join as join2, resolve } from "node:path";
+import { basename as basename2, dirname as dirname3, join as join3, resolve as resolve2 } from "node:path";
 
 // packages/core/model/citations.ts
 import { closeSync, openSync, readSync, realpathSync, statSync } from "node:fs";
@@ -7470,7 +7470,7 @@ function citationPathOk(path) {
 }
 
 // packages/core/model/deny.ts
-var DENIED_NAMES = [".git", ".archify", ".npmrc", ".pypirc", ".netrc"];
+var DENIED_NAMES = [".git", ".aisus", ".npmrc", ".pypirc", ".netrc"];
 var ENV_EXCEPTIONS = [".env.example", ".env.sample"];
 var DENIED_PREFIXES = ["id_rsa", "id_ed25519"];
 var DENIED_EXTENSIONS = ["pem", "key", "p12", "pfx"];
@@ -7646,7 +7646,8 @@ function assertWritable(root, path) {
 }
 
 // packages/core/model/runFolder.ts
-var MAP_DIR = ".archify";
+import { basename, dirname as dirname2, join as join2, resolve, sep as sep2 } from "node:path";
+var MAP_DIR = ".aisus/maps";
 var CANDIDATE_FILE = "candidate.json";
 var RUN_NAME_PATTERN = /^([a-z0-9]+)-(.+)-(\d{8}-\d{6})(?:-(\d+))?$/;
 function parseRunName(name) {
@@ -7658,6 +7659,10 @@ function parseRunFolderName(name) {
   const parsed = parseRunName(name);
   if (parsed === null || parsed.prefix !== "architecture") return null;
   return { slug: parsed.slug, timestamp: parsed.timestamp, n: parsed.n };
+}
+function mapRootOf(runDir) {
+  const root = dirname2(dirname2(dirname2(runDir)));
+  return join2(root, MAP_DIR) === dirname2(runDir) ? root : null;
 }
 
 // packages/core/model/tour.ts
@@ -7731,18 +7736,17 @@ function main(args) {
 `);
     return 2;
   }
-  const draftPath = resolve(process.cwd(), args[0]);
-  const runDir = dirname2(draftPath);
-  const maps = dirname2(runDir);
-  if (basename(draftPath) !== TOUR_DRAFT_FILE || basename(maps) !== MAP_DIR || !parseRunFolderName(basename(runDir))) {
+  const draftPath = resolve2(process.cwd(), args[0]);
+  const runDir = dirname3(draftPath);
+  const root = mapRootOf(runDir);
+  if (basename2(draftPath) !== TOUR_DRAFT_FILE || root === null || !parseRunFolderName(basename2(runDir))) {
     process.stderr.write(`tour-record.mjs: expected a path of the form <repo>/${MAP_DIR}/<run>/${TOUR_DRAFT_FILE}, got ${args[0]}
 `);
     return 2;
   }
-  const root = dirname2(maps);
   let map;
   try {
-    map = JSON.parse(readFileSync(join2(runDir, CANDIDATE_FILE), "utf8"));
+    map = JSON.parse(readFileSync(join3(runDir, CANDIDATE_FILE), "utf8"));
   } catch (error) {
     process.stderr.write(`tour-record.mjs: the run has no readable ${CANDIDATE_FILE}: ${error.message}
 `);
@@ -7766,7 +7770,7 @@ function main(args) {
     return 1;
   }
   const draft = value;
-  const target = join2(runDir, TOUR_FILE);
+  const target = join3(runDir, TOUR_FILE);
   try {
     assertWritable(root, target);
     writeFileSync(target, `${JSON.stringify({ schema: 1, createdAt: (/* @__PURE__ */ new Date()).toISOString(), stops: draft.stops }, null, 2)}
@@ -7777,7 +7781,7 @@ function main(args) {
 `);
     return 2;
   }
-  print({ status: "recorded", tour: `${MAP_DIR}/${basename(runDir)}/${TOUR_FILE}`, stops: draft.stops.length });
+  print({ status: "recorded", tour: `${MAP_DIR}/${basename2(runDir)}/${TOUR_FILE}`, stops: draft.stops.length });
   return 0;
 }
 process.exitCode = main(process.argv.slice(2));

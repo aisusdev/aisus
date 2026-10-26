@@ -90,7 +90,7 @@ export function updateRunRecord(root: string, runDir: string, patch: Partial<Run
   return next;
 }
 
-/** The folder names in `root/.archify`, taken before a run so the one it creates can be found. */
+/** The folder names in `root/.aisus/maps`, taken before a run so the one it creates can be found. */
 export function runFolderNames(root: string): Set<string> {
   try {
     return new Set(readdirSync(join(root, MAP_DIR)));

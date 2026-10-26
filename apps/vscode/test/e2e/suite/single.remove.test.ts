@@ -33,14 +33,14 @@ suite("SAF-08 Remove aisus from a folder", () => {
     write(root, ".claude/settings.local.json", `${JSON.stringify({ permissions: { allow: ["Bash(npm test)"] } })}\n`);
     mergeAgentHooks(root, "claude", 'node "/x/.agents/skills/aisus-bugfix/scripts/session-hook.mjs"');
     write(root, "AGENTS.md", "# Team notes\n\nKeep tests green.\n\n<!-- aisus:architecture:start -->\nBoxes.\n<!-- aisus:architecture:end -->\n");
-    write(root, ".archify/architecture-x-20261019-120000/candidate.json", "{}");
-    write(root, ".aisus/active", "bugfix-x-20261019-120000\n");
+    write(root, ".aisus/maps/architecture-x-20261019-120000/candidate.json", "{}");
+    write(root, ".aisus/sessions/active", "bugfix-x-20261019-120000\n");
     write(root, "aisus.config.json", "{}\n");
   });
 
   teardown(async () => {
     ui.restore();
-    for (const path of [".agents", ".claude", ".devin", ".git", ".archify", ".aisus", "AGENTS.md", "aisus.config.json"]) rmSync(join(root, path), { recursive: true, force: true });
+    for (const path of [".agents", ".claude", ".devin", ".git", ".aisus", "AGENTS.md", "aisus.config.json"]) rmSync(join(root, path), { recursive: true, force: true });
     for (const dir of [".agents", ".claude"]) rmSync(join(homedir(), dir), { recursive: true, force: true });
   });
 
@@ -49,7 +49,7 @@ suite("SAF-08 Remove aisus from a folder", () => {
     ui.answers.info.push("Remove from Home");
     await vscode.commands.executeCommand("aisus.removeAisus");
     assert.equal(ui.warnings[0]?.message, `Remove aisus from ${vscode.workspace.workspaceFolders![0]!.name}?`);
-    for (const path of [".agents/skills/aisus-architecture", ".claude/skills/aisus-architecture", ".devin/hooks.v1.json", ".archify", ".aisus", "aisus.config.json"]) assert.equal(existsSync(join(root, path)), false, path);
+    for (const path of [".agents/skills/aisus-architecture", ".claude/skills/aisus-architecture", ".devin/hooks.v1.json", ".aisus/maps", ".aisus", "aisus.config.json"]) assert.equal(existsSync(join(root, path)), false, path);
     assert.deepEqual(JSON.parse(readFileSync(join(root, ".claude/settings.local.json"), "utf8")), { permissions: { allow: ["Bash(npm test)"] } });
     assert.equal(readFileSync(join(root, ".git/info/exclude"), "utf8"), "*.log\n");
     assert.equal(readFileSync(join(root, "AGENTS.md"), "utf8"), "# Team notes\n\nKeep tests green.\n");
@@ -62,7 +62,7 @@ suite("SAF-08 Remove aisus from a folder", () => {
     ui.answers.info.push(undefined);
     await vscode.commands.executeCommand("aisus.removeAisus");
     assert.equal(existsSync(join(root, ".agents/skills/aisus-architecture")), false);
-    for (const path of [".archify", ".aisus", "aisus.config.json"]) assert.equal(existsSync(join(root, path)), true, path);
+    for (const path of [".aisus/maps", ".aisus", "aisus.config.json"]) assert.equal(existsSync(join(root, path)), true, path);
     assert.equal(existsSync(join(homedir(), ".agents/skills/aisus-architecture")), true);
   });
 });

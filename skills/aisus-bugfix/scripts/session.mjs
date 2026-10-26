@@ -4,7 +4,7 @@ import { existsSync as existsSync2, readFileSync as readFileSync3, realpathSync 
 import { basename as basename2, join as join4, relative as relative2, resolve as resolve2, sep as sep2 } from "node:path";
 
 // packages/core/model/deny.ts
-var DENIED_NAMES = [".git", ".archify", ".npmrc", ".pypirc", ".netrc"];
+var DENIED_NAMES = [".git", ".aisus", ".npmrc", ".pypirc", ".netrc"];
 var ENV_EXCEPTIONS = [".env.example", ".env.sample"];
 var DENIED_PREFIXES = ["id_rsa", "id_ed25519"];
 var DENIED_EXTENSIONS = ["pem", "key", "p12", "pfx"];
@@ -120,9 +120,42 @@ function collectGitFacts(root2, env = process.env) {
 }
 
 // packages/core/model/runFolder.ts
-import { closeSync, fsyncSync, mkdirSync, openSync, realpathSync as realpathSync2, renameSync, rmSync, statSync as statSync2, unlinkSync, writeSync } from "node:fs";
-import { basename, dirname, join as join2, resolve, sep } from "node:path";
-var MAP_DIR = ".archify";
+import { closeSync, fsyncSync, mkdirSync, openSync, realpathSync as realpathSync3, renameSync, rmSync, statSync as statSync2, unlinkSync, writeSync } from "node:fs";
+import { basename, dirname as dirname2, join as join2, resolve, sep } from "node:path";
+
+// packages/core/model/confine.ts
+import { lstatSync, realpathSync as realpathSync2 } from "node:fs";
+import { dirname, isAbsolute, relative } from "node:path";
+function isWithin(parentReal, childReal) {
+  const rel = relative(parentReal, childReal);
+  return rel === "" || !rel.startsWith("..") && !isAbsolute(rel);
+}
+function lstatOrNull(path) {
+  try {
+    return lstatSync(path);
+  } catch {
+    return null;
+  }
+}
+function assertNotLink(path) {
+  if (lstatOrNull(path)?.isSymbolicLink()) throw new Error(`${path} is a link. aisus does not write through links.`);
+}
+function assertWritable(root2, path) {
+  const rootReal = realpathSync2(root2);
+  let ancestor = dirname(path);
+  while (lstatOrNull(ancestor) === null && dirname(ancestor) !== ancestor) ancestor = dirname(ancestor);
+  let ancestorReal;
+  try {
+    ancestorReal = realpathSync2(ancestor);
+  } catch {
+    throw new Error(`${path} would be written through a broken link at ${ancestor}`);
+  }
+  if (!isWithin(rootReal, ancestorReal)) throw new Error(`${path} would be written outside ${root2}`);
+  assertNotLink(path);
+}
+
+// packages/core/model/runFolder.ts
+var MAP_DIR = ".aisus/maps";
 var SLUG_MAX = 40;
 var RUN_NAME_PATTERN = /^([a-z0-9]+)-(.+)-(\d{8}-\d{6})(?:-(\d+))?$/;
 var MAX_COLLISIONS = 1e3;
@@ -158,14 +191,21 @@ function isInside(parentReal, childReal) {
 function createRunFolder(root2, slug, timestamp, options = {}) {
   const dir = options.dir ?? MAP_DIR;
   const prefix = options.prefix ?? "architecture";
-  if (dir === "." || dir === ".." || /[/\\]/.test(dir)) throw new Error(`"${dir}" is not a valid run folder directory`);
+  if (dir.includes("\\") || dir.split("/").some((part) => part === "" || part === "." || part === "..")) {
+    throw new Error(`"${dir}" is not a valid run folder directory`);
+  }
   if (!/^[a-z0-9]+$/.test(prefix)) throw new Error(`"${prefix}" is not a valid run folder prefix`);
   const base = `${prefix}-${slug}-${timestamp}`;
   if (!parseRunName(base) || /[/\\]/.test(base)) throw new Error(`"${base}" is not a valid run folder name`);
   const parent = join2(root2, dir);
+  try {
+    assertWritable(root2, parent);
+  } catch {
+    throw new Error(`${dir} must be a folder inside the repository root`);
+  }
   mkdirSync(parent, { recursive: true });
-  const parentReal = realpathSync2(parent);
-  if (!isInside(realpathSync2(root2), parentReal) || !statSync2(parentReal).isDirectory()) {
+  const parentReal = realpathSync3(parent);
+  if (!isInside(realpathSync3(root2), parentReal) || !statSync2(parentReal).isDirectory()) {
     throw new Error(`${dir} must be a folder inside the repository root`);
   }
   for (let n = 1; n <= MAX_COLLISIONS; n += 1) {
@@ -194,40 +234,8 @@ import {
   writeSync as writeSync2
 } from "node:fs";
 import { dirname as dirname3, join as join3 } from "node:path";
-
-// packages/core/model/confine.ts
-import { lstatSync, realpathSync as realpathSync3 } from "node:fs";
-import { dirname as dirname2, isAbsolute, relative } from "node:path";
-function isWithin(parentReal, childReal) {
-  const rel = relative(parentReal, childReal);
-  return rel === "" || !rel.startsWith("..") && !isAbsolute(rel);
-}
-function lstatOrNull(path) {
-  try {
-    return lstatSync(path);
-  } catch {
-    return null;
-  }
-}
-function assertNotLink(path) {
-  if (lstatOrNull(path)?.isSymbolicLink()) throw new Error(`${path} is a link. aisus does not write through links.`);
-}
-function assertWritable(root2, path) {
-  const rootReal = realpathSync3(root2);
-  let ancestor = dirname2(path);
-  while (lstatOrNull(ancestor) === null && dirname2(ancestor) !== ancestor) ancestor = dirname2(ancestor);
-  let ancestorReal;
-  try {
-    ancestorReal = realpathSync3(ancestor);
-  } catch {
-    throw new Error(`${path} would be written through a broken link at ${ancestor}`);
-  }
-  if (!isWithin(rootReal, ancestorReal)) throw new Error(`${path} would be written outside ${root2}`);
-  assertNotLink(path);
-}
-
-// packages/core/model/session.ts
 var AISUS_DIR = ".aisus";
+var SESSIONS_DIR = ".aisus/sessions";
 var ACTIVE_FILE = "active";
 var SESSION_FILE = "session.json";
 var EVENTS_FILE = "events.jsonl";
@@ -382,14 +390,14 @@ function saveManifest(runDir, manifest) {
 }
 function activeRun(root2) {
   try {
-    const run2 = readFileSync(join3(root2, AISUS_DIR, ACTIVE_FILE), "utf8").trim();
+    const run2 = readFileSync(join3(root2, SESSIONS_DIR, ACTIVE_FILE), "utf8").trim();
     return run2 !== "" && parseRunName(run2) !== null ? run2 : null;
   } catch {
     return null;
   }
 }
 function runExists(root2, run2) {
-  return existsSync(join3(root2, AISUS_DIR, run2));
+  return existsSync(join3(root2, SESSIONS_DIR, run2));
 }
 
 // packages/core/agent/modes/bugfix/mutations.ts
@@ -568,7 +576,7 @@ function restoreHunk(text, bug) {
 
 // packages/core/agent/session.ts
 var USAGE = `usage: node session.mjs <command>
-  init --mode bugfix [--name <text>]     start a session, take the .aisus/active lock
+  init --mode bugfix [--name <text>]     start a session, take the .aisus/sessions/active lock
   plan --steps '<json>'                  record the plan: [{"title":\u2026,"files":[\u2026]}] or ["\u2026"]
   inject --file <f> --line <n> --kind <k>  seed one bug (kinds: off-by-one, flipped-comparison, missing-await for JS/TS; off-by-one, flipped-comparison, and-or-swap, reference-equality for Java)
   status                                 the authoritative session snapshot
@@ -607,7 +615,7 @@ function flags(args, names) {
 function loadActive() {
   const run2 = activeRun(root);
   if (run2 === null || !runExists(root, run2)) return null;
-  const dir = join4(root, AISUS_DIR, run2);
+  const dir = join4(root, SESSIONS_DIR, run2);
   const session = loadSession(dir);
   const manifest = loadManifest(dir);
   return { run: run2, dir, session, manifest };
@@ -665,37 +673,37 @@ function cmdInit(args) {
     let stale = !runExists(root, held);
     if (!stale) {
       try {
-        const heldSession = checkSession(JSON.parse(readFileSync3(join4(root, AISUS_DIR, held, SESSION_FILE), "utf8")));
+        const heldSession = checkSession(JSON.parse(readFileSync3(join4(root, SESSIONS_DIR, held, SESSION_FILE), "utf8")));
         stale = heldSession.phase === "done" || isSessionStale(heldSession);
       } catch {
         stale = true;
       }
     }
     if (!stale) {
-      return report(1, { status: "active", run: `${AISUS_DIR}/${held}`, message: `session ${held} is still active` });
+      return report(1, { status: "active", run: `${SESSIONS_DIR}/${held}`, message: `session ${held} is still active` });
     }
     warnings.push(`released the stale lock of ${held}`);
   }
   const git = collectGitFacts(root);
   const run2 = createRunFolder(root, slugify(opts["name"] ?? "", basename2(root)), runTimestamp(/* @__PURE__ */ new Date()), {
-    dir: AISUS_DIR,
+    dir: SESSIONS_DIR,
     prefix: mode
   });
-  const dir = join4(root, AISUS_DIR, run2);
+  const dir = join4(root, SESSIONS_DIR, run2);
   const session = newSession(mode);
   saveSession(dir, session);
   saveManifest(dir, newManifest());
   appendEvent(dir, { type: "init", mode });
-  assertWritable(root, join4(root, AISUS_DIR, ACTIVE_FILE));
-  writeFileSync2(join4(root, AISUS_DIR, ACTIVE_FILE), `${run2}
+  assertWritable(root, join4(root, SESSIONS_DIR, ACTIVE_FILE));
+  writeFileSync2(join4(root, SESSIONS_DIR, ACTIVE_FILE), `${run2}
 `);
   if (git !== null && git.dirtyCount > 0) {
     warnings.push(`repository has ${git.dirtyCount} uncommitted change(s); bug restore works on recorded hunks, not git`);
   }
   return report(0, {
     status: "ok",
-    run: `${AISUS_DIR}/${run2}`,
-    sessionFile: `${AISUS_DIR}/${run2}/${SESSION_FILE}`,
+    run: `${SESSIONS_DIR}/${run2}`,
+    sessionFile: `${SESSIONS_DIR}/${run2}/${SESSION_FILE}`,
     mode,
     phase: session.phase,
     git: git && { head: git.head, origin: git.origin, dirtyCount: git.dirtyCount, dirty: git.dirty },
@@ -710,7 +718,7 @@ function cmdStatus(args) {
   const step = session.steps[session.stepIndex];
   return report(0, {
     status: "ok",
-    run: `${AISUS_DIR}/${active.run}`,
+    run: `${SESSIONS_DIR}/${active.run}`,
     mode: session.mode,
     phase: session.phase,
     ...session.pausedFrom !== void 0 ? { pausedFrom: session.pausedFrom } : {},
@@ -948,8 +956,8 @@ function cmdComplete(args) {
   appendEvent(active.dir, { type: "completed", score: session.score });
   dropPristineSnapshots(manifest);
   save(active);
-  unlinkSync2(join4(root, AISUS_DIR, ACTIVE_FILE));
-  return report(0, { status: "completed", score: session.score, found: session.found, fixed: session.fixed, bugs: session.bugs, run: `${AISUS_DIR}/${active.run}` });
+  unlinkSync2(join4(root, SESSIONS_DIR, ACTIVE_FILE));
+  return report(0, { status: "completed", score: session.score, found: session.found, fixed: session.fixed, bugs: session.bugs, run: `${SESSIONS_DIR}/${active.run}` });
 }
 function cmdPause(args) {
   if (args.length !== 0) return usageError(`pause: takes no arguments`);
@@ -1050,8 +1058,8 @@ function cmdAbandon(args) {
   appendEvent(active.dir, { type: "abandoned", ...result, score: session.score });
   dropPristineSnapshots(manifest);
   save(active);
-  unlinkSync2(join4(root, AISUS_DIR, ACTIVE_FILE));
-  return report(0, { status: "abandoned", score: session.score, ...result, run: `${AISUS_DIR}/${active.run}` });
+  unlinkSync2(join4(root, SESSIONS_DIR, ACTIVE_FILE));
+  return report(0, { status: "abandoned", score: session.score, ...result, run: `${SESSIONS_DIR}/${active.run}` });
 }
 var COMMANDS = {
   init: cmdInit,

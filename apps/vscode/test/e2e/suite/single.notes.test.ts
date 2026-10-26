@@ -28,7 +28,7 @@ suite("ARC-04 architecture notes for agents", () => {
     root = vscode.workspace.workspaceFolders![0]!.uri.fsPath;
     write(
       root,
-      `.archify/${RUN}/candidate.json`,
+      `.aisus/maps/${RUN}/candidate.json`,
       JSON.stringify({
         meta: { title: "Notes" },
         components: [
@@ -46,7 +46,7 @@ suite("ARC-04 architecture notes for agents", () => {
   teardown(async () => {
     ui.restore();
     await vscode.commands.executeCommand("workbench.action.closeAllEditors");
-    for (const rel of [".archify", "aisus.config.json", "AGENTS.md", "CLAUDE.md"]) rmSync(join(root, rel), { recursive: true, force: true });
+    for (const rel of [".aisus/maps", "aisus.config.json", "AGENTS.md", "CLAUDE.md"]) rmSync(join(root, rel), { recursive: true, force: true });
   });
 
   test("ARC-04 the block goes into AGENTS.md and CLAUDE.md after their diffs, with the people's text kept, and once only", async () => {

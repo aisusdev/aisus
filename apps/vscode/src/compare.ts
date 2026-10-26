@@ -38,7 +38,7 @@ export function readMap(file: string): ViewDiagram | null {
   return read(file)?.diagram ?? null;
 }
 
-/** The run folder of `file` when it is `<root>/.archify/<run>/candidate.json`, else `null`. */
+/** The run folder of `file` when it is `<root>/.aisus/maps/<run>/candidate.json`, else `null`. */
 function runOf(root: string, file: string): string | null {
   const runDir = dirname(file);
   return basename(file) === CANDIDATE_FILE && dirname(runDir) === join(root, MAP_DIR) ? basename(runDir) : null;

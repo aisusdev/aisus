@@ -7470,7 +7470,7 @@ function citationPathOk(path) {
 }
 
 // packages/core/model/deny.ts
-var DENIED_NAMES = [".git", ".archify", ".npmrc", ".pypirc", ".netrc"];
+var DENIED_NAMES = [".git", ".aisus", ".npmrc", ".pypirc", ".netrc"];
 var ENV_EXCEPTIONS = [".env.example", ".env.sample"];
 var DENIED_PREFIXES = ["id_rsa", "id_ed25519"];
 var DENIED_EXTENSIONS = ["pem", "key", "p12", "pfx"];
@@ -8312,7 +8312,7 @@ import { dirname as dirname3, join as join5 } from "node:path";
 // packages/core/model/runFolder.ts
 import { closeSync as closeSync2, fsyncSync, mkdirSync, openSync as openSync2, realpathSync as realpathSync4, renameSync, rmSync, statSync as statSync3, unlinkSync, writeSync } from "node:fs";
 import { basename, dirname as dirname2, join as join4, resolve, sep as sep2 } from "node:path";
-var MAP_DIR = ".archify";
+var MAP_DIR = ".aisus/maps";
 var DRAFT_FILE = "draft.json";
 var CANDIDATE_FILE = "candidate.json";
 var RUN_NAME_PATTERN = /^([a-z0-9]+)-(.+)-(\d{8}-\d{6})(?:-(\d+))?$/;
@@ -8329,14 +8329,18 @@ function parseRunName(name) {
 function locateDraft(arg, cwd) {
   const draft = resolve(cwd, arg);
   const runDir = dirname2(draft);
-  const maps = dirname2(runDir);
+  const root = mapRootOf(runDir);
   const run2 = basename(runDir);
-  if (basename(draft) !== DRAFT_FILE || basename(maps) !== MAP_DIR) {
+  if (basename(draft) !== DRAFT_FILE || root === null) {
     throw new Error(`expected a path of the form <repo>/${MAP_DIR}/<run>/${DRAFT_FILE}, got ${arg}`);
   }
   const kind = mapKindOf(run2);
   if (kind === null) throw new Error(`run folder "${run2}" does not match architecture-<slug>-<YYYYMMDD-HHMMSS>[-N] or sequence-<slug>-<YYYYMMDD-HHMMSS>[-N]`);
-  return { root: dirname2(maps), run: run2, slug: parseRunName(run2).slug, draft, kind };
+  return { root, run: run2, slug: parseRunName(run2).slug, draft, kind };
+}
+function mapRootOf(runDir) {
+  const root = dirname2(dirname2(dirname2(runDir)));
+  return join4(root, MAP_DIR) === dirname2(runDir) ? root : null;
 }
 function publishCandidate(draft, content) {
   const dir = dirname2(draft);

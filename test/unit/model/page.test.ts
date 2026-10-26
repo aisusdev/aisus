@@ -32,7 +32,7 @@ describe("RCH-01 page assembly", () => {
   });
 
   test("the page goes where meta.output says inside its run folder, else diagram.html", () => {
-    expect(pageOutput("architecture-a-20261018-120000", { meta: { output: ".archify/architecture-a-20261018-120000/a.html" } })).toBe("a.html");
+    expect(pageOutput("architecture-a-20261018-120000", { meta: { output: ".aisus/maps/architecture-a-20261018-120000/a.html" } })).toBe("a.html");
     expect(pageOutput("architecture-a-20261018-120000", { meta: { output: "../../evil.html" } })).toBe("diagram.html");
     expect(pageOutput("architecture-a-20261018-120000", {})).toBe("diagram.html");
   });

@@ -35,7 +35,7 @@ suite("ARC-01 architecture rules", () => {
     write(root, "src/store/db.ts", "export const db = 1;\n");
     write(
       root,
-      `.archify/${RUN}/candidate.json`,
+      `.aisus/maps/${RUN}/candidate.json`,
       JSON.stringify({
         meta: { title: "Rules" },
         components: [
@@ -50,7 +50,7 @@ suite("ARC-01 architecture rules", () => {
   teardown(async () => {
     ui.restore();
     await vscode.commands.executeCommand("workbench.action.closeAllEditors");
-    for (const rel of [".archify", "src", "aisus.config.json"]) rmSync(join(root, rel), { recursive: true, force: true });
+    for (const rel of [".aisus/maps", "src", "aisus.config.json"]) rmSync(join(root, rel), { recursive: true, force: true });
   });
 
   /** Replaces the handler's text and saves it. */
@@ -93,7 +93,7 @@ suite("ARC-02 rules from the map", () => {
     write(root, "src/store/db.ts", "export const db = 1;\n");
     write(
       root,
-      `.archify/${RUN}/candidate.json`,
+      `.aisus/maps/${RUN}/candidate.json`,
       JSON.stringify({
         meta: { title: "Rules" },
         components: [
@@ -109,7 +109,7 @@ suite("ARC-02 rules from the map", () => {
   teardown(async () => {
     ui.restore();
     await vscode.commands.executeCommand("workbench.action.closeAllEditors");
-    for (const rel of [".archify", "src", "aisus.config.json"]) rmSync(join(root, rel), { recursive: true, force: true });
+    for (const rel of [".aisus/maps", "src", "aisus.config.json"]) rmSync(join(root, rel), { recursive: true, force: true });
   });
 
   test("ARC-02 Forbid This Dependency shows the config's diff, saves the rule on Add, and saves nothing on a no", async () => {

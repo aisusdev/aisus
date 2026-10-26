@@ -734,7 +734,7 @@ describe("SEQ-03 sequence maps", () => {
   beforeEach(() => send({ type: "freshness", boxes: {}, header: null }));
 
   test("draws participants over lifelines and one arrow per message, without the architecture layout", async () => {
-    send({ type: "load", doc: SEQUENCE, file: "/r/.archify/sequence-login-20261025-090000/candidate.json" });
+    send({ type: "load", doc: SEQUENCE, file: "/r/.aisus/maps/sequence-login-20261025-090000/candidate.json" });
     await vi.waitFor(() => expect(document.querySelectorAll(".message").length).toBe(2));
     expect([...document.querySelectorAll(".node")].map((node) => node.getAttribute("data-id"))).toEqual(["web", "api"]);
     expect(document.querySelectorAll(".lifeline").length).toBe(2);

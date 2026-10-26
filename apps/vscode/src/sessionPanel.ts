@@ -44,7 +44,7 @@ export class SessionPanel {
   private constructor(
     private readonly panel: vscode.WebviewPanel,
     extensionUri: vscode.Uri,
-    /** Repo root whose `.aisus/` this panel renders. */
+    /** Repo root whose `.aisus/sessions/` this panel renders. */
     public readonly root: string,
   ) {
     const dist = vscode.Uri.joinPath(extensionUri, "dist");
@@ -72,7 +72,7 @@ export class SessionPanel {
     return SessionPanel.instance;
   }
 
-  /** Opens (or reveals) the panel on `root`'s `.aisus/` state. */
+  /** Opens (or reveals) the panel on `root`'s `.aisus/sessions/` state. */
   static show(extensionUri: vscode.Uri, root: string): SessionPanel {
     const existing = SessionPanel.instance;
     if (existing) {
@@ -87,7 +87,7 @@ export class SessionPanel {
     return created;
   }
 
-  /** Re-reads `.aisus/` and re-sends the view. */
+  /** Re-reads `.aisus/sessions/` and re-sends the view. */
   reload(): void {
     this.send();
   }

@@ -41,7 +41,7 @@ suite("SKL-02 Guided tours", () => {
     write(root, "src/api.ts", "export const api = () => 1;\n");
     write(
       root,
-      `.archify/${RUN}/candidate.json`,
+      `.aisus/maps/${RUN}/candidate.json`,
       JSON.stringify({
         meta: { title: "Shop" },
         components: [
@@ -60,15 +60,15 @@ suite("SKL-02 Guided tours", () => {
     for (const terminal of terminals.splice(0)) terminal.dispose();
     await vscode.commands.executeCommand("workbench.action.closeAllEditors");
     await vscode.workspace.getConfiguration("aisus").update("runMode", undefined, vscode.ConfigurationTarget.Global);
-    for (const path of [".archify", "src"]) rmSync(join(root, path), { recursive: true, force: true });
+    for (const path of [".aisus/maps", "src"]) rmSync(join(root, path), { recursive: true, force: true });
     if (bin !== undefined) rmSync(bin, { recursive: true, force: true });
     for (const dir of [".agents", ".claude"]) rmSync(join(homedir(), dir), { recursive: true, force: true });
   });
 
   test("SKL-02 Tour opens each stop's code beside the map", async () => {
     const stop = (component: string, path: string, line: number): object => ({ component, title: `At ${path}`, explanation: "Here the work happens.", question: "What runs here?", answer: "The handler.", citation: { path, line } });
-    write(root, `.archify/${RUN}/tour.json`, JSON.stringify({ schema: 1, createdAt: "2026-10-19T12:00:00Z", stops: [stop("web", "src/web.ts", 2), stop("api", "src/api.ts", 1), stop("web", "src/web.ts", 1), stop("api", "src/api.ts", 1)] }));
-    await hook.postFromHome({ type: "openMap", file: join(root, ".archify", RUN, "candidate.json") });
+    write(root, `.aisus/maps/${RUN}/tour.json`, JSON.stringify({ schema: 1, createdAt: "2026-10-19T12:00:00Z", stops: [stop("web", "src/web.ts", 2), stop("api", "src/api.ts", 1), stop("web", "src/web.ts", 1), stop("api", "src/api.ts", 1)] }));
+    await hook.postFromHome({ type: "openMap", file: join(root, ".aisus/maps", RUN, "candidate.json") });
     await until(() => hook.panelTour()?.length === 4, "the panel to read the tour");
 
     await vscode.commands.executeCommand("aisus.playTour");
@@ -94,7 +94,7 @@ suite("SKL-02 Guided tours", () => {
         resolve(terminal);
       });
     });
-    await hook.postFromHome({ type: "createTour", file: join(root, ".archify", RUN, "candidate.json") });
+    await hook.postFromHome({ type: "createTour", file: join(root, ".aisus/maps", RUN, "candidate.json") });
     const terminal = await opened;
     terminals.push(terminal);
     assert.deepEqual((terminal.creationOptions as vscode.TerminalOptions).shellArgs, [`/aisus-tour ${RUN}`]);

@@ -41,7 +41,7 @@ suite("FRS-04 change overlay", () => {
     write(root, "src/b.ts", "notes\n");
     write(
       root,
-      `.archify/${RUN}/candidate.json`,
+      `.aisus/maps/${RUN}/candidate.json`,
       JSON.stringify({
         components: [
           { id: "handler", type: "backend", label: "Handler", sources: [{ path: "src/a.ts", line: 3, end_line: 6 }] },
@@ -58,7 +58,7 @@ suite("FRS-04 change overlay", () => {
   teardown(async () => {
     ui.restore();
     await vscode.commands.executeCommand("workbench.action.closeAllEditors");
-    for (const dir of [".archify", "src", ".git", "new.ts", "fsmonitor-ran"]) rmSync(join(root, dir), { recursive: true, force: true });
+    for (const dir of [".aisus/maps", "src", ".git", "new.ts", "fsmonitor-ran"]) rmSync(join(root, dir), { recursive: true, force: true });
   });
 
   test("FRS-04 uncommitted changes mark the touched box strong, its neighbour weak and list the new file", async () => {

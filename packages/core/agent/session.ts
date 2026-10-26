@@ -32,6 +32,7 @@ import {
   sessionIdleMs,
   SESSION_MODES,
   AISUS_DIR,
+  SESSIONS_DIR,
   type HintLevel,
   type LivePhase,
   type Manifest,
@@ -46,7 +47,7 @@ import { assertWritable } from "../model/confine";
 
 const USAGE =
   "usage: node session.mjs <command>\n" +
-  "  init --mode bugfix [--name <text>]     start a session, take the .aisus/active lock\n" +
+  "  init --mode bugfix [--name <text>]     start a session, take the .aisus/sessions/active lock\n" +
   "  plan --steps '<json>'                  record the plan: [{\"title\":…,\"files\":[…]}] or [\"…\"]\n" +
   "  inject --file <f> --line <n> --kind <k>  seed one bug (kinds: off-by-one, flipped-comparison, missing-await for JS/TS; off-by-one, flipped-comparison, and-or-swap, reference-equality for Java)\n" +
   "  status                                 the authoritative session snapshot\n" +
@@ -101,11 +102,11 @@ interface Active {
   manifest: Manifest;
 }
 
-/** The session under `.aisus/active`, or `null` when there is none or the run is gone. */
+/** The session under `.aisus/sessions/active`, or `null` when there is none or the run is gone. */
 function loadActive(): Active | null {
   const run = activeRun(root);
   if (run === null || !runExists(root, run)) return null;
-  const dir = join(root, AISUS_DIR, run);
+  const dir = join(root, SESSIONS_DIR, run);
   const session = loadSession(dir);
   const manifest = loadManifest(dir);
   return { run, dir, session, manifest };
@@ -185,40 +186,40 @@ function cmdInit(args: string[]): number {
     let stale = !runExists(root, held);
     if (!stale) {
       try {
-        const heldSession = checkSession(JSON.parse(readFileSync(join(root, AISUS_DIR, held, SESSION_FILE), "utf8")));
+        const heldSession = checkSession(JSON.parse(readFileSync(join(root, SESSIONS_DIR, held, SESSION_FILE), "utf8")));
         stale = heldSession.phase === "done" || isSessionStale(heldSession);
       } catch {
         stale = true;
       }
     }
     if (!stale) {
-      return report(1, { status: "active", run: `${AISUS_DIR}/${held}`, message: `session ${held} is still active` });
+      return report(1, { status: "active", run: `${SESSIONS_DIR}/${held}`, message: `session ${held} is still active` });
     }
     warnings.push(`released the stale lock of ${held}`);
   }
 
-  // Collect git facts before `.aisus/` exists so the session's own files are not
+  // Collect git facts before `.aisus/sessions/` exists so the session's own files are not
   // counted as the user's uncommitted work in the dirty warning (ADR 0029).
   const git = collectGitFacts(root);
   const run = createRunFolder(root, slugify(opts["name"] ?? "", basename(root)), runTimestamp(new Date()), {
-    dir: AISUS_DIR,
+    dir: SESSIONS_DIR,
     prefix: mode,
   });
-  const dir = join(root, AISUS_DIR, run);
+  const dir = join(root, SESSIONS_DIR, run);
   const session = newSession(mode);
   saveSession(dir, session);
   saveManifest(dir, newManifest());
   appendEvent(dir, { type: "init", mode });
-  assertWritable(root, join(root, AISUS_DIR, ACTIVE_FILE));
-  writeFileSync(join(root, AISUS_DIR, ACTIVE_FILE), `${run}\n`);
+  assertWritable(root, join(root, SESSIONS_DIR, ACTIVE_FILE));
+  writeFileSync(join(root, SESSIONS_DIR, ACTIVE_FILE), `${run}\n`);
 
   if (git !== null && git.dirtyCount > 0) {
     warnings.push(`repository has ${git.dirtyCount} uncommitted change(s); bug restore works on recorded hunks, not git`);
   }
   return report(0, {
     status: "ok",
-    run: `${AISUS_DIR}/${run}`,
-    sessionFile: `${AISUS_DIR}/${run}/${SESSION_FILE}`,
+    run: `${SESSIONS_DIR}/${run}`,
+    sessionFile: `${SESSIONS_DIR}/${run}/${SESSION_FILE}`,
     mode,
     phase: session.phase,
     git: git && { head: git.head, origin: git.origin, dirtyCount: git.dirtyCount, dirty: git.dirty },
@@ -236,7 +237,7 @@ function cmdStatus(args: string[]): number {
   const step = session.steps[session.stepIndex];
   return report(0, {
     status: "ok",
-    run: `${AISUS_DIR}/${active.run}`,
+    run: `${SESSIONS_DIR}/${active.run}`,
     mode: session.mode,
     phase: session.phase,
     ...(session.pausedFrom !== undefined ? { pausedFrom: session.pausedFrom } : {}),
@@ -505,8 +506,8 @@ function cmdComplete(args: string[]): number {
   appendEvent(active.dir, { type: "completed", score: session.score });
   dropPristineSnapshots(manifest);
   save(active);
-  unlinkSync(join(root, AISUS_DIR, ACTIVE_FILE));
-  return report(0, { status: "completed", score: session.score, found: session.found, fixed: session.fixed, bugs: session.bugs, run: `${AISUS_DIR}/${active.run}` });
+  unlinkSync(join(root, SESSIONS_DIR, ACTIVE_FILE));
+  return report(0, { status: "completed", score: session.score, found: session.found, fixed: session.fixed, bugs: session.bugs, run: `${SESSIONS_DIR}/${active.run}` });
 }
 
 // ------------------------------------------------------------------ pause / resume
@@ -636,8 +637,8 @@ function cmdAbandon(args: string[]): number {
   appendEvent(active.dir, { type: "abandoned", ...result, score: session.score });
   dropPristineSnapshots(manifest);
   save(active);
-  unlinkSync(join(root, AISUS_DIR, ACTIVE_FILE));
-  return report(0, { status: "abandoned", score: session.score, ...result, run: `${AISUS_DIR}/${active.run}` });
+  unlinkSync(join(root, SESSIONS_DIR, ACTIVE_FILE));
+  return report(0, { status: "abandoned", score: session.score, ...result, run: `${SESSIONS_DIR}/${active.run}` });
 }
 
 // ----------------------------------------------------------------------------- main

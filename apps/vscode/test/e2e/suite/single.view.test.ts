@@ -21,7 +21,7 @@ function diagram(title: string): string {
   return JSON.stringify({
     schema_version: 1,
     diagram_type: "architecture",
-    meta: { title, output: ".archify/x/x.html" },
+    meta: { title, output: ".aisus/maps/x/x.html" },
     components: [
       { id: "web", type: "frontend", label: "Web", sources: [{ path: "src/web.ts", line: 1 }] },
       { id: "api", type: "backend", label: "API", sources: [{ path: "src/api.ts" }] },
@@ -73,7 +73,7 @@ suite("FR-VIEW-01/04 open commands and panel", () => {
   teardown(async () => {
     ui.restore();
     await vscode.commands.executeCommand("workbench.action.closeAllEditors");
-    for (const dir of [".archify", "docs", ".agents", ".claude", "src"]) rmSync(join(root, dir), { recursive: true, force: true });
+    for (const dir of [".aisus/maps", "docs", ".agents", ".claude", "src"]) rmSync(join(root, dir), { recursive: true, force: true });
   });
 
   test("without candidates: info with Generate, which runs Generate Architecture", async () => {
@@ -87,8 +87,8 @@ suite("FR-VIEW-01/04 open commands and panel", () => {
   });
 
   test("opens the newest candidate in the active column when no editor is open", async () => {
-    write(root, `.archify/${OLD}/candidate.json`, diagram("Old"));
-    const newest = write(root, `.archify/${NEW}/candidate.json`, diagram("New"));
+    write(root, `.aisus/maps/${OLD}/candidate.json`, diagram("Old"));
+    const newest = write(root, `.aisus/maps/${NEW}/candidate.json`, diagram("New"));
     await vscode.commands.executeCommand("aisus.openArchitecture");
     assert.deepEqual(hook.panelState(), { file: newest, open: true });
     const tab = await panelTab("Architecture: New");
@@ -97,7 +97,7 @@ suite("FR-VIEW-01/04 open commands and panel", () => {
   });
 
   test("re-running reveals and reloads the same single panel", async () => {
-    const file = write(root, `.archify/${NEW}/candidate.json`, diagram("New"));
+    const file = write(root, `.aisus/maps/${NEW}/candidate.json`, diagram("New"));
     await vscode.commands.executeCommand("aisus.openArchitecture");
     writeFileSync(file, diagram("Renamed"));
     await vscode.commands.executeCommand("aisus.openArchitecture");
@@ -106,7 +106,7 @@ suite("FR-VIEW-01/04 open commands and panel", () => {
   });
 
   test("opens beside an open editor", async () => {
-    write(root, `.archify/${NEW}/candidate.json`, diagram("New"));
+    write(root, `.aisus/maps/${NEW}/candidate.json`, diagram("New"));
     const code = write(root, "src/web.ts", "export {};\n");
     await vscode.window.showTextDocument(vscode.Uri.file(code), { viewColumn: vscode.ViewColumn.One });
     await vscode.commands.executeCommand("aisus.openArchitecture");
@@ -114,8 +114,8 @@ suite("FR-VIEW-01/04 open commands and panel", () => {
   });
 
   test("Open Architecture File… lists candidates newest first with titles, plus Browse…", async () => {
-    const older = write(root, `.archify/${OLD}/candidate.json`, diagram("Old"));
-    write(root, `.archify/${NEW}/candidate.json`, diagram("New"));
+    const older = write(root, `.aisus/maps/${OLD}/candidate.json`, diagram("Old"));
+    write(root, `.aisus/maps/${NEW}/candidate.json`, diagram("New"));
     ui.answers.quickPick.push(OLD);
     await vscode.commands.executeCommand("aisus.openArchitectureFile");
     assert.deepEqual(
@@ -141,22 +141,22 @@ suite("FR-VIEW-01/04 open commands and panel", () => {
   });
 
   test("an unreadable diagram shows the error and an empty-state panel", async () => {
-    write(root, `.archify/${NEW}/candidate.json`, "{ not json");
+    write(root, `.aisus/maps/${NEW}/candidate.json`, "{ not json");
     await vscode.commands.executeCommand("aisus.openArchitecture");
     assert.equal(ui.errors.length, 1);
-    assert.match(ui.errors[0]!.message, new RegExp(`^Can't show \`\\.archify/${NEW}/candidate\\.json\`: invalid JSON`));
+    assert.match(ui.errors[0]!.message, new RegExp(`^Can't show \`\\.aisus/maps/${NEW}/candidate\\.json\`: invalid JSON`));
     assert.equal(hook.panelState().open, true);
     await panelTab("Architecture: candidate.json");
   });
 
   test("a document without components is refused with the reason", async () => {
-    write(root, `.archify/${NEW}/candidate.json`, JSON.stringify({ meta: { title: "Empty" }, components: [] }));
+    write(root, `.aisus/maps/${NEW}/candidate.json`, JSON.stringify({ meta: { title: "Empty" }, components: [] }));
     await vscode.commands.executeCommand("aisus.openArchitecture");
-    assert.equal(ui.errors[0]?.message, `Can't show \`.archify/${NEW}/candidate.json\`: it has no components`);
+    assert.equal(ui.errors[0]?.message, `Can't show \`.aisus/maps/${NEW}/candidate.json\`: it has no components`);
   });
 
   test("closing the panel clears the panel state", async () => {
-    write(root, `.archify/${NEW}/candidate.json`, diagram("New"));
+    write(root, `.aisus/maps/${NEW}/candidate.json`, diagram("New"));
     await vscode.commands.executeCommand("aisus.openArchitecture");
     assert.equal(hook.panelState().open, true);
     await vscode.commands.executeCommand("workbench.action.closeAllEditors");

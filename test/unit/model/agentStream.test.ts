@@ -36,7 +36,7 @@ describe("UI-02 Claude Code stream", () => {
     expect(updates[3]!.usage).toEqual({ input: 3200, output: 230, cacheRead: 7000, cacheWrite: 500 });
     const last = updates.at(-1)!;
     expect(last.usage).toEqual({ input: 8300, output: 1190, cacheRead: 15000, cacheWrite: 500 });
-    expect(last.end).toEqual({ ok: true, costUsd: 0.4123, denials: [], sessionId: "sess-123", finalAnswer: "Accepted: 14 components in .archify/architecture-r-20261018-120000/candidate.json" });
+    expect(last.end).toEqual({ ok: true, costUsd: 0.4123, denials: [], sessionId: "sess-123", finalAnswer: "Accepted: 14 components in .aisus/maps/architecture-r-20261018-120000/candidate.json" });
   });
 
   test("a denied tool and an error result are reported", () => {

@@ -17,9 +17,9 @@ const SOURCE_EXTENSIONS = new Set(
   "ts tsx js jsx mjs cjs py go rs java kt kts scala rb php cs fs c h cc cpp cxx hpp m mm swift dart lua sh sql vue svelte ex exs erl hs clj elm zig nim r jl".split(" "),
 );
 
-/** Whether `path` is source code, by its extension, outside `.archify/`. */
+/** Whether `path` is source code, by its extension, outside `.aisus/`. */
 export function isSourceFile(path: string): boolean {
-  if (path.startsWith(".archify/")) return false;
+  if (path.startsWith(".aisus/")) return false;
   const dot = path.lastIndexOf(".");
   return dot > path.lastIndexOf("/") && SOURCE_EXTENSIONS.has(path.slice(dot + 1).toLowerCase());
 }

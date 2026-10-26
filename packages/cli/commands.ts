@@ -60,7 +60,7 @@ function chosenMap(args: CliArgs): { run: string; dir: string; doc: unknown } | 
   if (!config.ok) return config.reason;
   const run = one(args, "--map") ?? config.config.map ?? mainMap(args.root);
   if (run === undefined || run === null) return "No map. Generate one with an empty focus, or name one with --map.";
-  if (!/^[a-z0-9]+-[A-Za-z0-9._-]+$/.test(run)) return "--map names a run folder in .archify/";
+  if (!/^[a-z0-9]+-[A-Za-z0-9._-]+$/.test(run)) return "--map names a run folder in .aisus/maps/";
   const dir = join(args.root, MAP_DIR, run);
   try {
     return { run, dir, doc: JSON.parse(readFileSync(join(dir, CANDIDATE_FILE), "utf8")) };

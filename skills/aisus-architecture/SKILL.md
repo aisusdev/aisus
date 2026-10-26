@@ -47,7 +47,7 @@ Keep to `budget` reads and searches in total. It is 25 for a repository of tier 
 
 Never open, search or cite these paths (any folder depth, any letter case):
 
-- `.git/` and `.archify/`
+- `.git/` and `.aisus/`
 - `.env` and `.env.*` (except `.env.example` and `.env.sample`)
 - `.npmrc`, `.pypirc`, `.netrc`
 - files whose names start with `id_rsa` or `id_ed25519`

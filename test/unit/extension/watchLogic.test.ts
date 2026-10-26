@@ -39,17 +39,17 @@ describe("FR-WAT-01 debouncing", () => {
 
 describe("FR-WAT-01 decisions", () => {
   const change = (overrides: Partial<CandidateChange>): CandidateChange => ({
-    file: "/r/.archify/new/candidate.json",
+    file: "/r/.aisus/maps/new/candidate.json",
     created: true,
     exists: true,
     root: "/r",
-    newest: "/r/.archify/new/candidate.json",
+    newest: "/r/.aisus/maps/new/candidate.json",
     ...overrides,
   });
-  const panel = { root: "/r", file: "/r/.archify/old/candidate.json" };
+  const panel = { root: "/r", file: "/r/.aisus/maps/old/candidate.json" };
 
   test("a change to the shown file reloads it", () => {
-    expect(watchAction(change({ file: panel.file, created: false, newest: "/r/.archify/new/candidate.json" }), panel)).toEqual({ kind: "reload" });
+    expect(watchAction(change({ file: panel.file, created: false, newest: "/r/.aisus/maps/new/candidate.json" }), panel)).toEqual({ kind: "reload" });
   });
 
   test("deleting the shown file shows the deleted state", () => {
@@ -57,16 +57,16 @@ describe("FR-WAT-01 decisions", () => {
   });
 
   test("a new newest candidate loads into a panel open for its folder", () => {
-    expect(watchAction(change({}), panel)).toEqual({ kind: "switch", root: "/r", file: "/r/.archify/new/candidate.json" });
+    expect(watchAction(change({}), panel)).toEqual({ kind: "switch", root: "/r", file: "/r/.aisus/maps/new/candidate.json" });
   });
 
   test("a new newest candidate is offered when no panel is open or it shows another folder", () => {
-    expect(watchAction(change({}), undefined)).toEqual({ kind: "notify", root: "/r", file: "/r/.archify/new/candidate.json" });
+    expect(watchAction(change({}), undefined)).toEqual({ kind: "notify", root: "/r", file: "/r/.aisus/maps/new/candidate.json" });
     expect(watchAction(change({}), { root: "/other", file: "/other/x.json" })).toMatchObject({ kind: "notify" });
   });
 
   test.each([
-    ["not the newest", { newest: "/r/.archify/later/candidate.json" }],
+    ["not the newest", { newest: "/r/.aisus/maps/later/candidate.json" }],
     ["only changed, not created", { created: false }],
     ["already deleted again", { exists: false }],
   ])("a candidate that is %s is ignored", (_case, overrides) => {
@@ -77,18 +77,18 @@ describe("FR-WAT-01 decisions", () => {
 
 describe("FR-WAT-01 candidates from any event in a run folder", () => {
   test("an event anywhere in a run folder concerns that folder's candidate.json", () => {
-    const maps = "/r/.archify";
-    expect(candidateOf(maps, "/r/.archify/run-a", "/")).toBe("/r/.archify/run-a/candidate.json");
-    expect(candidateOf(maps, "/r/.archify/run-a/.candidate.json.tmp-1-2", "/")).toBe("/r/.archify/run-a/candidate.json");
-    expect(candidateOf(maps, "/r/.archify", "/")).toBeUndefined();
-    expect(candidateOf(maps, "/r/.archifyx/run-a", "/")).toBeUndefined();
+    const maps = "/r/.aisus/maps";
+    expect(candidateOf(maps, "/r/.aisus/maps/run-a", "/")).toBe("/r/.aisus/maps/run-a/candidate.json");
+    expect(candidateOf(maps, "/r/.aisus/maps/run-a/.candidate.json.tmp-1-2", "/")).toBe("/r/.aisus/maps/run-a/candidate.json");
+    expect(candidateOf(maps, "/r/.aisus/maps", "/")).toBeUndefined();
+    expect(candidateOf(maps, "/r/.aisus/mapsx/run-a", "/")).toBeUndefined();
   });
 
   test("a candidate is new once, then a change, and new again after it was deleted", () => {
     const known = new Set<string>();
-    expect(noteCandidate(known, "/r/.archify/a/candidate.json", true)).toBe(true);
-    expect(noteCandidate(known, "/r/.archify/a/candidate.json", true)).toBe(false);
-    expect(noteCandidate(known, "/r/.archify/a/candidate.json", false)).toBe(false);
-    expect(noteCandidate(known, "/r/.archify/a/candidate.json", true)).toBe(true);
+    expect(noteCandidate(known, "/r/.aisus/maps/a/candidate.json", true)).toBe(true);
+    expect(noteCandidate(known, "/r/.aisus/maps/a/candidate.json", true)).toBe(false);
+    expect(noteCandidate(known, "/r/.aisus/maps/a/candidate.json", false)).toBe(false);
+    expect(noteCandidate(known, "/r/.aisus/maps/a/candidate.json", true)).toBe(true);
   });
 });

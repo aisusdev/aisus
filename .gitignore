@@ -6,7 +6,7 @@ out/
 .vscode-test/
 .smoke_repo/
 .agents/
-.archify/
+.aisus/
 .claude/
 .devin/
 !apps/action/dist/

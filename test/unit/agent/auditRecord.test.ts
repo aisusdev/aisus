@@ -6,7 +6,7 @@ import { expect, test } from "vitest";
 import { put, runScript, tempDir } from "../support/temp";
 
 const RUN = "architecture-shop-20261018-120000";
-const DRAFT = `.archify/${RUN}/audit-draft.json`;
+const DRAFT = `.aisus/maps/${RUN}/audit-draft.json`;
 
 /** A repository with an accepted map: web and api boxes, one arrow from web to api. */
 function audited(draft: unknown): string {
@@ -16,7 +16,7 @@ function audited(draft: unknown): string {
   put(root, ".env", "KEY=1\n");
   put(
     root,
-    `.archify/${RUN}/candidate.json`,
+    `.aisus/maps/${RUN}/candidate.json`,
     JSON.stringify({
       schema_version: 1,
       diagram_type: "architecture",
@@ -45,8 +45,8 @@ test("ACC-05 a complete draft is recorded as audit.json with its date, and the d
   const run = runScript("audit-record", [DRAFT], { cwd: root });
   expect(run.stderr).toBe("");
   expect(run.status).toBe(0);
-  expect(run.json()).toEqual({ status: "recorded", audit: `.archify/${RUN}/audit.json`, boxes: { supports: 1, partial: 1, contradicts: 0 }, arrowsWithoutEvidence: 0 });
-  const audit = JSON.parse(readFileSync(join(root, ".archify", RUN, "audit.json"), "utf8"));
+  expect(run.json()).toEqual({ status: "recorded", audit: `.aisus/maps/${RUN}/audit.json`, boxes: { supports: 1, partial: 1, contradicts: 0 }, arrowsWithoutEvidence: 0 });
+  const audit = JSON.parse(readFileSync(join(root, ".aisus/maps", RUN, "audit.json"), "utf8"));
   expect(audit).toEqual({ schema: 1, createdAt: expect.stringMatching(/^\d{4}-\d{2}-\d{2}T/), ...GOOD });
   expect(existsSync(join(root, DRAFT))).toBe(false);
 });
@@ -85,12 +85,12 @@ test("ACC-05 arrow evidence passes the same path, deny-list and line checks as a
   const run = runScript("audit-record", [DRAFT], { cwd: audited(draft) });
   expect(run.status).toBe(1);
   expect(run.json().errors.map((error: { pointer: string }) => error.pointer)).toEqual(["/arrows/0/evidence/0/path", "/arrows/0/evidence/1/line", "/arrows/0/evidence/2/path"]);
-  expect(existsSync(join(audited(GOOD), ".archify", RUN, "audit.json"))).toBe(false);
+  expect(existsSync(join(audited(GOOD), ".aisus/maps", RUN, "audit.json"))).toBe(false);
 });
 
 test("ACC-05 a path that is not a run folder's audit-draft.json is a usage error", () => {
   const root = audited(GOOD);
-  const run = runScript("audit-record", [`.archify/${RUN}/draft.json`], { cwd: root });
+  const run = runScript("audit-record", [`.aisus/maps/${RUN}/draft.json`], { cwd: root });
   expect([run.status, run.stdout]).toEqual([2, ""]);
   expect(run.stderr).toContain("expected a path of the form");
 });

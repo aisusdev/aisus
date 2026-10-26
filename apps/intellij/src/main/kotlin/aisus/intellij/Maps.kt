@@ -1,5 +1,5 @@
 // IDE-01: the repository's maps, newest first, as the extension lists them: every run folder in
-// .archify/ with a candidate.json. Run folders named with a timestamp sort by it, then by their
+// .aisus/maps/ with a candidate.json. Run folders named with a timestamp sort by it, then by their
 // counter; the rest sort by the candidate's modification time, after them.
 package aisus.intellij
 
@@ -16,7 +16,7 @@ object Maps {
     private val STAMP = Regex("""(\d{8}-\d{6})(?:-(\d+))?$""")
 
     fun list(root: Path): List<MapFile> {
-        val maps = root.resolve(".archify")
+        val maps = root.resolve(".aisus/maps")
         if (!maps.isDirectory()) return emptyList()
         val runs = try {
             Files.list(maps).use { stream -> stream.filter { it.isDirectory() }.toList() }

@@ -36,7 +36,7 @@ function mappedRepo(): { root: string; run: string } {
   git(root, "add", ".");
   git(root, "commit", "-qm", "map");
   git(root, "checkout", "-qb", "feature");
-  return { root, run: facts.runFolder.replace(".archify/", "") };
+  return { root, run: facts.runFolder.replace(".aisus/maps/", "") };
 }
 
 describe("RCH-03 install and verify-skills", () => {
@@ -89,7 +89,7 @@ describe("RCH-03 map commands", () => {
     const result = cli(["export-page", "--share"], { cwd: root });
     const { status, page } = result.json() as { status: string; page: string };
     expect(status).toBe("written");
-    expect(page).toMatch(new RegExp(`^\\.archify/${run}/[a-z0-9-]+\\.html$`));
+    expect(page).toMatch(new RegExp(`^\\.aisus/maps/${run}/[a-z0-9-]+\\.html$`));
     const html = readFileSync(join(root, page), "utf8");
     expect(html).toContain('"root":null');
     expect(html.match(/<script>/g)).toHaveLength(1);
@@ -209,7 +209,7 @@ describe("CLD-09 publish", () => {
 
   test("a secret in the map stops the upload before anything is sent", async () => {
     const { root, run } = published();
-    const file = join(root, ".archify", run, "candidate.json");
+    const file = join(root, ".aisus/maps", run, "candidate.json");
     const doc = JSON.parse(readFileSync(file, "utf8"));
     doc.components[0].label = "ghp_abcdefghijklmnopqrstuvwxyz0123456789AB";
     writeFileSync(file, JSON.stringify(doc));

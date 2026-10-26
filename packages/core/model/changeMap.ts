@@ -6,7 +6,7 @@ import { isDenied } from "./deny";
 import type { FileEntry, RunChanges } from "./lineage";
 
 /** aisus's own run folders, which are never part of the change. */
-const OWN_OUTPUT = ".archify";
+const OWN_OUTPUT = ".aisus";
 
 /** One changed file and the text `change.md` shows for it. */
 export interface FileDiff {
@@ -69,7 +69,7 @@ function sections(diff: string): string[] {
 /**
  * The files changed since the base revision: the diff, untracked files as added, and files that
  * were uncommitted at the base map as modified, or deleted when gone. Deny-listed and binary files
- * keep only their names. `.archify/` is left out.
+ * keep only their names. `.aisus/` is left out.
  */
 export function collectChanges(input: ChangeInput): FileDiff[] {
   const files: FileDiff[] = [];

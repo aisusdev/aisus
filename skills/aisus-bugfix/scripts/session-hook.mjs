@@ -26,7 +26,7 @@ function parseRunName(name) {
 }
 
 // packages/core/model/session.ts
-var AISUS_DIR = ".aisus";
+var SESSIONS_DIR = ".aisus/sessions";
 var ACTIVE_FILE = "active";
 var SESSION_FILE = "session.json";
 var SESSION_PHASES = ["clarify", "implementing", "hunting", "paused", "done"];
@@ -81,7 +81,7 @@ function loadSession(runDir) {
 }
 function activeRun(root) {
   try {
-    const run = readFileSync(join(root, AISUS_DIR, ACTIVE_FILE), "utf8").trim();
+    const run = readFileSync(join(root, SESSIONS_DIR, ACTIVE_FILE), "utf8").trim();
     return run !== "" && parseRunName(run) !== null ? run : null;
   } catch {
     return null;
@@ -95,7 +95,7 @@ function projectRoot(payload) {
   if (named) return named;
   const start = typeof payload["cwd"] === "string" && payload["cwd"] !== "" ? payload["cwd"] : process.cwd();
   for (let dir = start; ; dir = dirname2(dir)) {
-    if (existsSync2(join2(dir, AISUS_DIR, ACTIVE_FILE))) return dir;
+    if (existsSync2(join2(dir, SESSIONS_DIR, ACTIVE_FILE))) return dir;
     if (dirname2(dir) === dir) return start;
   }
 }
@@ -137,7 +137,7 @@ function main() {
   if (run === null) return 0;
   let session;
   try {
-    session = loadSession(join2(root, AISUS_DIR, run));
+    session = loadSession(join2(root, SESSIONS_DIR, run));
   } catch {
     return 0;
   }

@@ -129,7 +129,7 @@ function matchIds(earlier, draft) {
 
 // packages/core/model/runFolder.ts
 import { basename, dirname as dirname2, join, resolve, sep } from "node:path";
-var MAP_DIR = ".archify";
+var MAP_DIR = ".aisus/maps";
 var DRAFT_FILE = "draft.json";
 var CANDIDATE_FILE = "candidate.json";
 var RUN_NAME_PATTERN = /^([a-z0-9]+)-(.+)-(\d{8}-\d{6})(?:-(\d+))?$/;
@@ -146,14 +146,18 @@ function parseRunName(name) {
 function locateDraft(arg, cwd) {
   const draft = resolve(cwd, arg);
   const runDir = dirname2(draft);
-  const maps = dirname2(runDir);
+  const root = mapRootOf(runDir);
   const run = basename(runDir);
-  if (basename(draft) !== DRAFT_FILE || basename(maps) !== MAP_DIR) {
+  if (basename(draft) !== DRAFT_FILE || root === null) {
     throw new Error(`expected a path of the form <repo>/${MAP_DIR}/<run>/${DRAFT_FILE}, got ${arg}`);
   }
   const kind = mapKindOf(run);
   if (kind === null) throw new Error(`run folder "${run}" does not match architecture-<slug>-<YYYYMMDD-HHMMSS>[-N] or sequence-<slug>-<YYYYMMDD-HHMMSS>[-N]`);
-  return { root: dirname2(maps), run, slug: parseRunName(run).slug, draft, kind };
+  return { root, run, slug: parseRunName(run).slug, draft, kind };
+}
+function mapRootOf(runDir) {
+  const root = dirname2(dirname2(dirname2(runDir)));
+  return join(root, MAP_DIR) === dirname2(runDir) ? root : null;
 }
 
 // packages/core/agent/match-ids.ts
@@ -172,7 +176,7 @@ function main(args) {
     return fail(error.message);
   }
   const previous = resolve2(process.cwd(), args[2]);
-  if (basename2(previous) !== CANDIDATE_FILE || basename2(dirname3(dirname3(previous))) !== MAP_DIR) return fail(USAGE);
+  if (basename2(previous) !== CANDIDATE_FILE || mapRootOf(dirname3(previous)) === null) return fail(USAGE);
   let draft;
   let earlier;
   try {

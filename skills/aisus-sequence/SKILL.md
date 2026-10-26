@@ -46,7 +46,7 @@ Keep to `budget` reads and searches in total. Each file read and each search cou
 
 Never open, search or cite these paths (any folder depth, any letter case):
 
-- `.git/` and `.archify/`
+- `.git/` and `.aisus/`
 - `.env` and `.env.*` (except `.env.example` and `.env.sample`)
 - `.npmrc`, `.pypirc`, `.netrc`
 - files whose names start with `id_rsa` or `id_ed25519`

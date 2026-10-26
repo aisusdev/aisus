@@ -19,7 +19,7 @@ function write(root: string, rel: string, content: string): string {
 const DIAGRAM = {
   schema_version: 1,
   diagram_type: "architecture",
-  meta: { title: "Navigation", output: ".archify/x/x.html" },
+  meta: { title: "Navigation", output: ".aisus/maps/x/x.html" },
   components: [
     { id: "web", type: "frontend", label: "Web", sources: [{ path: "src/web.ts", line: 2, end_line: 4 }, { path: "src/api.ts" }] },
     { id: "api", type: "backend", label: "API", sources: [{ path: "src/api.ts", line: 2 }] },
@@ -49,14 +49,14 @@ suite("FR-NAV-01..03 navigation", () => {
     root = vscode.workspace.workspaceFolders![0]!.uri.fsPath;
     write(root, "src/web.ts", "line 1\nline 2\nline 3\nline four\nline 5\n");
     write(root, "src/api.ts", "a\nbb\nccc\n");
-    write(root, `.archify/${RUN}/candidate.json`, JSON.stringify(DIAGRAM));
+    write(root, `.aisus/maps/${RUN}/candidate.json`, JSON.stringify(DIAGRAM));
     ui = stubUi();
   });
 
   teardown(async () => {
     ui.restore();
     await vscode.commands.executeCommand("workbench.action.closeAllEditors");
-    for (const dir of [".archify", "src"]) rmSync(join(root, dir), { recursive: true, force: true });
+    for (const dir of [".aisus/maps", "src"]) rmSync(join(root, dir), { recursive: true, force: true });
   });
 
   /** Opens the panel and waits until the workbench shows its tab, as it is before a user can click. */
@@ -71,7 +71,7 @@ suite("FR-NAV-01..03 navigation", () => {
     if (shown()) resolve();
     await promise;
     subscription.dispose();
-    assert.equal(hook.panelState().file, join(root, ".archify", RUN, "candidate.json"));
+    assert.equal(hook.panelState().file, join(root, ".aisus/maps", RUN, "candidate.json"));
   }
 
   test("line and end_line select the whole lines in the other column", async () => {

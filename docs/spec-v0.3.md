@@ -131,13 +131,13 @@ Files:
 
 | File | Where | Committed? | Feature |
 |---|---|---|---|
-| `candidate.json` | `.archify/<run>/` | Yes; the map is meant to be committed | v0.1 |
-| `run.json`, `fingerprints.json` | `.archify/<run>/` | Yes | CST-04, FRS-01 |
-| `evidence.json`, `audit.json`, `feedback.json`, `tour.json` | `.archify/<run>/` | Yes | ACC-01, ACC-05, ACC-06, SKL-02 |
-| `<slug>.html` (diagram page) | `.archify/<run>/` | No (excluded) | RCH-01 |
-| `draft.json` | `.archify/<run>/` | No (excluded) | v0.1 |
+| `candidate.json` | `.aisus/maps/<run>/` | Yes; the map is meant to be committed | v0.1 |
+| `run.json`, `fingerprints.json` | `.aisus/maps/<run>/` | Yes | CST-04, FRS-01 |
+| `evidence.json`, `audit.json`, `feedback.json`, `tour.json` | `.aisus/maps/<run>/` | Yes | ACC-01, ACC-05, ACC-06, SKL-02 |
+| `<slug>.html` (diagram page) | `.aisus/maps/<run>/` | No (excluded) | RCH-01 |
+| `draft.json` | `.aisus/maps/<run>/` | No (excluded) | v0.1 |
 | `aisus.config.json` | Repository root | Yes | PRC-01 |
-| `.aisus/` | Repository | No (excluded) | v0.2 |
+| Learning sessions | `.aisus/sessions/<run>/` | No (excluded) | v0.2 |
 
 ## 3. Constraints
 
@@ -220,11 +220,11 @@ AC: secret cases `[unit]`; a fixture with markup and `javascript:` URLs in every
 - the final component must not be a link;
 - otherwise the write fails, naming the path.
 
-AC: cases with `.git/info/exclude`, `.devin`, `.claude`, `.agents/skills`, `aisus.config.json`, `.archify/<run>` and `.aisus/<run>` each linked outside the root. `[unit]`
+AC: cases with `.git/info/exclude`, `.devin`, `.claude`, `.agents/skills`, `aisus.config.json`, `.aisus/maps/<run>` and `.aisus/sessions/<run>` each linked outside the root. `[unit]`
 
 **SAF-06 Hook lifecycle.** Install no longer touches hooks or `.gitignore`.
 - aisus's hook entries are merged when a learning session launches. They are removed when it completes or is abandoned (the `SessionWatcher` sees the lock released), and at activation when no session is active.
-- `.git/info/exclude` gets `.aisus/`, `.archify/**/draft.json` and `.archify/**/*.html`.
+- `.git/info/exclude` gets `.aisus/sessions/`, `.aisus/maps/**/draft.json` and `.aisus/maps/**/*.html`, and loses a plain `.aisus/` line, which would hide committed maps.
 - SAF-01's table covers `session-hook.mjs`.
 - Supersedes ADR 0036 and the install half of ADR 0040.
 
@@ -267,7 +267,7 @@ AC:
 - revealing the container shows the view, and Generate launches with the typed focus `[e2e]`.
 
 **UI-02 Runs streamed into the sidebar.** In sidebar mode, Generate and Refresh run the agent headless and stream its activity into the run card.
-- **Claude Code:** `claude -p "/aisus-architecture <focus>" --output-format stream-json --verbose --permission-mode dontAsk --allowedTools <list>`. The list is exactly Read, Grep, Glob, the skill's script rules, and `Edit(./.archify/**)`.
+- **Claude Code:** `claude -p "/aisus-architecture <focus>" --output-format stream-json --verbose --permission-mode dontAsk --allowedTools <list>`. The list is exactly Read, Grep, Glob, the skill's script rules, and `Edit(./.aisus/maps/**)`.
 - **Codex:** `codex exec --json --sandbox workspace-write "$aisus-architecture <focus>"`.
 - **Devin** always runs in a terminal.
 - **Parsing.** `packages/core/model/agentStream/` turns events into feed items: "Reading apps/vscode/src/panel.ts", "Writing draft", "Validating, attempt 2", "Accepted: 16 boxes".
@@ -377,7 +377,7 @@ It creates a run folder named `architecture-<slug>-<YYYYMMDD-HHMMSS>[-N]`, whose
 
 AC: the heuristic, the skill text and the revise-once flow. `[unit]`
 
-**RCH-01 Diagram page.** `render-html.mjs <candidate.json>` writes the file named in `meta.output` (`.archify/<run>/<slug>.html`), superseding that part of FR-VAL-02 and ADR 0009. The skill's last step runs it; the maps list and the map's title bar export it.
+**RCH-01 Diagram page.** `render-html.mjs <candidate.json>` writes the file named in `meta.output` (`.aisus/maps/<run>/<slug>.html`), superseding that part of FR-VAL-02 and ADR 0009. The skill's last step runs it; the maps list and the map's title bar export it.
 
 The page is one file:
 - The data sits in `<script type="application/json">`, with `<`, `>`, `&`, U+2028 and U+2029 escaped.
@@ -715,7 +715,7 @@ Otherwise the refresh's run folder also gets:
 - `changes.json`: for each box of the base map whose cited files changed, those files with their status, and the changed files no box cites;
 - `change.md`: the same change as a unified diff with three lines of context, grouped by box, for the skill to read.
 
-The change runs from the base revision to the working tree. Untracked files count as added, and files uncommitted when the base map was made count as modified. Deny-listed and binary files appear by name only. `.archify/` is left out. AC: the decision's reasons in order, and the grouping `[unit]`; `refresh-facts` on temporary repositories `[unit]`.
+The change runs from the base revision to the working tree. Untracked files count as added, and files uncommitted when the base map was made count as modified. Deny-listed and binary files appear by name only. `.aisus/` is left out. AC: the decision's reasons in order, and the grouping `[unit]`; `refresh-facts` on temporary repositories `[unit]`.
 
 **FRS-09 Ids across a redraw.** `repo-facts.mjs` finds the newest accepted map with the same focus, unless the run is a drill-down. It writes `lineage.json` with `mode: "regenerate"`, that map as the run it continues, and as the reason either the FRS-08 reason the map was due a redraw for, `requested` or `no-previous`. It prints that map's candidate as `previous`. After writing the draft, the architecture skill runs `match-ids.mjs <draft> --previous <candidate>`. That script gives each new box the id of the earlier box whose cited files overlap it most, by Jaccard similarity of at least 0.3, one to one with the best pairs first. A new box that reuses an earlier id without matching it gets a fresh id. An arrow between two matched boxes takes the id of the earlier arrow between them. AC: `[unit]`.
 
@@ -748,7 +748,7 @@ Supersedes FRS-07's ghosts of removed boxes. AC: the context's warnings and appr
 
 **SAF-08 Remove aisus from a folder.** `aisus: Remove aisus from This Folder`, also in the sidebar title bar:
 - removes repository-installed skills, hook entries, exclude lines and the `AGENTS.md` block;
-- asks before deleting `.archify/`, `.aisus/` and `aisus.config.json`;
+- asks before deleting `.aisus/` and `aisus.config.json`;
 - offers to remove the per-user skills.
 
 AC: `[e2e]`.

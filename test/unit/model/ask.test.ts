@@ -10,8 +10,8 @@ const BOXES = [
 
 describe("UI-06 prompt", () => {
   test("the first question names the map, says to read it first and to cite path:line", () => {
-    const prompt = askPrompt(".archify/architecture-x-20261018-120000/candidate.json", "  Where is Generate?  ");
-    expect(prompt).toContain("First read the architecture map in .archify/architecture-x-20261018-120000/candidate.json");
+    const prompt = askPrompt(".aisus/maps/architecture-x-20261018-120000/candidate.json", "  Where is Generate?  ");
+    expect(prompt).toContain("First read the architecture map in .aisus/maps/architecture-x-20261018-120000/candidate.json");
     expect(prompt).toContain("Answer from the code the map cites");
     expect(prompt).toContain("Cite every claim as path:line");
     expect(prompt.endsWith("Question: Where is Generate?")).toBe(true);

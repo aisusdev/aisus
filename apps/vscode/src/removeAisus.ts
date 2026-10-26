@@ -9,7 +9,6 @@ import * as vscode from "vscode";
 import { removeNotes, NOTES_START } from "@aisus/core/model/agentNotes";
 import { CONFIG_FILE } from "@aisus/core/model/config";
 import { assertWritable, isWithin } from "@aisus/core/model/confine";
-import { MAP_DIR } from "@aisus/core/model/runFolder";
 import { AISUS_DIR } from "@aisus/core/model/session";
 import { pickRepoRoot } from "./folders";
 import { removeAgentHooks, removeGitExclude, removeHooks } from "./hooksFiles";
@@ -87,7 +86,7 @@ export async function removeAisusCommand(): Promise<void> {
     void vscode.window.showErrorMessage(`aisus could not remove everything from ${name}: ${(error as Error).message}`, "Remove Again");
     return;
   }
-  const data = [MAP_DIR, AISUS_DIR, CONFIG_FILE].filter((entry) => existsSync(join(root, entry)));
+  const data = [AISUS_DIR, CONFIG_FILE].filter((entry) => existsSync(join(root, entry)));
   if (data.length > 0) {
     const kept = await vscode.window.showWarningMessage(
       `Also delete ${data.join(", ")}?`,

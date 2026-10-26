@@ -31,11 +31,11 @@ suite("SEQ-04 Sequence maps in VS Code", () => {
     write(root, "src/login-api.ts", "export const login = () => 200;\n");
     write(
       root,
-      `.archify/${RUN}/candidate.json`,
+      `.aisus/maps/${RUN}/candidate.json`,
       JSON.stringify({
         schema_version: 1,
         diagram_type: "sequence",
-        meta: { title: "Login", output: `.archify/${RUN}/login.html` },
+        meta: { title: "Login", output: `.aisus/maps/${RUN}/login.html` },
         participants: [
           { id: "web", type: "frontend", label: "Web", sources: [{ path: "src/login-page.ts" }] },
           { id: "api", type: "backend", label: "API", sources: [{ path: "src/login-api.ts", line: 1 }] },
@@ -51,11 +51,11 @@ suite("SEQ-04 Sequence maps in VS Code", () => {
   teardown(async () => {
     ui.restore();
     await vscode.commands.executeCommand("workbench.action.closeAllEditors");
-    for (const path of [".archify", "src"]) rmSync(join(root, path), { recursive: true, force: true });
+    for (const path of [".aisus/maps", "src"]) rmSync(join(root, path), { recursive: true, force: true });
   });
 
   test("SEQ-04 a sequence map opens from the Maps page, and a click on a message selects its cited lines", async () => {
-    const file = join(root, ".archify", RUN, "candidate.json");
+    const file = join(root, ".aisus/maps", RUN, "candidate.json");
     await hook.postFromHome({ type: "openMap", file });
     await until(() => hook.panelState().file === file, "the sequence map to open");
     await hook.postFromWebview({ type: "openSource", componentId: "post", index: 0 });

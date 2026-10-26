@@ -88,7 +88,7 @@ describe("FR-MOD-02 schema", () => {
   );
 
   test("a run-folder output path is valid", () => {
-    const doc = { ...base(), meta: { title: "T", output: ".archify/architecture-x-20261010-101010/x.html" } };
+    const doc = { ...base(), meta: { title: "T", output: ".aisus/maps/architecture-x-20261010-101010/x.html" } };
     expect(validateArchitecture(doc)).toEqual([]);
   });
 });

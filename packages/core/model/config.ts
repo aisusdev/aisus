@@ -30,7 +30,7 @@ export function readConfig(value: unknown): ConfigResult {
   if (!isJsonObject(value)) return { ok: false, errors: ["the config must be a JSON object"] };
   const errors: string[] = [];
   for (const key of Object.keys(value)) if (!["map", "ignore", "check", "rules"].includes(key)) errors.push(`unknown key "${key}"`);
-  if (value["map"] !== undefined && (typeof value["map"] !== "string" || !/^[a-z0-9]+-[A-Za-z0-9._-]+$/.test(value["map"]))) errors.push('"map" must name a run folder in .archify/');
+  if (value["map"] !== undefined && (typeof value["map"] !== "string" || !/^[a-z0-9]+-[A-Za-z0-9._-]+$/.test(value["map"]))) errors.push('"map" must name a run folder in .aisus/maps/');
   if (value["ignore"] !== undefined && !strings(value["ignore"])) errors.push('"ignore" must be a list of globs');
   if (value["rules"] !== undefined) errors.push(...readRules(value["rules"]).errors);
   const check = value["check"];

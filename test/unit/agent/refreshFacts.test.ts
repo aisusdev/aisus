@@ -27,7 +27,7 @@ function mappedRepo(): { root: string; base: string } {
     }),
   );
   expect(runScript("validate", [facts.draft], { cwd: root }).status).toBe(0);
-  return { root, base: facts.runFolder.replace(".archify/", "") };
+  return { root, base: facts.runFolder.replace(".aisus/maps/", "") };
 }
 
 function changeTheCode(root: string): void {
@@ -44,7 +44,7 @@ describe("FRS-05 refresh-facts", () => {
     expect(run.stderr).toBe("");
     expect(run.status).toBe(0);
     const facts = run.json() as Record<string, any>;
-    expect(facts["base"]).toMatchObject({ runFolder: `.archify/${base}`, revision: git(root, "rev-parse", "HEAD").trim(), fingerprints: true });
+    expect(facts["base"]).toMatchObject({ runFolder: `.aisus/maps/${base}`, revision: git(root, "rev-parse", "HEAD").trim(), fingerprints: true });
     expect(facts["boxes"]).toEqual(["api"]);
     expect(facts["stale"]).toEqual([{ component: "api", index: 0, path: "src/a.ts", state: "edited" }]);
     expect(facts["changes"]).toEqual([
@@ -55,13 +55,13 @@ describe("FRS-05 refresh-facts", () => {
     expect(facts["uncovered"]).toEqual(["packages/new/index.ts", "src/c.ts"]);
     expect(facts["newFolders"]).toEqual(["packages"]);
 
-    expect(facts["runFolder"]).toMatch(/^\.archify\/architecture-payments-\d{8}-\d{6}(-\d+)?$/);
-    expect(facts["runFolder"]).not.toBe(`.archify/${base}`);
+    expect(facts["runFolder"]).toMatch(/^\.aisus\/maps\/architecture-payments-\d{8}-\d{6}(-\d+)?$/);
+    expect(facts["runFolder"]).not.toBe(`.aisus/maps/${base}`);
     const record = JSON.parse(readFileSync(join(root, facts["runFolder"], "run.json"), "utf8"));
     expect(record).toMatchObject({ kind: "refresh", focus: "payments", base, paths: [], phase: "created" });
 
     const draft = JSON.parse(readFileSync(join(root, facts["draft"]), "utf8"));
-    const candidate = JSON.parse(readFileSync(join(root, ".archify", base, "candidate.json"), "utf8"));
+    const candidate = JSON.parse(readFileSync(join(root, ".aisus/maps", base, "candidate.json"), "utf8"));
     expect(candidate.meta).toHaveProperty("output");
     expect(draft.meta).toEqual({ title: "Payments" });
     expect(draft.components).toEqual(candidate.components);
@@ -77,7 +77,7 @@ describe("FRS-05 refresh-facts", () => {
   test("--paths limits the report to its globs and is recorded", () => {
     const { root, base } = mappedRepo();
     changeTheCode(root);
-    const facts = runScript("refresh-facts", ["--from", `.archify/${base}/`, "--paths", "src/c.*", "lib"], { cwd: root }).json() as Record<string, any>;
+    const facts = runScript("refresh-facts", ["--from", `.aisus/maps/${base}/`, "--paths", "src/c.*", "lib"], { cwd: root }).json() as Record<string, any>;
     expect(facts["paths"]).toEqual(["src/c.*", "lib"]);
     expect(facts["boxes"]).toEqual([]);
     expect(facts["uncovered"]).toEqual(["src/c.ts"]);
@@ -87,13 +87,13 @@ describe("FRS-05 refresh-facts", () => {
 
   test("FRS-08 a map whose revision is unknown must be drawn again, and gets no run folder", () => {
     const { root, base } = mappedRepo();
-    put(root, `.archify/${base}/fingerprints.json`, "not json");
-    rmSync(join(root, `.archify/${base}/lineage.json`), { force: true });
-    const before = readdirSync(join(root, ".archify"));
+    put(root, `.aisus/maps/${base}/fingerprints.json`, "not json");
+    rmSync(join(root, `.aisus/maps/${base}/lineage.json`), { force: true });
+    const before = readdirSync(join(root, ".aisus/maps"));
     const run = runScript("refresh-facts", ["--from", base], { cwd: root });
     expect(run.status).toBe(0);
-    expect(run.json()).toEqual({ mode: "regenerate", reason: "no-base-revision", focus: "payments", base: { runFolder: `.archify/${base}` } });
-    expect(readdirSync(join(root, ".archify"))).toEqual(before);
+    expect(run.json()).toEqual({ mode: "regenerate", reason: "no-base-revision", focus: "payments", base: { runFolder: `.aisus/maps/${base}` } });
+    expect(readdirSync(join(root, ".aisus/maps"))).toEqual(before);
   });
 
   test("FRS-08 an update records its lineage and the change it works from", () => {
@@ -128,8 +128,8 @@ describe("FRS-05 refresh-facts", () => {
     const facts = runScript("refresh-facts", ["--from", base], { cwd: root }).json() as Record<string, any>;
     const lineageFile = join(root, facts["runFolder"], "lineage.json");
     const lineage = JSON.parse(readFileSync(lineageFile, "utf8"));
-    put(root, `${facts["runFolder"]}/candidate.json`, readFileSync(join(root, ".archify", base, "candidate.json"), "utf8"));
-    const next = facts["runFolder"].replace(".archify/", "");
+    put(root, `${facts["runFolder"]}/candidate.json`, readFileSync(join(root, ".aisus/maps", base, "candidate.json"), "utf8"));
+    const next = facts["runFolder"].replace(".aisus/maps/", "");
     writeFileSync(lineageFile, JSON.stringify({ ...lineage, updatesSinceRegeneration: 4 }));
     expect(runScript("refresh-facts", ["--from", next], { cwd: root }).json()).toMatchObject({ mode: "update" });
     writeFileSync(lineageFile, JSON.stringify({ ...lineage, updatesSinceRegeneration: 5 }));

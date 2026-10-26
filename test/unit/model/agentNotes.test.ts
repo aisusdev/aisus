@@ -25,7 +25,7 @@ test("ARC-04 the block lists the boxes with roles and paths, the arrows, and the
       NOTES_START,
       "## Architecture",
       "",
-      "aisus wrote this block from the map `.archify/architecture-shop-20261019-120000` and replaces it when the notes are written again. Change the map or `aisus.config.json`, not this block.",
+      "aisus wrote this block from the map `.aisus/maps/architecture-shop-20261019-120000` and replaces it when the notes are written again. Change the map or `aisus.config.json`, not this block.",
       "",
       "### Boxes",
       "",

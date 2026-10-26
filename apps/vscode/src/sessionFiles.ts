@@ -1,15 +1,15 @@
-// Read-side aggregation behind the session webview: lists `.aisus/<run>` folders and
+// Read-side aggregation behind the session webview: lists `.aisus/sessions/<run>` folders and
 // builds the panel's snapshot from `session.json` + `events.jsonl` ONLY — `manifest.json`
 // is never opened (the webview trust boundary of ADR 0034). No `vscode` import.
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import { leaderboardEntry, parseLedger, rankLeaderboard, type LeaderboardEntry, type LedgerEvent } from "@aisus/core/model/leaderboard";
 import { parseRunName, type RunName } from "@aisus/core/model/runFolder";
-import { ACTIVE_FILE, activeRun, checkSession, EVENTS_FILE, SESSION_FILE, AISUS_DIR, type SessionState } from "@aisus/core/model/session";
+import { ACTIVE_FILE, activeRun, checkSession, EVENTS_FILE, SESSION_FILE, SESSIONS_DIR, type SessionState } from "@aisus/core/model/session";
 
-/** `.aisus` run folders holding a `session.json`, newest timestamp (then `-N`) first. */
+/** Run folders in `.aisus/sessions/` holding a `session.json`, newest timestamp (then `-N`) first. */
 export function listSessionRuns(root: string): string[] {
-  const dir = join(root, AISUS_DIR);
+  const dir = join(root, SESSIONS_DIR);
   let names: string[];
   try {
     names = readdirSync(dir);
@@ -43,7 +43,7 @@ function readEvents(dir: string): LedgerEvent[] {
 
 /** What the session panel renders: the run it shows plus the full leaderboard. */
 export interface SessionSnapshot {
-  /** `.aisus/active` when it names a live run folder, else `null`. */
+  /** `.aisus/sessions/active` when it names a live run folder, else `null`. */
   activeRun: string | null;
   /** The run to display — the active one, else the newest — `null` when none exist. */
   shown: { run: string; session: SessionState | null } | null;
@@ -53,7 +53,7 @@ export interface SessionSnapshot {
 }
 
 export function readSessionSnapshot(root: string): SessionSnapshot {
-  const dir = join(root, AISUS_DIR);
+  const dir = join(root, SESSIONS_DIR);
   const runs = listSessionRuns(root);
   const held = activeRun(root);
   const live = held !== null && runs.includes(held) ? held : null;
@@ -69,7 +69,7 @@ export function readSessionSnapshot(root: string): SessionSnapshot {
   };
 }
 
-/** The `.aisus/active` lock path — the session watcher re-reads the snapshot when it moves. */
+/** The `.aisus/sessions/active` lock path — the session watcher re-reads the snapshot when it moves. */
 export function activeLockPath(root: string): string {
-  return join(root, AISUS_DIR, ACTIVE_FILE);
+  return join(root, SESSIONS_DIR, ACTIVE_FILE);
 }

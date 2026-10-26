@@ -1,6 +1,7 @@
 // The `.devin/hooks.v1.json` merge/remove and `.gitignore` append behind Install Agent
 // Skills (ADR 0036/0039): partial existing file, hand-edited file, empty file, corrupt
 // file — a user's own hooks must always survive.
+import { spawnSync } from "node:child_process";
 import { existsSync, readdirSync, readFileSync, rmSync, symlinkSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, test } from "vitest";
@@ -147,6 +148,20 @@ describe("SAF-06 ensureGitExclude", () => {
     expect(ensureGitExclude(root)).toBe(false);
   });
 
+  test("drops a plain .aisus/ line, so git keeps maps and ignores drafts, pages and sessions", () => {
+    const root = tempDir();
+    spawnSync("git", ["init", "-q"], { cwd: root });
+    put(root, ".git/info/exclude", "*.log\n.aisus/\n");
+    expect(ensureGitExclude(root)).toBe(true);
+    expect(readFileSync(join(root, ".git/info/exclude"), "utf8")).toBe(`*.log\n${EXCLUDE_LINES.join("\n")}\n`);
+    const run = ".aisus/maps/architecture-app-20261026-120000";
+    const ignored = (path: string): boolean => spawnSync("git", ["check-ignore", "-q", "--no-index", path], { cwd: root }).status === 0;
+    expect(ignored(`${run}/candidate.json`)).toBe(false);
+    expect(ignored(`${run}/draft.json`)).toBe(true);
+    expect(ignored(`${run}/app.html`)).toBe(true);
+    expect(ignored(".aisus/sessions/bugfix-demo-20261026-120000/session.json")).toBe(true);
+  });
+
   test("leaves a folder without a .git directory alone", () => {
     const root = tempDir();
     put(root, ".git", "gitdir: ../elsewhere/.git/worktrees/x\n");
@@ -165,11 +180,11 @@ describe("SAF-06 ensureGitExclude", () => {
 describe("SAF-06 removeHooksWhenIdle", () => {
   test("keeps aisus's hooks while a session holds the lock and removes them once it is gone", () => {
     const root = tempDir();
-    put(root, ".aisus/active", "bugfix-demo-20261018-120000\n");
+    put(root, ".aisus/sessions/active", "bugfix-demo-20261018-120000\n");
     mergeHooks(root);
     expect(removeHooksWhenIdle(root)).toBe("none");
     expect(existsSync(join(root, HOOKS))).toBe(true);
-    rmSync(join(root, ".aisus/active"));
+    rmSync(join(root, ".aisus/sessions/active"));
     expect(removeHooksWhenIdle(root)).toBe("deleted");
     expect(existsSync(join(root, HOOKS))).toBe(false);
   });

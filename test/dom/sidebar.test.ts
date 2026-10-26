@@ -48,7 +48,7 @@ function state(fields: Partial<HomeState> = {}): HomeState {
 }
 
 function map(fields: Partial<MapItem>): MapItem {
-  return { runFolder: "architecture-x-20261016-120000", file: "/r/.archify/architecture-x-20261016-120000/candidate.json", title: "aisus", focus: "", agent: "Claude Code", createdAt: "2026-10-16T12:00:00Z", boxes: 16, changed: null, ...fields };
+  return { runFolder: "architecture-x-20261016-120000", file: "/r/.aisus/maps/architecture-x-20261016-120000/candidate.json", title: "aisus", focus: "", agent: "Claude Code", createdAt: "2026-10-16T12:00:00Z", boxes: 16, changed: null, ...fields };
 }
 
 function run(fields: Partial<RunCard>): RunCard {
@@ -557,7 +557,7 @@ describe("SEQ-04 sequence maps on the Maps page", () => {
   });
 
   test("a folder with only sequence maps offers Maps, whose Sequence maps section opens, exports and deletes them and counts participants", () => {
-    const sequence = map({ runFolder: "sequence-login-20261016-120000", file: "/r/.archify/sequence-login-20261016-120000/candidate.json", title: "Login", boxes: 3 });
+    const sequence = map({ runFolder: "sequence-login-20261016-120000", file: "/r/.aisus/maps/sequence-login-20261016-120000/candidate.json", title: "Login", boxes: 3 });
     home.render(state({ sequences: [sequence] }));
     const row = container.querySelector<HTMLButtonElement>('.row[data-page="maps"]')!;
     expect(row.textContent).toContain("1");

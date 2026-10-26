@@ -16,7 +16,7 @@ class MapsTest {
     fun `timestamped runs come first, newest and highest counter first, then the rest by modification time, and folders without a candidate are left out`() {
         val root = folder.root.toPath()
         fun run(name: String, minutes: Long = 0, candidate: Boolean = true) {
-            val dir = Files.createDirectories(root.resolve(".archify/$name"))
+            val dir = Files.createDirectories(root.resolve(".aisus/maps/$name"))
             if (candidate) {
                 val file = Files.writeString(dir.resolve("candidate.json"), "{}")
                 Files.setLastModifiedTime(file, FileTime.fromMillis(1_700_000_000_000 + minutes * 60_000))

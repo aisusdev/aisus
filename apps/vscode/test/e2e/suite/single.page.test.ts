@@ -22,27 +22,27 @@ suite("RCH-01 Export Page", () => {
   setup(() => {
     root = vscode.workspace.workspaceFolders![0]!.uri.fsPath;
     ui = stubUi();
-    mkdirSync(join(root, ".archify", RUN), { recursive: true });
+    mkdirSync(join(root, ".aisus/maps", RUN), { recursive: true });
     writeFileSync(
-      join(root, ".archify", RUN, "candidate.json"),
-      JSON.stringify({ meta: { title: "Shop", output: `.archify/${RUN}/shop.html` }, components: [{ id: "a", type: "backend", label: "A", sources: [{ path: "a.ts" }] }] }),
+      join(root, ".aisus/maps", RUN, "candidate.json"),
+      JSON.stringify({ meta: { title: "Shop", output: `.aisus/maps/${RUN}/shop.html` }, components: [{ id: "a", type: "backend", label: "A", sources: [{ path: "a.ts" }] }] }),
     );
   });
 
   teardown(async () => {
     ui.restore();
     await vscode.commands.executeCommand("workbench.action.closeAllEditors");
-    rmSync(join(root, ".archify"), { recursive: true, force: true });
+    rmSync(join(root, ".aisus/maps"), { recursive: true, force: true });
   });
 
   test("RCH-01 the map's Export Page writes meta.output with the map and the viewer", async () => {
     await vscode.commands.executeCommand("aisus.openArchitecture");
     await until(() => hook.panelState().open, "the map");
     await vscode.commands.executeCommand("aisus.exportPage");
-    const html = readFileSync(join(root, ".archify", RUN, "shop.html"), "utf8");
+    const html = readFileSync(join(root, ".aisus/maps", RUN, "shop.html"), "utf8");
     assert.match(html, /<title>Shop<\/title>/);
     assert.match(html, /<script type="application\/json" id="aisus-data">/);
     assert.equal(html.match(/<script>/g)?.length, 1);
-    assert.equal(ui.infos[0]?.message, `Wrote the diagram page: .archify/${RUN}/shop.html`);
+    assert.equal(ui.infos[0]?.message, `Wrote the diagram page: .aisus/maps/${RUN}/shop.html`);
   });
 });

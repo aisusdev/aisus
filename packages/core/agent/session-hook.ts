@@ -4,18 +4,18 @@
 // The agent pipes one hook event as JSON on stdin (`hook_event_name`, `tool_name`,
 // `tool_input`, `cwd`). Devin sets DEVIN_PROJECT_DIR and Claude Code CLAUDE_PROJECT_DIR to
 // the repo root; without either, the repository is the nearest folder above the event's
-// `cwd` that holds `.aisus/active`.
+// `cwd` that holds `.aisus/sessions/active`.
 //
 // - PreToolUse: while `session.json` says `hunting`, exits 2 (with a `decision: block`
 //   object on stdout) for the file-editing and subagent tools, so "the user fixed it
 //   themselves" is enforced, not hoped for. Every other tool and phase passes silently.
 // - UserPromptSubmit / PostCompaction / SessionStart: prints `additionalContext` with the
 //   live session state, re-grounding the agent each turn and after compaction.
-// - No `.aisus/active`, no parseable event, or unreadable session state: inert (exit
+// - No `.aisus/sessions/active`, no parseable event, or unreadable session state: inert (exit
 //   0). A hook must never break a repo that has no learning session running.
 import { existsSync, readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
-import { ACTIVE_FILE, activeRun, loadSession, AISUS_DIR, type SessionState } from "../model/session";
+import { ACTIVE_FILE, activeRun, loadSession, SESSIONS_DIR, type SessionState } from "../model/session";
 
 /**
  * Tools that mutate code or delegate work, blocked only while `phase === "hunting"`: Devin's,
@@ -29,7 +29,7 @@ function projectRoot(payload: Record<string, unknown>): string {
   if (named) return named;
   const start = typeof payload["cwd"] === "string" && payload["cwd"] !== "" ? payload["cwd"] : process.cwd();
   for (let dir = start; ; dir = dirname(dir)) {
-    if (existsSync(join(dir, AISUS_DIR, ACTIVE_FILE))) return dir;
+    if (existsSync(join(dir, SESSIONS_DIR, ACTIVE_FILE))) return dir;
     if (dirname(dir) === dir) return start;
   }
 }
@@ -81,7 +81,7 @@ function main(): number {
   if (run === null) return 0;
   let session: SessionState;
   try {
-    session = loadSession(join(root, AISUS_DIR, run));
+    session = loadSession(join(root, SESSIONS_DIR, run));
   } catch {
     return 0; // corrupt or half-written state must not jam the user's agent
   }

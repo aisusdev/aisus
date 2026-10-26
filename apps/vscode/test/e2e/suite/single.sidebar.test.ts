@@ -114,7 +114,7 @@ suite("UI-01 aisus sidebar", () => {
     await vscode.commands.executeCommand("workbench.action.closeAllEditors");
     await vscode.workspace.getConfiguration("aisus").update("runMode", undefined, vscode.ConfigurationTarget.Global);
     for (const dir of cleanup.splice(0)) rmSync(dir, { recursive: true, force: true });
-    rmSync(join(root, ".archify"), { recursive: true, force: true });
+    rmSync(join(root, ".aisus/maps"), { recursive: true, force: true });
     for (const dir of [".agents", ".claude"]) rmSync(join(homedir(), dir), { recursive: true, force: true });
   });
 
@@ -188,13 +188,13 @@ suite("UI-01 aisus sidebar", () => {
     assert.equal(card.phase, "accepted");
     assert.match(card.runFolder ?? "", /^architecture-stub-/);
 
-    const record = JSON.parse(readFileSync(join(root, ".archify", card.runFolder!, "run.json"), "utf8")) as Record<string, unknown>;
+    const record = JSON.parse(readFileSync(join(root, ".aisus/maps", card.runFolder!, "run.json"), "utf8")) as Record<string, unknown>;
     assert.equal(record["agent"], "Claude Code");
     assert.equal(record["mode"], "sidebar");
     assert.equal(record["costUsd"], 0.4123);
     assert.ok((record["tokens"] as { output: number }).output > 0);
 
-    const file = join(root, ".archify", card.runFolder!, "candidate.json");
+    const file = join(root, ".aisus/maps", card.runFolder!, "candidate.json");
     await until(() => hook.panelState().file === file, "the map to open");
     assert.equal(hook.statusText(), "$(type-hierarchy-sub) aisus");
     assert.equal(ui.infos.filter((call) => call.message.startsWith("New architecture diagram")).length, 0, "the run opens its own map");
@@ -242,7 +242,7 @@ suite("UI-01 aisus sidebar", () => {
     terminals.push(await opened);
     assert.equal(hook.runCard()?.mode, "terminal");
 
-    const dir = join(root, ".archify/architecture-terminal-20261018-120000");
+    const dir = join(root, ".aisus/maps/architecture-terminal-20261018-120000");
     mkdirSync(dir, { recursive: true });
     const base = { schema: 1, kind: "full", focus: "terminal", paths: [], base: null, parent: null, createdAt: new Date().toISOString(), skillVersion: "test" };
     const steps: [string, number][] = [["created", 0], ["validating", 1], ["rejected", 1], ["validating", 2], ["accepted", 2]];
@@ -286,7 +286,7 @@ suite("UI-01 aisus sidebar", () => {
   });
 
   test("UI-01 Delete asks first and removes the run folder", async () => {
-    const dir = join(root, ".archify/architecture-gone-20261018-120000");
+    const dir = join(root, ".aisus/maps/architecture-gone-20261018-120000");
     mkdirSync(dir, { recursive: true });
     writeFileSync(join(dir, "candidate.json"), JSON.stringify({ components: [{ id: "a", label: "A", type: "backend" }] }));
     await reveal();
@@ -301,7 +301,7 @@ suite("UI-01 aisus sidebar", () => {
   });
 
   test("UI-06 a recorded answer renders with checked links, its citation opens the line, and a follow-up resumes the session", async () => {
-    const run = ".archify/architecture-ask-20261018-120000";
+    const run = ".aisus/maps/architecture-ask-20261018-120000";
     mkdirSync(join(root, run), { recursive: true });
     writeFileSync(join(root, run, "candidate.json"), JSON.stringify({ components: [{ id: "alpha", label: "Alpha service", type: "backend", sources: [{ path: "src/a.ts", line: 2 }] }] }));
     mkdirSync(join(root, "src"), { recursive: true });
@@ -319,7 +319,7 @@ suite("UI-01 aisus sidebar", () => {
     assert.equal(turn.status, "done");
     assert.equal(turn.costUsd, 0.0311);
     const argv = JSON.parse(readFileSync(args, "utf8")) as string[];
-    assert.match(argv[1]!, /First read the architecture map in \.archify\/architecture-ask-20261018-120000\/candidate\.json/);
+    assert.match(argv[1]!, /First read the architecture map in \.aisus\/maps\/architecture-ask-20261018-120000\/candidate\.json/);
     assert.deepEqual(argv.slice(argv.indexOf("--allowedTools") + 1), ["Read", "Grep", "Glob"]);
     assert.equal(argv.includes("--resume"), false);
 

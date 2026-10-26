@@ -16,7 +16,7 @@ export const REMOVED_FIELD_MESSAGE = "Removed app-owned field";
 
 /** Values the validator owns and writes over whatever the agent supplied. */
 export interface AppOwned {
-  /** `meta.output`: `.archify/<run>/<slug>.html` (never written). */
+  /** `meta.output`: `.aisus/maps/<run>/<slug>.html` (never written). */
   output: string;
   /** `meta.repository` from git facts, or `null` when unavailable. */
   repository: Repository | null;

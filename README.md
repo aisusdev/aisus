@@ -22,7 +22,7 @@ The sidebar's setup checklist names anything missing and offers a fix for each.
 
 1. Add the skills with `npx skills add kerktaiheng/aisus`.
 2. In the repository, run `/aisus-architecture` in Claude Code or `$aisus-architecture` in Codex.
-3. Open the `.html` page the skill writes in `.archify/<run>/`. Each box opens its code in your JetBrains IDE, VS Code, Cursor or GitHub.
+3. Open the `.html` page the skill writes in `.aisus/maps/<run>/`. Each box opens its code in your JetBrains IDE, VS Code, Cursor or GitHub.
 
 ### Skill only
 
@@ -116,7 +116,7 @@ Every command is also in the Command Palette under "aisus".
 
 ## Commit your map
 
-Each map lives in its own run folder in `.archify/`, named after its focus and the time it was made. Commit the folder. Teammates, the pull request check and aisus cloud all read the committed map.
+Each map lives in its own run folder in `.aisus/maps/`, named after its focus and the time it was made. Commit the folder. Teammates, the pull request check and aisus cloud all read the committed map.
 
 - `candidate.json` is the map.
 - `fingerprints.json` holds hashes of the cited code. aisus uses them to find the boxes that changed.
@@ -147,20 +147,20 @@ aisus makes no AI calls of its own. Your agent does the work, on your account.
 ## What it touches on your machine
 
 - Skills go to `~/.agents/skills/`, which Codex and Devin read, with links in `~/.claude/skills/` for Claude Code. With `aisus.skillScope` set to `project`, they go to `.agents/skills/` and `.claude/skills/` in the repository.
-- Maps go to `.archify/` in the repository.
-- `.git/info/exclude` gains `.aisus/`, `.archify/**/draft.json` and `.archify/**/*.html`. Git reads this file and never commits it.
-- Learning sessions keep their state in `.aisus/`. Their hook entry exists only while a session runs, in `.claude/settings.local.json` for Claude Code, `.codex/hooks.json` for Codex or `.devin/hooks.v1.json` for Devin. Codex runs it once you trust it with `/hooks`.
-- Agents run with an exact list of tools. Claude Code may read, search, run the skill's scripts and edit inside `.archify/`. Codex runs in its workspace sandbox. No permission prompt is skipped.
+- Maps go to `.aisus/maps/` in the repository.
+- `.git/info/exclude` gains `.aisus/sessions/`, `.aisus/maps/**/draft.json` and `.aisus/maps/**/*.html`. Git reads this file and never commits it.
+- Learning sessions keep their state in `.aisus/sessions/`. Their hook entry exists only while a session runs, in `.claude/settings.local.json` for Claude Code, `.codex/hooks.json` for Codex or `.devin/hooks.v1.json` for Devin. Codex runs it once you trust it with `/hooks`.
+- Agents run with an exact list of tools. Claude Code may read, search, run the skill's scripts and edit inside `.aisus/maps/`. Codex runs in its workspace sandbox. No permission prompt is skipped.
 - With `aisus.usageLog` on (it is off by default), aisus keeps how many times you used each of its actions per day, for 90 days, in VS Code's storage. It holds no paths, labels, repository names or anything you typed. **Export Usage Log** and **Clear Usage Log** are in the sidebar's title-bar menu.
 - The extension makes no network requests. Only `aisus publish` and the Action's `upload: true` send anything, and they send maps and check results.
 
 ## How to remove it
 
-**Remove aisus from This Folder**, in the sidebar's title-bar menu and the Command Palette, removes what aisus added to a folder: the skills installed in the repository, its hook entries, its lines in `.git/info/exclude`, and its block in `AGENTS.md` and `CLAUDE.md`. It then asks before deleting `.archify/`, `.aisus/` and `aisus.config.json`, and offers to remove the skills from your home folder. To do it by hand:
+**Remove aisus from This Folder**, in the sidebar's title-bar menu and the Command Palette, removes what aisus added to a folder: the skills installed in the repository, its hook entries, its lines in `.git/info/exclude`, and its block in `AGENTS.md` and `CLAUDE.md`. It then asks before deleting `.aisus/maps/`, `.aisus/` and `aisus.config.json`, and offers to remove the skills from your home folder. To do it by hand:
 
 1. Uninstall aisus from the Extensions view.
 2. Delete `aisus-architecture`, `aisus-refresh`, `aisus-audit`, `aisus-tour` and `aisus-bugfix` from `~/.agents/skills/` and `~/.claude/skills/`.
-3. In each repository you mapped, delete `.archify/` and `.aisus/` if you no longer want them, and the three aisus lines from `.git/info/exclude`.
+3. In each repository you mapped, delete `.aisus/` if you no longer want its maps and sessions, and the three aisus lines from `.git/info/exclude`.
 
 To leave aisus cloud, choose **Delete my account** in its settings. Your account and every repository space it owns are removed at once.
 

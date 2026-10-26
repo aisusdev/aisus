@@ -1,11 +1,11 @@
-// `node <skill>/scripts/render-html.mjs <repo>/.archify/<run>/candidate.json [--share]` (RCH-01):
+// `node <skill>/scripts/render-html.mjs <repo>/.aisus/maps/<run>/candidate.json [--share]` (RCH-01):
 // writes the diagram page beside the candidate, as `meta.output` names it. The page embeds the map
 // and the repository's absolute path; `--share` leaves the path out for a page meant for others.
 import { readFileSync, realpathSync, writeFileSync } from "node:fs";
 import { basename, dirname, join, resolve } from "node:path";
 import { assertWritable, isWithin } from "../model/confine";
 import { pageOutput, renderPage } from "../model/page";
-import { MAP_DIR, CANDIDATE_FILE, RUN_NAME_PATTERN } from "../model/runFolder";
+import { MAP_DIR, CANDIDATE_FILE, mapRootOf, RUN_NAME_PATTERN } from "../model/runFolder";
 import { readDiagram } from "../model/tolerant";
 import { isJsonObject, type Repository } from "../model/types";
 
@@ -23,8 +23,8 @@ function main(args: string[]): number {
   const candidate = resolve(process.cwd(), args[0]!);
   const runDir = dirname(candidate);
   const run = basename(runDir);
-  const root = dirname(dirname(runDir));
-  if (basename(candidate) !== CANDIDATE_FILE || basename(dirname(runDir)) !== MAP_DIR || !RUN_NAME_PATTERN.test(run)) {
+  const root = mapRootOf(runDir);
+  if (basename(candidate) !== CANDIDATE_FILE || root === null || !RUN_NAME_PATTERN.test(run)) {
     return fail(`expected a path of the form <repo>/${MAP_DIR}/<run>/${CANDIDATE_FILE}, got ${args[0]}`);
   }
   let doc: unknown;

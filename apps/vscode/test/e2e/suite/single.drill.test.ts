@@ -44,9 +44,9 @@ suite("VWR-05 Drill down", () => {
     await vscode.workspace.getConfiguration("aisus").update("runMode", "terminal", vscode.ConfigurationTarget.Global);
     write(root, "src/api.ts", "export const api = () => 1;\n");
     const map = (components: object[]): string => JSON.stringify({ meta: { title: "Shop" }, components });
-    write(root, `.archify/${OVERVIEW}/candidate.json`, map([{ id: "api", type: "backend", label: "Orders API", sources: [{ path: "src/api.ts", line: 1 }] }]));
-    write(root, `.archify/${DETAIL}/candidate.json`, map([{ id: "handler", type: "backend", label: "Handler", sources: [{ path: "src/api.ts", line: 1 }] }]));
-    write(root, `.archify/${DETAIL}/run.json`, JSON.stringify({ schema: 1, kind: "drill", focus: "Orders API", paths: [], base: null, parent: OVERVIEW, createdAt: "2026-10-19T13:00:00Z", skillVersion: "test", phase: "accepted", attempts: 1 }));
+    write(root, `.aisus/maps/${OVERVIEW}/candidate.json`, map([{ id: "api", type: "backend", label: "Orders API", sources: [{ path: "src/api.ts", line: 1 }] }]));
+    write(root, `.aisus/maps/${DETAIL}/candidate.json`, map([{ id: "handler", type: "backend", label: "Handler", sources: [{ path: "src/api.ts", line: 1 }] }]));
+    write(root, `.aisus/maps/${DETAIL}/run.json`, JSON.stringify({ schema: 1, kind: "drill", focus: "Orders API", paths: [], base: null, parent: OVERVIEW, createdAt: "2026-10-19T13:00:00Z", skillVersion: "test", phase: "accepted", attempts: 1 }));
   });
 
   teardown(async () => {
@@ -55,14 +55,14 @@ suite("VWR-05 Drill down", () => {
     for (const terminal of terminals.splice(0)) terminal.dispose();
     await vscode.commands.executeCommand("workbench.action.closeAllEditors");
     await vscode.workspace.getConfiguration("aisus").update("runMode", undefined, vscode.ConfigurationTarget.Global);
-    for (const path of [".archify", "src"]) rmSync(join(root, path), { recursive: true, force: true });
+    for (const path of [".aisus/maps", "src"]) rmSync(join(root, path), { recursive: true, force: true });
     rmSync(bin, { recursive: true, force: true });
     for (const dir of [".agents", ".claude"]) rmSync(join(homedir(), dir), { recursive: true, force: true });
   });
 
   test("VWR-05 Map This Box in Detail runs Generate on the box with the map it came from", async () => {
-    await hook.postFromHome({ type: "openMap", file: join(root, ".archify", OVERVIEW, "candidate.json") });
-    await until(() => hook.panelState().file === join(root, ".archify", OVERVIEW, "candidate.json"), "the overview to open");
+    await hook.postFromHome({ type: "openMap", file: join(root, ".aisus/maps", OVERVIEW, "candidate.json") });
+    await until(() => hook.panelState().file === join(root, ".aisus/maps", OVERVIEW, "candidate.json"), "the overview to open");
     const opened = new Promise<vscode.Terminal>((resolve) => {
       const subscription = vscode.window.onDidOpenTerminal((terminal) => {
         subscription.dispose();
@@ -76,10 +76,10 @@ suite("VWR-05 Drill down", () => {
   });
 
   test("VWR-05 a drill-down map offers Back to overview, which opens the map it came from", async () => {
-    await hook.postFromHome({ type: "openMap", file: join(root, ".archify", DETAIL, "candidate.json") });
+    await hook.postFromHome({ type: "openMap", file: join(root, ".aisus/maps", DETAIL, "candidate.json") });
     await until(() => hook.panelOverview() === OVERVIEW, "the drill-down to know its overview");
     await hook.postFromWebview({ type: "backToOverview" });
-    await until(() => hook.panelState().file === join(root, ".archify", OVERVIEW, "candidate.json"), "the overview to open");
+    await until(() => hook.panelState().file === join(root, ".aisus/maps", OVERVIEW, "candidate.json"), "the overview to open");
     assert.equal(hook.panelOverview(), null);
   });
 });

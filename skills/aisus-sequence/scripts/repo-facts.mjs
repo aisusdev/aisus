@@ -240,7 +240,7 @@ import { existsSync as existsSync2, readdirSync as readdirSync2, readFileSync as
 import { join as join6 } from "node:path";
 
 // packages/core/model/deny.ts
-var DENIED_NAMES = [".git", ".archify", ".npmrc", ".pypirc", ".netrc"];
+var DENIED_NAMES = [".git", ".aisus", ".npmrc", ".pypirc", ".netrc"];
 var ENV_EXCEPTIONS = [".env.example", ".env.sample"];
 var DENIED_PREFIXES = ["id_rsa", "id_ed25519"];
 var DENIED_EXTENSIONS = ["pem", "key", "p12", "pfx"];
@@ -257,7 +257,7 @@ function isDenied(path) {
 }
 
 // packages/core/model/changeMap.ts
-var OWN_OUTPUT = ".archify";
+var OWN_OUTPUT = ".aisus";
 var isOwnOutput = (path) => path !== void 0 && (path === OWN_OUTPUT || path.startsWith(`${OWN_OUTPUT}/`));
 var paths = (entry) => entry.oldPath === void 0 ? [entry.path] : [entry.path, entry.oldPath];
 function nameOnly(entry, note) {
@@ -391,7 +391,7 @@ function inScope(path, globs) {
 // packages/core/model/runFolder.ts
 import { closeSync, fsyncSync, mkdirSync, openSync, realpathSync as realpathSync3, renameSync, rmSync, statSync as statSync2, unlinkSync, writeSync } from "node:fs";
 import { basename, dirname as dirname2, join as join2, resolve, sep } from "node:path";
-var MAP_DIR = ".archify";
+var MAP_DIR = ".aisus/maps";
 var DRAFT_FILE = "draft.json";
 var CANDIDATE_FILE = "candidate.json";
 var SLUG_MAX = 40;
@@ -435,11 +435,18 @@ function isInside(parentReal, childReal) {
 function createRunFolder(root, slug, timestamp, options = {}) {
   const dir = options.dir ?? MAP_DIR;
   const prefix = options.prefix ?? "architecture";
-  if (dir === "." || dir === ".." || /[/\\]/.test(dir)) throw new Error(`"${dir}" is not a valid run folder directory`);
+  if (dir.includes("\\") || dir.split("/").some((part) => part === "" || part === "." || part === "..")) {
+    throw new Error(`"${dir}" is not a valid run folder directory`);
+  }
   if (!/^[a-z0-9]+$/.test(prefix)) throw new Error(`"${prefix}" is not a valid run folder prefix`);
   const base = `${prefix}-${slug}-${timestamp}`;
   if (!parseRunName(base) || /[/\\]/.test(base)) throw new Error(`"${base}" is not a valid run folder name`);
   const parent = join2(root, dir);
+  try {
+    assertWritable(root, parent);
+  } catch {
+    throw new Error(`${dir} must be a folder inside the repository root`);
+  }
   mkdirSync(parent, { recursive: true });
   const parentReal = realpathSync3(parent);
   if (!isInside(realpathSync3(root), parentReal) || !statSync2(parentReal).isDirectory()) {

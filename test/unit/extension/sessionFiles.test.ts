@@ -1,10 +1,10 @@
 // `listSessionRuns`/`readSessionSnapshot` (extension/sessionFiles.ts): the read side of
-// the session panel — aggregates `.aisus/<run>/session.json` + `events.jsonl` only.
+// the session panel — aggregates `.aisus/sessions/<run>/session.json` + `events.jsonl` only.
 import { mkdirSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, test } from "vitest";
 import { listSessionRuns, readSessionSnapshot } from "../../../apps/vscode/src/sessionFiles";
-import { ACTIVE_FILE, SESSION_FILE, AISUS_DIR } from "@aisus/core/model/session";
+import { ACTIVE_FILE, SESSION_FILE, SESSIONS_DIR } from "@aisus/core/model/session";
 import { put, tempDir } from "../support/temp";
 
 const RUN_OLD = "bugfix-alpha-20250101-000000";
@@ -28,11 +28,11 @@ function sessionJson(phase = "done", extra: Record<string, unknown> = {}): strin
 }
 
 function makeRun(root: string, run: string, session: string | null, events: string[] = []): void {
-  const dir = join(root, AISUS_DIR, run);
+  const dir = join(root, SESSIONS_DIR, run);
   mkdirSync(dir, { recursive: true });
-  if (session !== null) put(root, `${AISUS_DIR}/${run}/${SESSION_FILE}`, session);
+  if (session !== null) put(root, `${SESSIONS_DIR}/${run}/${SESSION_FILE}`, session);
   if (events.length > 0) {
-    put(root, `${AISUS_DIR}/${run}/events.jsonl`, `${events.map((e) => JSON.stringify({ ts: "2025-01-01T00:00:00.000Z", type: e })).join("\n")}\n`);
+    put(root, `${SESSIONS_DIR}/${run}/events.jsonl`, `${events.map((e) => JSON.stringify({ ts: "2025-01-01T00:00:00.000Z", type: e })).join("\n")}\n`);
   }
 }
 
@@ -46,9 +46,9 @@ describe("listSessionRuns", () => {
     makeRun(root, RUN_OLD, sessionJson());
     makeRun(root, RUN_NEW, sessionJson());
     // A run-named folder without session.json, a stray dir, and the lock file are ignored.
-    mkdirSync(join(root, AISUS_DIR, "bugfix-ghost-20250103-000000"), { recursive: true });
-    mkdirSync(join(root, AISUS_DIR, "not-a-run"), { recursive: true });
-    put(root, `${AISUS_DIR}/${ACTIVE_FILE}`, RUN_NEW);
+    mkdirSync(join(root, SESSIONS_DIR, "bugfix-ghost-20250103-000000"), { recursive: true });
+    mkdirSync(join(root, SESSIONS_DIR, "not-a-run"), { recursive: true });
+    put(root, `${SESSIONS_DIR}/${ACTIVE_FILE}`, RUN_NEW);
     expect(listSessionRuns(root)).toEqual([RUN_NEW, RUN_OLD]);
   });
 });
@@ -73,7 +73,7 @@ describe("readSessionSnapshot", () => {
     const root = tempDir();
     makeRun(root, RUN_OLD, sessionJson("hunting"), ["injected"]);
     makeRun(root, RUN_NEW, sessionJson("done"), ["completed"]);
-    put(root, `${AISUS_DIR}/${ACTIVE_FILE}`, RUN_OLD);
+    put(root, `${SESSIONS_DIR}/${ACTIVE_FILE}`, RUN_OLD);
     const snapshot = readSessionSnapshot(root);
     expect(snapshot.activeRun).toBe(RUN_OLD);
     expect(snapshot.shown?.run).toBe(RUN_OLD);
@@ -84,7 +84,7 @@ describe("readSessionSnapshot", () => {
   test("a lock naming a missing run is ignored", () => {
     const root = tempDir();
     makeRun(root, RUN_NEW, sessionJson("done"), ["completed"]);
-    put(root, `${AISUS_DIR}/${ACTIVE_FILE}`, "bugfix-gone-20250103-000000");
+    put(root, `${SESSIONS_DIR}/${ACTIVE_FILE}`, "bugfix-gone-20250103-000000");
     const snapshot = readSessionSnapshot(root);
     expect(snapshot.activeRun).toBeNull();
     expect(snapshot.shown?.run).toBe(RUN_NEW);
@@ -109,7 +109,7 @@ describe("readSessionSnapshot", () => {
     const root = tempDir();
     makeRun(root, RUN_OLD, sessionJson("done", { score: 80 }), ["completed"]);
     makeRun(root, RUN_NEW, sessionJson("hunting", { score: 30, found: 1, fixed: 0 }), ["injected"]);
-    put(root, `${AISUS_DIR}/${ACTIVE_FILE}`, RUN_NEW);
+    put(root, `${SESSIONS_DIR}/${ACTIVE_FILE}`, RUN_NEW);
     const snapshot = readSessionSnapshot(root);
     expect(snapshot.leaderboard.map((entry) => entry.score)).toEqual([80, 30]);
     expect(snapshot.totalScore).toBe(110);

@@ -32,9 +32,9 @@ class CoreCliTest {
     @Test
     fun `export-page's written page is found inside the repository, and anything else is not`() {
         val repo = folder.newFolder("repo").toPath()
-        Files.createDirectories(repo.resolve(".archify/run"))
-        Files.writeString(repo.resolve(".archify/run/diagram.html"), "<html>")
-        assertEquals(repo.toRealPath().resolve(".archify/run/diagram.html"), CoreCli.writtenPage(repo, """{"status":"written","page":".archify/run/diagram.html"}"""))
+        Files.createDirectories(repo.resolve(".aisus/maps/run"))
+        Files.writeString(repo.resolve(".aisus/maps/run/diagram.html"), "<html>")
+        assertEquals(repo.toRealPath().resolve(".aisus/maps/run/diagram.html"), CoreCli.writtenPage(repo, """{"status":"written","page":".aisus/maps/run/diagram.html"}"""))
         assertNull(CoreCli.writtenPage(repo, """{"status":"written","page":"../outside.html"}"""))
         assertNull(CoreCli.writtenPage(repo, """{"status":"error"}"""))
         assertNull(CoreCli.writtenPage(repo, "usage: aisus.mjs"))

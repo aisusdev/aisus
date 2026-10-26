@@ -51,9 +51,9 @@ const DIFF = [
   "+SECRET=2",
   "diff --git a/logo.png b/logo.png",
   "Binary files a/logo.png and b/logo.png differ",
-  "diff --git a/.archify/run/candidate.json b/.archify/run/candidate.json",
-  "--- a/.archify/run/candidate.json",
-  "+++ b/.archify/run/candidate.json",
+  "diff --git a/.aisus/maps/run/candidate.json b/.aisus/maps/run/candidate.json",
+  "--- a/.aisus/maps/run/candidate.json",
+  "+++ b/.aisus/maps/run/candidate.json",
   "@@ -1 +1 @@",
   "-{}",
   "+[]",
@@ -71,7 +71,7 @@ const BOXES = [
 function changes(previousDirty: string[] = []): ReturnType<typeof collectChanges> {
   return collectChanges({
     diff: DIFF,
-    untracked: ["src/fresh.ts", "web/app.ts", ".archify/other/draft.json", "secrets/id_rsa"],
+    untracked: ["src/fresh.ts", "web/app.ts", ".aisus/maps/other/draft.json", "secrets/id_rsa"],
     previousDirty,
     cited: new Set(BOXES.flatMap((box) => box.sources.map((source) => source.path))),
     exists: (path) => path !== "web/gen/a.ts",
@@ -80,7 +80,7 @@ function changes(previousDirty: string[] = []): ReturnType<typeof collectChanges
 }
 
 describe("FRS-08 change map", () => {
-  test("lists the diff's files and untracked files with their status, without .archify/", () => {
+  test("lists the diff's files and untracked files with their status, without .aisus/maps/", () => {
     expect(changes().map((file) => file.entry)).toEqual([
       { status: "modified", path: "src/api.ts" },
       { status: "renamed", path: "src/new.ts", oldPath: "src/old.ts" },
@@ -104,7 +104,7 @@ describe("FRS-08 change map", () => {
   });
 
   test("counts files uncommitted at the base map as modified, or deleted when gone, and a folder through its cited files", () => {
-    const entries = changes(["README.md", "web/gen/", "src/api.ts", ".archify/x/run.json"]).map((file) => file.entry);
+    const entries = changes(["README.md", "web/gen/", "src/api.ts", ".aisus/maps/x/run.json"]).map((file) => file.entry);
     expect(entries.slice(7)).toEqual([
       { status: "modified", path: "README.md" },
       { status: "deleted", path: "web/gen/a.ts" },

@@ -1,7 +1,7 @@
-// Learning-session state under `<repo>/.aisus/` (ADRs 0029–0035): `session.json` is the
+// Learning-session state under `<repo>/.aisus/sessions/` (ADRs 0029–0035): `session.json` is the
 // public snapshot the extension renders, `events.jsonl` the append-only ledger the local
 // leaderboard derives from, `manifest.json` the secret record of seeded bugs, and
-// `.aisus/active` the one-session-per-repo lock. Written and read only by `session.mjs`;
+// `.aisus/sessions/active` the one-session-per-repo lock. Written and read only by `session.mjs`;
 // the webview must never see `manifest.json`.
 import {
   appendFileSync,
@@ -20,6 +20,8 @@ import { parseRunName } from "./runFolder";
 import { assertNotLink } from "./confine";
 
 export const AISUS_DIR = ".aisus";
+/** Where learning sessions live, below the repository root. They stay out of git. */
+export const SESSIONS_DIR = ".aisus/sessions";
 /** Names the live run folder; missing means no active session (ADR 0033). */
 export const ACTIVE_FILE = "active";
 export const SESSION_FILE = "session.json";
@@ -308,19 +310,19 @@ export function saveManifest(runDir: string, manifest: Manifest): void {
 }
 
 /**
- * The run folder named by `.aisus/active`, or `null` when no session holds the lock or
+ * The run folder named by `.aisus/sessions/active`, or `null` when no session holds the lock or
  * the lock does not name a `<prefix>-<slug>-<ts>[-N]` run folder.
  */
 export function activeRun(root: string): string | null {
   try {
-    const run = readFileSync(join(root, AISUS_DIR, ACTIVE_FILE), "utf8").trim();
+    const run = readFileSync(join(root, SESSIONS_DIR, ACTIVE_FILE), "utf8").trim();
     return run !== "" && parseRunName(run) !== null ? run : null;
   } catch {
     return null;
   }
 }
 
-/** Whether `.aisus/<run>/` exists — a lock naming a missing run is stale. */
+/** Whether `.aisus/sessions/<run>/` exists — a lock naming a missing run is stale. */
 export function runExists(root: string, run: string): boolean {
-  return existsSync(join(root, AISUS_DIR, run));
+  return existsSync(join(root, SESSIONS_DIR, run));
 }

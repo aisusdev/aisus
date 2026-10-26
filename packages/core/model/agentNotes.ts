@@ -24,7 +24,7 @@ export function notesBlock(map: NotesMap, rules: readonly Rule[]): string {
     NOTES_START,
     "## Architecture",
     "",
-    `aisus wrote this block from the map \`.archify/${map.run}\` and replaces it when the notes are written again. Change the map or \`aisus.config.json\`, not this block.`,
+    `aisus wrote this block from the map \`.aisus/maps/${map.run}\` and replaces it when the notes are written again. Change the map or \`aisus.config.json\`, not this block.`,
     "",
     "### Boxes",
     "",

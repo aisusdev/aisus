@@ -7,7 +7,7 @@
 import { existsSync, lstatSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { assertWritable } from "@aisus/core/model/confine";
-import { writeJson } from "@aisus/core/model/session";
+import { ACTIVE_FILE, SESSIONS_DIR, writeJson } from "@aisus/core/model/session";
 
 export const DEVIN_HOOKS_FILE = join(".devin", "hooks.v1.json");
 /** LRN-01: the files whose `hooks` object holds Claude Code's and Codex's hunt hook, relative to the repository. */
@@ -205,35 +205,40 @@ export function removeHooks(root: string): HooksRemoval {
 
 /**
  * Removes aisus's hook entries from every agent's file when no learning session holds
- * `.aisus/active` (SAF-06, LRN-01). Called when the lock disappears and at activation.
+ * `.aisus/sessions/active` (SAF-06, LRN-01). Called when the lock disappears and at activation.
  * Returns what removing did to the Devin file.
  */
 export function removeHooksWhenIdle(root: string): HooksRemoval {
-  if (existsSync(join(root, ".aisus", "active"))) return "none";
+  if (existsSync(join(root, SESSIONS_DIR, ACTIVE_FILE))) return "none";
   for (const agent of ["claude", "codex"] as const) removeAgentHooks(root, agent);
   return removeHooks(root);
 }
 
-/** Lines aisus keeps out of git through the repository's local exclude file (SAF-06). */
-export const EXCLUDE_LINES: readonly string[] = [".aisus/", ".archify/**/draft.json", ".archify/**/*.html"];
+/** Lines aisus keeps out of git through the repository's local exclude file (SAF-06). Maps stay committed. */
+export const EXCLUDE_LINES: readonly string[] = [".aisus/sessions/", ".aisus/maps/**/draft.json", ".aisus/maps/**/*.html"];
+/** The line aisus wrote before maps moved into `.aisus/`. It would hide committed maps, so it goes. */
+const HIDES_MAPS = ".aisus/";
 
 /**
  * Appends any missing {@link EXCLUDE_LINES} to `.git/info/exclude`, which git reads and never
- * commits. Does nothing when `.git` is not a folder, as in a worktree or outside git. Returns
- * whether the file changed.
+ * commits, and drops a plain `.aisus/` line. Does nothing when `.git` is not a folder, as in a
+ * worktree or outside git. Returns whether the file changed.
  */
 export function ensureGitExclude(root: string): boolean {
   const gitDir = join(root, ".git");
   if (!existsSync(gitDir) || !lstatSync(gitDir).isDirectory()) return false;
   const path = join(gitDir, "info", "exclude");
   const text = existsSync(path) ? readFileSync(path, "utf8") : "";
-  const present = new Set(text.split("\n").map((line) => line.trim()));
+  const kept = text.split("\n").filter((line) => line.trim() !== HIDES_MAPS);
+  const present = new Set(kept.map((line) => line.trim()));
   const missing = EXCLUDE_LINES.filter((line) => !present.has(line));
-  if (missing.length === 0) return false;
+  const base = kept.join("\n");
+  if (missing.length === 0 && base === text) return false;
   assertWritable(root, path);
   mkdirSync(dirname(path), { recursive: true });
-  const prefix = text === "" ? "" : text.endsWith("\n") ? text : `${text}\n`;
-  writeFileSync(path, `${prefix}${missing.join("\n")}\n`);
+  const added = missing.length === 0 ? "" : `${missing.join("\n")}\n`;
+  const prefix = base === "" || base.endsWith("\n") || added === "" ? base : `${base}\n`;
+  writeFileSync(path, `${prefix}${added}`);
   return true;
 }
 
