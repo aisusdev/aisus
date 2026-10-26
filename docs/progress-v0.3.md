@@ -1,5 +1,42 @@
 # Progress (v0.3)
 
+## Team cloud sync proposal (owner request, 2026-10-26)
+
+The owner asked for personal and team spaces, team maps per branch that teammates pull, a load order, a merge when a branch lands, and team management with GitHub as the source of truth. The owner's answers: the extension may use the network behind `aisus.cloud.enabled`, Free gets the personal space for three branches across repositories, personal maps join the load order, merges run on pushes to the default branch only, and commits decide staleness. This is I9 (CLD-14 to CLD-18, ADR 0071) and the owner's go for CLD-12. It amends CLD-07's Free plan.
+
+| File or unit | Change | Estimate |
+|---|---|---|
+| `apps/cloud/src/db/schema.ts`, `migrations.ts` | `uploads.space` and `uploads.user_id` | +20 |
+| `packages/core/model/upload.ts`, `schemas/upload.schema.json` | `space`, `meta.merge`, and `mapSha256` of a map's canonical JSON | +40 |
+| `apps/cloud/plans.ts`, `apps/cloud/src/lib/billing.ts` | Free's personal limit of three branches and its refusal | +40 / -5 |
+| `apps/cloud/src/lib/access.ts`, `github.ts` | `userForToken`: the user a GitHub token belongs to | +30 |
+| `apps/cloud/src/app/api/v1/uploads/route.ts`, `lib/store.ts` | CLD-14: GitHub-token uploads to either space, the write-access rule, branch maps and the branch list | +120 / -10 |
+| `apps/cloud/src/app/api/v1/repos/[owner]/[repo]/maps/route.ts` (new) | CLD-15: the pull API | +110 |
+| `apps/cloud/src/app/[owner]/[repo]/page.tsx`, `lib/mapPage.ts` | CLD-14: the branch list and `?branch=` | +60 / -10 |
+| `packages/cloud-client/client.ts` | `pullMaps` and a GitHub-token upload | +40 |
+| `packages/core/model/loadOrder.ts` (new) | CLD-16: the choice of map and the staleness by commit | +90 |
+| `apps/vscode/src/cloud.ts` (new), `open.ts`, `home.ts`, `hooksFiles.ts`, `package.json` | CLD-12 and CLD-16: the settings, Share to aisus cloud with its preview, pulling into `.aisus/cloud/`, and Open in the load order | +260 / -10 |
+| `packages/core/model/mergeMaps.ts` (new) | CLD-17: the three-way merge | +220 |
+| `apps/action/src/merge.ts` (new), `main.ts`, `github.ts`, `action.yml`, `dist/index.js` | CLD-17: on a push to the default branch, merge and upload | +160 / -10 |
+| `apps/cloud/src/lib/team.ts` (new), `apps/cloud/src/app/[owner]/team/page.tsx` (new) | CLD-18: the team page | +150 |
+| `docs/architecture.md`, `docs/messages.md`, `README.md` | The pull API, the spaces, the load order and the new messages | +80 |
+
+Tests, from the ACs of CLD-12 and CLD-14 to CLD-18:
+- `[unit]` CLD-14: a GitHub token uploads to the personal space with read access and to the team space only with write access. Another user can't read a personal map. Free keeps three branches and refuses a fourth with 402.
+- `[web]` CLD-14: the map page lists branches and shows one with `?branch=`.
+- `[unit]` CLD-15: the team, personal and main entries with their hashes, the history, `?id=`, OIDC reading, and refusals without access.
+- `[unit]` CLD-16: each step of the load order, a local map behind the cloud map's commit, and the three staleness cases.
+- `[unit]` CLD-12: only the cloud client uses the network, and the payload equals the preview.
+- `[e2e]` CLD-12 and CLD-16: hidden by default; against a fake server the preview is sent, and Open pulls the branch's map.
+- `[unit]` CLD-17: each merge rule; a push event against a fake cloud and GitHub uploads the merged map.
+- `[unit]` CLD-18: the people, their highest roles and the seats. `[web]` CLD-18: the page.
+
+- [ ] **CLD-14 Personal and team spaces** `[unit]` `[web]`
+- [ ] **CLD-15 Pull maps** `[unit]`
+- [ ] **CLD-16 Map load order** `[unit]` `[e2e]`
+- [ ] **CLD-17 Map merge** `[unit]`
+- [ ] **CLD-18 Team page** `[unit]` `[web]`
+
 ## Changes panel cards proposal (owner request, 2026-10-26)
 
 The owner chose concept A of three mockups for the Changes view. The header shows the two commits as chips, with the counts as labelled pills. The panel shows filter tabs and one card per change. The host, the `Comparison` message and the e2e tests stay as they are.
@@ -230,6 +267,7 @@ Tracks [spec-v0.3.md](spec-v0.3.md). Milestone statuses: Not started, In progres
 | I6 Polish and reach | Closed pending owner (RCH-04 `[smoke]`) | `34d09df` |
 | I7 IntelliJ plugin | Closed pending owner (IDE-01 `[smoke]`) | IDE-01 |
 | I8 Sequence maps | Closed | `273be0a` |
+| I9 Team cloud sync | In progress | — |
 
 ## Waiting
 

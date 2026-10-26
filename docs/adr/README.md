@@ -74,3 +74,4 @@ Decisions for Sustain in [MADR 4.0](https://adr.github.io/madr/) format; the pro
 | [0068](0068-a-run-records-its-lineage-and-the-change-it-worked-from.md) | A run records its lineage and the change it worked from | accepted | 2026-10-25 |
 | [0069](0069-sequence-maps-are-laid-out-from-message-order.md) | Sequence maps are laid out from message order | accepted | 2026-10-25 |
 | [0070](0070-maps-and-learning-sessions-live-in-the-aisus-folder.md) | Maps and learning sessions live in the .aisus folder | accepted | 2026-10-26 |
+| [0071](0071-maps-sync-through-personal-and-team-spaces-per-branch.md) | Maps sync through personal and team spaces per branch | accepted | 2026-10-26 |

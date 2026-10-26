@@ -108,6 +108,11 @@ aisus pays down three debts that AI-assisted coding creates: **comprehension** (
 | SEQ-02 | Sequence skill | An agent draws one flow of the repository as a sequence map | Comprehension | I8 |
 | SEQ-03 | Sequence viewer | Lifelines, messages, activations and phases laid out from message order | Comprehension | I8 |
 | SEQ-04 | Sequence maps in VS Code | Generate, list, open, click to code and freshness for sequence maps | Comprehension | I8 |
+| CLD-14 | Personal and team spaces | Each person's own maps and the team's maps, kept per branch | — | I9 |
+| CLD-15 | Pull maps | The extension and the Action read a branch's maps from the cloud | — | I9 |
+| CLD-16 | Map load order | The extension opens the newest map that fits the branch: local work, then the cloud, then the default branch | Comprehension | I9 |
+| CLD-17 | Map merge | A branch's map is merged into the default branch's map when the branch lands | Comprehension | I9 |
+| CLD-18 | Team page | Who in a GitHub organization uses aisus, and the seats they take | — | I9 |
 
 ## 2. Where it appears
 
@@ -141,7 +146,7 @@ Files:
 
 ## 3. Constraints
 
-- **No network in the extension, skill scripts, core CLI or IntelliJ plugin.** The only senders are the core CLI's `publish` and the GitHub Action, and only when the user asks: `publish` run explicitly, or the Action's `upload` set. CLD-12 (iterate) would add one opt-in exception in the extension. Dev tools under `tools/bench/`, `eval/` and `scripts/` may use the network.
+- **No network in the extension, skill scripts, core CLI or IntelliJ plugin.** The only senders are the core CLI's `publish` and the GitHub Action, and only when the user asks: `publish` run explicitly, or the Action's `upload` set. CLD-12, CLD-15 and CLD-16 add one opt-in exception in the extension: with `aisus.cloud.enabled` on, it shares and pulls maps through `packages/cloud-client/client.ts`. Dev tools under `tools/bench/`, `eval/` and `scripts/` may use the network.
 - **The cloud stores maps, never code.** It accepts only Archify maps, sidecars, check results and metadata (repository, commit, branch, focus, agent, token counts). Everything else is rejected (CLD-02).
 - **No LLM calls by aisus.** The user's agent runs every skill and question, on their machine or, opt-in, on their CI runner with their key.
 - **Archify JSON unchanged.** Maps stay valid against the vendored schemas, whose objects all forbid extra properties. New data goes in sidecars or `aisus.config.json`.
@@ -683,7 +688,7 @@ Everything is aggregated per repository. No per-person view, query or export exi
 **CLD-06 Share links.** Expiring (1, 7 or 30 days), revocable, read-only links to private maps. AC: `[web]`.
 
 **CLD-07 Plans and billing.** Stripe Checkout and the Customer Portal, with signature-verified webhooks setting the plan. `apps/cloud/plans.ts` defines the plans, enforced on the server:
-- **Free:** no cloud. The extension, the skills, the CLI and the Action's PR comment stay free and local. The cloud refuses uploads with 402, naming Pro and Team and the upgrade address, and shows no maps.
+- **Free:** no team space. The extension, the skills, the CLI and the Action's PR comment stay free and local. The cloud refuses team uploads with 402, naming Pro and Team and the upgrade address, and shows no team maps. The personal space holds maps for three branches (CLD-14).
 - **Pro (US$5 a month):** the cloud for one person's own repositories, public and private, with full history, PR pages and share links. Bought by that person for their own account, quantity 1.
 - **Team (US$10 per seat a month):** Pro for everyone in a GitHub organization, with its repositories, the dashboard and seats. Bought for an organization's account by someone with admin access to one of its repositories.
 - **Enterprise:** self-hosted.
@@ -692,7 +697,7 @@ Prices live in configuration. AC: signed test webhooks and limits `[unit]`; the 
 
 **CLD-10 Self-hosting.** `apps/cloud/Dockerfile` and `infra/local/compose.yaml` run the app with Postgres. Configuration comes from the environment only, and billing is off without Stripe keys. AC: in CI, the image builds and the health endpoint answers. `[ci]`
 
-**CLD-12 Share from the extension.** When `aisus.cloud.enabled` is true (default false), the maps list shows "Share to aisus cloud". It signs in through VS Code's GitHub authentication provider, previews exactly the JSON to send, and asks to confirm. Only `packages/cloud-client/client.ts` may use the network: the no-network test allowlists exactly that file, superseding NFR-SEC-02 for it alone. AC: no other file may use the network, and the payload equals the preview `[unit]`; hidden by default, and against a fake server it sends the preview `[e2e]`.
+**CLD-12 Share from the extension.** When `aisus.cloud.enabled` is true (default false), the maps list shows "Share to aisus cloud". The user picks their personal space or the team space for the checked-out branch (CLD-14), and `aisus.cloud.url` names the cloud. It signs in through VS Code's GitHub authentication provider, previews exactly the JSON to send, and asks to confirm. Only `packages/cloud-client/client.ts` may use the network: the no-network test allowlists exactly that file, superseding NFR-SEC-02 for it alone. AC: no other file may use the network, and the payload equals the preview `[unit]`; hidden by default, and against a fake server it sends the preview `[e2e]`.
 
 **CLD-13 Export and audit.** Owners export all their data as JSON, and see an audit log of uploads (token or OIDC repository, time, size). A daily job enforces each plan's retention. AC: `[unit]` `[web]`.
 
@@ -794,6 +799,44 @@ AC: column widths, activations, self-calls and phases `[unit]`; drawing, clicks 
 
 **SEQ-04 Sequence maps in VS Code.** `aisus: Generate Sequence Diagram` asks for the flow and launches the sequence skill as Generate does. The Maps page lists sequence maps in their own section, with the number of participants, Export page and Delete. The map panel opens them, opens cited lines on click, and badges participants and messages whose citations changed, with the freshness header. A new sequence map's notification says "New sequence map". For a sequence map, the map's title bar keeps only Export Page and Save Image. Find, Refresh, Compare, Audit, Tour, Checks, Hotspots, the rules and the box and arrow menus stay hidden. AC: a sequence map opens from the Maps page and a click opens the cited lines `[e2e]`.
 
+### I9 Team cloud sync
+
+Asked for by the owner on 2026-10-26 (ADR 0071). GitHub stays the source of truth for who belongs to a team and what they may do (CLD-01).
+
+**CLD-14 Personal and team spaces.** Every map upload goes to a space, named by the upload's `space` field.
+- **Team space** is the repository's space, as before, and the default. Its maps are kept per branch, and a branch's map is the latest map uploaded for that branch. Upload tokens and Actions OIDC tokens upload to it. A GitHub token uploads to it when its user has write access to the repository.
+- **Personal space** holds one person's maps of one repository. Only a GitHub token uploads to it, for a user with read access to the repository. Only that user can read it.
+- **Plans.** The personal space comes with every plan. On Free it holds maps for at most three branches, counted across all of the person's repositories. An upload for a fourth branch is refused with 402, naming the three branches and Pro. The team space follows CLD-07.
+- The map page `/<owner>/<repo>` lists the team space's branches, each with its map's age and commit, and `?branch=<name>` shows that branch's map.
+
+AC: the two spaces, the write-access rule, the Free limit and its fourth branch `[unit]`; the branch list `[web]`.
+
+**CLD-15 Pull maps.** `GET /api/v1/repos/<owner>/<repo>/maps?branch=<name>` is signed with a user's GitHub token or an Actions OIDC token for the repository. It answers the default branch's name and three entries, each `null` when there is none:
+- `team`, the branch's map in the team space;
+- `personal`, the user's own latest map for the branch, only for a GitHub token;
+- `main`, the default branch's map in the team space.
+
+It also answers `mainHistory`, the default branch's maps newest first as `{id, commit, createdAt}`, at most 50. With `?id=<n>` it answers that one team map instead. An entry carries `id`, `space`, `branch`, `commit`, `createdAt`, `sha256` of the map's canonical JSON, the map, its sidecars and its metadata. Reading needs read access, and a plan that keeps the space's maps. AC: each entry, the history, the user's own personal map only, and refusals without access `[unit]`.
+
+**CLD-16 Map load order.** With `aisus.cloud.enabled` on, `aisus: Open Architecture` and the Maps page's Open pick the architecture map with an empty focus for the checked-out branch, in this order:
+1. The newest local map whose map is in neither of the branch's cloud entries. It is skipped when its commit is an ancestor of the cloud map's commit, because the cloud map is then newer.
+2. The branch's cloud map, personal or team, whichever was drawn at the later commit.
+3. The default branch's cloud map.
+4. Otherwise the user is asked to generate a map.
+
+A cloud map is written to `.aisus/cloud/<space>-<id>/` with its sidecars, so freshness works as for a local map, and that folder is excluded from git. The commit decides how stale the opened map is: drawn at HEAD, a number of commits behind HEAD, or at a commit outside the branch. The message that opens it says which. Without the setting, or when the cloud can't be reached, the newest local map opens as before. AC: the choice for each case, including a local map behind the cloud map's commit `[unit]`; against a fake server, the branch's cloud map opens `[e2e]`.
+
+**CLD-17 Map merge.** `packages/core/model/mergeMaps.ts` merges three maps: `base`, the default branch's map the branch started from, `ours`, the default branch's latest map, and `theirs`, the branch's map. Boxes pair as FRS-07 pairs them.
+- When only one side changed the map from `base`, the result is that side's map.
+- Otherwise each side's added, changed and removed elements are applied. An arrow whose end was removed is dropped, and a boundary loses removed members.
+- Boxes added on both sides that pair become one box.
+- An element changed differently on each side, or changed on one side and removed on the other, is a conflict. The result keeps `ours` for it and lists it.
+- Without `base`, the result is `theirs` when `ours` was drawn at an ancestor of its commit, and otherwise both maps' elements merged with `ours` winning conflicts.
+
+The Action, with `upload: true` on a `push` to the default branch, finds the pull request the push merged and pulls its branch's team map, the default branch's map and its history (CLD-15). `base` is the newest default-branch map drawn at an ancestor of the branch map's commit. The merged map gets fingerprints at the pushed commit and is uploaded to the default branch with `meta.merge`: the branch, the pull request and the conflicts. Without a branch map, nothing is uploaded. AC: each rule `[unit]`; a push event against a fake server and GitHub `[unit]`.
+
+**CLD-18 Team page.** `/<org>/team` lists the people who have signed in to aisus with access to the organization's repositories, each with their highest role there. It shows the seats bought and the seats in use, links to the organization's people on GitHub to invite or remove anyone, and lets an owner change the seats in Stripe's Customer Portal. It shows nothing anyone did. AC: the list, roles and seats `[unit]`; the page `[web]`.
+
 ## 6. Milestones
 
 | Milestone | Features | Done when |
@@ -812,6 +855,7 @@ AC: column widths, activations, self-calls and phases `[unit]`; drawing, clicks 
 | I6 Polish and reach | FRS-07..10, VWR-02..06, RCH-04, SET-04, SET-05, SAF-08, ENG-03 | Gates green |
 | I7 IntelliJ plugin | IDE-01 | The plugin opens cited lines on AB3 |
 | I8 Sequence maps | SEQ-01..04 | A sequence map generated in VS Code opens its cited call sites |
+| I9 Team cloud sync | CLD-14..18 | A teammate opens a branch's map from the cloud, and a merged branch updates the default branch's map |
 
 ## 7. Process
 
