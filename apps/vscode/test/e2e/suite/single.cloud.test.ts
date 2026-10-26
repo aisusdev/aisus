@@ -95,6 +95,12 @@ suite("CLD-12 CLD-16 aisus cloud in VS Code", () => {
   setup(async () => {
     root = vscode.workspace.workspaceFolders![0]!.uri.fsPath;
     ui = stubUi();
+    // The candidate watcher announces the map this setup writes at no fixed moment. Its toast is
+    // dismissed and left out of `ui.infos`, so each queued answer reaches the prompt it was meant for.
+    const stubbed = vscode.window.showInformationMessage as (message: string, ...rest: unknown[]) => Thenable<string | undefined>;
+    Object.assign(vscode.window, {
+      showInformationMessage: (message: string, ...rest: unknown[]) => (message.startsWith("New architecture diagram") ? Promise.resolve(undefined) : stubbed(message, ...rest)),
+    });
     signIns = [];
     cloud = await fakeCloud();
     await vscode.workspace.getConfiguration("aisus").update("cloud.url", cloud.url, vscode.ConfigurationTarget.Global);
