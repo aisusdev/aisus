@@ -187,6 +187,17 @@ export interface CloudMapItem extends MapItem {
   source: string;
 }
 
+/**
+ * CLD-19: the sidebar's aisus cloud strip. `host` is the cloud's address without the scheme.
+ * `pulledAt` is when the folder's maps were last pulled, or `null` when they never were, as in a
+ * folder without a github.com origin.
+ */
+export type CloudStatus =
+  | { state: "off" }
+  | { state: "signedOut" }
+  | { state: "connected"; account: string; host: string; pulledAt: string | null }
+  | { state: "unreachable"; host: string; pulledAt: string | null };
+
 /** The agents the composer can launch (RCH-04 adds Devin, which runs in a terminal). */
 export type ComposerCli = "claude" | "codex" | "devin";
 
@@ -292,6 +303,8 @@ export interface HomeState {
   cloud: boolean;
   /** CLD-16: the branch's maps in aisus cloud, team map first, each with where it comes from. */
   cloudMaps: CloudMapItem[];
+  /** CLD-19: whether aisus cloud is connected, or `null` until the first pull ends. */
+  cloudStatus: CloudStatus | null;
   composer: {
     agents: ComposerAgent[];
     /** The remembered agent, or the first one found. */
@@ -340,6 +353,10 @@ export type HomeWebviewMessage =
   | { type: "exportMap"; file: string }
   /** CLD-12: Share to aisus cloud. */
   | { type: "shareMap"; file: string }
+  /** CLD-19: the cloud strip's links. */
+  | { type: "cloudTurnOn" }
+  | { type: "cloudSignIn" }
+  | { type: "cloudRetry" }
   | { type: "review" }
   | { type: "suggestRules" }
   | { type: "compareBase" }

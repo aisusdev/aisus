@@ -36,6 +36,7 @@ const ICONS = {
   learn: ["M8 1.5a4.5 4.5 0 0 0-2.5 8.2v1.8h5V9.7A4.5 4.5 0 0 0 8 1.5z", "M6 13.5h4"],
   hunt: ["M5.5 6.5a2.5 2.5 0 0 1 5 0v4a2.5 2.5 0 0 1-5 0z", "M8 7v6", "M2.5 7.5h3M10.5 7.5h3M2.5 11h3M10.5 11h3", "M6.5 4.3 5 2.5M9.5 4.3 11 2.5"],
   maps: ["M1.5 3.5l4-1.5 5 1.5 4-1.5v10.5l-4 1.5-5-1.5-4 1.5z", "M5.5 2v10.5M10.5 3.5V14"],
+  cloud: ["M4.5 12.5h7.2a2.8 2.8 0 0 0 .4-5.57A4 4 0 0 0 4.4 6.1a3.2 3.2 0 0 0 .1 6.4z"],
 } as const;
 
 function icon(name: keyof typeof ICONS): SVGSVGElement {
@@ -139,6 +140,7 @@ export function createHome(container: HTMLElement, post: Post, now: () => Date =
   const attentionSlot = el("div", "attention-slot");
   const doSlot = el("div", "do-slot");
   const maps = el("div", "maps-slot");
+  const cloudSlot = el("div", "cloud-slot");
   // The maps whose ⋯ row is open, kept across states.
   const expanded = new Set<string>();
   const newMap = section("New map", "new-map");
@@ -198,7 +200,7 @@ export function createHome(container: HTMLElement, post: Post, now: () => Date =
     }
     pages.set(id, page);
   }
-  pages.get("home")!.append(runSlot, currentSlot, attentionSlot, doSlot);
+  pages.get("home")!.append(runSlot, currentSlot, attentionSlot, doSlot, cloudSlot);
   pages.get("ask")!.append(askSection);
   pages.get("review")!.append(reviewSlot, rulesSlot, hotspotsSlot);
   pages.get("learn")!.append(practiceSlot);
@@ -466,6 +468,44 @@ export function createHome(container: HTMLElement, post: Post, now: () => Date =
     doSlot.append(list);
   }
 
+  /** CLD-19: the strip at the foot of the home page that says whether aisus cloud is connected. */
+  function renderCloud(state: HomeState): void {
+    cloudSlot.replaceChildren();
+    const status = state.cloudStatus;
+    if (state.root === null || status === null) return;
+    const strip = el("section", `cloud cloud--${status.state}`);
+    strip.setAttribute("aria-label", "aisus cloud");
+    const avatar = el("span", "cloud__avatar");
+    avatar.setAttribute("aria-hidden", "true");
+    const body = el("div", "cloud__body");
+    switch (status.state) {
+      case "off":
+        avatar.append(icon("cloud"));
+        body.append(el("span", "", "aisus cloud is off"), button("Turn on", "link cloud__action", () => post({ type: "cloudTurnOn" })));
+        break;
+      case "signedOut":
+        avatar.append(icon("cloud"));
+        body.append(el("span", "", "Not signed in to aisus cloud"), button("Sign in with GitHub", "link cloud__action", () => post({ type: "cloudSignIn" })));
+        break;
+      case "connected": {
+        avatar.textContent = status.account.slice(0, 1).toUpperCase();
+        const count = state.cloudMaps.length;
+        const meta = status.pulledAt === null ? "This folder has no github.com origin" : `${count} map${count === 1 ? "" : "s"}, pulled ${relativeAge(status.pulledAt, now())}`;
+        body.append(el("span", "", `${status.account} on ${status.host}`), el("span", "cloud__meta", meta));
+        break;
+      }
+      case "unreachable": {
+        avatar.append(icon("cloud"));
+        const line = el("span", "cloud__meta", status.pulledAt === null ? "" : `Maps from ${relativeAge(status.pulledAt, now())}. `);
+        line.append(button("Try again", "link cloud__action", () => post({ type: "cloudRetry" })));
+        body.append(el("span", "", `Can't reach ${status.host}`), line);
+        break;
+      }
+    }
+    strip.append(avatar, body);
+    cloudSlot.append(strip);
+  }
+
   function renderMaps(items: MapItem[], sequences: MapItem[], cloud: CloudMapItem[]): void {
     maps.replaceChildren();
     if (items.length > 0) {
@@ -711,6 +751,7 @@ export function createHome(container: HTMLElement, post: Post, now: () => Date =
       renderAttention(state);
       renderDo(state);
       renderMaps(state.maps, state.sequences, state.cloudMaps);
+      renderCloud(state);
       renderReview(state);
       renderRules(state);
       renderHotspots(state);

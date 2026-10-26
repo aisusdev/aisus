@@ -825,3 +825,91 @@ select.header__folder,
   outline: 1px solid var(--vscode-focusBorder);
   outline-offset: -1px;
 }
+
+/* CLD-19: the aisus cloud strip stays at the foot of the home page. */
+
+.home {
+  min-height: calc(100vh - 16px);
+}
+
+.page--home {
+  flex: 1;
+}
+
+.cloud-slot {
+  position: sticky;
+  bottom: 0;
+  margin: auto -12px -16px;
+  background: var(--vscode-sideBar-background);
+}
+
+.cloud {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 12px;
+  border-top: 1px solid var(--vscode-sideBarSectionHeader-border, var(--vscode-widget-border, transparent));
+}
+
+.cloud__avatar {
+  position: relative;
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  font-weight: 600;
+  color: var(--vscode-button-foreground);
+  background: var(--vscode-button-background);
+}
+
+.cloud--off .cloud__avatar,
+.cloud--signedOut .cloud__avatar,
+.cloud--unreachable .cloud__avatar {
+  color: var(--vscode-descriptionForeground);
+  background: var(--vscode-button-secondaryBackground);
+}
+
+.cloud--signedOut .row__icon {
+  stroke-dasharray: 2 1.6;
+}
+
+.cloud--connected .cloud__avatar::after,
+.cloud--unreachable .cloud__avatar::after {
+  content: "";
+  position: absolute;
+  right: -2px;
+  bottom: -2px;
+  width: 8px;
+  height: 8px;
+  border: 2px solid var(--vscode-sideBar-background);
+  border-radius: 50%;
+  background: var(--vscode-testing-iconPassed, var(--vscode-charts-green));
+}
+
+.cloud--unreachable .cloud__avatar::after {
+  background: var(--vscode-editorWarning-foreground, var(--vscode-charts-yellow));
+}
+
+.cloud__body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.cloud__body > span:first-child {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cloud__meta {
+  color: var(--vscode-descriptionForeground);
+}
+
+.cloud__action {
+  align-self: flex-start;
+}

@@ -189,4 +189,18 @@ suite("CLD-12 CLD-16 aisus cloud in VS Code", () => {
     assert.equal(hook.panelState().file, pulled);
     assert.equal((JSON.parse(readFileSync(pulled, "utf8")) as { meta: { title: string } }).meta.title, "Team map");
   });
+
+  test("CLD-19 with a GitHub sign-in and a reachable cloud, the sidebar says it is connected as the signed-in account", async () => {
+    cloud.branchMaps = { defaultBranch: "main", team: null, personal: null, main: null, mainHistory: [] };
+    const since = new Date().toISOString();
+    await vscode.workspace.getConfiguration("aisus").update("cloud.enabled", true, vscode.ConfigurationTarget.Global);
+    await vscode.commands.executeCommand("workbench.view.extension.aisus");
+    const pulledSince = (): boolean => {
+      const status = hook.homeState().state?.cloudStatus;
+      return status?.state === "connected" && status.pulledAt !== null && status.pulledAt >= since;
+    };
+    await until(pulledSince, "the sidebar to say the cloud is connected after a pull");
+    const status = hook.homeState().state!.cloudStatus;
+    assert.equal(status?.state === "connected" ? `${status.account} on ${status.host}` : status?.state, `dev on ${cloud.url.replace("http://", "")}`);
+  });
 });

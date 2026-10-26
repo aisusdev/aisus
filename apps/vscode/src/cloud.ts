@@ -46,6 +46,11 @@ function cloudUrl(): string {
   return vscode.workspace.getConfiguration("aisus").get<string>("cloud.url", "https://aisus.dev");
 }
 
+/** CLD-19: the cloud's address without the scheme, such as "aisus.dev". */
+export function cloudHost(): string {
+  return cloudUrl().replace(/^https?:\/\//, "").replace(/\/+$/, "");
+}
+
 interface RepoContext {
   repo: string;
   branch: string;
@@ -68,6 +73,21 @@ async function openCloudSettings(): Promise<void> {
 async function githubToken(createIfNone: boolean): Promise<string | undefined> {
   const session = await vscode.authentication.getSession("github", SCOPES, createIfNone ? { createIfNone: true } : { silent: true });
   return session?.accessToken;
+}
+
+/** CLD-19: the GitHub account aisus cloud is signed in with, read without asking for a sign-in. */
+export async function cloudAccount(): Promise<string | null> {
+  const session = await vscode.authentication.getSession("github", SCOPES, { silent: true });
+  return session?.account.label ?? null;
+}
+
+/** CLD-19: asks for the GitHub sign-in. A dismissed sign-in leaves things as they were. */
+export async function signInToCloud(): Promise<void> {
+  try {
+    await githubToken(true);
+  } catch {
+    return;
+  }
 }
 
 function readJson(path: string): unknown {
@@ -165,14 +185,15 @@ export interface PulledMap {
 /**
  * CLD-16: the maps aisus cloud holds for `root`'s branch, for the Maps page. They are the team
  * map, the personal map and the default branch's team map, each once. The pull uses an existing
- * GitHub sign-in without asking for one, and lists nothing when there is none.
+ * GitHub sign-in without asking for one. It returns `null` when it asked the cloud nothing: with
+ * the cloud off, no sign-in, or no github.com origin.
  */
-export async function branchCloudMaps(root: string): Promise<PulledMap[]> {
-  if (!cloudEnabled()) return [];
+export async function branchCloudMaps(root: string): Promise<PulledMap[] | null> {
+  if (!cloudEnabled()) return null;
   const context = repoContext(root);
-  if (context === null) return [];
+  if (context === null) return null;
   const token = await githubToken(false);
-  if (token === undefined) return [];
+  if (token === undefined) return null;
   const maps = await pullMaps(cloudUrl(), token, context.repo, context.branch);
   const found: [CloudMap | null, string][] = [
     [maps.team, `Team map of ${context.branch}`],

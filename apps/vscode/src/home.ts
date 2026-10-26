@@ -11,7 +11,7 @@ import { listMaps } from "@aisus/core/model/maps";
 import type { MapKind } from "@aisus/core/model/runFolder";
 import { MAP_DIR, CANDIDATE_FILE } from "@aisus/core/model/runFolder";
 import { fileReader, readFingerprints } from "@aisus/core/model/staleness";
-import type { HomeHostMessage, HomeState, HomeWebviewMessage, MapItem, SessionSummary } from "@aisus/core/model/messages";
+import type { CloudStatus, HomeHostMessage, HomeState, HomeWebviewMessage, MapItem, SessionSummary } from "@aisus/core/model/messages";
 import { runPreflight, type Check } from "@aisus/core/model/preflight";
 import { assertWritable } from "@aisus/core/model/confine";
 import { AGENTS } from "@aisus/core/model/agents";
@@ -25,7 +25,7 @@ import { webviewHtml } from "./html";
 import { installSkill } from "./install";
 import { skillStatus } from "./integrity";
 import { ArchitecturePanel } from "./panel";
-import { branchCloudMaps, openPulled, shareMapCommand, type PulledMap } from "./cloud";
+import { branchCloudMaps, cloudAccount, cloudEnabled, cloudHost, openPulled, shareMapCommand, signInToCloud, type PulledMap } from "./cloud";
 import { exportPageCommand } from "./exportPage";
 import { createTourCommand } from "./tour";
 import { copyPromptCommand } from "./copyPrompt";
@@ -66,6 +66,9 @@ export class HomeView implements vscode.WebviewViewProvider, vscode.Disposable {
   private readonly healthCache = new Map<string, { at: number; items: HealthItem[] }>();
   /** CLD-16: each folder's maps in aisus cloud, as last pulled. */
   private readonly cloudMaps = new Map<string, PulledMap[]>();
+  /** CLD-19: each folder's cloud status, and when its maps were last pulled. */
+  private readonly cloudStatus = new Map<string, CloudStatus>();
+  private readonly cloudPulledAt = new Map<string, string>();
 
   constructor(
     private readonly context: vscode.ExtensionContext,
@@ -83,6 +86,9 @@ export class HomeView implements vscode.WebviewViewProvider, vscode.Disposable {
       vscode.workspace.onDidChangeConfiguration((event) => {
         if (event.affectsConfiguration("aisus.cloud")) void this.pullCloudMaps();
         if (event.affectsConfiguration("aisus")) this.send();
+      }),
+      vscode.authentication.onDidChangeSessions((event) => {
+        if (event.provider.id === "github") void this.pullCloudMaps();
       }),
     );
   }
@@ -120,16 +126,33 @@ export class HomeView implements vscode.WebviewViewProvider, vscode.Disposable {
     void this.pullCloudMaps();
   }
 
-  /** CLD-16: pulls the current branch's maps from aisus cloud while the sidebar shows. An unreachable cloud keeps the last list. */
+  /**
+   * CLD-16 and CLD-19: pulls the current branch's maps from aisus cloud while the sidebar shows,
+   * and records whether the cloud is off, signed out, connected or unreachable. An unreachable
+   * cloud keeps the last list.
+   */
   async pullCloudMaps(): Promise<void> {
     const root = this.root();
     if (root === null || !this.visible) return;
-    try {
-      this.cloudMaps.set(root, await branchCloudMaps(root));
-    } catch {
-      return;
-    }
+    this.cloudStatus.set(root, await this.pullStatus(root));
     this.send();
+  }
+
+  private async pullStatus(root: string): Promise<CloudStatus> {
+    if (!cloudEnabled()) return { state: "off" };
+    const account = await cloudAccount();
+    if (account === null) return { state: "signedOut" };
+    const host = cloudHost();
+    try {
+      const pulled = await branchCloudMaps(root);
+      if (pulled !== null) {
+        this.cloudMaps.set(root, pulled);
+        this.cloudPulledAt.set(root, new Date().toISOString());
+      }
+      return { state: "connected", account, host, pulledAt: this.cloudPulledAt.get(root) ?? null };
+    } catch {
+      return { state: "unreachable", host, pulledAt: this.cloudPulledAt.get(root) ?? null };
+    }
   }
 
   /** The folder the sidebar works on: the one picked last, else the first workspace folder. */
@@ -164,6 +187,7 @@ export class HomeView implements vscode.WebviewViewProvider, vscode.Disposable {
       sequences: root === null ? [] : this.mapsOf(root, "sequence"),
       cloud,
       cloudMaps: root === null || !cloud ? [] : (this.cloudMaps.get(root) ?? []).map((pulled) => pulled.item),
+      cloudStatus: root === null ? null : (this.cloudStatus.get(root) ?? null),
       composer: { agents, agent, runMode, notes, confirm },
       run: this.runs.current,
       setup: root === this.setupRoot ? this.setup : null,
@@ -319,6 +343,16 @@ export class HomeView implements vscode.WebviewViewProvider, vscode.Disposable {
           await shareMapCommand(root, message.file);
           await this.pullCloudMaps();
         }
+        return;
+      case "cloudTurnOn":
+        await vscode.commands.executeCommand("workbench.action.openSettings", "aisus.cloud.enabled");
+        return;
+      case "cloudSignIn":
+        await signInToCloud();
+        await this.pullCloudMaps();
+        return;
+      case "cloudRetry":
+        await this.pullCloudMaps();
         return;
       case "deleteMap":
         if (root !== null && this.isCandidate(root, message.file)) await this.deleteMap(root, message.file);

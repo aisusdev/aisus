@@ -34,6 +34,7 @@ function state(fields: Partial<HomeState> = {}): HomeState {
     sequences: [],
     cloud: false,
     cloudMaps: [],
+    cloudStatus: null,
     composer: { agents: [{ cli: "claude", label: "Claude Code", headless: true }], agent: "claude", runMode: "sidebar", notes: [], confirm: false },
     run: null,
     setup: OK_CHECKS,
@@ -143,6 +144,25 @@ describe("UI-01 sidebar states", () => {
     expect(text(".map--cloud .map__meta")).toEqual(["Team map of main at 45bde56 · 2 days ago · 4 boxes"]);
     container.querySelector<HTMLButtonElement>(".map--cloud .map__title")!.click();
     expect(posted).toEqual([{ type: "openMap", file: pulled.file }]);
+  });
+
+  test("CLD-19 the cloud strip says whether aisus cloud is off, signed out, connected or unreachable, and its link posts its message", () => {
+    const pulled = { ...map({ runFolder: "team-5" }), source: "Team map of main at 45bde56" };
+    const strip = (cloudStatus: HomeState["cloudStatus"]): string[] => {
+      home.render(state({ cloud: true, cloudMaps: [pulled, pulled], cloudStatus }));
+      return text(".cloud__body > *");
+    };
+    expect(strip(null)).toEqual([]);
+    expect(strip({ state: "off" })).toEqual(["aisus cloud is off", "Turn on"]);
+    click("Turn on");
+    expect(strip({ state: "signedOut" })).toEqual(["Not signed in to aisus cloud", "Sign in with GitHub"]);
+    click("Sign in with GitHub");
+    expect(strip({ state: "connected", account: "dev", host: "aisus.dev", pulledAt: "2026-10-18T11:58:00Z" })).toEqual(["dev on aisus.dev", "2 maps, pulled 2 minutes ago"]);
+    expect(text(".cloud__avatar")).toEqual(["D"]);
+    expect(strip({ state: "connected", account: "dev", host: "aisus.dev", pulledAt: null })).toEqual(["dev on aisus.dev", "This folder has no github.com origin"]);
+    expect(strip({ state: "unreachable", host: "aisus.dev", pulledAt: "2026-10-18T11:00:00Z" })).toEqual(["Can't reach aisus.dev", "Maps from 1 hour ago. Try again"]);
+    click("Try again");
+    expect(posted).toEqual([{ type: "cloudTurnOn" }, { type: "cloudSignIn" }, { type: "cloudRetry" }]);
   });
 
   test("running: the card shows feed, figures and Cancel, and Generate is disabled", () => {
