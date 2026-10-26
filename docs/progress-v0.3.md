@@ -1,5 +1,31 @@
 # Progress (v0.3)
 
+## Changes panel cards proposal (owner request, 2026-10-26)
+
+The owner chose concept A of three mockups for the Changes view. The header shows the two commits as chips, with the counts as labelled pills. The panel shows filter tabs and one card per change. The host, the `Comparison` message and the e2e tests stay as they are.
+
+| File or unit | Change | Estimate | Built |
+|---|---|---|---|
+| `packages/viewer/changes.ts` | Header: a chip per commit, pills such as "+2 added", Swap beside Compare with…, and the Changes toggle as a switch. Panel: tabs for All and each non-empty status, then one card per element with a kind icon, its name, its kind and a status badge. A changed card holds a before and after table of its fields. A removed card is struck through and offers Open in baseline. The files outside any box fold away below the cards | +120 / -70 |
+| `packages/viewer/styles.css` | Chips, pills, the switch, tabs, cards, badges, icons and the field table | +150 / -60 | +321 / -33 |
+| `docs/spec-v0.3.md` | FRS-10's header and panel bullets describe the chips, tabs and cards | +4 / -4 | +4 / -4 |
+
+Tests, from FRS-10's `[dom]` AC, rewritten in `test/dom/main.test.ts`:
+- `[dom]` The header names both commits in chips, counts each status and warns, and Swap and Compare with… post to the host.
+- `[dom]` The panel shows one card per change with its badge and, for a changed card, a row per changed field. Removed cards open the baseline, a file outside any box opens, and a card zooms to its element.
+- `[dom]` A tab shows only its status's cards, and All shows them all again.
+- `[dom]` The switch hides the marks and the panel and keeps the header.
+
+- [x] Built 2026-10-26. `test/dom/main.test.ts` has 6 FRS-07 and FRS-10 tests: marks, header, cards, tabs, switch, and a page without context. Each new or changed test failed under its own deliberate break. The breaks were renamed shown outside Changed, before and after swapped, no Swap in the header, a switch stuck on, and Open in baseline offered without context. Rendered with Playwright in the dark theme at 1280 px (default, warned, the Changed tab, switch off) and 800 px.
+
+Where the build differs from the proposal and the mockup:
+- A changed card always shows its table, rather than folding it behind a chevron. One click fewer, and no state to keep across re-renders.
+- Tabs show their counts as a plain number ("Added 2"). With parentheses the five tabs wrapped at the panel's width.
+- Swap moved from the reversed warning into the header, beside Compare with…. The warning no longer carries its own button.
+- The uncommitted count stays on the earlier map's chip, where the mockup put it on the shown map's. It counts the files uncommitted when the earlier map was made.
+- The styles grew past the estimate, because each card part, the switch and the arrow icon are drawn in CSS without images.
+- `README.md` and `docs/architecture.md` also describe the cards, and name Open in baseline.
+
 ## Sequence maps proposal (owner request, 2026-10-25)
 
 The owner asked for sequence diagrams and chose the recommended design: aisus's own format with no coordinates, citations on messages as well as participants, a separate `aisus-sequence` skill, and a first version that covers generating, viewing, opening code and freshness (I8, SEQ-01 to SEQ-04, ADR 0069). It is built before the toolkit cut. The new code names no other project, and its run folders sit in `.archify/` beside architecture runs, so the cut moves them with everything else.
@@ -939,6 +965,7 @@ The owner then asked that aisus be tied to nothing outside itself. The repositor
 
 ## Log
 
+- 2026-10-26 — The Changes panel shows cards with tabs, and the header shows commit chips and count pills (concept A of three mockups). Gates: `npm run check` exit 0 (1275 passed, 1 skipped); `npm run test:e2e` exit 0 on VS Code 1.126.0 and 1.141.0 (single 95, empty 3, multi 2 each); the cloud's test (55 passed), typecheck and build exit 0, because the viewer is shared.
 - 2026-10-25 — SEQ-04 departs from the proposal in two places. Generate Sequence Diagram also sits in the sidebar as "Draw a sequence map", because every command must be reachable without the palette (UI-01), and it takes the composer's text as the flow. The title bar keeps Export Page for a sequence map as well as Save Image, because the page works for any map. `state.maps` stays architecture-only, because the home card, Refresh and the rules assume it, and sequence maps arrive as `state.sequences`. Gates: `npm run check` exit 0 (1303 passed, 1 skipped); `npm run test:e2e` exit 0 on VS Code 1.126.0 and 1.141.0 (single 96, empty 3, multi 2 each), on the second run. The first run failed SKL-02's tour test waiting for the first stop's lines, the intermittent failure already logged on 2026-10-25.
 - 2026-10-25 — SEQ-03 departs from the spec as first written. The first rendering kept a participant that was never answered, such as a table receiving an insert, active to the bottom of the map. A participant that never returns now stays active until the last message it sends or receives, and the spec says so. Gates: `npm run check` exit 0 (1301 passed, 1 skipped); `npm run test:e2e` exit 0 on VS Code 1.126.0 and 1.141.0 (single 95, empty 3, multi 2 each).
 - 2026-10-25 — SEQ-01 and SEQ-02 built. The sequence schema is self-contained under `https://aisus.dev/schemas/`, so it refers to no copied file. A sequence map writes no `evidence.json`, because import evidence is about boxes and arrows. This worktree had no `node_modules`, so `npm ci` restored the locked dependencies, and the two e2e builds of VS Code were copied from the main checkout's `.vscode-test/` instead of downloaded. Node here is Homebrew's 26.7.0, since `~/.nvm` does not exist on this Mac. Gates: `npm run check` exit 0 (1291 passed, 1 skipped, 69 ADRs); `npm run test:e2e` exit 0 on VS Code 1.126.0 and 1.141.0 (single 95, empty 3, multi 2 each).

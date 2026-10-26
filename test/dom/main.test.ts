@@ -406,7 +406,9 @@ describe("FRS-07 FRS-10 compare maps", () => {
   const changes = { schema: 1 as const, baseRevision: "a".repeat(40), revision: "b".repeat(40), touched: [{ id: "db", files: [{ status: "modified" as const, path: "src/db/a.ts" }] }], uncited: [{ status: "added" as const, path: "src/new.ts" }, { status: "deleted" as const, path: "src/gone.ts" }] };
   const node = (id: string): Element => document.querySelector(`.node[data-id="${id}"]`)!;
   const marks = (selector: string): string[] => [...document.querySelectorAll(`${selector} .compare-mark`)].map((mark) => mark.textContent!);
-  const section = (key: string): string[] => [...document.querySelectorAll(`.changes-panel [data-section="${key}"] .changes-panel__item`)].map((item) => item.textContent!);
+  const cards = (status?: string): string[] =>
+    [...document.querySelectorAll<HTMLElement>(`.changes-panel .change-card${status === undefined ? "" : `[data-status="${status}"]`}`)].map((card) => [card.dataset["kind"], ...[...card.querySelectorAll(".change-card__name, .change-card__detail, .change-card__badge")].map((part) => part.textContent)].join(" "));
+  const fields = (kind: string, index: number): string[][] => [...document.querySelectorAll(`.change-card[data-kind="${kind}"]:has(.change-card__main[data-index="${index}"]) .change-card__field`)].map((row) => [...row.children].map((cell) => cell.textContent!));
 
   async function compared(shown = true): Promise<void> {
     send({ type: "load", doc: AFTER, file: "/r/now.json" });
@@ -422,48 +424,70 @@ describe("FRS-07 FRS-10 compare maps", () => {
     expect(document.querySelector('.edge[data-index="0"]')!.classList.contains("edge--added")).toBe(true);
   });
 
-  test("the header names both commits, counts the changes, says approximate and warns, with Swap on a reversed comparison", async () => {
+  test("the header names both commits in chips, counts each status, says approximate and warns, and Swap and Compare with… ask the host", async () => {
     await compared();
     const header = document.querySelector<HTMLElement>(".compare")!;
     expect(header.hidden).toBe(false);
-    expect(header.querySelector(".compare__commits")!.textContent).toBe("Compared with abcdef1 “Add cache” · 2 days ago and 3 uncommitted files → 1234567 “Send mail”");
-    expect(header.querySelector(".compare__counts")!.textContent).toBe("+2 −2 ~2");
+    expect([...header.querySelectorAll(".compare__commit")].map((chip) => chip.textContent)).toEqual(["abcdef1 · Add cache · 2 days ago + 3 uncommitted files", "1234567 · Send mail"]);
+    expect([...header.querySelectorAll(".compare__count")].map((pill) => pill.textContent)).toEqual(["+2 added", "−2 removed", "~2 changed"]);
     expect(header.querySelector(".compare__approximate")).not.toBeNull();
-    expect(header.querySelector('.compare__warning[data-code="reversed"]')!.textContent).toBe("The earlier map is newer than this one, so the changes show in reverse. Swap");
+    expect(header.querySelector('.compare__warning[data-code="reversed"]')!.textContent).toBe("The earlier map is newer than this one, so the changes show in reverse.");
     posted.length = 0;
     header.querySelector<HTMLButtonElement>(".compare__swap")!.click();
     header.querySelector<HTMLButtonElement>(".compare__with")!.click();
     expect(posted).toEqual([{ type: "swap" }, { type: "compareWith" }]);
   });
 
-  test("the panel lists each change with what changed, the kept boxes and the uncited files, and its entries zoom or open", async () => {
+  test("the panel shows a card per change with its badge and changed fields, and its cards zoom, open the baseline or open a file", async () => {
     await compared();
-    expect(section("added")).toEqual(["box Mail", "arrow Server → Mail"]);
-    expect(section("removed")).toEqual(["box Cache", "arrow API → Cache (reads)"]);
-    expect(section("changed")).toEqual(["box Server label: “API” → “Server”", "boundary Services label: “Backend” → “Services”"]);
-    expect(section("kept")).toEqual(["box DB 1 changed file"]);
-    expect(section("uncited")).toEqual(["added src/new.ts", "deleted src/gone.ts"]);
+    expect(cards()).toEqual([
+      "box Mail Added",
+      "arrow Server → Mail Added",
+      "box Cache Removed",
+      "arrow API → Cache (reads) Removed",
+      "box Server Changed",
+      "boundary Services Renamed",
+      "box DB 1 changed file Kept",
+    ]);
+    expect(fields("box", 0)).toEqual([["label", "API", "Server"]]);
+    expect(fields("boundary", 0)).toEqual([["label", "Backend", "Services"]]);
+    expect(document.querySelectorAll('.change-card[data-status="kept"] .change-card__field').length).toBe(0);
+    expect([...document.querySelectorAll(".changes-panel__file-row")].map((row) => row.textContent)).toEqual(["src/new.ts (added)", "src/gone.ts (deleted)"]);
+    expect(document.querySelector('.changes-panel__file-row span.changes-panel__file')!.textContent).toBe("src/gone.ts");
     posted.length = 0;
-    document.querySelector<HTMLButtonElement>(".changes-panel__baseline")!.click();
+    document.querySelector<HTMLButtonElement>('.change-card[data-status="removed"] .change-card__baseline')!.click();
     document.querySelector<HTMLButtonElement>('.changes-panel__file[data-path="src/new.ts"]')!.click();
     expect(posted).toEqual([{ type: "openBaseline" }, { type: "openFile", path: "src/new.ts" }]);
-    expect(document.querySelector('.changes-panel [data-section="uncited"] span.changes-panel__item')!.textContent).toBe("deleted src/gone.ts");
+    expect(document.querySelectorAll('.change-card[data-status="removed"] button.change-card__main').length).toBe(0);
     const before = transform();
-    document.querySelector<HTMLButtonElement>('.changes-panel [data-section="added"] button[data-kind="box"]')!.click();
+    document.querySelector<HTMLButtonElement>('.change-card[data-status="added"][data-kind="box"] .change-card__main')!.click();
     expect(transform()).not.toBe(before);
+  });
+
+  test("a tab shows only its status's cards, with renamed under Changed, and All shows them all again", async () => {
+    await compared();
+    const tab = (filter: string): HTMLButtonElement => document.querySelector<HTMLButtonElement>(`.changes-panel__tab[data-filter="${filter}"]`)!;
+    expect([...document.querySelectorAll(".changes-panel__tab")].map((item) => item.textContent)).toEqual(["All", "Added 2", "Removed 2", "Changed 2", "Kept 1"]);
+    tab("changed").click();
+    expect(cards()).toEqual(["box Server Changed", "boundary Services Renamed"]);
+    expect(tab("changed").getAttribute("aria-selected")).toBe("true");
+    expect(document.querySelector(".changes-panel__uncited")).toBeNull();
+    tab("all").click();
+    expect(cards().length).toBe(7);
+    expect(document.querySelector(".changes-panel__uncited")).not.toBeNull();
   });
 
   test("the Changes toggle hides the marks and the panel, keeps the header, and tells the host", async () => {
     await compared();
     posted.length = 0;
     const toggle = document.querySelector<HTMLButtonElement>(".compare__toggle")!;
-    expect(toggle.getAttribute("aria-pressed")).toBe("true");
+    expect(toggle.getAttribute("aria-checked")).toBe("true");
     toggle.click();
     expect(posted).toEqual([{ type: "showChanges", on: false }]);
     expect(document.querySelector<HTMLElement>(".changes-panel")!.hidden).toBe(true);
     expect(document.querySelectorAll(".node--added, .node--changed, .node--kept, .compare-mark").length).toBe(0);
     expect(document.querySelector<HTMLElement>(".compare")!.hidden).toBe(false);
-    expect(document.querySelector(".compare__toggle")!.getAttribute("aria-pressed")).toBe("false");
+    expect(document.querySelector(".compare__toggle")!.getAttribute("aria-checked")).toBe("false");
     send({ type: "compare", compare: null });
     expect(document.querySelector<HTMLElement>(".compare")!.hidden).toBe(true);
   });
@@ -473,7 +497,7 @@ describe("FRS-07 FRS-10 compare maps", () => {
     await vi.waitFor(() => expect(document.querySelectorAll(".node").length).toBe(3));
     send({ type: "compare", compare: { against: "the map of 1 Oct", diff: diffMaps(BEFORE, AFTER_VIEW), changes, shown: true } });
     expect(document.querySelector(".compare__commits")!.textContent).toBe("Compared with the map of 1 Oct");
-    expect(document.querySelectorAll(".compare__with, .changes-panel__baseline, [data-section='kept'], [data-section='uncited']").length).toBe(0);
+    expect(document.querySelectorAll(".compare__with, .compare__swap, .change-card__baseline, .change-card[data-status='kept'], .changes-panel__uncited").length).toBe(0);
     expect(node("db").classList.contains("node--kept")).toBe(false);
   });
 });
