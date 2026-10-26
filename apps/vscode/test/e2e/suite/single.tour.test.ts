@@ -37,8 +37,11 @@ suite("SKL-02 Guided tours", () => {
   setup(async () => {
     root = vscode.workspace.workspaceFolders![0]!.uri.fsPath;
     ui = stubUi();
-    write(root, "src/web.ts", "import { api } from './api';\nexport const web = () => api();\n");
-    write(root, "src/api.ts", "export const api = () => 1;\n");
+    const code: Record<string, string> = { "src/web.ts": "import { api } from './api';\nexport const web = () => api();\n", "src/api.ts": "export const api = () => 1;\n" };
+    for (const [rel, text] of Object.entries(code)) write(root, rel, text);
+    // An earlier test may leave these files loaded with its own text. VS Code reloads them from disk a
+    // moment later, which moves the selection a stop sets, so the tour starts once they match.
+    await until(() => vscode.workspace.textDocuments.every((document) => Object.entries(code).every(([rel, text]) => document.uri.fsPath !== join(root, rel) || document.getText() === text)), "VS Code to read the rewritten files");
     write(
       root,
       `.aisus/maps/${RUN}/candidate.json`,
