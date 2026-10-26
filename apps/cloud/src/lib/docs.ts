@@ -7,7 +7,6 @@ import { parseMarkdown, type Block } from "./markdown";
 export const PUBLISHED_DOCS: readonly { slug: string; file: string; title: string }[] = [
   { slug: "", file: "README.md", title: "Overview" },
   { slug: "architecture", file: "docs/architecture.md", title: "Architecture" },
-  { slug: "spec", file: "docs/spec-v0.3.md", title: "Specification" },
 ];
 
 /** The docs page a repository-relative markdown link points at, or `null` when it is not published. */

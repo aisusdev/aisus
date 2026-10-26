@@ -147,9 +147,10 @@ describe("FR-DOC-03 check:docs", () => {
     expect(checkDocs(docs).problems).toEqual(["progress.md: broken link missing.md#top"]);
   });
 
-  test("links in docs/research/ go unchecked, since they point at the researcher's own data", () => {
+  test("links in docs/research/ and docs/archive/ go unchecked, since they point at private data or moved files", () => {
     write("research/report.md", "[ledger](../../research/change-collection/results/ledger.jsonl)\n");
-    write("progress.md", "[report](research/report.md)\n");
+    write("archive/spec.md", "[moved](adr/0001-first.md)\n");
+    write("progress.md", "[report](research/report.md) [spec](archive/spec.md)\n");
     expect(checkDocs(docs).problems).toEqual([]);
   });
 

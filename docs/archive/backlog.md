@@ -1,3 +1,5 @@
+> Archived 2026-10-26. The learning-session backlog from v0.1. Most items shipped, and the rest are in docs/open.md.
+
 - Apart from the features that you kept, add `node finder` and `history browser`
 
 ## Learning modes (ADRs 0029–0036)

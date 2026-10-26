@@ -16,7 +16,7 @@ test("CLD-08 links go to the web, to anchors or to published docs; script URLs b
     { kind: "text", text: " and " },
     { kind: "code", text: "code" },
   ]);
-  expect(docPath("docs/spec-v0.3.md", "../README.md")).toBe("/docs");
+  expect(docPath("docs/architecture.md", "../README.md")).toBe("/docs");
 });
 
 test("CLD-08 headings, tables, lists and fences parse; markup stays text", () => {

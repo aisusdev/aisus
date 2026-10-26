@@ -34,7 +34,7 @@ const holder = globalThis as typeof globalThis & { aisusDatabase?: Promise<Datab
 export function database(): Promise<Database> {
   holder.aisusDatabase ??= (() => {
     const setting = process.env["AISUS_DB"] ?? "memory";
-    if (/^postgres(ql)?:/.test(setting)) throw new Error("A Postgres URL needs the production driver; see the deployment notes in progress-v0.3.md.");
+    if (/^postgres(ql)?:/.test(setting)) throw new Error("A Postgres URL needs the production driver; see P-19 in docs/open.md.");
     return openDatabase(setting === "memory" ? undefined : setting);
   })();
   return holder.aisusDatabase;

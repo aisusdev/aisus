@@ -1,3 +1,5 @@
+> Archived 2026-10-26. A feature summary as of 2026-10-19. The shift docs in docs/shifts/ now say what shipped.
+
 # Features
 
 What v0.3 built, by milestone, as of 2026-10-19 on `kerk` (pull request #4 in the former team repository). [progress-v0.3.md](../docs/progress-v0.3.md) has each feature's tests and evidence, and [spec-v0.3.md](../docs/spec-v0.3.md) has the full requirements. [dogfood.md](dogfood.md) says how to try it.

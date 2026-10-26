@@ -1,3 +1,5 @@
+> Archived 2026-10-26. The v0.1 build log. Every v0.1 milestone closed.
+
 # Progress
 
 Tracks [spec.md](spec.md) milestones. An item is ticked only when its AC passed; evidence is written next to it. `[manual]` and `[live]` checks belong to the owner and are listed separately under each milestone.

@@ -1,6 +1,6 @@
 # aisus vision
 
-Why aisus exists, who it is for, and how the team will judge it. This is context, not a contract: what gets built is [spec-v0.3.md](spec-v0.3.md).
+Why aisus exists, who it is for, and how the team will judge it. This is context, not a contract: what gets built is in the shift docs in [shifts/](shifts/README.md), and the v0.3 contract is [archive/spec-v0.3.md](archive/spec-v0.3.md).
 
 ## Motto
 

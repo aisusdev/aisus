@@ -1,3 +1,5 @@
+> Archived 2026-10-26. The v0.3 build log through 2026-10-26. Its open items moved to docs/open.md, and new log lines go in the current shift doc.
+
 # Progress (v0.3)
 
 ## Team cloud sync proposal (owner request, 2026-10-26)

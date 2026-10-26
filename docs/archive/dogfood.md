@@ -1,3 +1,5 @@
+> Archived 2026-10-26. Its steps, with current paths, are in docs/maintaining.md.
+
 # Dogfooding aisus
 
 Run every command from this repository with the Node version in `.nvmrc`. Start with `source ~/.nvm/nvm.sh && nvm use` in each new terminal. [features.md](features.md) lists what there is to try.

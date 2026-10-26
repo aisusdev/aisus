@@ -1,4 +1,4 @@
-// Builds the shipped bundles into dist/ (see docs/spec.md §6).
+// Builds the shipped bundles into dist/ (see docs/archive/spec.md §6).
 // `node esbuild.mjs`        → apps/vscode/dist/
 // `node esbuild.mjs --e2e`  → apps/vscode/out/e2e/ (the @vscode/test-electron suite; never shipped)
 // `node esbuild.mjs --action` → apps/action/dist/index.js (the GitHub Action, committed; PRC-04)

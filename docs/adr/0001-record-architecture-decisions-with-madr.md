@@ -12,7 +12,7 @@ Sustain is built in a long-running, mostly autonomous implementation that spans 
 
 ## Decision Drivers
 
-* Every session resumes from files alone ([spec §9](../spec.md)).
+* Every session resumes from files alone ([spec §9](../archive/spec.md)).
 * The owner reviews decisions after the fact and must see the rejected options.
 * A record must be machine-checkable so drift is caught by `npm run check`.
 

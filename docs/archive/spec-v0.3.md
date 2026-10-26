@@ -1,3 +1,5 @@
+> Archived 2026-10-26. The v0.3 contract, built through I9. Work now runs in shifts, and each shift doc in docs/shifts/ carries its own proposals.
+
 # aisus v0.3 build specification
 
 - Status: Proposed, 2026-10-18. Branch `kerk`, starting from `feat/bugfix-mode` at `5df3221` (v0.2.0).

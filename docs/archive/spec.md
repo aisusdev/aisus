@@ -1,3 +1,5 @@
+> Archived 2026-10-26. The v0.1 viewer contract. Its milestones closed, and the code and ADRs now describe the viewer.
+
 # aisus VS Code extension: build specification
 
 - Status: Accepted, 2026-10-10 (from the design interview with the owner)

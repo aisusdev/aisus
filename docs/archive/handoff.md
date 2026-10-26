@@ -1,3 +1,5 @@
+> Archived 2026-10-26. The first handover, from 2026-10-24. Its unfinished work moved to docs/open.md, its rules to AGENTS.md, and its how-to to docs/maintaining.md.
+
 # Handoff
 
 This guide is for the agent that takes over aisus. Read AGENTS.md first, because its rules still apply. This file covers three things: what is unfinished, the owner's standing preferences, and how to change each part of the project. Delete each item under "Unfinished work" once it lands, and delete this file when the list is empty.

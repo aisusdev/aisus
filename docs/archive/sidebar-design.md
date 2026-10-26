@@ -1,3 +1,5 @@
+> Archived 2026-10-26. The tabbed sidebar it describes was replaced on 2026-10-25 by the home with pages.
+
 # aisus sidebar: the recommended design
 
 This design starts from the task-first tabs proposal, which had the highest judge totals: 48, against 43 for the overview cards and 32 for the conversation. It keeps one webview view, `aisus.home`, so the manifest's one-view test stays green and the build needs no go from you before it starts. From the overview proposal it takes the card layout, one filled button per tab, panels that keep their elements between updates, and a rich status bar tooltip. From the conversation proposal it takes the Source Control entries and a quiet live region. Where the judges disagreed, the choice went to whatever reads best at 300 px and reuses the messages that already exist.

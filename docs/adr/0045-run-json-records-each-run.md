@@ -8,7 +8,7 @@ decision-makers: implementer
 
 ## Context and Problem Statement
 
-A run folder held only `draft.json` or `candidate.json`, so nothing told the extension what kind of run it was, how far it had got, or what it cost. Refresh, drill-down, the run card and the cost estimate all need that ([spec.md](../spec.md) §3 had ruled run logs out; spec v0.3 CST-04 brings them back).
+A run folder held only `draft.json` or `candidate.json`, so nothing told the extension what kind of run it was, how far it had got, or what it cost. Refresh, drill-down, the run card and the cost estimate all need that ([spec.md](../archive/spec.md) §3 had ruled run logs out; spec v0.3 CST-04 brings them back).
 
 ## Considered Options
 
