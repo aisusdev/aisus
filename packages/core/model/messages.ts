@@ -182,6 +182,11 @@ export interface MapItem {
   changed: number | null;
 }
 
+/** CLD-16: a map from aisus cloud, such as "Team map of main". */
+export interface CloudMapItem extends MapItem {
+  source: string;
+}
+
 /** The agents the composer can launch (RCH-04 adds Devin, which runs in a terminal). */
 export type ComposerCli = "claude" | "codex" | "devin";
 
@@ -285,6 +290,8 @@ export interface HomeState {
   sequences: MapItem[];
   /** CLD-12: whether `aisus.cloud.enabled` is on, so maps offer Share to aisus cloud. */
   cloud: boolean;
+  /** CLD-16: the branch's maps in aisus cloud, team map first, each with where it comes from. */
+  cloudMaps: CloudMapItem[];
   composer: {
     agents: ComposerAgent[];
     /** The remembered agent, or the first one found. */

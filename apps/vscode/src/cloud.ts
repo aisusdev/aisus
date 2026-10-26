@@ -7,6 +7,8 @@ import { dirname, join } from "node:path";
 import * as vscode from "vscode";
 import { postUpload, pullMaps, type BranchMaps, type CloudMap } from "@aisus/cloud-client/client";
 import { listCandidates } from "@aisus/core/model/discovery";
+import type { CloudMapItem } from "@aisus/core/model/messages";
+import { parseDiagram } from "@aisus/core/model/tolerant";
 import { FINGERPRINTS_FILE } from "@aisus/core/model/fingerprints";
 import { collectGitFacts, commitsBetween, currentBranch, isAncestor } from "@aisus/core/model/git";
 import { chooseMap, stalenessText, type LocalCandidate, type Staleness } from "@aisus/core/model/loadOrder";
@@ -152,6 +154,58 @@ function writePulled(root: string, entry: CloudMap): string {
   if (entry.sidecars?.run !== undefined) writeJson(join(dir, RUN_FILE), entry.sidecars.run);
   if (entry.sidecars?.tour !== undefined) writeJson(join(dir, "tour.json"), entry.sidecars.tour);
   return file;
+}
+
+/** CLD-16: a cloud map the Maps page lists, with the entry it writes out when opened. */
+export interface PulledMap {
+  item: CloudMapItem;
+  entry: CloudMap;
+}
+
+/**
+ * CLD-16: the maps aisus cloud holds for `root`'s branch, for the Maps page. They are the team
+ * map, the personal map and the default branch's team map, each once. The pull uses an existing
+ * GitHub sign-in without asking for one, and lists nothing when there is none.
+ */
+export async function branchCloudMaps(root: string): Promise<PulledMap[]> {
+  if (!cloudEnabled()) return [];
+  const context = repoContext(root);
+  if (context === null) return [];
+  const token = await githubToken(false);
+  if (token === undefined) return [];
+  const maps = await pullMaps(cloudUrl(), token, context.repo, context.branch);
+  const found: [CloudMap | null, string][] = [
+    [maps.team, `Team map of ${context.branch}`],
+    [maps.personal, `Your personal map of ${context.branch}`],
+    [maps.main, `Team map of ${maps.defaultBranch}`],
+  ];
+  const pulled: PulledMap[] = [];
+  for (const [entry, source] of found) {
+    if (entry === null || pulled.some((seen) => seen.entry.id === entry.id)) continue;
+    const parsed = parseDiagram(JSON.stringify(entry.map));
+    const agent = (entry.sidecars?.run as { agent?: unknown } | undefined)?.agent;
+    const runFolder = `${entry.space}-${entry.id}`;
+    pulled.push({
+      entry,
+      item: {
+        runFolder,
+        file: join(root, CLOUD_DIR, runFolder, "candidate.json"),
+        title: parsed.ok ? (parsed.diagram.title ?? null) : null,
+        focus: "",
+        agent: typeof agent === "string" ? agent : null,
+        createdAt: entry.createdAt,
+        boxes: parsed.ok ? parsed.diagram.components.length : null,
+        changed: null,
+        source: `${source} at ${entry.commit.slice(0, 7)}`,
+      },
+    });
+  }
+  return pulled;
+}
+
+/** CLD-16: writes a cloud map from the Maps page into `.aisus/cloud/` and opens it. */
+export function openPulled(extensionUri: vscode.Uri, root: string, pulled: PulledMap): void {
+  ArchitecturePanel.show(extensionUri, root, writePulled(root, pulled.entry));
 }
 
 function staleness(root: string, commit: string | null, head: string): Staleness {

@@ -2,7 +2,7 @@
 // Maps pages. It is built from the HomeState the host sends, and every string goes in as text.
 // The composer's text box persists across states. Typing survives updates.
 import { mapStatus, relativeAge, runFigures, tokenCount } from "@aisus/core/model/home";
-import type { AskTurn, AskView, HomeState, HomeWebviewMessage, MapItem, PracticeQuestionView, PracticeView, ReviewView, RunCard } from "@aisus/core/model/messages";
+import type { AskTurn, AskView, CloudMapItem, HomeState, HomeWebviewMessage, MapItem, PracticeQuestionView, PracticeView, ReviewView, RunCard } from "@aisus/core/model/messages";
 import type { Grade } from "@aisus/core/model/practice";
 import type { Check } from "@aisus/core/model/preflight";
 import { renderAnswer, spanNode } from "./answer";
@@ -329,6 +329,18 @@ export function createHome(container: HTMLElement, post: Post, now: () => Date =
     return entry;
   }
 
+  /** CLD-16: a map from aisus cloud, which says where it comes from and opens when clicked. */
+  function cloudEntry(item: CloudMapItem): HTMLElement {
+    const entry = el("li", "map map--cloud");
+    const open = button(item.title ?? item.runFolder, "map__title", () => post({ type: "openMap", file: item.file }));
+    open.title = item.source;
+    const meta = [item.source, relativeAge(item.createdAt, now()), item.boxes === null ? null : `${item.boxes} box${item.boxes === 1 ? "" : "es"}`].filter(
+      (part): part is string => part !== null,
+    );
+    entry.append(open, el("div", "map__meta", meta.join(" · ")));
+    return entry;
+  }
+
   function mapEntry(item: MapItem): HTMLElement {
     const entry = el("li", "map");
     const open = button(item.title ?? item.runFolder, "map__title", () => post({ type: "openMap", file: item.file }));
@@ -418,7 +430,7 @@ export function createHome(container: HTMLElement, post: Post, now: () => Date =
     const session = state.session;
     const hunt = session === null ? "" : `${session.phase[0]?.toUpperCase() ?? ""}${session.phase.slice(1)}${session.stepsTotal > 0 ? ` · Step ${Math.min(session.stepIndex + 1, session.stepsTotal)} of ${session.stepsTotal}` : ""} · Score ${session.score}`;
     // The rows are rebuilt only when they change, so a focused row keeps its focus across states.
-    const mapCount = state.maps.length + state.sequences.length;
+    const mapCount = state.maps.length + state.sequences.length + state.cloudMaps.length;
     const key = JSON.stringify([state.root, hasMap && state.maps.length, mapCount, hunt]);
     if (key === doKey) return;
     doKey = key;
@@ -444,12 +456,19 @@ export function createHome(container: HTMLElement, post: Post, now: () => Date =
     doSlot.append(list);
   }
 
-  function renderMaps(items: MapItem[], sequences: MapItem[]): void {
+  function renderMaps(items: MapItem[], sequences: MapItem[], cloud: CloudMapItem[]): void {
     maps.replaceChildren();
     if (items.length > 0) {
       const list = section("", "maps");
       const entries = el("ul", "maps__list");
       for (const item of items) entries.append(mapEntry(item));
+      list.append(entries);
+      maps.append(list);
+    }
+    if (cloud.length > 0) {
+      const list = section("aisus cloud", "maps maps--cloud");
+      const entries = el("ul", "maps__list");
+      for (const item of cloud) entries.append(cloudEntry(item));
       list.append(entries);
       maps.append(list);
     }
@@ -680,13 +699,13 @@ export function createHome(container: HTMLElement, post: Post, now: () => Date =
       renderHeader(state);
       if (state.root === null && selected !== "home") showPage("home");
       // A page that needs a map goes home when the last map goes.
-      if ((state.maps.length === 0 && selected === "review") || (state.maps.length + state.sequences.length === 0 && selected === "maps")) showPage("home");
+      if ((state.maps.length === 0 && selected === "review") || (state.maps.length + state.sequences.length + state.cloudMaps.length === 0 && selected === "maps")) showPage("home");
       renderComposer(state);
       renderRun(state.run);
       renderCurrent(state);
       renderAttention(state);
       renderDo(state);
-      renderMaps(state.maps, state.sequences);
+      renderMaps(state.maps, state.sequences, state.cloudMaps);
       renderReview(state);
       renderRules(state);
       renderHotspots(state);

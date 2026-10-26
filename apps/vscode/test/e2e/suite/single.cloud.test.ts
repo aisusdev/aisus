@@ -1,5 +1,6 @@
 // CLD-12 and CLD-16 against a fake aisus cloud: Share sends exactly the JSON it previewed, and Open
-// Architecture opens the branch's cloud map instead of an older local one. VS Code's GitHub sign-in
+// Architecture opens the branch's cloud map instead of an older local one. The sidebar's Maps page
+// lists the branch's cloud maps and opens them. VS Code's GitHub sign-in
 // is replaced for the test, as the suite replaces `vscode.window`, because VS Code refuses to show
 // its consent dialog under test.
 import * as assert from "node:assert/strict";
@@ -11,6 +12,7 @@ import { dirname, join } from "node:path";
 import * as vscode from "vscode";
 import type { TestHook } from "../../../src/extension";
 import { stubUi, type UiStubs } from "../stubs";
+import { until } from "../until";
 import { suite, suiteSetup, suiteTeardown, setup, teardown, test } from "../tdd";
 
 const RUN = "architecture-shop-20261020-120000";
@@ -160,5 +162,25 @@ suite("CLD-12 CLD-16 aisus cloud in VS Code", () => {
     assert.ok(existsSync(join(root, ".aisus/cloud/team-7/fingerprints.json")));
     assert.equal(ui.infos.at(-1)!.message, `Opened the team map of main from aisus cloud, drawn at this commit (${head.slice(0, 7)}).`);
     assert.match(readFileSync(join(root, ".git/info/exclude"), "utf8"), /^\.aisus\/cloud\/$/m);
+  });
+
+  test("the sidebar lists the branch's cloud map with where it comes from, and opening it writes and opens the pulled map", async () => {
+    const head = git(root, "rev-parse", "HEAD");
+    cloud.branchMaps = {
+      defaultBranch: "main",
+      team: { id: 9, space: "team", branch: "main", commit: head, createdAt: "2026-10-21T12:00:00Z", sha256: "b".repeat(64), map: map("Team map", ["api", "store", "queue"]), sidecars: null, meta: {} },
+      personal: null,
+      main: null,
+      mainHistory: [],
+    };
+    await vscode.workspace.getConfiguration("aisus").update("cloud.enabled", true, vscode.ConfigurationTarget.Global);
+    await vscode.commands.executeCommand("workbench.view.extension.aisus");
+    await until(() => (hook.homeState().state?.cloudMaps.length ?? 0) > 0, "the sidebar to list the cloud map");
+    const listed = hook.homeState().state!.cloudMaps;
+    assert.deepEqual(listed.map((item) => [item.source, item.boxes]), [[`Team map of main at ${head.slice(0, 7)}`, 3]]);
+    await hook.postFromHome({ type: "openMap", file: listed[0]!.file });
+    const pulled = join(root, ".aisus/cloud/team-9/candidate.json");
+    assert.equal(hook.panelState().file, pulled);
+    assert.equal((JSON.parse(readFileSync(pulled, "utf8")) as { meta: { title: string } }).meta.title, "Team map");
   });
 });

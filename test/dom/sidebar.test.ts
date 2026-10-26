@@ -33,6 +33,7 @@ function state(fields: Partial<HomeState> = {}): HomeState {
     maps: [],
     sequences: [],
     cloud: false,
+    cloudMaps: [],
     composer: { agents: [{ cli: "claude", label: "Claude Code", headless: true }], agent: "claude", runMode: "sidebar", notes: [], confirm: false },
     run: null,
     setup: OK_CHECKS,
@@ -130,6 +131,18 @@ describe("UI-01 sidebar states", () => {
     expect(text(".map:first-child .map__actions button")).toEqual(["Refresh", "Export page", "Create tour", "Share to aisus cloud", "Delete"]);
     click("Share to aisus cloud");
     expect(posted).toEqual([{ type: "shareMap", file: map({}).file }]);
+  });
+
+  test("CLD-16 a folder with only a cloud map offers Maps, whose aisus cloud section says where the map comes from and opens it", () => {
+    const pulled = { ...map({ runFolder: "team-5", file: "/r/.aisus/cloud/team-5/candidate.json", agent: null, boxes: 4 }), source: "Team map of main at 45bde56" };
+    home.render(state({ cloud: true, cloudMaps: [pulled] }));
+    const row = container.querySelector<HTMLButtonElement>('.row[data-page="maps"]')!;
+    expect(row.textContent).toContain("1");
+    row.click();
+    expect(text(".maps--cloud .section__title")).toEqual(["aisus cloud"]);
+    expect(text(".map--cloud .map__meta")).toEqual(["Team map of main at 45bde56 · 2 days ago · 4 boxes"]);
+    container.querySelector<HTMLButtonElement>(".map--cloud .map__title")!.click();
+    expect(posted).toEqual([{ type: "openMap", file: pulled.file }]);
   });
 
   test("running: the card shows feed, figures and Cancel, and Generate is disabled", () => {

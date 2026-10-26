@@ -25,7 +25,7 @@ import { webviewHtml } from "./html";
 import { installSkill } from "./install";
 import { skillStatus } from "./integrity";
 import { ArchitecturePanel } from "./panel";
-import { shareMapCommand } from "./cloud";
+import { branchCloudMaps, openPulled, shareMapCommand, type PulledMap } from "./cloud";
 import { exportPageCommand } from "./exportPage";
 import { createTourCommand } from "./tour";
 import { copyPromptCommand } from "./copyPrompt";
@@ -64,6 +64,8 @@ export class HomeView implements vscode.WebviewViewProvider, vscode.Disposable {
   private setupRoot: string | null = null;
   private readonly disposables: vscode.Disposable[] = [];
   private readonly healthCache = new Map<string, { at: number; items: HealthItem[] }>();
+  /** CLD-16: each folder's maps in aisus cloud, as last pulled. */
+  private readonly cloudMaps = new Map<string, PulledMap[]>();
 
   constructor(
     private readonly context: vscode.ExtensionContext,
@@ -79,6 +81,7 @@ export class HomeView implements vscode.WebviewViewProvider, vscode.Disposable {
     this.disposables.push(
       vscode.workspace.onDidChangeWorkspaceFolders(() => this.send()),
       vscode.workspace.onDidChangeConfiguration((event) => {
+        if (event.affectsConfiguration("aisus.cloud")) void this.pullCloudMaps();
         if (event.affectsConfiguration("aisus")) this.send();
       }),
     );
@@ -106,12 +109,27 @@ export class HomeView implements vscode.WebviewViewProvider, vscode.Disposable {
     });
     view.webview.onDidReceiveMessage((message: HomeWebviewMessage) => void this.handleMessage(message), undefined, this.disposables);
     view.onDidChangeVisibility(() => {
-      if (view.visible) this.send();
+      if (!view.visible) return;
+      this.send();
+      void this.pullCloudMaps();
     }, undefined, this.disposables);
     view.onDidDispose(() => {
       if (this.view === view) this.view = undefined;
     }, undefined, this.disposables);
     void this.checkSetup();
+    void this.pullCloudMaps();
+  }
+
+  /** CLD-16: pulls the current branch's maps from aisus cloud while the sidebar shows. An unreachable cloud keeps the last list. */
+  async pullCloudMaps(): Promise<void> {
+    const root = this.root();
+    if (root === null || !this.visible) return;
+    try {
+      this.cloudMaps.set(root, await branchCloudMaps(root));
+    } catch {
+      return;
+    }
+    this.send();
   }
 
   /** The folder the sidebar works on: the one picked last, else the first workspace folder. */
@@ -124,6 +142,7 @@ export class HomeView implements vscode.WebviewViewProvider, vscode.Disposable {
   /** What the sidebar shows now. */
   state(): HomeState {
     const root = this.root();
+    const cloud = vscode.workspace.getConfiguration("aisus").get<boolean>("cloud.enabled", false);
     const agents = foundAgents();
     const agent = chosenAgent(this.context, agents);
     const runMode = configuredRunMode();
@@ -143,7 +162,8 @@ export class HomeView implements vscode.WebviewViewProvider, vscode.Disposable {
       root,
       maps: root === null ? [] : this.mapsOf(root),
       sequences: root === null ? [] : this.mapsOf(root, "sequence"),
-      cloud: vscode.workspace.getConfiguration("aisus").get<boolean>("cloud.enabled", false),
+      cloud,
+      cloudMaps: root === null || !cloud ? [] : (this.cloudMaps.get(root) ?? []).map((pulled) => pulled.item),
       composer: { agents, agent, runMode, notes, confirm },
       run: this.runs.current,
       setup: root === this.setupRoot ? this.setup : null,
@@ -256,6 +276,7 @@ export class HomeView implements vscode.WebviewViewProvider, vscode.Disposable {
         await this.context.workspaceState.update(ROOT_KEY, message.root);
         this.send();
         void this.checkSetup();
+        void this.pullCloudMaps();
         return;
       case "setAgent":
         if (!foundAgents().some((agent) => agent.cli === message.agent)) return;
@@ -287,11 +308,17 @@ export class HomeView implements vscode.WebviewViewProvider, vscode.Disposable {
         if (last && agent) await launchTask(this.context, this.runs, last.root, agent, last.task, "terminal");
         return;
       }
-      case "openMap":
-        if (root !== null && this.isCandidate(root, message.file)) ArchitecturePanel.show(this.context.extensionUri, root, message.file);
+      case "openMap": {
+        const pulled = root === null ? undefined : this.cloudMaps.get(root)?.find((entry) => entry.item.file === message.file);
+        if (root !== null && pulled !== undefined) openPulled(this.context.extensionUri, root, pulled);
+        else if (root !== null && this.isCandidate(root, message.file)) ArchitecturePanel.show(this.context.extensionUri, root, message.file);
         return;
+      }
       case "shareMap":
-        if (root !== null && this.isCandidate(root, message.file)) await shareMapCommand(root, message.file);
+        if (root !== null && this.isCandidate(root, message.file)) {
+          await shareMapCommand(root, message.file);
+          await this.pullCloudMaps();
+        }
         return;
       case "deleteMap":
         if (root !== null && this.isCandidate(root, message.file)) await this.deleteMap(root, message.file);
