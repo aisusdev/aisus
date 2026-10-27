@@ -25,7 +25,8 @@ test("CLD-07 the user upgrades their own account to Pro and an organization to T
   await expect(org.getByRole("button", { name: "Upgrade to Pro" })).toHaveCount(0);
 
   await own.getByRole("button", { name: "Upgrade to Pro" }).click();
-  await page.waitForURL("**/settings?upgraded=dev");
+  await page.waitForURL("**/?upgraded=dev");
+  await page.goto("/settings");
   await expect(own.locator(".plan-name")).toHaveText("Pro");
   await expect(own.getByRole("button", { name: "Manage billing" })).toBeVisible();
   await upload(request, "dev/journal", MAIN_MAP);
@@ -34,7 +35,8 @@ test("CLD-07 the user upgrades their own account to Pro and an organization to T
 
   await page.goto("/settings");
   await org.getByRole("button", { name: "Upgrade to Team" }).click();
-  await page.waitForURL("**/settings?upgraded=acme");
+  await page.waitForURL("**/?upgraded=acme");
+  await page.goto("/settings");
   await expect(org.locator(".plan-name")).toHaveText("Team");
   await expect(org.getByRole("button", { name: "Manage billing" })).toBeVisible();
   await upload(request, "acme/paid", MAIN_MAP);

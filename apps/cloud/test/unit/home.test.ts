@@ -1,15 +1,51 @@
 // P-7: the signed-in home. The cloud reads the user's repositories and organization memberships from
 // GitHub, and knows when each repository's main map arrived.
-import { beforeEach, describe, expect, test } from "vitest";
+import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
+import { POST as checkoutRoute } from "../../src/app/api/v1/billing/checkout/route";
 import { openDatabase, type Database } from "../../src/db/client";
-import { githubApi } from "../../src/lib/github";
+import { signIn, type SignedIn } from "../../src/lib/access";
+import { githubApi, type GitHubApi } from "../../src/lib/github";
+import { useServices } from "../../src/lib/services";
 import { mainMapTimes, saveUpload, upsertRepository } from "../../src/lib/store";
 import { COMMIT, MAP } from "../support/fixtures";
 
+const BILLING = { STRIPE_SECRET_KEY: "sk_test_home", STRIPE_WEBHOOK_SECRET: "whsec_home", STRIPE_PRO_PRICE: "price_pro", STRIPE_TEAM_PRICE: "price_team" };
+/** dev administers acme and is a member of crew. Every repository is dev's to read only. */
+const github: GitHubApi = {
+  async user() {
+    return { id: 1, login: "dev", name: null };
+  },
+  async organizations() {
+    return [];
+  },
+  async repository(_token, owner, name) {
+    return { id: name.length, owner, name, private: false, defaultBranch: "main", permissions: { pull: true } };
+  },
+  async repositories() {
+    return [];
+  },
+  async memberships() {
+    return [
+      { login: "acme", admin: true },
+      { login: "crew", admin: false },
+    ];
+  },
+};
 let db: Database;
+let me: SignedIn;
+let restore: () => void;
 
 beforeEach(async () => {
   db = await openDatabase();
+  me = await signIn(db, github, "gho_token");
+  restore = useServices({ db: async () => db, github: () => github, user: async () => me });
+  Object.assign(process.env, BILLING);
+});
+
+afterEach(() => {
+  restore();
+  vi.unstubAllGlobals();
+  for (const key of Object.keys(BILLING)) delete process.env[key];
 });
 
 describe("P-7 GitHub reads", () => {
@@ -47,5 +83,24 @@ describe("P-7 map times", () => {
     await saveUpload(db, { repoId: lab.id, kind: "check", commit: COMMIT, branch: "main", payload: {}, via: "oidc", createdAt: at("2026-10-03T10:00:00Z") });
     await saveUpload(db, { repoId: lab.id, kind: "map", commit: COMMIT, branch: "feature", payload: MAP, via: "oidc", createdAt: at("2026-10-03T10:00:00Z") });
     expect(await mainMapTimes(db, [shop.id, lab.id])).toEqual(new Map([[shop.id, at("2026-10-02T10:00:00Z")]]));
+  });
+});
+
+describe("P-7 buying a plan", () => {
+  test("Checkout accepts the user's own account and an organization they administer with no repository stored, refuses one where they are only a member, and returns to the home", async () => {
+    const sent: URLSearchParams[] = [];
+    vi.stubGlobal("fetch", async (_url: string, init: RequestInit) => {
+      sent.push(new URLSearchParams(String(init.body)));
+      return Response.json({ url: "https://checkout.stripe.test/session" });
+    });
+    const checkout = (account: string): Promise<Response> =>
+      checkoutRoute(new Request("http://cloud.test/api/v1/billing/checkout", { method: "POST", body: JSON.stringify({ account }), headers: { "content-type": "application/json", origin: "http://cloud.test" } }));
+    expect((await checkout("dev")).status).toBe(200);
+    expect((await checkout("acme")).status).toBe(200);
+    expect((await checkout("crew")).status).toBe(403);
+    expect(sent.map((params) => [params.get("metadata[account]"), params.get("success_url"), params.get("cancel_url")])).toEqual([
+      ["dev", "http://cloud.test/?upgraded=dev", "http://cloud.test/"],
+      ["acme", "http://cloud.test/?upgraded=acme", "http://cloud.test/"],
+    ]);
   });
 });

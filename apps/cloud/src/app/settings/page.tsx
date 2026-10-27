@@ -1,5 +1,6 @@
-// The account: organizations, repository spaces and roles, the plans of the accounts the user owns
-// repositories of, exporting the user's data, and deleting the account (CLD-01, CLD-07, CLD-11, CLD-13).
+// The account: organizations, repository spaces and roles, the plans of the user's own account, the
+// organizations they administer and the accounts they own repositories of, exporting the user's data,
+// and deleting the account (CLD-01, CLD-07, CLD-11, CLD-13, P-7).
 import { redirect } from "next/navigation";
 import { billingConfig, planToBuy } from "../../../plans";
 import { DeleteButton, PlanButton } from "../../components/Actions";
@@ -16,7 +17,9 @@ export default async function SettingsPage() {
   const orgs = await organizationsOf(db, user.userId);
   const spaces = await spacesOf(db, user.userId);
   const billing = billingConfig();
-  const accounts = [...new Set(spaces.filter((space) => space.role === "owner").map((space) => space.repo.owner))].sort();
+  // The user's own account and the organizations they administer can buy a plan before any of their repositories is stored.
+  const administered = billing === null ? [] : (await services().github().memberships(user.githubToken)).filter((membership) => membership.admin).map((membership) => membership.login);
+  const accounts = [...new Set([user.login, ...administered, ...spaces.filter((space) => space.role === "owner").map((space) => space.repo.owner)])].sort();
   const plans = await Promise.all(accounts.map(async (account) => ({ account, plan: await planOfAccount(db, account), customer: (await storedPlan(db, account))?.stripeCustomer ?? null })));
   return (
     <main className="page">
@@ -47,8 +50,6 @@ export default async function SettingsPage() {
       <h2>Plans</h2>
       {billing === null ? (
         <p className="muted">Billing is off on this server, so every account has every feature.</p>
-      ) : plans.length === 0 ? (
-        <p className="muted">Plans belong to the accounts whose repositories you own.</p>
       ) : (
         <ul className="plans">
           {plans.map(({ account, plan, customer }) => {

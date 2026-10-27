@@ -11,7 +11,7 @@ test("CLD-18 an owner of a subscribed organization sees its people, seats and Ma
   await page.goto("/crew/crewlog");
   await page.goto("/settings");
   await page.locator(".plans li", { hasText: /^guild:/ }).getByRole("button", { name: "Upgrade to Team" }).click();
-  await page.waitForURL("**/settings?upgraded=guild");
+  await page.waitForURL("**/?upgraded=guild");
 
   await page.goto("/guild");
   await page.getByRole("link", { name: "People and seats" }).click();

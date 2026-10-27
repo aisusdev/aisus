@@ -2,7 +2,7 @@
 // once, the user and organization APIs, repository permissions, and an OIDC signing key.
 // Every repository under "acme" and "guild", organizations, and under "dev", the user's own account,
 // is the user's as admin. Under "crew", an organization, the user can only read. Names starting with
-// "open" are public.
+// "open" are public. The user's repository list holds one public repository of dev, acme and crew.
 import { createServer } from "node:http";
 import { generateKeyPairSync } from "node:crypto";
 
@@ -33,6 +33,18 @@ createServer((request, response) => {
     json(response, 200, { id: 1, login: "dev", name: "Dev Example", avatar_url: "" });
   } else if (url.pathname === "/user/orgs") {
     json(response, 200, [{ id: 7, login: "acme" }]);
+  } else if (url.pathname === "/user/memberships/orgs") {
+    json(response, 200, [
+      { role: "admin", state: "active", organization: { login: "acme" } },
+      { role: "admin", state: "active", organization: { login: "guild" } },
+      { role: "member", state: "active", organization: { login: "crew" } },
+    ]);
+  } else if (url.pathname === "/user/repos") {
+    json(response, 200, [
+      { id: idOf("open-journal"), name: "open-journal", owner: { login: "dev" }, private: false, default_branch: "main", permissions: { admin: true, push: true, pull: true } },
+      { id: idOf("open-site"), name: "open-site", owner: { login: "acme" }, private: false, default_branch: "main", permissions: { admin: true, push: true, pull: true } },
+      { id: idOf("open-docs"), name: "open-docs", owner: { login: "crew" }, private: false, default_branch: "main", permissions: { admin: false, push: false, pull: true } },
+    ]);
   } else if (/^\/repos\/(acme|dev|guild|crew)\/[^/]+$/.test(url.pathname)) {
     const [, , owner, encoded] = url.pathname.split("/");
     const name = decodeURIComponent(encoded);
