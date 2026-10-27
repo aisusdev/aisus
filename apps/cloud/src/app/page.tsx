@@ -1,40 +1,28 @@
-// CLD-08: signed out, `/` is the landing page. Signed in, it keeps the install steps and useful links.
+// CLD-08 and P-7: signed out, `/` is the landing page. Signed in, it shows the first run until an
+// account the user belongs to keeps maps or they skip it, and "Your repositories" after that.
+// `?account=` opens step 2 for an account the user may buy for, and `?upgraded=` is step 3 after Checkout.
+import { cookies } from "next/headers";
+import { billingConfig } from "../../plans";
 import { currentUser } from "../auth";
+import { PickAccount, SetUpRepository, StartPlan } from "../components/FirstRun";
+import { Home as RepositoryHome } from "../components/Home";
 import { Landing } from "../components/Landing";
-import { releasesRepo } from "../lib/install";
-import { GALLERY_ENABLED } from "../lib/siteFeatures";
+import { FIRST_RUN_COOKIE, firstRunDue, homeOf } from "../lib/home";
+import { services } from "../lib/services";
 
-export default async function Home() {
+export const dynamic = "force-dynamic";
+
+export default async function Home({ searchParams }: { searchParams: Promise<{ account?: string; upgraded?: string }> }) {
   const user = await currentUser();
   if (!user) return <Landing />;
-  return (
-    <main className="page">
-      <h1>Architecture maps that keep up with your code</h1>
-      <p>
-        aisus draws your repository as an architecture map whose boxes open the code they cite, shows which boxes your pull requests touch, and tells you when the map has
-        drifted from the code. aisus cloud shares those maps and checks with your team.
-      </p>
-      <h2>Install</h2>
-      <p>
-        <a className="button button--primary" href="/install" data-umami-event="install">
-          Download for VS Code
-        </a>
-      </p>
-      <p>
-        Then choose <strong>Install from VSIX…</strong> in the Extensions view, click the aisus icon and press Generate. It works in Cursor and Devin Desktop too.
-      </p>
-      <p>
-        Without VS Code, add the skills to Claude Code or Codex with <code>npx skills add {releasesRepo()}</code> and run <code>/aisus-architecture</code>.
-      </p>
-      <p>
-        <a className="button" href="/settings">
-          Settings
-        </a>
-        <a className="button" href="/get-started">
-          Get Started
-        </a>
-        {GALLERY_ENABLED && <a className="button" href="/gallery">See public maps</a>}
-      </p>
-    </main>
-  );
+  const { account: chosen, upgraded } = await searchParams;
+  const billing = billingConfig();
+  const accounts = await homeOf(await services().db(), services().github(), user);
+  const upgradedAccount = accounts.find((account) => account.login === upgraded);
+  if (upgradedAccount) return <SetUpRepository account={upgradedAccount} />;
+  const chosenAccount = accounts.find((account) => account.login === chosen && account.admin);
+  if (billing !== null && chosenAccount) return <StartPlan account={chosenAccount} login={user.login} billing={billing} />;
+  const skipped = (await cookies()).get(FIRST_RUN_COOKIE)?.value === "skipped";
+  if (billing !== null && firstRunDue(accounts, skipped)) return <PickAccount accounts={accounts} login={user.login} billing={billing} />;
+  return <RepositoryHome accounts={accounts} login={user.login} billing={billing !== null} />;
 }

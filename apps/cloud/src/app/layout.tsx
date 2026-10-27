@@ -23,6 +23,7 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
   const website = statsWebsite();
   const account = user ? (
     <>
+      <a href="/">Repositories</a>
       <a href="/settings">{user.login}</a>
       <a href="/api/auth/signout">Sign out</a>
     </>

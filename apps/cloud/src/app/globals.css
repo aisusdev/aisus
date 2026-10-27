@@ -445,6 +445,198 @@ input[type="text"] {
   overflow-wrap: anywhere;
 }
 
+/* P-7: the first run and "Your repositories" */
+.first-run {
+  max-width: 720px;
+}
+
+.first-run__step {
+  margin: 0 0 8px;
+  color: var(--text-2);
+  font-weight: 650;
+}
+
+.first-run__lede {
+  margin: 0 0 28px;
+  color: var(--text-2);
+}
+
+.first-run__foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px 24px;
+  margin-top: 24px;
+}
+
+.page .choices {
+  display: grid;
+  gap: 16px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.page .choices li + li {
+  margin-top: 0;
+}
+
+.choice {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px 24px;
+  padding: 20px 24px;
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  background: var(--white);
+}
+
+.choice > div {
+  flex: 1 1 320px;
+}
+
+.page .choice h2 {
+  margin: 0 0 6px;
+  font-size: 22px;
+}
+
+.choice p {
+  margin: 0;
+}
+
+.choice ul {
+  margin: 12px 0 0;
+}
+
+.text-button {
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  color: var(--text);
+  border-bottom: 1px solid var(--line-3);
+  font: inherit;
+  cursor: pointer;
+}
+
+.account-card {
+  margin-top: 24px;
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  background: var(--white);
+}
+
+.account-card__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px 24px;
+  padding: 18px 24px;
+  border-bottom: 1px solid var(--line);
+}
+
+.page .account-card__head h2 {
+  margin: 0;
+  font-size: 22px;
+}
+
+.account-card__head p {
+  margin: 2px 0 0;
+}
+
+.account-card__empty {
+  margin: 0;
+  padding: 18px 24px;
+}
+
+.page .repo-rows {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.page .repo-rows li + li {
+  margin-top: 0;
+  border-top: 1px solid var(--line);
+}
+
+.repo-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 8px 24px;
+  padding: 14px 24px;
+}
+
+.repo-row__name {
+  overflow-wrap: anywhere;
+}
+
+.chip {
+  display: inline-block;
+  padding: 0 8px;
+  border: 1px solid var(--line-2);
+  border-radius: 3px;
+  color: var(--text-2);
+  font-family: var(--sans);
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: 0;
+  vertical-align: middle;
+}
+
+.plan-badge {
+  border-color: var(--forest);
+  color: var(--forest);
+}
+
+.open-repo {
+  margin-top: 32px;
+}
+
+.open-repo label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 650;
+}
+
+.open-repo div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.open-repo input {
+  flex: 1 1 240px;
+  min-height: 48px;
+}
+
+@media (max-width: 640px) {
+  .repo-row {
+    grid-template-columns: minmax(0, 1fr) auto;
+    padding: 14px 16px;
+  }
+
+  .repo-row__status {
+    grid-column: 1;
+    grid-row: 2;
+  }
+
+  .repo-row .button {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+  }
+
+  .account-card__head,
+  .choice,
+  .account-card__empty {
+    padding: 16px;
+  }
+}
+
 table {
   border-collapse: collapse;
   max-width: 100%;

@@ -1,10 +1,13 @@
 // P-7: the signed-in home. The cloud reads the user's repositories and organization memberships from
-// GitHub, and knows when each repository's main map arrived.
+// GitHub, knows when each repository's main map arrived, lets the user buy for their own account and
+// the organizations they administer, and shows the first run until an account of theirs keeps maps.
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import { POST as checkoutRoute } from "../../src/app/api/v1/billing/checkout/route";
 import { openDatabase, type Database } from "../../src/db/client";
-import { signIn, type SignedIn } from "../../src/lib/access";
+import { checkAccess, signIn, type SignedIn } from "../../src/lib/access";
+import { setPlan } from "../../src/lib/billing";
 import { githubApi, type GitHubApi } from "../../src/lib/github";
+import { firstRunDue, homeOf } from "../../src/lib/home";
 import { useServices } from "../../src/lib/services";
 import { mainMapTimes, saveUpload, upsertRepository } from "../../src/lib/store";
 import { COMMIT, MAP } from "../support/fixtures";
@@ -102,5 +105,53 @@ describe("P-7 buying a plan", () => {
       ["dev", "http://cloud.test/?upgraded=dev", "http://cloud.test/"],
       ["acme", "http://cloud.test/?upgraded=acme", "http://cloud.test/"],
     ]);
+  });
+});
+
+describe("P-7 home", () => {
+  test("homeOf groups repositories by account, the user's own first, and marks who can buy each plan; firstRunDue turns false after a plan, a skip, or with billing off", async () => {
+    const listed = (id: number, owner: string, name: string, permissions: Record<string, boolean>) => ({ id, owner, name, private: false, defaultBranch: "main", permissions });
+    const home: GitHubApi = {
+      ...github,
+      async repository(_token, owner, name) {
+        return { id: 90, owner, name, private: true, defaultBranch: "main", permissions: { pull: true } };
+      },
+      async repositories() {
+        return [listed(10, "dev", "open-journal", { admin: true }), listed(11, "acme", "web", { push: true }), listed(12, "crew", "docs", { pull: true }), listed(13, "other", "lib", { pull: true })];
+      },
+    };
+    await checkAccess(db, home, me, "acme", "secret", new Date());
+    const web = await upsertRepository(db, { githubId: 11, owner: "acme", name: "web", private: false, defaultBranch: "main" });
+    await saveUpload(db, { repoId: web.id, kind: "map", commit: COMMIT, branch: "main", payload: MAP, via: "oidc", createdAt: new Date("2026-10-02T10:00:00Z") });
+
+    const accounts = await homeOf(db, home, me);
+    expect(accounts.map((account) => [account.login, account.personal, account.member, account.admin, account.plan.id])).toEqual([
+      ["dev", true, true, true, "free"],
+      ["acme", false, true, true, "free"],
+      ["crew", false, true, false, "free"],
+      ["other", false, false, false, "free"],
+    ]);
+    expect(accounts.map((account) => account.repositories.map((repo) => [repo.name, repo.private, repo.role, repo.mapAt?.toISOString() ?? null]))).toEqual([
+      [["open-journal", false, "owner", null]],
+      [
+        ["secret", true, "viewer", null],
+        ["web", false, "member", "2026-10-02T10:00:00.000Z"],
+      ],
+      [["docs", false, "viewer", null]],
+      [["lib", false, "viewer", null]],
+    ]);
+    expect(firstRunDue(accounts, false)).toBe(true);
+    expect(firstRunDue(accounts, true)).toBe(false);
+
+    await setPlan(db, "other", { plan: "team", customer: "cus_other" });
+    expect(firstRunDue(await homeOf(db, home, me), false)).toBe(true);
+    await setPlan(db, "acme", { plan: "team", customer: "cus_acme" });
+    const paid = await homeOf(db, home, me);
+    expect(paid.find((account) => account.login === "acme")?.subscribed).toBe(true);
+    expect(firstRunDue(paid, false)).toBe(false);
+
+    for (const key of Object.keys(BILLING)) delete process.env[key];
+    await setPlan(db, "acme", { plan: "free" });
+    expect(firstRunDue(await homeOf(db, home, me), false)).toBe(false);
   });
 });

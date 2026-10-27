@@ -8,6 +8,8 @@ import { expect, type APIRequestContext, type Page } from "@playwright/test";
 export const GITHUB = "http://127.0.0.1:3211";
 /** The port of the app instance with billing on (CLD-07). */
 export const BILLED_APP = 3213;
+/** The port of a second billed app with its own database, where no account has a plan yet (P-7). */
+export const FIRST_RUN_APP = 3214;
 /** The secret that signs the mock Stripe's webhooks to the billed app. */
 export const WEBHOOK_SECRET = "whsec_web";
 export const COMMIT = "0123456789abcdef0123456789abcdef01234567";

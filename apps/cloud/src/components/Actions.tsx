@@ -104,13 +104,13 @@ export function NewShareLink({ url, days }: { url: string; days: readonly number
 }
 
 /** CLD-07: Upgrade to Pro, Upgrade to Team or Manage billing: asks the server for Stripe's page and goes there. */
-export function PlanButton({ url, account, label }: { url: string; account: string; label: string }) {
+export function PlanButton({ url, account, label, primary = false }: { url: string; account: string; label: string; primary?: boolean }) {
   const [error, setError] = useState<string | null>(null);
   return (
     <>
       <button
         type="button"
-        className="button"
+        className={primary ? "button button--primary" : "button"}
         onClick={async () => {
           const response = await call("POST", url, { account });
           const body = (await response.json()) as { url?: string; message?: string };
@@ -122,5 +122,61 @@ export function PlanButton({ url, account, label }: { url: string; account: stri
       </button>
       {error ? <span className="muted"> {error}</span> : null}
     </>
+  );
+}
+
+/** P-7: Skip for now. A year-long cookie keeps the first run away, and the home loads. */
+export function SkipFirstRun({ cookie, label = "Skip for now" }: { cookie: string; label?: string }) {
+  return (
+    <button
+      type="button"
+      className="text-button"
+      onClick={() => {
+        document.cookie = `${cookie}=skipped; path=/; max-age=31536000; samesite=lax`;
+        window.location.href = "/";
+      }}
+    >
+      {label}
+    </button>
+  );
+}
+
+/** Copies `text`, or this site's address followed by `path`, and says so. */
+export function CopyButton({ text, path, label }: { text?: string; path?: string; label: string }) {
+  const [copied, setCopied] = useState(false);
+  return (
+    <button
+      type="button"
+      className="button"
+      onClick={async () => {
+        await navigator.clipboard.writeText(text ?? `${window.location.origin}${path ?? ""}`);
+        setCopied(true);
+      }}
+    >
+      {copied ? "Copied" : label}
+    </button>
+  );
+}
+
+/** P-7: opens the map of a public repository named as owner/name. */
+export function OpenRepository() {
+  const [name, setName] = useState("");
+  return (
+    <form
+      className="open-repo"
+      onSubmit={(event) => {
+        event.preventDefault();
+        const [owner, repo] = name.trim().replace(/^https:\/\/github\.com\//, "").split("/");
+        if (owner && repo) window.location.href = `/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}`;
+      }}
+    >
+      <label htmlFor="open-repo">Open another public repository</label>
+      <div>
+        <input id="open-repo" placeholder="owner/name" value={name} onChange={(event) => setName(event.target.value)} />
+        <button type="submit" className="button">
+          Open
+        </button>
+      </div>
+    </form>
   );
 }

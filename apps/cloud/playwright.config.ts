@@ -1,12 +1,13 @@
 // [web]: Playwright against the built cloud app, with GitHub replaced by test/web/mockGithub.mjs and
 // a fresh PGlite folder per run. A second instance of the app has billing on, against Stripe replaced
-// by test/web/mockStripe.mjs (CLD-07). When Playwright's own Chromium is not installed, the newest
+// by test/web/mockStripe.mjs (CLD-07). A third has billing on too and a database of its own, so P-7's
+// first run starts before any account has a plan. When Playwright's own Chromium is not installed, the newest
 // cached headless shell is used, or AISUS_CHROMIUM when set.
 import { chromium, defineConfig } from "@playwright/test";
 import { existsSync, mkdtempSync, readdirSync } from "node:fs";
 import { homedir, tmpdir } from "node:os";
 import { join } from "node:path";
-import { BILLED_APP, WEBHOOK_SECRET } from "./test/web/support";
+import { BILLED_APP, FIRST_RUN_APP, WEBHOOK_SECRET } from "./test/web/support";
 
 const APP = 3210;
 const GITHUB = 3211;
@@ -22,6 +23,17 @@ function browserPath(): string | undefined {
 }
 
 const executablePath = browserPath();
+
+/** Billing on, against the mock Stripe. */
+const BILLING = {
+  STRIPE_SECRET_KEY: "sk_test_web",
+  STRIPE_WEBHOOK_SECRET: WEBHOOK_SECRET,
+  STRIPE_PRO_PRICE: "price_pro_web",
+  STRIPE_TEAM_PRICE: "price_team_web",
+  STRIPE_API_URL: `http://127.0.0.1:${STRIPE}`,
+  AISUS_PRO_PRICE_TEXT: "$5 a month",
+  AISUS_TEAM_PRICE_TEXT: "$10 per seat a month",
+};
 
 /** The built app on `port` with its own database, and `extra` in its environment. */
 function app(port: number, extra: Record<string, string>) {
@@ -60,14 +72,7 @@ export default defineConfig({
     { command: `node test/web/mockGithub.mjs ${GITHUB}`, url: `http://127.0.0.1:${GITHUB}/.well-known/jwks`, reuseExistingServer: false },
     { command: `node test/web/mockStripe.mjs ${STRIPE} ${WEBHOOK_SECRET}`, url: `http://127.0.0.1:${STRIPE}/health`, reuseExistingServer: false },
     app(APP, {}),
-    app(BILLED_APP, {
-      STRIPE_SECRET_KEY: "sk_test_web",
-      STRIPE_WEBHOOK_SECRET: WEBHOOK_SECRET,
-      STRIPE_PRO_PRICE: "price_pro_web",
-      STRIPE_TEAM_PRICE: "price_team_web",
-      STRIPE_API_URL: `http://127.0.0.1:${STRIPE}`,
-      AISUS_PRO_PRICE_TEXT: "$5 a month",
-      AISUS_TEAM_PRICE_TEXT: "$10 per seat a month",
-    }),
+    app(BILLED_APP, BILLING),
+    app(FIRST_RUN_APP, BILLING),
   ],
 });

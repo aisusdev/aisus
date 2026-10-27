@@ -3,7 +3,7 @@ import { SignInButton } from "./SignInButton";
 
 export default async function SignInPage({ searchParams }: { searchParams: Promise<{ callbackUrl?: string }> }) {
   const { callbackUrl } = await searchParams;
-  const back = callbackUrl !== undefined && callbackUrl.startsWith("/") && !callbackUrl.startsWith("//") ? callbackUrl : "/settings";
+  const back = callbackUrl !== undefined && callbackUrl.startsWith("/") && !callbackUrl.startsWith("//") ? callbackUrl : "/";
   return (
     <main className="page">
       <h1>Sign in</h1>
