@@ -1,7 +1,8 @@
 // A stand-in for github.com and api.github.com in the [web] tests: OAuth that signs in "dev" at
 // once, the user and organization APIs, repository permissions, and an OIDC signing key.
-// Every repository under "acme", an organization, and under "dev", the user's own account, is the
-// user's as admin; names starting with "open" are public.
+// Every repository under "acme" and "guild", organizations, and under "dev", the user's own account,
+// is the user's as admin. Under "crew", an organization, the user can only read. Names starting with
+// "open" are public.
 import { createServer } from "node:http";
 import { generateKeyPairSync } from "node:crypto";
 
@@ -32,10 +33,10 @@ createServer((request, response) => {
     json(response, 200, { id: 1, login: "dev", name: "Dev Example", avatar_url: "" });
   } else if (url.pathname === "/user/orgs") {
     json(response, 200, [{ id: 7, login: "acme" }]);
-  } else if (/^\/repos\/(acme|dev)\/[^/]+$/.test(url.pathname)) {
+  } else if (/^\/repos\/(acme|dev|guild|crew)\/[^/]+$/.test(url.pathname)) {
     const [, , owner, encoded] = url.pathname.split("/");
     const name = decodeURIComponent(encoded);
-    json(response, 200, { id: idOf(name), name, owner: { login: owner }, private: !name.startsWith("open"), default_branch: "main", permissions: { admin: true, push: true, pull: true } });
+    json(response, 200, { id: idOf(name), name, owner: { login: owner }, private: !name.startsWith("open"), default_branch: "main", permissions: owner === "crew" ? { admin: false, push: false, pull: true } : { admin: true, push: true, pull: true } });
   } else if (url.pathname === "/.well-known/jwks") {
     json(response, 200, jwks);
   } else if (url.pathname === "/__test/private-key") {

@@ -1,6 +1,6 @@
 // Shared steps for the [web] tests: signing in through the mock GitHub, and uploading through the
 // real API with an OIDC token signed by the mock's key.
-import { createPrivateKey, sign } from "node:crypto";
+import { createHmac, createPrivateKey, sign } from "node:crypto";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { expect, type APIRequestContext, type Page } from "@playwright/test";
@@ -8,6 +8,8 @@ import { expect, type APIRequestContext, type Page } from "@playwright/test";
 export const GITHUB = "http://127.0.0.1:3211";
 /** The port of the app instance with billing on (CLD-07). */
 export const BILLED_APP = 3213;
+/** The secret that signs the mock Stripe's webhooks to the billed app. */
+export const WEBHOOK_SECRET = "whsec_web";
 export const COMMIT = "0123456789abcdef0123456789abcdef01234567";
 /** An example map whose first box cites src/api.ts lines 3 to 9, so it has something to open. */
 export const MAP: Record<string, unknown> = (() => {
@@ -68,4 +70,13 @@ export function check(pull: number): Record<string, unknown> {
     },
     meta: { pull },
   };
+}
+
+/** Subscribes `account` to Team on the billed app, as a completed Stripe Checkout does. */
+export async function subscribe(request: APIRequestContext, account: string): Promise<void> {
+  const payload = JSON.stringify({ type: "checkout.session.completed", data: { object: { metadata: { account, plan: "team" }, customer: "cus_test", subscription: "sub_test" } } });
+  const time = Math.floor(Date.now() / 1000);
+  const signature = createHmac("sha256", WEBHOOK_SECRET).update(`${time}.${payload}`).digest("hex");
+  const response = await request.post(`http://127.0.0.1:${BILLED_APP}/api/stripe/webhook`, { data: payload, headers: { "content-type": "application/json", "stripe-signature": `t=${time},v1=${signature}` } });
+  expect(response.status(), await response.text()).toBe(200);
 }

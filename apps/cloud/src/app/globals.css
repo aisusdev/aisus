@@ -437,6 +437,14 @@ input[type="text"] {
   padding-left: 16px;
 }
 
+.team {
+  width: 100%;
+}
+
+.team th[scope="row"] {
+  overflow-wrap: anywhere;
+}
+
 table {
   border-collapse: collapse;
   max-width: 100%;

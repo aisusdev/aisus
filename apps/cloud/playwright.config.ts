@@ -6,12 +6,11 @@ import { chromium, defineConfig } from "@playwright/test";
 import { existsSync, mkdtempSync, readdirSync } from "node:fs";
 import { homedir, tmpdir } from "node:os";
 import { join } from "node:path";
-import { BILLED_APP } from "./test/web/support";
+import { BILLED_APP, WEBHOOK_SECRET } from "./test/web/support";
 
 const APP = 3210;
 const GITHUB = 3211;
 const STRIPE = 3212;
-const WEBHOOK_SECRET = "whsec_web";
 
 function browserPath(): string | undefined {
   if (process.env["AISUS_CHROMIUM"]) return process.env["AISUS_CHROMIUM"];

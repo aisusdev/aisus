@@ -58,6 +58,9 @@ export default async function DashboardPage({ params }: { params: Promise<{ owne
     return (
       <main className="page">
         <h1>{owner}</h1>
+        <nav className="muted">
+          <a href={`/${owner}/team`}>People and seats</a>
+        </nav>
         <p className="muted plan-note">The team dashboard comes with the Team plan. {owner} is on {plan.label}.</p>
       </main>
     );
@@ -66,6 +69,9 @@ export default async function DashboardPage({ params }: { params: Promise<{ owne
   return (
     <main className="page page--wide">
       <h1>{owner}</h1>
+      <nav className="muted">
+        <a href={`/${owner}/team`}>People and seats</a>
+      </nav>
       {rows.length === 0 ? (
         <p className="muted">No repository of {owner} that you can see has a map in aisus cloud yet.</p>
       ) : (

@@ -1,6 +1,6 @@
 # Open problems and unfinished work
 
-Every known problem and unfinished piece of work, with an ID that never changes. Add new items with the next free ID. Remove an item when it is solved, and record its ID and commit in your shift doc. The next free ID is P-21.
+Every known problem and unfinished piece of work, with an ID that never changes. Add new items with the next free ID. Remove an item when it is solved, and record its ID and commit in your shift doc. The next free ID is P-22.
 
 ## Broken now
 
@@ -20,7 +20,6 @@ Every known problem and unfinished piece of work, with an ID that never changes.
   - Once nothing copied remains, remove that project's section from `THIRD_PARTY_NOTICES.md` and from `tools/scripts/notices.mjs`.
   - Apply [design/landing-copy.md](design/landing-copy.md) to the README opening, `package.json`, the plugin description and `docs/vision.md`.
   - Check with `git grep -i` for the project's name, its author's handle, the old product name, the earlier prototype's name, the former team repository and the previous owner's GitHub account. Only `.git` history and `docs/archive/` may still hold them.
-- **P-6 CLD-18 Team page.** The last item of I9 (team cloud sync). Its proposal and tests are in the "Team cloud sync proposal" of [archive/progress-v0.3.md](archive/progress-v0.3.md), and its requirement in [archive/spec-v0.3.md](archive/spec-v0.3.md).
 - **P-7 Day 1, the signed-in cloud.** See the "Day 1 proposal" in [archive/progress-v0.3.md](archive/progress-v0.3.md), [design/onboarding-mockup.html](design/onboarding-mockup.html) and [design/cloud-first-run.md](design/cloud-first-run.md). The landing page and design system are done. Still to build:
   - the signed-in home ("Your repositories");
   - the three-step first run (account, plan, set up a repository);
@@ -32,6 +31,7 @@ Every known problem and unfinished piece of work, with an ID that never changes.
 - **P-8 Private repositories through the GitHub App.** The app exists as `aisus-cloud` under the aisusdev organization, with only Metadata read-only and no webhook. Its keys are in the shared secrets file as `GITHUB_APP_CLIENT_ID`, `GITHUB_APP_CLIENT_SECRET` and `GITHUB_APP_SLUG`. Sign-in still uses the older OAuth app through `GITHUB_CLIENT_ID`. Build the app's sign-in (phase 3 in [design/cloud-first-run.md](design/cloud-first-run.md)), write its ADR, then switch the keys in one deploy. Until then, private repositories answer "not found" on aisus.dev.
 - **P-9 Day 2.** A repository without a map shows a setup checklist, and the Action uploads the main map from the default branch. See the Day 1 proposal's sibling rows in the "Plans and first run" section of [archive/progress-v0.3.md](archive/progress-v0.3.md).
 - **P-10 Release v0.3.1** after P-5. A teammate pushes the tag. Then delete the v0.3.0 release with `gh release delete v0.3.0 -R aisusdev/aisus --cleanup-tag --yes`.
+- **P-21 A repository named `team` has no map page.** The team page's route `/<owner>/team` (CLD-18) takes its place, and so do its `?branch=` links. Its maps still upload and pull through the API. A fix would move the team page under a path no repository can have, or move map pages under a prefix, and either changes links already shared.
 
 ## Waiting on a hard stop or a manual check
 
