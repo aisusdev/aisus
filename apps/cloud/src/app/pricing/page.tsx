@@ -1,8 +1,11 @@
 // Public plan comparison. Billing configuration remains the source of displayed prices.
 import { billingConfig } from "../../../plans";
+import { currentUser } from "../../auth";
 
-export default function PricingPage() {
+export default async function PricingPage() {
   const billing = billingConfig();
+  // P-7: a plan starts on the signed-in home.
+  const start = (await currentUser()) ? "/" : "/signin?callbackUrl=%2F";
   const pro = billing?.priceTexts.pro;
   const team = billing?.priceTexts.team;
   return (
@@ -24,14 +27,14 @@ export default function PricingPage() {
           <p className="plan-price">{pro ?? (billing ? "Price at checkout" : "Included here")}</p>
           <p>Keep the maps of your own repositories, public and private, in aisus cloud.</p>
           <ul><li>Full map history</li><li>Pull request pages</li><li>Read-only share links</li></ul>
-          <a className="btn btn-primary" href="/settings">See account plans</a>
+          <a className="btn btn-primary" href={start}>Start a plan</a>
         </article>
         <article className="plan" id="team">
           <h2>Team</h2>
           <p className="plan-price">{team ?? (billing ? "Price at checkout" : "Included here")}</p>
           <p>Keep an organization’s maps available to its members, with a team dashboard.</p>
           <ul><li>Organization repositories</li><li>Full history and pull request pages</li><li>Team dashboard and share links</li></ul>
-          <a className="btn" href="/settings">See account plans</a>
+          <a className="btn" href={start}>Start a plan</a>
         </article>
         <article className="plan" id="enterprise">
           <h2>Enterprise</h2>
@@ -45,7 +48,7 @@ export default function PricingPage() {
         {billing === null ? (
           <p>This server gives every account everything in aisus cloud.</p>
         ) : (
-          <p>Pro {pro ? `costs ${pro}` : "is available"} for your own repositories. Team {team ? `costs ${team}` : "is available"} for an organization, with the team dashboard. Sign in and open Settings to see the plans available for accounts whose repositories you own.</p>
+          <p>Pro {pro ? `costs ${pro}` : "is available"} for your own repositories. Team {team ? `costs ${team}` : "is available"} for an organization, with the team dashboard. Sign in to start a plan for your own account or an organization you administer.</p>
         )}
         <p>Source files stay on your machine or CI runner. <a href="/privacy">Read what the cloud stores</a>.</p>
       </section>
