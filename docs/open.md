@@ -1,6 +1,6 @@
 # Open problems and unfinished work
 
-Every known problem and unfinished piece of work, with an ID that never changes. Add new items with the next free ID. Remove an item when it is solved, and record its ID and commit in your shift doc. The next free ID is P-25.
+Every known problem and unfinished piece of work, with an ID that never changes. Add new items with the next free ID. Remove an item when it is solved, and record its ID and commit in your shift doc. The next free ID is P-26.
 
 ## Broken now
 
@@ -8,6 +8,7 @@ Every known problem and unfinished piece of work, with an ID that never changes.
 - **P-2 The e2e job fails in CI.** On Linux under xvfb, LRN-01's Claude session test, SAF-06's hook test and SKL-02's tour test's setup fail, as in run 40316109729. The same suite passes locally on macOS.
 - **P-3 The cloud deploy workflow fails on every push.** The repository variable `AISUS_DEPLOY` is `true`, but the secret `AISUS_DEPLOY_HOOK` is empty, so `curl` exits 3. Set the hook (a hard stop) or set the variable to `false`.
 - **P-4 `/docs` on aisus.dev answers 500.** The cloud's image copies neither `README.md` nor `docs/`, which `apps/cloud/src/lib/docs.ts` reads at request time.
+- **P-25 On a phone, the map page's side panel covers the freshness bar.** Below the phone breakpoint, `.map-side` in `apps/cloud/src/app/globals.css` docks at the foot of the window, 12 pixels from the bottom and up to 40% of its height. The viewer's `.freshness` bar sits 8 pixels from the bottom too, so the panel hides it with its Refresh link on the map, pull request and share link pages. A first step is to dock the panel above the bar, or to fold the panel to its title until it is tapped.
 
 ## Unfinished work
 
