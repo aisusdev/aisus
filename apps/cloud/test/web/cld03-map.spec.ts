@@ -26,6 +26,17 @@ test("CLD-03 the main map draws, opens GitHub at its commit, and lists its histo
   await expect(page.locator("body")).toHaveAttribute("data-opened", `https://github.com/acme/shop/blob/${COMMIT}/src/api.ts#L3-L9`);
 });
 
+test("CLD-03 the map page and a pull request page draw the map with no site footer", async ({ page, request }) => {
+  await upload(request, "acme/footless", { branch: "main", kind: "map", map: MAP, meta: { defaultBranch: "main" } });
+  await upload(request, "acme/footless", check(3));
+  await signInAsDev(page, "/acme/footless");
+  await expect(page.locator("#aisus-viewer .node").first()).toBeVisible();
+  await expect(page.locator(".site-footer")).toBeHidden();
+  await page.goto("/acme/footless/pull/3");
+  await expect(page.locator("#aisus-viewer .node").first()).toBeVisible();
+  await expect(page.locator(".site-footer")).toBeHidden();
+});
+
 test("CLD-03 an owner makes a public repository's maps public, and then anyone can see them", async ({ page, browser, request }) => {
   await upload(request, "acme/open-map", { branch: "main", kind: "map", map: MAP, meta: { defaultBranch: "main" } });
   await signInAsDev(page, "/settings/acme/open-map");

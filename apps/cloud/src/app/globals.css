@@ -496,6 +496,11 @@ code {
   border-top: 1px solid var(--line);
 }
 
+/* The map fills the window below the header, so its pages show no footer. */
+body:has(.map-shell) .site-footer {
+  display: none;
+}
+
 .map-side {
   position: fixed;
   top: calc(var(--header) + 56px);
