@@ -60,7 +60,7 @@ These need a teammate's explicit go, every time. Record each one you hit in `doc
 
 - **No ties outside aisus.** Name no other project, old product name or former repository anywhere in the tree. Use no links that work only through a redirect, no symbolic links and no migration shims that name old folders. History is never rewritten.
 - **Words.** Use prose and few words. Nothing on any page or panel is smaller than body text. If a sentence isn't worth body size, delete it. Use no slop words, rhetorical questions, em dashes or exclamation marks. "aisus" is always lowercase.
-- **Design.** Start from the approved designs in `docs/design/`. Screenshot at desktop and phone widths before you call UI done. The site is dark with the lime accent #c5f24a.
+- **Design.** Start from the approved designs in `docs/design/`. Screenshot at desktop and phone widths before you call UI done. The site is light, with pale green paper, forest ink and the lime accent #c8ef72. `docs/design/site-style.md` describes it.
 - **Money and secrets.** Keep running costs low. Today that is one t4g.small server. Never print secret values.
 - **Licence.** Never propose the MIT licence.
 
