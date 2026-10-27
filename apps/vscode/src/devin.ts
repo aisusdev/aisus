@@ -8,11 +8,15 @@ import { findOnPath } from "@aisus/core/model/agents";
 /**
  * Well-known Devin CLI locations checked after PATH, most-specific first: the per-user
  * version store's `current` link and the Devin Desktop bundled binary (ADR 0040).
+ * `AISUS_DEVIN_APP` names the Devin Desktop binary instead, as the e2e runner sets it.
  */
 export function devinFallbackPaths(env: NodeJS.ProcessEnv, platform: NodeJS.Platform = process.platform): string[] {
   const home = env["HOME"] ?? env["USERPROFILE"] ?? homedir();
   const paths = [join(home, ".local", "share", "devin", "cli", "current", "bin", "devin")];
-  if (platform === "darwin") {
+  const app = env["AISUS_DEVIN_APP"];
+  if (app) {
+    paths.push(app);
+  } else if (platform === "darwin") {
     paths.push("/Applications/Devin.app/Contents/Resources/app/extensions/windsurf/devin/bin/devin");
   } else if (platform === "win32") {
     const localAppData = env["LOCALAPPDATA"];

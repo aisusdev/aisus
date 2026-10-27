@@ -30,6 +30,12 @@ describe("devinFallbackPaths", () => {
     expect(linux).toHaveLength(1);
   });
 
+  test("AISUS_DEVIN_APP names the app bundle's binary on darwin and win32", () => {
+    const env = { HOME: tempDir(), LOCALAPPDATA: "C:\\Users\\u\\AppData\\Local", AISUS_DEVIN_APP: "/tmp/elsewhere/devin" };
+    expect(devinFallbackPaths(env, "darwin")[1]).toBe("/tmp/elsewhere/devin");
+    expect(devinFallbackPaths(env, "win32")[1]).toBe("/tmp/elsewhere/devin");
+  });
+
   test("win32 uses LOCALAPPDATA for the app bundle", () => {
     const paths = devinFallbackPaths({ HOME: tempDir(), LOCALAPPDATA: "C:\\Users\\u\\AppData\\Local" }, "win32");
     expect(paths[1]).toContain("Devin");

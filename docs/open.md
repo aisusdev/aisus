@@ -8,7 +8,6 @@ Every known problem and unfinished piece of work, with an ID that never changes.
 - **P-2 The e2e job fails in CI.** On Linux under xvfb, LRN-01's Claude session test, SAF-06's hook test and SKL-02's tour test's setup fail, as in run 40316109729. The same suite passes locally on macOS.
 - **P-3 The cloud deploy workflow fails on every push.** The repository variable `AISUS_DEPLOY` is `true`, but the secret `AISUS_DEPLOY_HOOK` is empty, so `curl` exits 3. Set the hook (a hard stop) or set the variable to `false`.
 - **P-4 `/docs` on aisus.dev answers 500.** The cloud's image copies neither `README.md` nor `docs/`, which `apps/cloud/src/lib/docs.ts` reads at request time.
-- **P-22 The e2e gate fails on the 2026-10-27 macOS machine.** On VS Code 1.126.0 the `single` scenario has 28 failing tests, all launches of the stubbed agents through a terminal or a run, and the runner stops before 1.141.0. The same extension code passed on the previous shift's macOS machine. A first step is to run one failing test, such as `Claude Code: the terminal runs the resolved CLI with the prompt as its argument`, and see whether the terminal's shell starts slowly under the user's zsh profile.
 
 ## Unfinished work
 

@@ -80,7 +80,8 @@ async function main(): Promise<void> {
         version,
         extensionDevelopmentPath,
         extensionTestsPath,
-        extensionTestsEnv: { AISUS_E2E_SCENARIO: scenario.name, HOME: home, USERPROFILE: home, PATH: testPath(bin) },
+        // A Devin Desktop install outside PATH stays hidden too, because its binary is named here as a missing file.
+        extensionTestsEnv: { AISUS_E2E_SCENARIO: scenario.name, HOME: home, USERPROFILE: home, PATH: testPath(bin), AISUS_DEVIN_APP: join(bin, "no-devin-app") },
         launchArgs: [
           ...(workspace ? [workspace] : []),
           `--user-data-dir=${userData}`,
