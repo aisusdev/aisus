@@ -1,5 +1,5 @@
 // aisus cloud's queries: repositories, uploads, tokens, access and deletion.
-import { and, desc, eq, gte, sql } from "drizzle-orm";
+import { and, desc, eq, gte, inArray, max, sql } from "drizzle-orm";
 import { alias } from "drizzle-orm/pg-core";
 import type { Plan } from "../../plans";
 import type { Database } from "../db/client";
@@ -66,6 +66,18 @@ export async function mainMap(db: Database, repo: Repository): Promise<UploadRow
     .orderBy(desc(uploads.createdAt), desc(uploads.id))
     .limit(1);
   return row;
+}
+
+/** P-7: when each of `repoIds` got its latest main map. A repository without one is left out. */
+export async function mainMapTimes(db: Database, repoIds: number[]): Promise<Map<number, Date>> {
+  if (repoIds.length === 0) return new Map();
+  const rows = await db
+    .select({ repoId: uploads.repoId, at: max(uploads.createdAt) })
+    .from(uploads)
+    .innerJoin(repositories, eq(uploads.repoId, repositories.id))
+    .where(and(inArray(uploads.repoId, repoIds), eq(uploads.kind, "map"), eq(uploads.space, "team"), eq(uploads.branch, repositories.defaultBranch)))
+    .groupBy(uploads.repoId);
+  return new Map(rows.flatMap((row) => (row.at === null ? [] : [[row.repoId, row.at] as const])));
 }
 
 /** CLD-14: the latest team map of `branch`, or `null`. */

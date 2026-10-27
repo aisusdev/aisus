@@ -23,6 +23,23 @@ export interface GitHubApi {
   organizations(token: string): Promise<{ id: number; login: string }[]>;
   /** The repository as the user sees it, or `null` when they cannot see it. */
   repository(token: string, owner: string, name: string): Promise<GitHubRepository | null>;
+  /** P-7: the user's 100 most recently pushed repositories, with their permissions. */
+  repositories(token: string): Promise<GitHubRepository[]>;
+  /** P-7: the organizations the user belongs to, each with whether they administer it. */
+  memberships(token: string): Promise<{ login: string; admin: boolean }[]>;
+}
+
+interface RepositoryBody {
+  id: number;
+  name: string;
+  owner: { login: string };
+  private: boolean;
+  default_branch: string;
+  permissions?: GitHubPermissions;
+}
+
+function repositoryOf(body: RepositoryBody): GitHubRepository {
+  return { id: body.id, owner: body.owner.login, name: body.name, private: body.private, defaultBranch: body.default_branch, permissions: body.permissions ?? {} };
 }
 
 export function githubApi(base = process.env["GITHUB_API_URL"] ?? "https://api.github.com", fetcher: typeof fetch = fetch): GitHubApi {
@@ -44,8 +61,17 @@ export function githubApi(base = process.env["GITHUB_API_URL"] ?? "https://api.g
       const response = await get(token, `/repos/${encodeURIComponent(owner)}/${encodeURIComponent(name)}`);
       if (response.status === 404 || response.status === 403) return null;
       if (!response.ok) throw new Error(`GitHub /repos/${owner}/${name}: ${response.status}`);
-      const body = (await response.json()) as { id: number; name: string; owner: { login: string }; private: boolean; default_branch: string; permissions?: GitHubPermissions };
-      return { id: body.id, owner: body.owner.login, name: body.name, private: body.private, defaultBranch: body.default_branch, permissions: body.permissions ?? {} };
+      return repositoryOf((await response.json()) as RepositoryBody);
+    },
+    async repositories(token) {
+      const response = await get(token, "/user/repos?sort=pushed&per_page=100");
+      if (!response.ok) throw new Error(`GitHub /user/repos: ${response.status}`);
+      return ((await response.json()) as RepositoryBody[]).map(repositoryOf);
+    },
+    async memberships(token) {
+      const response = await get(token, "/user/memberships/orgs?state=active&per_page=100");
+      if (!response.ok) throw new Error(`GitHub /user/memberships/orgs: ${response.status}`);
+      return ((await response.json()) as { role: string; organization: { login: string } }[]).map((membership) => ({ login: membership.organization.login, admin: membership.role === "admin" }));
     },
   };
 }

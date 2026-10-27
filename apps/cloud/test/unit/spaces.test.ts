@@ -29,6 +29,12 @@ const github: GitHubApi = {
   async organizations() {
     return [];
   },
+  async repositories() {
+    return [];
+  },
+  async memberships() {
+    return [];
+  },
   async repository(token, owner, name) {
     const permissions = PEOPLE[token]?.repos[`${owner}/${name}`];
     return permissions ? { id: name === "shop" ? 4242 : 4343, owner, name, private: true, defaultBranch: "main", permissions } : null;

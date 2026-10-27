@@ -31,6 +31,12 @@ const github: GitHubApi = {
   async organizations() {
     return [{ id: 7, login: "acme" }];
   },
+  async repositories() {
+    return [];
+  },
+  async memberships() {
+    return [];
+  },
   async repository(_token, owner, name) {
     const perms = permissions[`${owner}/${name}`];
     return perms ? { id: IDS[name] ?? 99, owner, name, private: name === "secret", defaultBranch: "main", permissions: perms } : null;

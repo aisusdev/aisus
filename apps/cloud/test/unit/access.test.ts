@@ -15,6 +15,12 @@ function fakeGitHub(permissions: Record<string, GitHubPermissions | null>, orgs 
     async organizations() {
       return orgs;
     },
+    async repositories() {
+      return [];
+    },
+    async memberships() {
+      return [];
+    },
     async repository(_token: string, owner: string, name: string) {
       api.lookups++;
       const perms = permissions[`${owner}/${name}`];

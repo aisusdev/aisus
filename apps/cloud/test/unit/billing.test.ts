@@ -34,6 +34,12 @@ const github: GitHubApi = {
   async organizations() {
     return [{ id: 7, login: "acme" }];
   },
+  async repositories() {
+    return [];
+  },
+  async memberships() {
+    return [];
+  },
   async repository(_token, owner, name) {
     // The same id the OIDC tokens below carry for the repository.
     return { id: `${owner}/${name}`.length, owner, name, private: true, defaultBranch: "main", permissions: { admin: true } };
