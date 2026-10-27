@@ -29,3 +29,4 @@ apps/vscode/README.md
 apps/vscode/THIRD_PARTY_NOTICES.md
 apps/vscode/LICENSE
 .idea/
+.DS_Store
