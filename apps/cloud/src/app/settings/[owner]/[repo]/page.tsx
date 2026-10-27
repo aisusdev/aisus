@@ -1,7 +1,9 @@
 // A repository's settings, for its owners: upload tokens, public maps, share links, the audit log of
-// uploads, and deleting maps or all of its data (CLD-02, CLD-03, CLD-06, CLD-11, CLD-13).
-import { notFound, redirect } from "next/navigation";
+// uploads, and deleting maps or all of its data (CLD-02, CLD-03, CLD-06, CLD-11, CLD-13). Everyone else
+// signed in learns who can manage it (P-7).
+import { redirect } from "next/navigation";
 import { DeleteButton, NewShareLink, NewToken, PublicToggle } from "../../../../components/Actions";
+import { PlanGate } from "../../../../components/PlanGate";
 import { checkAccess } from "../../../../lib/access";
 import { planOfRepository } from "../../../../lib/billing";
 import { services } from "../../../../lib/services";
@@ -17,7 +19,19 @@ export default async function RepositorySettings({ params }: { params: Promise<{
   if (!user) redirect(`/signin?callbackUrl=${encodeURIComponent(`/settings/${owner}/${name}`)}`);
   const db = await openDb();
   const access = await checkAccess(db, github(), user, owner, name, now());
-  if (!access || access.role !== "owner") notFound();
+  // P-7: a signed-in user who cannot manage the repository learns who can, the same way whether or not it exists.
+  if (!access || access.role !== "owner") {
+    return (
+      <main className="page">
+        <h1>
+          {owner}/{name} settings
+        </h1>
+        <p className="settings-denied">
+          Only admins of {owner}/{name} on GitHub can manage it. Its map is at <a href={`/${owner}/${name}`}>/{owner}/{name}</a>.
+        </p>
+      </main>
+    );
+  }
   const api = `/api/v1/repos/${owner}/${name}`;
   const maps = await mapHistory(db, access.repo.id);
   const tokens = await listTokens(db, access.repo.id);
@@ -56,7 +70,7 @@ export default async function RepositorySettings({ params }: { params: Promise<{
           </li>
         ))}
       </ul>
-      {refusal === null && plan.shareLinks ? <NewShareLink url={`${api}/shares`} days={SHARE_DAYS} /> : <p className="muted plan-note">{refusal ?? `Share links come with Pro and Team. ${owner} is on ${plan.label}.`}</p>}
+      {refusal === null && plan.shareLinks ? <NewShareLink url={`${api}/shares`} days={SHARE_DAYS} /> : <PlanGate owner={owner} message={refusal ?? `Share links come with Pro and Team. ${owner} is on ${plan.label}.`} user={user} />}
       <h2>Maps</h2>
       <ul className="maps">
         {maps.map((map) => (

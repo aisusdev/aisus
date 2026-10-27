@@ -2,6 +2,7 @@
 // and stale boxes, with the counts beside it.
 import { notFound, redirect } from "next/navigation";
 import { MapViewer } from "../../../../../components/MapViewer";
+import { PlanGate } from "../../../../../components/PlanGate";
 import { checkOf, mapOf, mapPageData } from "../../../../../lib/mapPage";
 import { planOfRepository } from "../../../../../lib/billing";
 import { openSpace } from "../../../../../lib/pages";
@@ -26,7 +27,7 @@ export default async function PullPage({ params }: { params: Promise<{ owner: st
         <h1>
           {owner}/{name} #{pull}
         </h1>
-        <p className="muted plan-note">{refusal ?? `Pull request pages come with Pro and Team. ${owner} is on ${plan.label}.`}</p>
+        <PlanGate owner={owner} message={refusal ?? `Pull request pages come with Pro and Team. ${owner} is on ${plan.label}.`} user={space.user} />
       </main>
     );
   }

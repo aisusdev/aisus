@@ -1,6 +1,7 @@
 // CLD-06: a share link's read-only view of the repository's main map, until it expires or is revoked.
 import { notFound } from "next/navigation";
 import { MapViewer } from "../../../components/MapViewer";
+import { PlanGate } from "../../../components/PlanGate";
 import { planOfRepository } from "../../../lib/billing";
 import { mapPageData } from "../../../lib/mapPage";
 import { services } from "../../../lib/services";
@@ -24,7 +25,7 @@ export default async function SharedMapPage({ params }: { params: Promise<{ toke
         <h1>
           {owner}/{name}
         </h1>
-        <p className="muted plan-note">{refusal}</p>
+        <PlanGate owner={owner} message={refusal} user={null} />
       </main>
     );
   }

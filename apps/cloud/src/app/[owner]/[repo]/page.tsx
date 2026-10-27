@@ -5,6 +5,7 @@
 import { notFound, redirect } from "next/navigation";
 import { relativeAge } from "@aisus/core/model/home";
 import { MapViewer } from "../../../components/MapViewer";
+import { PlanGate } from "../../../components/PlanGate";
 import { mapName, mapPageData } from "../../../lib/mapPage";
 import { openSpace } from "../../../lib/pages";
 import { services } from "../../../lib/services";
@@ -28,7 +29,7 @@ export default async function MapPage({ params, searchParams }: { params: Promis
         <h1>
           {owner}/{name}
         </h1>
-        <p className="muted plan-note">{refusal}</p>
+        <PlanGate owner={owner} message={refusal} user={space.user} />
       </main>
     );
   }

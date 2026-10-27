@@ -47,6 +47,7 @@ export function PublicToggle({ url, value, allowed }: { url: string; value: bool
   );
 }
 
+/** CLD-02 and P-7: creates an upload token and shows it once, inside the publish command it is for. */
 export function NewToken({ url }: { url: string }) {
   const [shown, setShown] = useState<string | null>(null);
   const [name, setName] = useState("ci");
@@ -64,9 +65,14 @@ export function NewToken({ url }: { url: string }) {
         Create upload token
       </button>
       {shown ? (
-        <p>
-          Copy it now; it will not be shown again: <code className="new-token">{shown}</code>
-        </p>
+        <div className="publish-command">
+          <p>Run this in your CI on the default branch. The token is shown only now.</p>
+          <code className="new-token">{`AISUS_TOKEN=${shown} node aisus.mjs publish --url ${window.location.origin}`}</code>
+          <p>
+            <CopyButton text={`AISUS_TOKEN=${shown} node aisus.mjs publish --url ${window.location.origin}`} label="Copy" />
+          </p>
+          <p className="muted">Your shell history keeps this token. Store it as a secret in your CI. Each aisus release on GitHub comes with aisus.mjs.</p>
+        </div>
       ) : null}
     </div>
   );

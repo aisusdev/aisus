@@ -3,6 +3,7 @@
 // pull requests touch most, a trend over recent checks, and recent pull requests. Nothing is per person.
 import { redirect } from "next/navigation";
 import { relativeAge } from "@aisus/core/model/home";
+import { PlanGate } from "../../components/PlanGate";
 import { planOfAccount } from "../../lib/billing";
 import { dashboardFor, TREND_CHECKS, type DashboardRepo } from "../../lib/dashboard";
 import { services } from "../../lib/services";
@@ -61,7 +62,7 @@ export default async function DashboardPage({ params }: { params: Promise<{ owne
         <nav className="muted">
           <a href={`/${owner}/team`}>People and seats</a>
         </nav>
-        <p className="muted plan-note">The team dashboard comes with the Team plan. {owner} is on {plan.label}.</p>
+        <PlanGate owner={owner} message={`The team dashboard comes with the Team plan. ${owner} is on ${plan.label}.`} user={user} />
       </main>
     );
   }

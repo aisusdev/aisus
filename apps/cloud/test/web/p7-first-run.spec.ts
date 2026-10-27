@@ -2,6 +2,8 @@
 // for now shows "Your repositories" and stays skipped. Step 1 offers Pro for the user's own account,
 // Team for the organizations they administer, and a link for an admin where they are only a member.
 // Pro goes through the mocked Checkout to step 3, and the home then lists each account's repositories.
+// The plan gate offers Upgrade to an admin and names whom to ask to everyone else, a new token comes
+// inside its publish command, and a repository's settings tell a reader who can manage it.
 import { expect, test } from "@playwright/test";
 import { FIRST_RUN_APP, signInAsDev } from "./support";
 
@@ -40,4 +42,23 @@ test("P-7 the first run picks an account, starts Pro through Checkout and sets u
   const reader = page.getByRole("region", { name: "crew" });
   await expect(reader.getByRole("button")).toHaveCount(0);
   await expect(reader.locator(".repo-row")).toContainText("No map yet. An admin can set it up.");
+});
+
+test("P-7 the plan gate offers Upgrade to an admin and names whom to ask to a reader, a new token comes with its publish command, and a reader's settings say who manages the repository", async ({ page }) => {
+  await signInAsDev(page, "/acme/gated");
+  await expect(page.locator(".plan-note")).toHaveText("Maps in aisus cloud come with Pro, for your own repositories, or Team, for an organization's. acme is on Free.");
+  await expect(page.getByRole("button", { name: "Upgrade to Team" })).toBeVisible();
+
+  await page.goto("/crew/gated");
+  await expect(page.locator(".plan-note")).toHaveText("Maps in aisus cloud come with Pro, for your own repositories, or Team, for an organization's. crew is on Free.");
+  await expect(page.locator(".plan-gate")).toContainText("Ask an admin of crew to upgrade.");
+  await expect(page.locator(".plan-gate").getByRole("button")).toHaveCount(0);
+
+  await page.goto("/settings/crew/gated");
+  await expect(page.locator(".settings-denied")).toHaveText("Only admins of crew/gated on GitHub can manage it. Its map is at /crew/gated.");
+
+  await page.goto("/settings/acme/gated");
+  await page.getByRole("button", { name: "Create upload token" }).click();
+  await expect(page.locator(".new-token")).toHaveText(new RegExp(`^AISUS_TOKEN=\\S+ node aisus\\.mjs publish --url http://127\\.0\\.0\\.1:${FIRST_RUN_APP}$`));
+  await expect(page.locator(".publish-command")).toContainText("Your shell history keeps this token.");
 });
