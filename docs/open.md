@@ -1,6 +1,6 @@
 # Open problems and unfinished work
 
-Every known problem and unfinished piece of work, with an ID that never changes. Add new items with the next free ID. Remove an item when it is solved, and record its ID and commit in your shift doc. The next free ID is P-26.
+Every known problem and unfinished piece of work, with an ID that never changes. Add new items with the next free ID. Remove an item when it is solved, and record its ID and commit in your shift doc. The next free ID is P-32.
 
 ## Broken now
 
@@ -9,6 +9,12 @@ Every known problem and unfinished piece of work, with an ID that never changes.
 - **P-3 The cloud deploy workflow fails on every push.** The repository variable `AISUS_DEPLOY` is `true`, but the secret `AISUS_DEPLOY_HOOK` is empty, so `curl` exits 3. Set the hook (a hard stop) or set the variable to `false`.
 - **P-4 `/docs` on aisus.dev answers 500.** The cloud's image copies neither `README.md` nor `docs/`, which `apps/cloud/src/lib/docs.ts` reads at request time.
 - **P-25 On a phone, the map page's side panel covers the freshness bar.** Below the phone breakpoint, `.map-side` in `apps/cloud/src/app/globals.css` docks at the foot of the window, 12 pixels from the bottom and up to 40% of its height. The viewer's `.freshness` bar sits 8 pixels from the bottom too, so the panel hides it with its Refresh link on the map, pull request and share link pages. A first step is to dock the panel above the bar, or to fold the panel to its title until it is tapped.
+- **P-26 Run estimates are far below what runs spend.** On this repository with Codex, two Ask questions read 167k and 184k input tokens against the shown "About 20k–70k tokens". A focused Generate run read 958k against "About 130k–270k". The figures come from the usage line each run prints. `apps/vscode/src/estimates.ts` sizes the estimate from the folder (CST-01), and `@aisus/core/model/estimate` holds the ranges. A first step is to compare the ranges with the usage log over a few runs, and to check whether Codex's cached input is counted as input.
+- **P-27 Start Learning Session can look as if nothing happened on macOS.** After the agent is chosen, `ensureSkillIntact` in `apps/vscode/src/integrity.ts` asks to reinstall the `aisus-bugfix` skill in a modal warning. On macOS that is a native dialog, which can open behind the window. Until it is answered, no terminal, session panel or notification appears. Bug hunt is hidden behind `aisus.bugHunt.enabled` since 5581589, and the command still behaves this way. A first step is to show the reinstall question before the mode and task pickers, or as a notification.
+- **P-28 Review changes counts a commit range two ways.** For `afaaaa3~1..0316c6b`, the sidebar says "1 touched · 0 stale · 0 gone · 1 not on the map". The map panel's overlay says "0 boxes touched, 1 more in the same files". A first step is to find which count is right when a box's file changed outside its cited lines.
+- **P-29 The Bug hunt leaderboard shows an end time for an active run.** `packages/viewer/session.ts` prints `endedAt` whenever it is set. An active run showed "2026-10-30 01:02", and the value moved forward as the run went on. The time is the UTC part of the ISO string, while the user's clock read 09:02.
+- **P-30 Two places break the words rules.** The sidebar's view title reads "Aisus" in VS Code 1.141, though `apps/vscode/package.json` names the container and the view "aisus". Investigation should find whether VS Code capitalises the title and whether a different field avoids it. `apps/vscode/src/learn.ts` shows em dashes in the Bug hunt mode's description, the task prompt's validation message and the hook warning.
+- **P-31 Two layout faults in the extension.** In the focused map "Ask: sidebar question to cited answer", an arrow and its "streamed answer" label cross the "VS Code extension host" group label. In the sidebar, a citation wraps inside its line number, as `staleness.ts:1` above `09`.
 
 ## Unfinished work
 
