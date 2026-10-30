@@ -7650,15 +7650,15 @@ import { basename, dirname as dirname2, join as join2, resolve, sep as sep2 } fr
 var MAP_DIR = ".aisus/maps";
 var CANDIDATE_FILE = "candidate.json";
 var RUN_NAME_PATTERN = /^([a-z0-9]+)-(.+)-(\d{8}-\d{6})(?:-(\d+))?$/;
+var SEQUENCE_PREFIX = "sequence";
+function mapKindOf(name) {
+  const prefix = parseRunName(name)?.prefix;
+  return prefix === "architecture" || prefix === SEQUENCE_PREFIX ? prefix : null;
+}
 function parseRunName(name) {
   const match = RUN_NAME_PATTERN.exec(name);
   if (!match) return null;
   return { prefix: match[1], slug: match[2], timestamp: match[3], n: match[4] === void 0 ? 1 : Number(match[4]) };
-}
-function parseRunFolderName(name) {
-  const parsed = parseRunName(name);
-  if (parsed === null || parsed.prefix !== "architecture") return null;
-  return { slug: parsed.slug, timestamp: parsed.timestamp, n: parsed.n };
 }
 function mapRootOf(runDir) {
   const root = dirname2(dirname2(dirname2(runDir)));
@@ -7739,7 +7739,7 @@ function main(args) {
   const draftPath = resolve2(process.cwd(), args[0]);
   const runDir = dirname3(draftPath);
   const root = mapRootOf(runDir);
-  if (basename2(draftPath) !== TOUR_DRAFT_FILE || root === null || !parseRunFolderName(basename2(runDir))) {
+  if (basename2(draftPath) !== TOUR_DRAFT_FILE || root === null || mapKindOf(basename2(runDir)) === null) {
     process.stderr.write(`tour-record.mjs: expected a path of the form <repo>/${MAP_DIR}/<run>/${TOUR_DRAFT_FILE}, got ${args[0]}
 `);
     return 2;
@@ -7759,10 +7759,10 @@ function main(args) {
     print({ status: "rejected", errors: [{ pointer: "", message: `${TOUR_DRAFT_FILE} is not valid JSON: ${error.message}` }], hint: HINT });
     return 1;
   }
-  let issues = checkTourDraft(value, { components: map.components });
+  let issues = checkTourDraft(value, { components: citedItems(map) });
   if (issues.length === 0) {
     const draft2 = value;
-    const asCitations = { ...map, components: draft2.stops.map((stop, index) => ({ id: `stop-${index}`, type: "external", label: "", sources: [stop.citation] })) };
+    const asCitations = { components: draft2.stops.map((stop, index) => ({ id: `stop-${index}`, type: "external", label: "", sources: [stop.citation] })) };
     issues = checkCitations(asCitations, root).map((issue) => ({ ...issue, pointer: issue.pointer.replace(/^\/components\/(\d+)\/sources\/0/, "/stops/$1/citation") }));
   }
   if (issues.length > 0) {

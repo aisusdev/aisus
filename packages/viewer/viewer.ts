@@ -143,7 +143,8 @@ export function startViewer(mount: HTMLElement = document.body): void {
   const tour = new TourPlayer(
     (message) => post(message),
     (id) => {
-      for (const node of content.querySelectorAll(".node")) node.classList.toggle("node--tour", id !== null && node.getAttribute("data-id") === id);
+      // A sequence map's stop may be about a message rather than a participant.
+      for (const node of content.querySelectorAll(".node, .message")) node.classList.toggle(node.classList.contains("node") ? "node--tour" : "message--tour", id !== null && node.getAttribute("data-id") === id);
     },
   );
   // VWR-03: the finder marks matching boxes and centres on one.
@@ -470,6 +471,7 @@ export function startViewer(mount: HTMLElement = document.body): void {
       shownDiagram = result.diagram;
       applyHighlight();
       applyFreshness();
+      tour.reapply();
       screenReader.replaceChildren(screenReaderList(result.diagram, post));
       finder.setDiagram(null);
       tooltip.setDiagram(undefined);

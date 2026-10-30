@@ -496,7 +496,7 @@
         },
         {
           "command": "aisus.playTour",
-          "when": "activeWebviewPanelId == 'aisus.architecture' && !aisus.sequenceShown",
+          "when": "activeWebviewPanelId == 'aisus.architecture'",
           "group": "navigation@7"
         },
         {
@@ -506,7 +506,7 @@
         },
         {
           "command": "aisus.createTour",
-          "when": "activeWebviewPanelId == 'aisus.architecture' && !aisus.sequenceShown",
+          "when": "activeWebviewPanelId == 'aisus.architecture'",
           "group": "z_aisus@2"
         },
         {

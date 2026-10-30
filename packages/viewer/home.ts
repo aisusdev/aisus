@@ -324,7 +324,7 @@ export function createHome(container: HTMLElement, post: Post, now: () => Date =
     runSlot.append(card);
   }
 
-  /** SEQ-04: a sequence map opens, exports or goes, and counts its participants. */
+  /** SEQ-04: a sequence map opens, exports, gets a tour or goes, and counts its participants. */
   function sequenceEntry(item: MapItem): HTMLElement {
     const entry = el("li", "map map--sequence");
     const open = button(item.title ?? item.runFolder, "map__title", () => post({ type: "openMap", file: item.file }));
@@ -336,7 +336,11 @@ export function createHome(container: HTMLElement, post: Post, now: () => Date =
       item.changed !== null && item.changed > 0 ? `${item.changed} changed` : null,
     ].filter((part): part is string => part !== null && part !== "");
     const actions = el("div", "map__actions");
-    actions.append(button("Export page", "link", () => post({ type: "exportMap", file: item.file })), button("Delete", "link link--danger", () => post({ type: "deleteMap", file: item.file })));
+    actions.append(
+      button("Export page", "link", () => post({ type: "exportMap", file: item.file })),
+      button("Create tour", "link", () => post({ type: "createTour", file: item.file })),
+      button("Delete", "link link--danger", () => post({ type: "deleteMap", file: item.file })),
+    );
     entry.append(open, el("div", "map__meta", meta.join(" · ")), actions);
     return entry;
   }

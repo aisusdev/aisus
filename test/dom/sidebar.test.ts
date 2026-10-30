@@ -593,7 +593,7 @@ describe("SEQ-04 sequence maps on the Maps page", () => {
     expect(posted).toEqual([{ type: "generateSequence", flow: "a login request" }]);
   });
 
-  test("a folder with only sequence maps offers Maps, whose Sequence maps section opens, exports and deletes them and counts participants", () => {
+  test("a folder with only sequence maps offers Maps, whose Sequence maps section opens, exports, tours and deletes them and counts participants", () => {
     const sequence = map({ runFolder: "sequence-login-20261016-120000", file: "/r/.aisus/maps/sequence-login-20261016-120000/candidate.json", title: "Login", boxes: 3 });
     home.render(state({ sequences: [sequence] }));
     const row = container.querySelector<HTMLButtonElement>('.row[data-page="maps"]')!;
@@ -601,7 +601,7 @@ describe("SEQ-04 sequence maps on the Maps page", () => {
     row.click();
     expect(text(".maps--sequence .section__title")).toEqual(["Sequence maps"]);
     expect(text(".map--sequence .map__meta")).toEqual(["Claude Code · 2 days ago · 3 participants"]);
-    expect(text(".map--sequence .map__actions button")).toEqual(["Export page", "Delete"]);
+    expect(text(".map--sequence .map__actions button")).toEqual(["Export page", "Create tour", "Delete"]);
     container.querySelector<HTMLButtonElement>(".map--sequence .map__title")!.click();
     expect(posted).toEqual([{ type: "openMap", file: sequence.file }]);
     expect(container.querySelector(".current--empty")).not.toBeNull();

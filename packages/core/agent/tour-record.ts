@@ -5,9 +5,10 @@ import { readFileSync, rmSync, writeFileSync } from "node:fs";
 import { basename, dirname, join, resolve } from "node:path";
 import { checkCitations } from "../model/citations";
 import { assertWritable } from "../model/confine";
-import { MAP_DIR, CANDIDATE_FILE, mapRootOf, parseRunFolderName } from "../model/runFolder";
+import { MAP_DIR, CANDIDATE_FILE, mapKindOf, mapRootOf } from "../model/runFolder";
+import { citedItems } from "../model/sequence";
 import { checkTourDraft, TOUR_DRAFT_FILE, TOUR_FILE, type TourDraft } from "../model/tour";
-import type { ArchitectureDoc, Issue } from "../model/types";
+import type { ArchitectureDoc, Issue, MapDoc } from "../model/types";
 
 const HINT = "Fix each error in tour-draft.json and run tour-record.mjs again.";
 
@@ -23,13 +24,13 @@ function main(args: string[]): number {
   const draftPath = resolve(process.cwd(), args[0]!);
   const runDir = dirname(draftPath);
   const root = mapRootOf(runDir);
-  if (basename(draftPath) !== TOUR_DRAFT_FILE || root === null || !parseRunFolderName(basename(runDir))) {
+  if (basename(draftPath) !== TOUR_DRAFT_FILE || root === null || mapKindOf(basename(runDir)) === null) {
     process.stderr.write(`tour-record.mjs: expected a path of the form <repo>/${MAP_DIR}/<run>/${TOUR_DRAFT_FILE}, got ${args[0]}\n`);
     return 2;
   }
-  let map: ArchitectureDoc;
+  let map: MapDoc;
   try {
-    map = JSON.parse(readFileSync(join(runDir, CANDIDATE_FILE), "utf8")) as ArchitectureDoc;
+    map = JSON.parse(readFileSync(join(runDir, CANDIDATE_FILE), "utf8")) as MapDoc;
   } catch (error) {
     process.stderr.write(`tour-record.mjs: the run has no readable ${CANDIDATE_FILE}: ${(error as Error).message}\n`);
     return 2;
@@ -41,11 +42,12 @@ function main(args: string[]): number {
     print({ status: "rejected", errors: [{ pointer: "", message: `${TOUR_DRAFT_FILE} is not valid JSON: ${(error as Error).message}` }], hint: HINT });
     return 1;
   }
-  let issues: Issue[] = checkTourDraft(value, { components: map.components });
+  // A stop names a box of an architecture map, or a participant or message of a sequence map.
+  let issues: Issue[] = checkTourDraft(value, { components: citedItems(map) });
   if (issues.length === 0) {
     // Each stop's citation passes the same path, deny-list and line checks as a map citation.
     const draft = value as TourDraft;
-    const asCitations = { ...map, components: draft.stops.map((stop, index) => ({ id: `stop-${index}`, type: "external", label: "", sources: [stop.citation] })) } as unknown as ArchitectureDoc;
+    const asCitations = { components: draft.stops.map((stop, index) => ({ id: `stop-${index}`, type: "external", label: "", sources: [stop.citation] })) } as unknown as ArchitectureDoc;
     issues = checkCitations(asCitations, root).map((issue) => ({ ...issue, pointer: issue.pointer.replace(/^\/components\/(\d+)\/sources\/0/, "/stops/$1/citation") }));
   }
   if (issues.length > 0) {

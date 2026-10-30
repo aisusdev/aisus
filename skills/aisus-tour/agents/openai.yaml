@@ -1,5 +1,5 @@
 interface:
   display_name: "aisus Tour"
-  short_description: "Write a guided tour of an aisus architecture diagram"
+  short_description: "Write a guided tour of an aisus map"
 policy:
   allow_implicit_invocation: false

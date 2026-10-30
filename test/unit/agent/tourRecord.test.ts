@@ -61,3 +61,34 @@ test("SKL-02 each stop names a box of the map and cites a line the citation rule
   expect(cited.status).toBe(1);
   expect(cited.json().errors.map((error: { pointer: string }) => error.pointer)).toEqual([expect.stringMatching(/^\/stops\/0\/citation/), expect.stringMatching(/^\/stops\/1\/citation/)]);
 });
+
+test("SKL-02 a tour of a sequence map is recorded when its stops name the map's participants and messages, and refused for a stop naming neither", () => {
+  const root = tempDir();
+  const run = "sequence-login-20261019-120000";
+  const draft = `.aisus/maps/${run}/tour-draft.json`;
+  put(root, "src/web.ts", "import { api } from './api';\nexport const web = () => api();\n");
+  put(root, "src/api.ts", "export const api = () => 1;\n");
+  put(
+    root,
+    `.aisus/maps/${run}/candidate.json`,
+    JSON.stringify({
+      schema_version: 1,
+      diagram_type: "sequence",
+      meta: { title: "Login" },
+      participants: [
+        { id: "web", type: "frontend", label: "Web", sources: [{ path: "src/web.ts", line: 2 }] },
+        { id: "api", type: "backend", label: "API", sources: [{ path: "src/api.ts", line: 1 }] },
+      ],
+      messages: [{ id: "call", from: "web", to: "api", label: "api()", sources: [{ path: "src/web.ts", line: 2 }] }],
+    }),
+  );
+  const stops = [STOP, { ...STOP, component: "call" }, { ...STOP, component: "api", citation: { path: "src/api.ts", line: 1 } }, STOP];
+  put(root, draft, JSON.stringify({ stops: [...stops.slice(0, 3), { ...STOP, component: "components" }] }));
+  const refused = runScript("tour-record", [draft], { cwd: root });
+  expect(refused.status).toBe(1);
+  expect(refused.json().errors.map((error: { pointer: string }) => error.pointer)).toEqual(["/stops/3/component"]);
+  put(root, draft, JSON.stringify({ stops }));
+  const recorded = runScript("tour-record", [draft], { cwd: root });
+  expect(recorded.stderr).toBe("");
+  expect(recorded.json()).toEqual({ status: "recorded", tour: `.aisus/maps/${run}/tour.json`, stops: 4 });
+});

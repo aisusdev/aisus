@@ -1020,6 +1020,14 @@ button.changes-panel__file:hover {
   stroke-width: 3px;
 }
 
+.message.message--tour {
+  --edge-color: var(--aisus-purple);
+}
+
+.message.message--tour .edge__line {
+  stroke-width: 3px;
+}
+
 .tour__start {
   position: absolute;
   top: 44px;
