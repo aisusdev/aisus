@@ -150,6 +150,42 @@ describe("CLD-07 Checkout", () => {
   });
 });
 
+describe("Payments off", () => {
+  const post = (route: (request: Request) => Promise<Response>, account: string): Promise<Response> =>
+    route(new Request("http://cloud.test/api/v1/billing", { method: "POST", body: JSON.stringify({ account }), headers: { "content-type": "application/json", origin: "http://cloud.test" } }));
+
+  beforeEach(() => {
+    for (const key of Object.keys(BILLING)) delete process.env[key];
+    process.env["AISUS_PAYMENTS"] = "off";
+  });
+
+  afterEach(() => {
+    delete process.env["AISUS_PAYMENTS"];
+  });
+
+  test("an account stays on Free until Upgrade, which gives the user's own account Pro and an organization Team at once, with no request to Stripe", async () => {
+    const stripe = vi.fn();
+    vi.stubGlobal("fetch", stripe);
+    await checkAccess(db, github, me, "dev", "journal", NOW);
+    await checkAccess(db, github, me, "acme", "shop", NOW);
+    expect((await planOfAccount(db, "dev")).id).toBe("free");
+    expect((await planOfAccount(db, "acme")).id).toBe("free");
+    const dev = await post(checkoutRoute, "dev");
+    expect(await dev.json()).toEqual({ url: "http://cloud.test/?upgraded=dev" });
+    expect((await post(checkoutRoute, "acme")).status).toBe(200);
+    expect((await planOfAccount(db, "dev")).id).toBe("pro");
+    expect((await planOfAccount(db, "acme")).id).toBe("team");
+    expect(stripe).not.toHaveBeenCalled();
+  });
+
+  test("the portal and the webhook answer 404", async () => {
+    await checkAccess(db, github, me, "acme", "shop", NOW);
+    await setPlan(db, "acme", { plan: "team", customer: "cus_acme" }, NOW);
+    expect((await post(portalRoute, "acme")).status).toBe(404);
+    expect((await webhook(new Request("http://cloud.test/api/stripe/webhook", { method: "POST", body: "{}" }))).status).toBe(404);
+  });
+});
+
 describe("CLD-07 limits", () => {
   const upload = (repo: string, visibility: "private" | "public"): Promise<Response> =>
     uploadRoute(

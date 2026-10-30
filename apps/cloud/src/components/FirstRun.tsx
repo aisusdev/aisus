@@ -69,7 +69,7 @@ export function StartPlan({ account, login, billing }: { account: HomeAccount; l
   const offer = planToBuy(account.login, login);
   const price = billing.priceTexts[offer];
   return (
-    <Step n={2} title={`Start ${OFFERS[offer].label} for ${account.login}`} lede="Checkout opens on Stripe. You come back here when it is done.">
+    <Step n={2} title={`Start ${OFFERS[offer].label} for ${account.login}`} lede={billing.payments ? "Checkout opens on Stripe. You come back here when it is done." : "Payments are off for now, so the plan starts at once."}>
       <section className="choice choice--plan">
         <div>
           <h2>
@@ -85,7 +85,7 @@ export function StartPlan({ account, login, billing }: { account: HomeAccount; l
             ))}
           </ul>
         </div>
-        <PlanButton url="/api/v1/billing/checkout" account={account.login} label="Continue to checkout" primary />
+        <PlanButton url="/api/v1/billing/checkout" account={account.login} label={billing.payments ? "Continue to checkout" : `Start ${OFFERS[offer].label}`} primary />
       </section>
       <p className="first-run__foot">
         <a href="/">Choose another account</a> <SkipFirstRun cookie={FIRST_RUN_COOKIE} label="Not now, keep using the free extension" />

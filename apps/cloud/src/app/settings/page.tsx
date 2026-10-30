@@ -56,7 +56,7 @@ export default async function SettingsPage() {
             // Your own account upgrades to Pro, and an organization's to Team. A subscription changes in the portal.
             const offer = planToBuy(account, user.login);
             const price = billing.priceTexts[offer];
-            const subscribed = customer !== null && (plan.id === "pro" || plan.id === "team");
+            const subscribed = billing.payments && customer !== null &&(plan.id === "pro" || plan.id === "team");
             const upgrade = !subscribed && (plan.id === "free" || (offer === "team" && plan.id === "pro"));
             return (
               <li key={account}>

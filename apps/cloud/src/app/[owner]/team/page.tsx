@@ -34,7 +34,7 @@ export default async function TeamPage({ params }: { params: Promise<{ owner: st
   const team = await teamOf(db, owner);
   const plan = await planOfAccount(db, owner);
   const customer = (await storedPlan(db, owner))?.stripeCustomer ?? null;
-  const manage = billingConfig() !== null && customer !== null && plan.id === "team" && roles.includes("owner");
+  const manage = billingConfig()?.payments === true && customer !== null && plan.id === "team" && roles.includes("owner");
   const organization = !(await personalAccount(db, owner));
   return (
     <main className="page">

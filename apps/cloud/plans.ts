@@ -30,8 +30,13 @@ export const PLANS: Readonly<Record<PlanId, Plan>> = {
   enterprise: { id: "enterprise", label: "Enterprise", cloud: true, historyDays: null, pullPages: true, shareLinks: true, dashboard: true, organizationRepositories: true, personalBranches: null },
 };
 
+/** What Pro and Team cost while payments are off. */
+export const FREE_FOR_NOW = "free for now";
+
 /** Billing's configuration: Stripe's secret key, the webhook's signing secret and the ids of the Pro and Team prices. */
 export interface BillingConfig {
+  /** Whether Upgrade goes through Stripe. Without payments, Upgrade starts the plan at once and the Stripe values are empty. */
+  payments: boolean;
   secretKey: string;
   webhookSecret: string;
   prices: Readonly<Record<PaidPlanId, string>>;
@@ -41,14 +46,21 @@ export interface BillingConfig {
   apiUrl: string;
 }
 
-/** Billing's configuration, or `null` when billing is off because a Stripe value is missing. */
+/**
+ * Billing's configuration, or `null` when billing is off because a Stripe value is missing.
+ * `AISUS_PAYMENTS=off` keeps the plans and their limits and turns payments off, with or without Stripe's values.
+ */
 export function billingConfig(env: NodeJS.ProcessEnv = process.env): BillingConfig | null {
+  if (env["AISUS_PAYMENTS"] === "off") {
+    return { payments: false, secretKey: "", webhookSecret: "", prices: { pro: "", team: "" }, priceTexts: { pro: FREE_FOR_NOW, team: FREE_FOR_NOW }, apiUrl: "" };
+  }
   const secretKey = env["STRIPE_SECRET_KEY"];
   const webhookSecret = env["STRIPE_WEBHOOK_SECRET"];
   const pro = env["STRIPE_PRO_PRICE"];
   const team = env["STRIPE_TEAM_PRICE"];
   if (!secretKey || !webhookSecret || !pro || !team) return null;
   return {
+    payments: true,
     secretKey,
     webhookSecret,
     prices: { pro, team },
