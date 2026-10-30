@@ -9,9 +9,9 @@ test("CLD-01 sign-in through GitHub lands back signed in, with the organizations
 });
 
 test("CLD-01 a signed-out visit to a private space goes to sign-in, and comes back after it", async ({ page }) => {
-  await page.goto("/acme/private-space");
-  await expect(page).toHaveURL(/\/signin\?callbackUrl=%2Facme%2Fprivate-space/);
+  await page.goto("/cloud/u/acme/private-space");
+  await expect(page).toHaveURL(/\/cloud\/signin\?callbackUrl=%2Fcloud%2Fu%2Facme%2Fprivate-space/);
   await page.getByRole("button", { name: "Sign in with GitHub" }).click();
-  await page.waitForURL("**/acme/private-space");
+  await page.waitForURL("**/cloud/u/acme/private-space");
   await expect(page.locator("main")).toContainText("No map from main yet");
 });

@@ -1,0 +1,203 @@
+/* CLD-20: the signed-in cloud under /cloud. It uses the site's tokens from site-redesign.css and is built for desktop. */
+
+.cloud-header {
+  position: sticky;
+  top: 0;
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  height: var(--header);
+  padding: 0 24px;
+  border-bottom: 1px solid var(--line);
+  background: var(--white);
+  font: 16px/1.5 var(--sans);
+}
+.cloud-header .brand { gap: 10px; border: 0; }
+.cloud-header .brand img { width: 120px; }
+.cloud-tag {
+  padding: 0 8px;
+  border-radius: 3px;
+  background: var(--forest);
+  color: var(--accent);
+  font: 600 16px/1.6 var(--display);
+  letter-spacing: 0;
+}
+.cloud-nav { display: flex; gap: 4px; margin-left: 16px; }
+.cloud-nav a {
+  padding: 10px 14px;
+  border-radius: 3px;
+  color: var(--text);
+  font-weight: 650;
+  text-decoration: none;
+}
+.cloud-nav a:hover { background: var(--paper-2); }
+.cloud-nav a[aria-current="page"] { background: var(--paper-2); box-shadow: inset 0 -3px 0 var(--accent); }
+.cloud-nav--site { margin-left: auto; }
+.cloud-user { display: flex; align-items: center; gap: 12px; margin-left: auto; }
+.cloud-user a { color: var(--text); font-weight: 650; text-decoration: none; }
+.cloud-user a:hover { color: #477646; }
+.avatar {
+  display: inline-grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: var(--forest);
+  font: 600 16px/1 var(--display);
+}
+
+/* The rail beside the account pages. */
+.cloud-shell {
+  display: grid;
+  grid-template-columns: 260px minmax(0, 1fr);
+  min-height: calc(100vh - var(--header));
+}
+.cloud-rail {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 24px 16px;
+  border-right: 1px solid var(--line);
+}
+.cloud-rail h2 { margin: 0 8px 8px; color: var(--text-2); font: 650 16px/1.5 var(--sans); }
+.cloud-rail a {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 10px 8px;
+  border-radius: 3px;
+  color: var(--text);
+  font-weight: 600;
+  text-decoration: none;
+  overflow-wrap: anywhere;
+}
+.cloud-rail a:hover { background: var(--paper-2); }
+.cloud-rail a[aria-current="page"] { background: var(--white); box-shadow: inset 3px 0 0 var(--accent), 0 0 0 1px var(--line); }
+.cloud-rail hr { width: calc(100% - 16px); margin: 16px 8px; border: 0; border-top: 1px solid var(--line); }
+
+/* Page columns. */
+.page.cloud-main { max-width: 1100px; margin: 0; padding: 40px 48px 72px; }
+.page.cloud-main--narrow { max-width: 880px; margin: 0 auto; }
+.page.cloud-main--settings { max-width: 1100px; margin: 0 auto; }
+.page.cloud-main h1 { margin: 0; font: 600 40px/1.15 var(--display); letter-spacing: -.025em; }
+.page.cloud-main h2 { font-family: var(--display); font-weight: 600; letter-spacing: -.02em; }
+.cloud-lede { margin: 8px 0 0; color: var(--text-2); font-size: 18px; max-width: 62ch; }
+.cloud-crumb { margin: 0 0 8px; }
+.cloud-stack { display: grid; gap: 16px; margin-top: 24px; }
+.cloud-stack .account-card { margin-top: 0; }
+.cloud-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 28px; }
+.cloud-missing { text-align: center; padding-top: 96px; }
+.cloud-missing .cloud-lede { margin-inline: auto; }
+.cloud-missing .cloud-actions { justify-content: center; }
+.open-repo { margin-top: 24px; }
+
+/* Tabs, on the account page and in the map panel. */
+.cloud-tabs { display: flex; gap: 4px; margin: 24px 0; border-bottom: 1px solid var(--line); }
+.page .cloud-tabs a:not(.button), .map-side .cloud-tabs a:not(.button) {
+  margin-bottom: -1px;
+  padding: 10px 16px;
+  border: 0;
+  border-bottom: 3px solid transparent;
+  color: var(--text-2);
+  font-weight: 650;
+  text-decoration: none;
+}
+.page .cloud-tabs a:not(.button)[aria-current="page"], .map-side .cloud-tabs a:not(.button)[aria-current="page"] { border-bottom-color: var(--forest); color: var(--text); }
+
+/* Cards. */
+.cloud-card { padding: 20px 24px; border: 1px solid var(--line); border-radius: 3px; background: var(--white); }
+.page .cloud-card h2 { margin: 0 0 6px; font-size: 24px; }
+.cloud-card__head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; padding-bottom: 14px; border-bottom: 1px solid var(--line); }
+.page .cloud-card__head h2 { margin: 0; }
+.cloud-card--danger { border-color: #d9b2ad; }
+.page .cloud-card--danger h2 { color: #9b342d; }
+.chip--free { background: var(--paper-2); }
+.plan-badge { background: var(--accent); border-color: var(--accent); color: var(--forest); }
+.dot { display: inline-block; width: 10px; height: 10px; margin-right: 8px; border: 1px solid #477646; border-radius: 50%; background: var(--accent); }
+.dot--stale { border-color: #a07a1d; background: #f1d58a; }
+.dot--none { border-color: var(--line); background: var(--paper-2); }
+
+/* The dashboard tab. */
+.dashboard-totals { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin: 0; }
+.dashboard-totals div, .repo-card__stats div { display: flex; flex-direction: column-reverse; justify-content: flex-end; }
+.dashboard-totals div { padding: 16px 20px; border: 1px solid var(--line); border-radius: 3px; background: var(--white); }
+.dashboard-totals dd { margin: 0; font: 600 36px/1.1 var(--display); }
+.dashboard-totals dt, .repo-card__stats dt { color: var(--text-2); }
+.dashboard.cloud-stack { display: grid; overflow: visible; }
+.repo-card__stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin: 14px 0; }
+.repo-card__stats div { padding: 10px 12px; border-radius: 3px; background: var(--paper); }
+.repo-card__stats dd { margin: 0; font: 600 22px/1.2 var(--display); }
+.repo-card p { margin: 4px 0 0; }
+.repo-card__pulls { margin-top: 4px; }
+.page .repo-card .dashboard__pulls { margin: 4px 0 0; padding-left: 20px; }
+
+/* The people tab. */
+.seats { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 16px; }
+.seats > div { flex: 1 1 320px; }
+.seats .team__seats { margin: 0; color: var(--text-2); }
+.seats__meter { height: 12px; margin-top: 10px; overflow: hidden; border-radius: 6px; background: var(--paper-2); }
+.seats__meter i { display: block; height: 100%; border-right: 2px solid #477646; background: var(--accent); }
+.page .team { border: 1px solid var(--line); background: var(--white); }
+
+/* Settings pages: a section list beside the sections. */
+.settings-layout { display: grid; grid-template-columns: 200px minmax(0, 1fr); gap: 40px; margin-top: 32px; align-items: start; }
+.settings-nav { position: sticky; top: calc(var(--header) + 24px); display: flex; flex-direction: column; }
+.page .settings-nav a:not(.button) { padding: 8px 12px; border: 0; border-left: 2px solid var(--line); color: var(--text-2); font-weight: 600; text-decoration: none; }
+.page .settings-nav a:not(.button):hover { border-left-color: var(--forest); color: var(--text); }
+.settings-sections { display: grid; gap: 24px; }
+.settings-sections section { scroll-margin-top: calc(var(--header) + 24px); }
+.page .settings-lines { margin: 12px 0; padding: 0; list-style: none; }
+.page .settings-lines li { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; margin: 0; padding: 12px 0; border-top: 1px solid var(--paper-2); }
+.page .plans { margin: 12px 0 0; padding: 0; list-style: none; }
+.page .plans li { margin: 0; padding: 14px 0; border-top: 1px solid var(--paper-2); }
+.page .plans li .button { margin-top: 8px; }
+
+/* First run. */
+.stepper { display: flex; gap: 8px; margin: 0 0 24px; padding: 0; list-style: none; }
+.page .stepper li { flex: 1; margin: 0; padding-top: 10px; border-top: 4px solid var(--line); color: var(--text-2); font-weight: 650; }
+.page .stepper li.done { border-top-color: #477646; color: var(--text); }
+.page .stepper li.now { border-top-color: var(--forest); color: var(--text); }
+.first-run .first-run__lede { margin-top: 8px; font-size: 18px; }
+
+/* Sign-in page. */
+.signin { display: grid; grid-template-columns: 1fr 1fr; min-height: calc(100vh - var(--header)); }
+.signin__pitch { display: flex; flex-direction: column; justify-content: center; gap: 20px; padding: 72px 64px; background: var(--forest); color: #e6efdc; font-size: 18px; }
+.signin__pitch p { margin: 0; max-width: 44ch; }
+.signin__headline { color: #fff; font: 600 48px/1.12 var(--display); letter-spacing: -.025em; }
+.signin__headline em { font-style: normal; color: var(--accent); }
+.signin__form { display: flex; align-items: center; justify-content: center; padding: 48px 24px; }
+.signin__box { width: 100%; max-width: 440px; }
+.signin__box h1 { margin: 0 0 8px; font: 600 32px/1.2 var(--display); letter-spacing: -.02em; }
+.signin__roles { display: grid; gap: 10px; margin: 24px 0 28px; padding: 0; list-style: none; }
+.signin__roles li { display: grid; grid-template-columns: 72px 1fr; gap: 12px; padding: 12px 14px; border: 1px solid var(--line); border-radius: 3px; background: var(--white); }
+.signin__roles b { font-family: var(--display); }
+.signin__box .button--primary { width: 100%; min-height: 56px; font-size: 18px; }
+.signin__box > p:last-child { margin-top: 16px; }
+.signin__box a { color: #315f3d; }
+
+/* The map panel. */
+/* The viewer sets the page's font size for the map, so the panel sets its own. It sits below the viewer's toolbar. */
+.map-side.map-panel { font: 16px/1.5 var(--sans); top: calc(var(--header) + 56px); right: 16px; width: 380px; max-height: calc(100vh - var(--header) - 150px); padding: 0; border-color: var(--line); border-radius: 6px; }
+.map-panel header { padding: 18px 20px 0; }
+.map-panel h2 { margin: 0; font: 600 22px/1.25 var(--display); letter-spacing: -.02em; }
+.map-panel header p { margin: 4px 0 0; }
+.map-panel__crumb { color: var(--text-2); }
+.map-panel .cloud-tabs { margin: 14px 0 0; padding: 0 4px; }
+.map-panel .cloud-tabs a { padding: 8px 12px; }
+.map-panel__body { display: grid; gap: 14px; padding: 16px 20px; }
+.map-panel__body p { margin: 0; }
+.map-panel__counts { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 0; }
+.map-panel__counts div { display: flex; flex-direction: row-reverse; justify-content: flex-end; align-items: baseline; gap: 6px; padding: 8px 10px; border: 1px solid var(--line); border-radius: 3px; background: var(--white); }
+.map-panel__counts dd { margin: 0; font: 600 20px var(--display); }
+.map-side .map-panel__list { margin: 0; padding: 8px 20px 16px; list-style: none; }
+.map-panel__list li { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 4px 8px; padding: 8px 0; border-bottom: 1px solid var(--paper-2); }
+.map-panel__list li[aria-current], .map-panel__list a[aria-current] { font-weight: 700; }
+.map-panel > .counts, .map-panel > h2, .map-panel > ul, .map-panel > p { margin-inline: 20px; }
+.map-side.map-panel > ul { padding: 0; list-style: none; }
+.map-panel > h2 + .counts { display: flex; flex-wrap: wrap; gap: 4px 16px; margin-top: 8px; color: var(--text-2); }
+.map-panel > h2:not(:first-of-type) { margin-top: 16px; font-size: 18px; }
+.map-panel > p:last-child { margin-bottom: 16px; }
+.map-panel > .map-panel__crumb:first-child { margin-top: 18px; }

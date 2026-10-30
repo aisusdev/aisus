@@ -3,6 +3,7 @@
 // the API from this site, and reloads the page.
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { CLOUD, repoPath } from "../lib/paths";
 
 async function call(method: string, url: string, body?: unknown): Promise<Response> {
   return fetch(url, { method, headers: { "Content-Type": "application/json" }, ...(body === undefined ? {} : { body: JSON.stringify(body) }) });
@@ -21,7 +22,7 @@ export function DeleteButton({ url, label, confirmText, then = "reload" }: { url
           return;
         }
         if (then === "signout") window.location.href = "/api/auth/signout";
-        else if (then === "home") window.location.href = "/settings";
+        else if (then === "home") window.location.href = CLOUD;
         else window.location.reload();
       }}
     >
@@ -139,7 +140,7 @@ export function SkipFirstRun({ cookie, label = "Skip for now" }: { cookie: strin
       className="text-button"
       onClick={() => {
         document.cookie = `${cookie}=skipped; path=/; max-age=31536000; samesite=lax`;
-        window.location.href = "/";
+        window.location.href = CLOUD;
       }}
     >
       {label}
@@ -173,7 +174,7 @@ export function OpenRepository() {
       onSubmit={(event) => {
         event.preventDefault();
         const [owner, repo] = name.trim().replace(/^https:\/\/github\.com\//, "").split("/");
-        if (owner && repo) window.location.href = `/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}`;
+        if (owner && repo) window.location.href = repoPath(owner, repo);
       }}
     >
       <label htmlFor="open-repo">Open another public repository</label>

@@ -10,7 +10,7 @@ import { FIRST_RUN_APP, signInAsDev } from "./support";
 test.use({ baseURL: `http://127.0.0.1:${FIRST_RUN_APP}` });
 
 test("P-7 Skip for now shows the repositories, and later visits stay there", async ({ page }) => {
-  await signInAsDev(page, "/");
+  await signInAsDev(page, "/cloud", "/cloud/start");
   await expect(page.locator("h1")).toHaveText("Where will your maps live?");
   await page.getByRole("button", { name: "Skip for now" }).click();
   await expect(page.locator("h1")).toHaveText("Your repositories");
@@ -19,7 +19,7 @@ test("P-7 Skip for now shows the repositories, and later visits stay there", asy
 });
 
 test("P-7 the first run picks an account, starts Pro through Checkout and sets up a repository, and the home then lists every account", async ({ page }) => {
-  await signInAsDev(page, "/");
+  await signInAsDev(page, "/cloud", "/cloud/start");
   await expect(page.locator(".choice h2")).toHaveText(["Pro for dev", "Team for acme", "Team for crew", "Team for guild"]);
   const crew = page.locator(".choice", { hasText: "Team for crew" });
   await expect(crew).toContainText("Only an admin of crew can start Team for it.");
@@ -30,9 +30,9 @@ test("P-7 the first run picks an account, starts Pro through Checkout and sets u
   await expect(page.locator("h1")).toHaveText("Start Pro for dev");
   await expect(page.locator(".choice")).toContainText("Pro is $5 a month.");
   await page.getByRole("button", { name: "Continue to checkout" }).click();
-  await page.waitForURL("**/?upgraded=dev");
+  await page.waitForURL("**/cloud/start/dev/done");
   await expect(page.locator("h1")).toHaveText("dev is on Pro");
-  await expect(page.getByRole("link", { name: "Set up" })).toHaveAttribute("href", "/settings/dev/open-journal");
+  await expect(page.getByRole("link", { name: "Set up" })).toHaveAttribute("href", "/cloud/u/dev/open-journal/settings");
 
   await page.getByRole("link", { name: "Go to your repositories" }).click();
   await expect(page.locator("h1")).toHaveText("Your repositories");
@@ -45,19 +45,19 @@ test("P-7 the first run picks an account, starts Pro through Checkout and sets u
 });
 
 test("P-7 the plan gate offers Upgrade to an admin and names whom to ask to a reader, a new token comes with its publish command, and a reader's settings say who manages the repository", async ({ page }) => {
-  await signInAsDev(page, "/acme/gated");
+  await signInAsDev(page, "/cloud/u/acme/gated");
   await expect(page.locator(".plan-note")).toHaveText("Maps in aisus cloud come with Pro, for your own repositories, or Team, for an organization's. acme is on Free.");
   await expect(page.getByRole("button", { name: "Upgrade to Team" })).toBeVisible();
 
-  await page.goto("/crew/gated");
+  await page.goto("/cloud/u/crew/gated");
   await expect(page.locator(".plan-note")).toHaveText("Maps in aisus cloud come with Pro, for your own repositories, or Team, for an organization's. crew is on Free.");
   await expect(page.locator(".plan-gate")).toContainText("Ask an admin of crew to upgrade.");
   await expect(page.locator(".plan-gate").getByRole("button")).toHaveCount(0);
 
-  await page.goto("/settings/crew/gated");
-  await expect(page.locator(".settings-denied")).toHaveText("Only admins of crew/gated on GitHub can manage it. Its map is at /crew/gated.");
+  await page.goto("/cloud/u/crew/gated/settings");
+  await expect(page.locator(".settings-denied")).toHaveText("Only admins of crew/gated on GitHub can manage it. Its map is at /cloud/u/crew/gated.");
 
-  await page.goto("/settings/acme/gated");
+  await page.goto("/cloud/u/acme/gated/settings");
   await page.getByRole("button", { name: "Create upload token" }).click();
   await expect(page.locator(".new-token")).toHaveText(new RegExp(`^AISUS_TOKEN=\\S+ node aisus\\.mjs publish --url http://127\\.0\\.0\\.1:${FIRST_RUN_APP}$`));
   await expect(page.locator(".publish-command")).toContainText("Your shell history keeps this token.");

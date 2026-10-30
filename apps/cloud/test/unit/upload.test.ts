@@ -57,7 +57,7 @@ describe("CLD-02 OIDC", () => {
   test("a token signed by the test key, for aisus cloud and this repository, is accepted and creates the repository", async () => {
     const response = await post(mapUpload(), oidcToken(KEYS.key));
     expect(response.status).toBe(201);
-    expect(await response.json()).toMatchObject({ status: "accepted", url: "/acme/shop" });
+    expect(await response.json()).toMatchObject({ status: "accepted", url: "/cloud/u/acme/shop" });
     const [row] = await db.select().from(uploads);
     expect(row).toMatchObject({ kind: "map", branch: "main", via: "oidc" });
     expect(row!.payload).toMatchObject({ map: { meta: { title: expect.any(String) } }, meta: { defaultBranch: "main" } });
@@ -91,7 +91,7 @@ describe("CLD-02 upload tokens", () => {
 
     const response = await post(checkUpload(7), token);
     expect(response.status).toBe(201);
-    expect(await response.json()).toMatchObject({ url: "/acme/shop/pull/7" });
+    expect(await response.json()).toMatchObject({ url: "/cloud/u/acme/shop/pull/7" });
     const [row] = await db.select().from(uploads).where(eq(uploads.repoId, repo.id));
     expect(row).toMatchObject({ kind: "check", pull: 7, via: "token" });
     expect((await db.select().from(tokens))[0]!.lastUsedAt).not.toBeNull();
@@ -106,8 +106,8 @@ describe("CLD-02 upload tokens", () => {
     const second = await post(diagram("Show the retry path"), token);
     expect(second.status).toBe(201);
     const answer = (await second.json()) as { id: number; url: string };
-    expect(first.url).toBe(`/acme/shop/pull/7/d/${first.id}`);
-    expect(answer.url).toBe(`/acme/shop/pull/7/d/${answer.id}`);
+    expect(first.url).toBe(`/cloud/u/acme/shop/pull/7/d/${first.id}`);
+    expect(answer.url).toBe(`/cloud/u/acme/shop/pull/7/d/${answer.id}`);
     const rows = await db.select().from(uploads).where(eq(uploads.repoId, repo.id));
     expect(rows.map((row) => [row.kind, row.pull, (row.payload as { meta: { instructions: string } }).meta.instructions])).toEqual([
       ["diagram", 7, "Show the login path"],

@@ -16,7 +16,7 @@ export function authOptions(): NextAuthOptions {
   return {
     secret: process.env["NEXTAUTH_SECRET"],
     session: { strategy: "jwt", maxAge: 8 * 3600 },
-    pages: { signIn: "/signin" },
+    pages: { signIn: "/cloud/signin" },
     providers: [
       GitHubProvider({
         clientId: process.env["GITHUB_CLIENT_ID"] ?? "",

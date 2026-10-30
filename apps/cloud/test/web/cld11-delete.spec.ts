@@ -5,7 +5,7 @@ import { MAP, signInAsDev, upload } from "./support";
 test("CLD-11 deleting a map, a repository's data and the account takes effect at once", async ({ page, request }) => {
   await upload(request, "acme/gone", { branch: "main", kind: "map", map: MAP, meta: { defaultBranch: "main" } });
   await upload(request, "acme/gone", { branch: "main", kind: "map", map: MAP, meta: { defaultBranch: "main" } });
-  await signInAsDev(page, "/settings/acme/gone");
+  await signInAsDev(page, "/cloud/u/acme/gone/settings");
   const alerts: string[] = [];
   page.on("dialog", (dialog) => {
     if (dialog.type() === "alert") alerts.push(dialog.message());
@@ -21,11 +21,11 @@ test("CLD-11 deleting a map, a repository's data and the account takes effect at
   await expect(page.locator(".new-token")).toContainText("sus_");
 
   await page.getByRole("button", { name: "Delete all data" }).click();
-  await page.waitForURL("**/settings");
-  await page.goto("/acme/gone");
+  await page.waitForURL("**/cloud");
+  await page.goto("/cloud/u/acme/gone");
   await expect(page.locator("main")).toContainText("No map from main yet");
 
-  await page.goto("/settings");
+  await page.goto("/cloud/settings");
   await page.getByRole("button", { name: "Delete my account" }).click();
   await page.waitForURL("**/api/auth/signout");
 });

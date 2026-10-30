@@ -20,11 +20,12 @@ export const MAP: Record<string, unknown> = (() => {
   return map;
 })();
 
-export async function signInAsDev(page: Page, then = "/settings"): Promise<void> {
-  await page.goto(`/signin?callbackUrl=${encodeURIComponent(then)}`);
+/** Signs in as dev, returning to `then`, and waits on `lands`, where `then` redirects to when it does. */
+export async function signInAsDev(page: Page, then = "/cloud/settings", lands = then): Promise<void> {
+  await page.goto(`/cloud/signin?callbackUrl=${encodeURIComponent(then)}`);
   await page.getByRole("button", { name: "Sign in with GitHub" }).click();
-  await page.waitForURL((url) => url.pathname === then.split("?")[0]);
-  await expect(page.locator(".site-header .account")).toContainText("dev");
+  await page.waitForURL((url) => url.pathname === lands.split("?")[0]);
+  await expect(page.locator(".cloud-header .account")).toContainText("dev");
 }
 
 async function oidcToken(repo: string): Promise<string> {

@@ -6,7 +6,7 @@ import { check, MAP, signInAsDev, upload } from "./support";
 test("CLD-04 the pull request page shows the overlay, the candidates and the stale boxes", async ({ page, request }) => {
   await upload(request, "acme/pulls", { branch: "main", kind: "map", map: MAP, meta: { defaultBranch: "main" } });
   await upload(request, "acme/pulls", check(7));
-  await signInAsDev(page, "/acme/pulls/pull/7");
+  await signInAsDev(page, "/cloud/u/acme/pulls/pull/7");
   await expect(page.locator("#aisus-viewer .node--change-strong")).toHaveCount(1);
   await expect(page.locator("#aisus-viewer .node--change-weak")).toHaveCount(1);
   await expect(page.locator("#aisus-viewer .node--ghost")).toHaveCount(1);
@@ -17,6 +17,6 @@ test("CLD-04 the pull request page shows the overlay, the candidates and the sta
 });
 
 test("CLD-04 a pull request without a check says so", async ({ page }) => {
-  await signInAsDev(page, "/acme/pulls/pull/99");
+  await signInAsDev(page, "/cloud/u/acme/pulls/pull/99");
   await expect(page.locator("main")).toContainText("No check uploaded for this pull request yet.");
 });

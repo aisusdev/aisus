@@ -7,6 +7,7 @@ import { checkUpload, MAX_UPLOAD_BYTES, type Upload } from "@aisus/core/model/up
 import { atLeast, checkAccess, userForToken } from "../../../../lib/access";
 import { planOfAccount, planOfRepository } from "../../../../lib/billing";
 import { verifyOidc } from "../../../../lib/oidc";
+import { CLOUD_SETTINGS, diagramPath, pullPath, repoPath } from "../../../../lib/paths";
 import { siteOf } from "../../../../lib/requests";
 import { services } from "../../../../lib/services";
 import { personalBranches, repositoryForToken, type Repository, saveUpload, upsertRepository, uploadsInLastHour, UPLOADS_PER_HOUR } from "../../../../lib/store";
@@ -60,7 +61,7 @@ export async function POST(request: Request): Promise<Response> {
       const full = plan.personalBranches !== null && kept.length >= plan.personalBranches && !kept.some((row) => row.repoId === target.id && row.branch === upload.branch);
       if (full) {
         const names = kept.map((row) => `${row.owner}/${row.name} ${row.branch}`).join(", ");
-        return refuse(402, `Your personal space on ${plan.label} holds ${plan.personalBranches} branches: ${names}. Pro keeps every branch. Upgrade at ${siteOf(request)}/settings.`);
+        return refuse(402, `Your personal space on ${plan.label} holds ${plan.personalBranches} branches: ${names}. Pro keeps every branch. Upgrade at ${siteOf(request)}${CLOUD_SETTINGS}.`);
       }
     }
   } else if (bearer.startsWith(TOKEN_PREFIX)) {
@@ -86,13 +87,13 @@ export async function POST(request: Request): Promise<Response> {
   // CLD-07: the account's plan decides whether aisus cloud keeps the repository's team maps.
   if (space === "team") {
     const { refusal } = await planOfRepository(db, repo);
-    if (refusal !== null) return refuse(402, `${refusal} Upgrade at ${siteOf(request)}/settings.`);
+    if (refusal !== null) return refuse(402, `${refusal} Upgrade at ${siteOf(request)}${CLOUD_SETTINGS}.`);
   }
 
   const { repo: _repo, commit, branch, kind, space: _space, ...rest } = upload;
   const saved = await saveUpload(db, { repoId: repo.id, kind, commit, branch, pull: upload.meta.pull ?? null, payload: rest, via, tokenId, userId, space, size: bytes.byteLength, createdAt: now() });
   const url =
-    kind === "diagram" ? `/${owner}/${name}/pull/${upload.meta.pull}/d/${saved.id}` :
-    kind === "check" && upload.meta.pull !== undefined ? `/${owner}/${name}/pull/${upload.meta.pull}` : space === "personal" || branch === repo.defaultBranch ? `/${owner}/${name}` : `/${owner}/${name}?branch=${encodeURIComponent(branch)}`;
+    kind === "diagram" ? diagramPath(owner, name, upload.meta.pull!, saved.id) :
+    kind === "check" && upload.meta.pull !== undefined ? pullPath(owner, name, upload.meta.pull) : space === "personal" || branch === repo.defaultBranch ? repoPath(owner, name) : `${repoPath(owner, name)}?branch=${encodeURIComponent(branch)}`;
   return Response.json({ status: "accepted", id: saved.id, url }, { status: 201 });
 }
