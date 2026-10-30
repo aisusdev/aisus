@@ -102,7 +102,7 @@
       "required": ["schema", "kind", "focus", "paths", "base", "parent", "createdAt", "skillVersion", "phase", "attempts"],
       "properties": {
         "schema": { "const": 1 },
-        "kind": { "enum": ["full", "refresh", "drill"] },
+        "kind": { "enum": ["full", "refresh", "drill", "pull"] },
         "focus": { "$ref": "#/$defs/shortText" },
         "paths": { "type": "array", "maxItems": 50, "items": { "$ref": "#/$defs/shortText" } },
         "base": { "type": ["string", "null"], "maxLength": 200 },

@@ -11,6 +11,7 @@ const SCRIPTS: Record<string, string[]> = {
   "aisus-architecture": ["match-ids.mjs", "render-html.mjs", "repo-facts.mjs", "validate.mjs"],
   "aisus-audit": ["audit-record.mjs"],
   "aisus-bugfix": ["session-hook.mjs", "session.mjs"],
+  "aisus-pr": ["pr-facts.mjs", "pr-publish.mjs", "validate.mjs"],
   "aisus-refresh": ["refresh-facts.mjs", "render-html.mjs", "validate.mjs"],
   "aisus-sequence": ["render-html.mjs", "repo-facts.mjs", "validate.mjs"],
   "aisus-tour": ["tour-record.mjs"],
@@ -24,7 +25,8 @@ test.each(Object.entries(SCRIPTS))("RCH-02 ACC-05 SKL-02 SEQ-02 %s's committed s
   }
 });
 
-test("RCH-02 the refresh skill's references are the architecture skill's", () => {
+test("RCH-02 PRC-07 the refresh and pull request skills' references are the architecture skill's", () => {
   const reference = (name: string): string => readFileSync(join(repoRoot, "skills", name, "references/map-format.md"), "utf8");
   expect(reference("aisus-refresh")).toBe(reference("aisus-architecture"));
+  expect(reference("aisus-pr")).toBe(reference("aisus-architecture"));
 });
