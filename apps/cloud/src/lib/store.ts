@@ -189,7 +189,7 @@ export async function deleteAccount(db: Database, userId: number, login: string)
 export const AUDIT_ENTRIES = 50;
 
 /** CLD-13: the repository's latest uploads, each with how it was signed, its time and its size. */
-export async function auditLog(db: Database, repoId: number): Promise<{ id: number; kind: "map" | "check"; via: string; size: number | null; createdAt: Date }[]> {
+export async function auditLog(db: Database, repoId: number): Promise<{ id: number; kind: "map" | "check" | "diagram"; via: string; size: number | null; createdAt: Date }[]> {
   const signer = alias(tokens, "signer");
   const rows = await db
     .select({ id: uploads.id, kind: uploads.kind, via: uploads.via, token: signer.name, size: uploads.size, createdAt: uploads.createdAt, owner: repositories.owner, name: repositories.name, login: users.login })

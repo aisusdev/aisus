@@ -1,6 +1,6 @@
 // CLD-02 and CLD-09: what aisus cloud accepts, checked the same way by the server and by
-// `aisus.mjs publish` before it sends. An upload is an architecture map with its sidecars, or a
-// check result, plus metadata; no object may carry extra properties, the map must pass the
+// `aisus.mjs publish` before it sends. An upload is an architecture map with its sidecars, a
+// check result, or a pull request's diagram (PRC-07), plus metadata; no object may carry extra properties, the map must pass the
 // vendored map schemas, and nothing may look like a secret (SAF-03).
 import { createHash } from "node:crypto";
 import Ajv2020 from "ajv/dist/2020";
@@ -19,13 +19,13 @@ export interface Upload {
   repo: string;
   commit: string;
   branch: string;
-  kind: "map" | "check";
+  kind: "map" | "check" | "diagram";
   /** CLD-14: the team's space when absent. */
   space?: "team" | "personal";
   map?: unknown;
   sidecars?: { run?: unknown; fingerprints?: unknown; evidence?: unknown; tour?: unknown };
   check?: unknown;
-  meta: { run?: string; focus?: string; agent?: string; pull?: number; defaultBranch?: string; merge?: { branch: string; pull?: number; conflicts: { kind: string; name: string; reason: string }[] }; [key: string]: unknown };
+  meta: { run?: string; focus?: string; agent?: string; pull?: number; instructions?: string; defaultBranch?: string; merge?: { branch: string; pull?: number; conflicts: { kind: string; name: string; reason: string }[] }; [key: string]: unknown };
 }
 
 let compiled: ValidateFunction | undefined;
@@ -93,6 +93,23 @@ export function checkPayload(input: { repo: string; commit: string; branch: stri
     check: input.check,
     map: input.map,
     meta: { pull: input.pull, run: input.run, ...(input.defaultBranch ? { defaultBranch: input.defaultBranch } : {}) },
+  };
+}
+
+/**
+ * PRC-07: the upload of one diagram for a pull request. A diagram drawn for instructions is that map
+ * alone. Without instructions it is the main map with the pull request's check, which marks the
+ * boxes the change touches.
+ */
+export function diagramPayload(input: { repo: string; commit: string; branch: string; pull: number; map: unknown; run: string; instructions?: string; check?: unknown; defaultBranch?: string }): Upload {
+  return {
+    repo: input.repo,
+    commit: input.commit,
+    branch: input.branch,
+    kind: "diagram",
+    map: input.map,
+    ...(input.check === undefined ? {} : { check: input.check }),
+    meta: { pull: input.pull, run: input.run, ...(input.instructions ? { instructions: input.instructions } : {}), ...(input.defaultBranch ? { defaultBranch: input.defaultBranch } : {}) },
   };
 }
 

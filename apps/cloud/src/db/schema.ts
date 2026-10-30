@@ -57,7 +57,7 @@ export const uploads = pgTable(
   {
     id: serial("id").primaryKey(),
     repoId: integer("repo_id").notNull().references(() => repositories.id, { onDelete: "cascade" }),
-    kind: text("kind", { enum: ["map", "check"] }).notNull(),
+    kind: text("kind", { enum: ["map", "check", "diagram"] }).notNull(),
     commit: text("commit").notNull(),
     branch: text("branch").notNull(),
     pull: integer("pull"),
