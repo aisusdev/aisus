@@ -219,6 +219,7 @@ Browser-safe; runs in the webview, whose ELK runs in two Web Workers from a Blob
 | `edges.ts` | `straightEdge` (clipped), `selfLoop`, `labelAnchor` (FR-LAY-04). |
 | `geom.ts` | `center`, `boundingBox`, `pad`. |
 | `elkInThread.ts` | `runInThread`: bundled ELK in the calling thread, for Node (VWR-02). |
+| `svg.ts` | PRC-07: `changeSvg(diagram, check, run)` → a standalone SVG document of a pull request's diagram, drawn without a DOM with `fixedMeasure` (0.6 em a character, 1 em for wide scripts). It shows the boxes the check touched or the boxes tagged `changed` or `new`, their neighbours, the check's new box candidates and new imports, or the whole map when nothing is marked. The site's light palette, a legend row, every label escaped, no script, foreign content or outside reference. Its display size is 16/11 of its viewBox, so the smallest text shows at 16 px. |
 | `sequence.ts` | SEQ-03: `layoutSequence(sequence, measure)` → `SequenceScene {participants, lifelines, activations, phases, messages, bounds}`. Columns fit their boxes and the labels and notes of the messages across each gap; one row per message, taller for a note or a call to itself, which loops 30 px right; activations open on a call, close on the receiver's return or at its last message, and nest 5 px right; phases are bands behind their rows with labels in a left gutter. |
 | `layout.ts` | Mode choice, both ELK directions at once, choice by fit scale (ties RIGHT), translation to a 40 px origin, `bounds` with a 40 px margin. |
 
