@@ -27,4 +27,4 @@ Buttons are at least 48 pixels tall with a 3-pixel radius. A primary button is f
 
 ## Mockups
 
-[onboarding-mockup.html](onboarding-mockup.html) shows the signed-in first run in this style.
+[onboarding-mockup.html](onboarding-mockup.html) shows the signed-in first run in this style. [pr-diagrams-mockup.html](pr-diagrams-mockup.html) shows PRC-07's comment, the pull request page's diagrams and the diagram page.

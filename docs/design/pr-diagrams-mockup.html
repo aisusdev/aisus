@@ -1,0 +1,365 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pull request diagrams</title>
+<meta name="description" content="PRC-07: the comment /aisus-pr posts, the pull request page's diagrams and the diagram page.">
+<style>
+/* Tokens from docs/design/site-style.md. */
+@font-face{font-family:"Space Grotesk";src:url("../../apps/cloud/public/fonts/SpaceGrotesk-SemiBold.ttf") format("truetype");font-weight:600;font-display:swap}
+:root{
+  --paper:#f7f9f4;--paper-2:#eaf0e8;--white:#fffef9;--forest:#142b22;
+  --text:#182a22;--text-2:#4f6055;--line:#cad1c6;--accent:#c8ef72;
+  --leaf:#477646;--link:#315f3d;--header:72px;
+  --sans:"Avenir Next",Avenir,"Helvetica Neue",system-ui,sans-serif;
+  --display:"Space Grotesk",var(--sans);
+  --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+}
+*,*::before,*::after{box-sizing:border-box}
+html{color-scheme:light}
+body{margin:0;background:var(--paper);color:var(--text);font:16px/1.55 var(--sans);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+h1,h2,h3,p,ul,ol,blockquote{margin:0}
+ul,ol{padding:0;list-style:none}
+a{color:var(--link);text-decoration:none;border-bottom:1px solid #96ae95}
+a:hover{border-color:var(--link)}
+code{font:16px var(--mono)}
+button{font:inherit;color:inherit;cursor:pointer}
+[hidden]{display:none !important}
+
+/* The mockup's own screen picker, outside the product. */
+.picker{display:flex;flex-wrap:wrap;align-items:center;gap:8px 16px;padding:12px 24px;background:#2b2f2c;color:#f2f2ee}
+.picker strong{font-weight:650}
+.picker a{color:#f2f2ee;border:1px solid #6b716c;border-radius:3px;padding:6px 12px}
+.picker a[aria-current="true"]{background:#f2f2ee;color:#2b2f2c}
+.picker p{flex-basis:100%;color:#c9ccc7}
+
+/* Site header, as apps/cloud/src/app/layout.tsx draws it. */
+.site-header{height:var(--header);border-bottom:1px solid var(--line);background:rgba(247,249,244,.95)}
+.site-header .wrap{display:flex;align-items:center;gap:30px;height:100%;width:calc(100% - 48px);margin:0 auto}
+.site-header img{width:160px;height:auto;display:block}
+.site-header .brand{border:0}
+.nav{margin-left:auto;display:flex;gap:24px}
+.nav a,.account a{color:var(--text);font-weight:650;border:0}
+.account{display:flex;gap:14px;margin-left:8px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:48px;padding:0 20px;border-radius:3px;font-weight:650;white-space:nowrap;border:1px solid var(--forest)}
+.btn-primary{background:var(--forest);color:#fff}
+.btn-primary:hover{background:#28503a}
+.btn-secondary{background:transparent;color:var(--forest)}
+.btn-secondary:hover{background:var(--paper-2)}
+.btn[disabled]{opacity:.45;cursor:default}
+.menu{display:none;margin-left:auto;width:48px;height:48px;border:1px solid var(--line);border-radius:3px;background:none}
+
+/* The map page: the viewer fills the window, the side panel floats over it. */
+.map-page{position:relative;height:calc(100vh - var(--header) - var(--picker,0px));min-height:640px}
+.viewer{position:absolute;inset:0;background:#fff;overflow:hidden}
+.viewer svg.map{position:absolute;left:40px;top:96px;width:min(900px,calc(100% - 460px));height:auto}
+.viewer .toolbar{position:absolute;left:16px;bottom:16px;display:flex;gap:4px;padding:4px;border:1px solid #d1d9e0;border-radius:6px;background:#f6f8fa}
+.viewer .toolbar button{min-width:44px;height:40px;border:0;background:none;border-radius:4px;color:#1f2328;font:16px system-ui,sans-serif}
+.viewer .toolbar button:hover{background:rgba(129,139,152,.15)}
+.viewer .crumb{position:absolute;left:16px;top:16px;display:flex;flex-wrap:wrap;gap:8px;align-items:center;max-width:calc(100% - 400px);font:16px system-ui,sans-serif;color:#59636e}
+.viewer .crumb b{color:#1f2328;font-weight:600}
+
+.map-side{position:absolute;top:16px;right:16px;bottom:16px;width:360px;overflow:auto;padding:20px;border:1px solid var(--line);border-radius:6px;background:rgba(247,249,244,.97);box-shadow:0 20px 40px -24px #142b2259}
+.map-side h2{font:600 22px/1.25 var(--display);letter-spacing:-.02em}
+.map-side h3{font-size:16px;font-weight:700;margin-top:24px}
+.map-side .back{display:inline-block;margin-bottom:12px}
+.status{display:inline-block;margin-left:6px;padding:0 8px;border-radius:3px;background:var(--accent);color:var(--forest);font:600 16px/1.6 var(--sans)}
+.status.fail{background:#f3d9d6;color:#9b342d}
+.counts{display:flex;flex-wrap:wrap;gap:6px 16px;margin-top:10px;color:var(--text-2)}
+.counts b{color:var(--text)}
+.muted{color:var(--text-2)}
+
+/* One card per diagram. */
+.dlist{display:flex;flex-direction:column;gap:10px;margin-top:10px}
+.dcard{display:block;padding:14px 16px;border:1px solid var(--line);border-radius:3px;background:var(--white);color:var(--text)}
+.dcard:hover{border-color:var(--leaf);background:#fbfdf5}
+.dcard[aria-current="page"]{border-color:var(--forest);box-shadow:inset 4px 0 0 var(--accent)}
+.dcard .q{display:block;font-weight:650}
+.dcard .q.plain{font-weight:650;color:var(--text)}
+.dcard .meta{display:block;margin-top:4px;color:var(--text-2)}
+.dcard .meta code{font-size:16px}
+
+blockquote.ask{margin-top:14px;padding:4px 0 4px 14px;border-left:3px solid var(--accent);font-size:18px;line-height:1.45}
+.facts{margin-top:14px;display:grid;gap:4px;color:var(--text-2)}
+.legend{margin-top:8px;display:grid;gap:8px}
+.legend li{display:flex;align-items:center;gap:10px}
+.sw{width:28px;height:20px;border-radius:3px;flex:none;border:2px solid #142b22}
+.sw.changed{background:#c8ef72}
+.sw.touched{background:#eef5df;border-color:#477646}
+.sw.new{background:#fff;border:2px dashed #477646}
+.sw.arrow{border:0;height:0;border-top:2px dashed #477646;border-radius:0}
+.actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:20px}
+.actions .btn{flex:1 1 140px}
+.links{margin-top:16px;display:grid;gap:8px;justify-items:start}
+.steps{margin-top:10px;display:grid;gap:10px}
+.cmd{display:block;padding:12px 14px;border-radius:3px;background:var(--forest);color:#f2f7ea;font:16px/1.5 var(--mono);overflow-wrap:anywhere}
+
+/* GitHub's comment, drawn in GitHub's own light colours. */
+.gh{min-height:calc(100vh - 49px);background:#fff;color:#1f2328;font:16px/1.5 -apple-system,"Segoe UI","Noto Sans",Helvetica,Arial,sans-serif;padding:32px 24px 64px}
+.gh .col{max-width:920px;margin:0 auto}
+.gh h1{font-size:32px;font-weight:400;line-height:1.25}
+.gh h1 span{color:#59636e;font-weight:300}
+.gh .state{display:inline-block;margin-top:10px;padding:5px 12px;border-radius:2em;background:#1f883d;color:#fff;font-weight:500}
+.gh .state + span{color:#59636e;margin-left:8px}
+.gh .tl{margin-top:28px;border-top:1px solid #d1d9e0;padding-top:24px;display:flex;gap:16px}
+.gh .avatar{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#ffe2a8,#f5b14c);flex:none}
+.gh .box{flex:1;min-width:0;border:1px solid #d1d9e0;border-radius:6px}
+.gh .bh{padding:8px 16px;background:#f6f8fa;border-bottom:1px solid #d1d9e0;border-radius:6px 6px 0 0;color:#59636e}
+.gh .bh b{color:#1f2328}
+.gh .bb{padding:16px}
+.gh .bb blockquote{padding:0 16px;border-left:4px solid #d1d9e0;color:#59636e}
+.gh .bb p{margin-top:16px}
+.gh .bb a{color:#0969da;border:0}
+.gh .bb a:hover{text-decoration:underline}
+.gh .bb img,.gh .bb svg{display:block;max-width:100%;height:auto;margin-top:16px}
+
+/* Phone: the viewer takes the top of the window and the panel follows it below. */
+@media (max-width:760px){
+  :root{--header:64px}
+  .site-header .wrap{width:calc(100% - 32px);gap:16px}
+  .site-header img{width:120px}
+  .nav,.account,.site-header .btn{display:none}
+  .menu{display:block}
+  .map-page{height:auto;min-height:0}
+  .viewer{position:relative;height:56vh;min-height:360px}
+  .viewer svg.map{left:12px;right:12px;top:50%;transform:translateY(-50%);width:calc(100% - 24px)}
+  .viewer .crumb{max-width:calc(100% - 32px)}
+  .map-side{position:static;width:auto;margin:0;border:0;border-top:1px solid var(--line);border-radius:0;box-shadow:none;padding:20px}
+  .gh{padding:20px 16px 48px}
+  .gh h1{font-size:26px}
+  .gh .avatar{display:none}
+}
+</style>
+</head>
+<body>
+
+<nav class="picker" aria-label="Mockup screens">
+  <strong>PRC-07 mockup</strong>
+  <a href="#comment">1. The comment on GitHub</a>
+  <a href="#pull">2. Pull request page</a>
+  <a href="#diagram">3. Diagram page</a>
+  <a href="#empty">4. No diagrams yet</a>
+  <p id="picker-note"></p>
+</nav>
+
+<!-- 1. What /aisus-pr posts. -->
+<section data-screen="comment" hidden>
+  <div class="gh">
+    <div class="col">
+      <h1>Keep sessions in a cache <span>#42</span></h1>
+      <span class="state">Open</span><span>jianxi wants to merge 3 commits into main from session-cache</span>
+      <div class="tl">
+        <div class="avatar" aria-hidden="true"></div>
+        <div class="box">
+          <div class="bh"><b>jianxi</b> commented 2 minutes ago</div>
+          <div class="bb">
+            <blockquote><p style="margin:0">Show how login reaches the new session cache</p></blockquote>
+            <div data-diagram="3" data-palette="site"></div>
+            <p><a href="#diagram">Open in aisus cloud</a> · drawn from <code>9f3c2e1</code> by /aisus-pr</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Shared site header for the cloud screens. -->
+<header class="site-header" data-cloud hidden>
+  <div class="wrap">
+    <a class="brand" href="#pull" aria-label="aisus home"><img src="../../apps/cloud/public/aisus-wordmark.png" alt="aisus" width="160" height="55"></a>
+    <nav class="nav" aria-label="Main"><a href="#">Features</a><a href="#">Get Started</a><a href="#">Pricing</a></nav>
+    <span class="account"><a href="#">Repositories</a><a href="#">jianxi</a><a href="#">Sign out</a></span>
+    <a class="btn btn-primary" href="#">Download</a>
+    <button class="menu" aria-label="Menu">≡</button>
+  </div>
+</header>
+
+<!-- 2. The pull request page lists every diagram drawn for it. -->
+<section data-screen="pull" hidden>
+  <div class="map-page">
+    <div class="viewer">
+      <div class="crumb"><b>acme/shop #42</b> · latest check on the main map</div>
+      <div data-diagram="1" data-palette="viewer" data-class="map"></div>
+      <div class="toolbar" aria-label="Zoom"><button>Fit</button><button>−</button><button>+</button><button>100%</button></div>
+    </div>
+    <aside class="map-side" aria-label="Pull request">
+      <h2>acme/shop #42 <span class="status">pass</span></h2>
+      <p class="muted" style="margin-top:4px">Keep sessions in a cache</p>
+      <p class="counts"><span><b>2</b> touched</span><span><b>1</b> new box</span><span><b>0</b> stale</span></p>
+
+      <h3>Diagrams (3)</h3>
+      <ol class="dlist">
+        <li><a class="dcard" href="#diagram"><span class="q">Show how login reaches the new session cache</span><span class="meta"><code>9f3c2e1</code> · 12 minutes ago · 1 new box</span></a></li>
+        <li><a class="dcard" href="#diagram"><span class="q">Which services does the retry change reach?</span><span class="meta"><code>4b7d0aa</code> · 3 hours ago · 3 boxes</span></a></li>
+        <li><a class="dcard" href="#diagram"><span class="q plain">Changes on the main map</span><span class="meta"><code>1e2a9c4</code> · yesterday · 2 touched</span></a></li>
+      </ol>
+
+      <p class="muted" style="margin-top:20px">Checked <code>9f3c2e1</code> · <a href="#">Main map</a></p>
+      <p style="margin-top:6px"><a href="#comment">The pull request on GitHub</a></p>
+    </aside>
+  </div>
+</section>
+
+<!-- 3. One diagram, opened from the comment's link. -->
+<section data-screen="diagram" hidden>
+  <div class="map-page">
+    <div class="viewer">
+      <div class="crumb"><b>acme/shop #42</b> · diagram 3 of 3</div>
+      <div data-diagram="3" data-palette="viewer" data-class="map"></div>
+      <div class="toolbar" aria-label="Zoom"><button>Fit</button><button>−</button><button>+</button><button>100%</button></div>
+    </div>
+    <aside class="map-side" aria-label="Diagram">
+      <a class="back" href="#pull">← All diagrams on #42</a>
+      <h2>Diagram 3 of 3</h2>
+      <blockquote class="ask">Show how login reaches the new session cache</blockquote>
+      <div class="facts">
+        <span>Drawn from <code>9f3c2e1</code>, 12 minutes ago</span>
+        <span>4 boxes from the change, 1 of them new</span>
+      </div>
+
+      <h3>What the marks mean</h3>
+      <ul class="legend">
+        <li><span class="sw changed"></span>Changed in this pull request</li>
+        <li><span class="sw touched"></span>Uses changed code</li>
+        <li><span class="sw new"></span>New in this pull request</li>
+        <li><span class="sw arrow"></span>New import</li>
+      </ul>
+
+      <div class="actions">
+        <a class="btn btn-secondary" href="#diagram">Previous</a>
+        <a class="btn btn-secondary" href="#diagram" aria-disabled="true" style="opacity:.45">Next</a>
+      </div>
+      <div class="links">
+        <a href="#comment">The comment on GitHub</a>
+        <a href="#">Copy the image address</a>
+      </div>
+    </aside>
+  </div>
+</section>
+
+<!-- 4. A pull request with a check and no diagram yet. -->
+<section data-screen="empty" hidden>
+  <div class="map-page">
+    <div class="viewer">
+      <div class="crumb"><b>acme/shop #57</b> · latest check on the main map</div>
+      <div data-diagram="1" data-palette="viewer" data-class="map"></div>
+      <div class="toolbar" aria-label="Zoom"><button>Fit</button><button>−</button><button>+</button><button>100%</button></div>
+    </div>
+    <aside class="map-side" aria-label="Pull request">
+      <h2>acme/shop #57 <span class="status">pass</span></h2>
+      <p class="muted" style="margin-top:4px">Retry failed payments once</p>
+      <p class="counts"><span><b>2</b> touched</span><span><b>1</b> new box</span><span><b>0</b> stale</span></p>
+
+      <h3>Diagrams</h3>
+      <p style="margin-top:6px">No diagrams yet. On the pull request's branch, ask your coding agent for one:</p>
+      <div class="steps">
+        <code class="cmd">/aisus-pr</code>
+        <p class="muted">shows the changes on the main map.</p>
+        <code class="cmd">/aisus-pr show how a retry reaches the ledger</code>
+        <p class="muted">draws a diagram that answers you. Each one is posted on the pull request and listed here.</p>
+      </div>
+
+      <p class="muted" style="margin-top:20px">Checked <code>77ab310</code> · <a href="#">Main map</a></p>
+    </aside>
+  </div>
+</section>
+
+<script>
+// Three diagrams of one pull request. Each box is {id, label, sub, x, y, mark}; mark is changed,
+// touched, new or blank for context. Arrows are [from, to, kind], kind "new" for a new import.
+const DIAGRAMS = {
+  1: { boxes: [
+        { id: "web", label: "Web app", sub: "web/", x: 0, y: 40 },
+        { id: "auth", label: "Auth API", sub: "services/auth/", x: 300, y: 40, mark: "changed" },
+        { id: "users", label: "User store", sub: "services/users/", x: 600, y: 0, mark: "touched" },
+        { id: "cache", label: "Session cache", sub: "services/cache/", x: 600, y: 170, mark: "new" },
+        { id: "billing", label: "Billing", sub: "services/billing/", x: 300, y: 210 } ],
+      arrows: [["web", "auth"], ["auth", "users"], ["auth", "cache", "new"], ["web", "billing"]] },
+  3: { boxes: [
+        { id: "login", label: "Login form", sub: "web/login/", x: 0, y: 90 },
+        { id: "auth", label: "Auth API", sub: "services/auth/", x: 300, y: 90, mark: "changed" },
+        { id: "tokens", label: "Token signer", sub: "services/auth/tokens.ts", x: 300, y: 250, mark: "touched" },
+        { id: "cache", label: "Session cache", sub: "services/cache/", x: 600, y: 0, mark: "new" },
+        { id: "users", label: "User store", sub: "services/users/", x: 600, y: 170 } ],
+      arrows: [["login", "auth"], ["auth", "cache", "new"], ["auth", "users"], ["auth", "tokens"]] },
+};
+
+const PALETTES = {
+  site: { bg: "#f7f9f4", ink: "#182a22", muted: "#4f6055", line: "#cad1c6", box: "#fffef9", changed: "#c8ef72", touched: "#eef5df", edge: "#142b22", leaf: "#477646", font: '"Avenir Next","Helvetica Neue",Arial,sans-serif' },
+  viewer: { bg: "#ffffff", ink: "#1f2328", muted: "#59636e", line: "#d1d9e0", box: "#f6f8fa", changed: "#c8ef72", touched: "#eef5df", edge: "#59636e", leaf: "#477646", font: "system-ui,-apple-system,Segoe UI,Roboto,sans-serif" },
+};
+
+const W = 220, H = 80;
+const esc = (text) => text.replace(/&/g, "&amp;").replace(/</g, "&lt;");
+
+function clip(from, to) {
+  // The point where the line from one box's centre to another's leaves the first box.
+  const dx = to.x - from.x, dy = to.y - from.y;
+  const scale = Math.min(Math.abs((W / 2 + 6) / (dx || 1e-9)), Math.abs((H / 2 + 6) / (dy || 1e-9)));
+  return { x: from.x + dx * scale, y: from.y + dy * scale };
+}
+
+function svgOf(number, paletteName, className, slot) {
+  const d = DIAGRAMS[number], p = PALETTES[paletteName];
+  const key = `${paletteName}-${number}-${slot}`;
+  const pad = 32, legend = paletteName === "site" ? 64 : 0;
+  const width = Math.max(...d.boxes.map((b) => b.x)) + W + pad * 2;
+  const height = Math.max(...d.boxes.map((b) => b.y)) + H + pad * 2 + legend;
+  const at = Object.fromEntries(d.boxes.map((b) => [b.id, { x: b.x + pad + W / 2, y: b.y + pad + H / 2 }]));
+  const parts = [`<svg class="${className ?? ""}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} ${height}" width="${width}" height="${height}" role="img" aria-label="Diagram of the pull request's changes" font-family='${p.font}'>`,
+    `<defs><marker id="h-${key}" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="${p.edge}"/></marker><marker id="n-${key}" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="${p.leaf}"/></marker></defs>`,
+    `<rect width="${width}" height="${height}" fill="${p.bg}"/>`];
+  for (const [from, to, kind] of d.arrows) {
+    const a = clip(at[from], at[to]), b = clip(at[to], at[from]);
+    const isNew = kind === "new";
+    parts.push(`<line x1="${a.x}" y1="${a.y}" x2="${b.x}" y2="${b.y}" stroke="${isNew ? p.leaf : p.edge}" stroke-width="2" ${isNew ? 'stroke-dasharray="7 5"' : ""} marker-end="url(#${isNew ? "n" : "h"}-${key})"/>`);
+  }
+  for (const box of d.boxes) {
+    const x = box.x + pad, y = box.y + pad;
+    const fill = box.mark === "changed" ? p.changed : box.mark === "touched" ? p.touched : box.mark === "new" ? "#ffffff" : p.box;
+    const stroke = box.mark === "changed" ? "#142b22" : box.mark ? p.leaf : p.line;
+    const dash = box.mark === "new" ? 'stroke-dasharray="8 5"' : "";
+    parts.push(`<rect x="${x}" y="${y}" width="${W}" height="${H}" rx="4" fill="${fill}" stroke="${stroke}" stroke-width="2" ${dash}/>`);
+    parts.push(`<text x="${x + W / 2}" y="${y + 34}" text-anchor="middle" font-size="18" font-weight="700" fill="${box.mark ? p.ink : p.muted}">${esc(box.label)}</text>`);
+    parts.push(`<text x="${x + W / 2}" y="${y + 58}" text-anchor="middle" font-size="16" fill="${p.muted}">${esc(box.sub)}</text>`);
+    if (box.mark === "new") parts.push(`<rect x="${x + W - 58}" y="${y - 13}" width="52" height="26" rx="3" fill="${p.leaf}"/><text x="${x + W - 32}" y="${y + 6}" text-anchor="middle" font-size="16" font-weight="700" fill="#ffffff">NEW</text>`);
+  }
+  if (legend) {
+    const y = height - legend + 22;
+    const keys = [["changed", "Changed"], ["touched", "Uses changed code"], ["new", "New"], ["arrow", "New import"]];
+    let x = pad;
+    for (const [kind, label] of keys) {
+      if (kind === "arrow") parts.push(`<line x1="${x}" y1="${y + 11}" x2="${x + 28}" y2="${y + 11}" stroke="${p.leaf}" stroke-width="2" stroke-dasharray="7 5"/>`);
+      else parts.push(`<rect x="${x}" y="${y}" width="28" height="22" rx="3" fill="${kind === "changed" ? p.changed : kind === "touched" ? p.touched : "#ffffff"}" stroke="${kind === "changed" ? "#142b22" : p.leaf}" stroke-width="2" ${kind === "new" ? 'stroke-dasharray="6 4"' : ""}/>`);
+      parts.push(`<text x="${x + 38}" y="${y + 17}" font-size="16" fill="${p.ink}">${label}</text>`);
+      x += 38 + label.length * 8.6 + 28;
+    }
+    parts.push(`<text x="${width - pad}" y="${y + 17}" text-anchor="end" font-size="16" fill="${p.muted}">aisus</text>`);
+  }
+  parts.push("</svg>");
+  return parts.join("");
+}
+
+document.querySelectorAll("[data-diagram]").forEach((slot, index) => { slot.outerHTML = svgOf(slot.dataset.diagram, slot.dataset.palette, slot.dataset.class, index); });
+
+const NOTES = {
+  comment: "What /aisus-pr posts on GitHub, as the person who ran it. The image comes from aisus cloud, drawn on request. The link opens screen 3.",
+  pull: "/<owner>/<repo>/pull/42. The viewer keeps the latest check. The side panel lists every diagram drawn for the pull request, newest first.",
+  diagram: "/<owner>/<repo>/pull/42/d/<id>. One diagram in the viewer, with the instructions it answers, its commit and its neighbours.",
+  empty: "/<owner>/<repo>/pull/57. A check arrived and nobody has drawn a diagram yet.",
+};
+function show() {
+  const screen = NOTES[location.hash.slice(1)] ? location.hash.slice(1) : "comment";
+  for (const section of document.querySelectorAll("[data-screen]")) section.hidden = section.dataset.screen !== screen;
+  document.querySelector("[data-cloud]").hidden = screen === "comment";
+  for (const link of document.querySelectorAll(".picker a")) link.setAttribute("aria-current", String(link.hash === `#${screen}`));
+  document.getElementById("picker-note").textContent = NOTES[screen];
+  document.documentElement.style.setProperty("--picker", `${document.querySelector(".picker").offsetHeight}px`);
+  window.scrollTo(0, 0);
+}
+addEventListener("hashchange", show);
+show();
+</script>
+</body>
+</html>
