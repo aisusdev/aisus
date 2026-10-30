@@ -37,6 +37,8 @@ const SCRIPT_ENTRIES = {
   "session-hook": "packages/core/agent/session-hook.ts",
   "audit-record": "packages/core/agent/audit-record.ts",
   "tour-record": "packages/core/agent/tour-record.ts",
+  "pr-facts": "packages/core/agent/pr-facts.ts",
+  "pr-publish": "packages/core/agent/pr-publish.ts",
 };
 
 /**
@@ -170,6 +172,9 @@ export async function buildSkillsAndCli(out) {
   results.push(await buildScripts(join(out, "skills/aisus-audit/scripts"), ["audit-record"]));
   results.push(await buildScripts(join(out, "skills/aisus-tour/scripts"), ["tour-record"]));
   results.push(await buildScripts(join(out, "skills/aisus-sequence/scripts"), ["repo-facts", "validate", "render-html"]));
+  // PRC-07: the pull request skill draws in the same format and validates with the same script.
+  cpSync(join(root, "skills/aisus-architecture/references"), join(out, "skills/aisus-pr/references"), { recursive: true });
+  results.push(await buildScripts(join(out, "skills/aisus-pr/scripts"), ["pr-facts", "pr-publish", "validate"]));
   writeSkillHashes(out);
   const page = await buildPage();
   results.push(
@@ -202,8 +207,10 @@ function syncCommittedSkills(out) {
     rmSync(join(root, "skills", name, "scripts"), { recursive: true, force: true });
     cpSync(built, join(root, "skills", name, "scripts"), { recursive: true });
   }
-  rmSync(join(root, "skills/aisus-refresh/references"), { recursive: true, force: true });
-  cpSync(join(root, "skills/aisus-architecture/references"), join(root, "skills/aisus-refresh/references"), { recursive: true });
+  for (const name of ["aisus-refresh", "aisus-pr"]) {
+    rmSync(join(root, "skills", name, "references"), { recursive: true, force: true });
+    cpSync(join(root, "skills/aisus-architecture/references"), join(root, "skills", name, "references"), { recursive: true });
+  }
 }
 
 async function buildDist() {

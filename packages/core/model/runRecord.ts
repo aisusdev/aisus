@@ -8,7 +8,8 @@ import { isJsonObject } from "./types";
 
 export const RUN_FILE = "run.json";
 
-export type RunKind = "full" | "refresh" | "drill";
+/** PRC-07: a `pull` run holds a diagram drawn for a pull request's instructions, kept in its focus. */
+export type RunKind = "full" | "refresh" | "drill" | "pull";
 export type RunPhase = "created" | "validating" | "accepted" | "rejected";
 
 /** The estimate stated before the run (CST-03). */

@@ -15,12 +15,13 @@ test("RCH-02 ACC-05 SKL-02 build:release assembles the plugin with its manifests
   expect(manifest.description).toMatch(/^Architecture maps/);
   const marketplace = JSON.parse(readFileSync(join(plugin, ".claude-plugin/marketplace.json"), "utf8"));
   expect(marketplace).toMatchObject({ name: "aisus", owner: { name: "aisus" }, plugins: [{ name: "aisus", source: "./", version: pkg.version }] });
-  expect(PLUGIN_SKILLS).toEqual(["aisus-architecture", "aisus-refresh", "aisus-audit", "aisus-tour"]);
+  expect(PLUGIN_SKILLS).toEqual(["aisus-architecture", "aisus-refresh", "aisus-audit", "aisus-tour", "aisus-pr"]);
   const files: Record<string, string[]> = {
     "aisus-architecture": ["SKILL.md", "scripts/validate.mjs", "scripts/render-html.mjs", "references/map-format.md"],
     "aisus-refresh": ["SKILL.md", "scripts/validate.mjs", "scripts/render-html.mjs", "references/map-format.md"],
     "aisus-audit": ["SKILL.md", "agents/openai.yaml", "scripts/audit-record.mjs"],
     "aisus-tour": ["SKILL.md", "agents/openai.yaml", "scripts/tour-record.mjs"],
+    "aisus-pr": ["SKILL.md", "agents/openai.yaml", "scripts/pr-facts.mjs", "scripts/pr-publish.mjs", "references/map-format.md"],
   };
   for (const name of PLUGIN_SKILLS) {
     for (const file of files[name]!) {

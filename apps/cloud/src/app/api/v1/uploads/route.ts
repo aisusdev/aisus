@@ -91,6 +91,8 @@ export async function POST(request: Request): Promise<Response> {
 
   const { repo: _repo, commit, branch, kind, space: _space, ...rest } = upload;
   const saved = await saveUpload(db, { repoId: repo.id, kind, commit, branch, pull: upload.meta.pull ?? null, payload: rest, via, tokenId, userId, space, size: bytes.byteLength, createdAt: now() });
-  const url = kind === "check" && upload.meta.pull !== undefined ? `/${owner}/${name}/pull/${upload.meta.pull}` : space === "personal" || branch === repo.defaultBranch ? `/${owner}/${name}` : `/${owner}/${name}?branch=${encodeURIComponent(branch)}`;
+  const url =
+    kind === "diagram" ? `/${owner}/${name}/pull/${upload.meta.pull}/d/${saved.id}` :
+    kind === "check" && upload.meta.pull !== undefined ? `/${owner}/${name}/pull/${upload.meta.pull}` : space === "personal" || branch === repo.defaultBranch ? `/${owner}/${name}` : `/${owner}/${name}?branch=${encodeURIComponent(branch)}`;
   return Response.json({ status: "accepted", id: saved.id, url }, { status: 201 });
 }

@@ -1,0 +1,5 @@
+interface:
+  display_name: "aisus Pull Request Diagram"
+  short_description: "Post a diagram of a pull request's changes as a comment on it"
+policy:
+  allow_implicit_invocation: false

@@ -256,7 +256,9 @@ export function previousMap(root: string, slug: string, except: string | null = 
   for (const run of names) {
     const parsed = parseRunFolderName(run);
     if (parsed === null || parsed.slug !== slug || run === except || !existsSync(join(root, MAP_DIR, run, CANDIDATE_FILE))) continue;
-    if (readRunRecord(join(root, MAP_DIR, run))?.kind === "drill") continue;
+    // Drill-downs and pull request diagrams (PRC-07) answer one question and continue no map.
+    const kind = readRunRecord(join(root, MAP_DIR, run))?.kind;
+    if (kind === "drill" || kind === "pull") continue;
     const key = `${parsed.timestamp}-${String(parsed.n).padStart(6, "0")}`;
     if (best === null || key > best.key) best = { run, key };
   }

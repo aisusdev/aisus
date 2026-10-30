@@ -113,4 +113,11 @@ ALTER TABLE uploads ADD COLUMN user_id integer REFERENCES users(id) ON DELETE CA
 CREATE INDEX uploads_repo_branch ON uploads (repo_id, branch, created_at);
 `,
   },
+  {
+    id: "0007_pull_request_diagrams",
+    sql: `
+ALTER TABLE uploads DROP CONSTRAINT uploads_kind_check;
+ALTER TABLE uploads ADD CONSTRAINT uploads_kind_check CHECK (kind IN ('map', 'check', 'diagram'));
+`,
+  },
 ];

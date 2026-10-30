@@ -671,7 +671,8 @@ function previousMap(root, slug, except = null) {
   for (const run2 of names) {
     const parsed = parseRunFolderName(run2);
     if (parsed === null || parsed.slug !== slug || run2 === except || !existsSync2(join6(root, MAP_DIR, run2, CANDIDATE_FILE))) continue;
-    if (readRunRecord(join6(root, MAP_DIR, run2))?.kind === "drill") continue;
+    const kind = readRunRecord(join6(root, MAP_DIR, run2))?.kind;
+    if (kind === "drill" || kind === "pull") continue;
     const key = `${parsed.timestamp}-${String(parsed.n).padStart(6, "0")}`;
     if (best === null || key > best.key) best = { run: run2, key };
   }

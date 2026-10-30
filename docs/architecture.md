@@ -219,6 +219,7 @@ Browser-safe; runs in the webview, whose ELK runs in two Web Workers from a Blob
 | `edges.ts` | `straightEdge` (clipped), `selfLoop`, `labelAnchor` (FR-LAY-04). |
 | `geom.ts` | `center`, `boundingBox`, `pad`. |
 | `elkInThread.ts` | `runInThread`: bundled ELK in the calling thread, for Node (VWR-02). |
+| `svg.ts` | PRC-07: `changeSvg(diagram, check, run)` → a standalone SVG document of a pull request's diagram, drawn without a DOM with `fixedMeasure` (0.6 em a character, 1 em for wide scripts). It shows the boxes the check touched or the boxes tagged `changed` or `new`, their neighbours, the check's new box candidates and new imports, or the whole map when nothing is marked. The site's light palette, a legend row, every label escaped, no script, foreign content or outside reference. Its display size is 16/11 of its viewBox, so the smallest text shows at 16 px. |
 | `sequence.ts` | SEQ-03: `layoutSequence(sequence, measure)` → `SequenceScene {participants, lifelines, activations, phases, messages, bounds}`. Columns fit their boxes and the labels and notes of the messages across each gap; one row per message, taller for a note or a call to itself, which loops 30 px right; activations open on a call, close on the receiver's return or at its last message, and nest 5 px right; phases are bands behind their rows with labels in a left gutter. |
 | `layout.ts` | Mode choice, both ELK directions at once, choice by fit scale (ties RIGHT), translation to a 40 px origin, `bounds` with a 40 px margin. |
 
@@ -503,7 +504,7 @@ Export and audit (CLD-13): `GET /api/v1/account/export` downloads `{exportedAt, 
 * **Agent output:** stream text, Ask answers and map labels reach the webviews and the pull request comment as text only; Ask citations are checked again by the host before a line opens.
 * **Bench (CST-06, a dev tool):** each run clones a pinned commit into a temporary folder through a cache outside the repository, removes agent configuration and the entry's `strip` globs, and gives the agent a fresh home holding only the skill, with hooks off. The agent gets only `PATH`, `HOME`, `LANG`, its home variable and the bench API key, by absolute path with no shell. A series above `--cap` is refused before anything starts.
 * **Map update in CI (PRC-05):** only with the Action's `refresh` input, on a pull request from the same repository checked out at its head, does the Action run an agent. It runs the refresh skill with the sidebar's headless argv in a fresh home holding only that skill, with only `PATH`, `HOME`, `LANG`, the agent's home variable and its key, then commits and pushes only the new run folder to the pull request's branch.
-* **Network:** in `src/` only `packages/cloud-client/client.ts` sends, for `publish` and the Action's `upload`; in `apps/action/src/` only the GitHub client does, for the comment ([ADR 0055](adr/0055-only-the-cloud-client-sends-and-only-when-asked.md), PRC-04, CLD-09).
+* **Network:** in `src/` only `packages/cloud-client/client.ts` sends, for `publish`, the Action's `upload` and the pull request skill's `pr-publish.mjs` (PRC-07); in `apps/action/src/` only the GitHub client does, for the comment ([ADR 0055](adr/0055-only-the-cloud-client-sends-and-only-when-asked.md), PRC-04, CLD-09).
 
 ## Decisions
 

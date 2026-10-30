@@ -9467,7 +9467,7 @@ var upload_schema_default = {
   $schema: "https://json-schema.org/draft/2020-12/schema",
   $id: "https://aisus.dev/schemas/upload.schema.json",
   title: "aisus cloud upload",
-  description: "What aisus cloud accepts: an architecture map with its sidecars, or a check result, and metadata. Never code.",
+  description: "What aisus cloud accepts: an architecture map with its sidecars, a check result, or a pull request's diagram, and metadata. Never code.",
   type: "object",
   additionalProperties: false,
   required: ["repo", "commit", "branch", "kind", "meta"],
@@ -9475,7 +9475,7 @@ var upload_schema_default = {
     repo: { type: "string", pattern: "^[A-Za-z0-9](?:[A-Za-z0-9-]{0,38})/[A-Za-z0-9._-]{1,100}$" },
     commit: { type: "string", pattern: "^[0-9a-f]{40}$" },
     branch: { type: "string", minLength: 1, maxLength: 255 },
-    kind: { enum: ["map", "check"] },
+    kind: { enum: ["map", "check", "diagram"] },
     space: { enum: ["team", "personal"], description: "CLD-14: the team's space, the default, or the uploader's own." },
     map: { type: "object", description: "An architecture map, checked against the vendored map schemas." },
     sidecars: {
@@ -9493,7 +9493,12 @@ var upload_schema_default = {
   },
   allOf: [
     { if: { properties: { kind: { const: "map" } } }, then: { required: ["map"], not: { required: ["check"] } } },
-    { if: { properties: { kind: { const: "check" } } }, then: { required: ["check"], not: { required: ["sidecars"] } } }
+    { if: { properties: { kind: { const: "check" } } }, then: { required: ["check"], not: { required: ["sidecars"] } } },
+    {
+      if: { properties: { kind: { const: "diagram" } } },
+      then: { required: ["map"], not: { required: ["sidecars"] }, properties: { meta: { required: ["pull"] } } },
+      else: { properties: { meta: { not: { required: ["instructions"] } } } }
+    }
   ],
   $defs: {
     shortText: { type: "string", maxLength: 200 },
@@ -9528,6 +9533,7 @@ var upload_schema_default = {
         costUsd: { type: "number", minimum: 0 },
         skillVersion: { type: "string", maxLength: 40 },
         pull: { type: "integer", minimum: 1 },
+        instructions: { type: "string", minLength: 1, maxLength: 500, description: "PRC-07: what a pull request's diagram was asked to show, in the asker's words." },
         defaultBranch: { type: "string", minLength: 1, maxLength: 255 },
         merge: {
           type: "object",
@@ -9561,7 +9567,7 @@ var upload_schema_default = {
       required: ["schema", "kind", "focus", "paths", "base", "parent", "createdAt", "skillVersion", "phase", "attempts"],
       properties: {
         schema: { const: 1 },
-        kind: { enum: ["full", "refresh", "drill"] },
+        kind: { enum: ["full", "refresh", "drill", "pull"] },
         focus: { $ref: "#/$defs/shortText" },
         paths: { type: "array", maxItems: 50, items: { $ref: "#/$defs/shortText" } },
         base: { type: ["string", "null"], maxLength: 200 },

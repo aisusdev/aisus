@@ -97,6 +97,24 @@ describe("CLD-02 upload tokens", () => {
     expect((await db.select().from(tokens))[0]!.lastUsedAt).not.toBeNull();
   });
 
+  test("PRC-07 each diagram of a pull request is kept with its instructions and answers its own page", async () => {
+    const repo = await upsertRepository(db, { githubId: 4242, owner: "acme", name: "shop", private: true });
+    const token = newToken();
+    await createTokenRecord(db, repo.id, "ci", token, null);
+    const diagram = (instructions: string) => mapUpload({ kind: "diagram", branch: "feature", meta: { pull: 7, instructions } });
+    const first = (await (await post(diagram("Show the login path"), token)).json()) as { id: number; url: string };
+    const second = await post(diagram("Show the retry path"), token);
+    expect(second.status).toBe(201);
+    const answer = (await second.json()) as { id: number; url: string };
+    expect(first.url).toBe(`/acme/shop/pull/7/d/${first.id}`);
+    expect(answer.url).toBe(`/acme/shop/pull/7/d/${answer.id}`);
+    const rows = await db.select().from(uploads).where(eq(uploads.repoId, repo.id));
+    expect(rows.map((row) => [row.kind, row.pull, (row.payload as { meta: { instructions: string } }).meta.instructions])).toEqual([
+      ["diagram", 7, "Show the login path"],
+      ["diagram", 7, "Show the retry path"],
+    ]);
+  });
+
   test("a token for another repository or an unknown token is refused", async () => {
     const other = await upsertRepository(db, { githubId: 1, owner: "acme", name: "other", private: true });
     const token = newToken();
