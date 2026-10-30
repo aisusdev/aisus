@@ -319,6 +319,8 @@ export interface HomeState {
   /** SET-02's checks, or `null` while they run. */
   setup: Check[] | null;
   session: SessionSummary | null;
+  /** Whether the sidebar shows Bug hunt (`aisus.bugHunt.enabled`). It stays hidden until it is fully tested. */
+  bugHunt: boolean;
   ask: AskView;
   review: ReviewView | null;
   /** SKL-01: the explain-back. */

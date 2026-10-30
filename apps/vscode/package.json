@@ -108,6 +108,11 @@
           "type": "string",
           "default": "https://aisus.dev",
           "description": "The aisus cloud to share maps with and pull them from."
+        },
+        "aisus.bugHunt.enabled": {
+          "type": "boolean",
+          "default": false,
+          "description": "Show Bug hunt in the aisus sidebar and Start Learning Session in the Command Palette. Bug hunt is experimental and still being tested."
         }
       }
     },
@@ -396,6 +401,10 @@
         {
           "command": "aisus.cancelRun",
           "when": "aisus.running"
+        },
+        {
+          "command": "aisus.startLearning",
+          "when": "config.aisus.bugHunt.enabled"
         },
         {
           "command": "aisus.showFileInMap",

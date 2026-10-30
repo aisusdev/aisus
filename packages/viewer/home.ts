@@ -436,14 +436,14 @@ export function createHome(container: HTMLElement, post: Post, now: () => Date =
     attentionSlot.append(block);
   }
 
-  /** The home's list of what else there is to do. Each row opens its page, and Bug hunt starts or opens a session. */
+  /** The home's list of what else there is to do. Each row opens its page, and Bug hunt, while it is on, starts or opens a session. */
   function renderDo(state: HomeState): void {
     const hasMap = state.maps.length > 0;
     const session = state.session;
     const hunt = session === null ? "" : `${session.phase[0]?.toUpperCase() ?? ""}${session.phase.slice(1)}${session.stepsTotal > 0 ? ` · Step ${Math.min(session.stepIndex + 1, session.stepsTotal)} of ${session.stepsTotal}` : ""} · Score ${session.score}`;
     // The rows are rebuilt only when they change, so a focused row keeps its focus across states.
     const mapCount = state.maps.length + state.sequences.length + state.cloudMaps.length;
-    const key = JSON.stringify([state.root, hasMap && state.maps.length, mapCount, hunt]);
+    const key = JSON.stringify([state.root, hasMap && state.maps.length, mapCount, state.bugHunt, hunt]);
     if (key === doKey) return;
     doKey = key;
     doSlot.replaceChildren();
@@ -463,7 +463,7 @@ export function createHome(container: HTMLElement, post: Post, now: () => Date =
     row(title("ask"), "", open("ask"), "ask");
     if (hasMap) row(title("review"), "", open("review"), "review");
     row(title("learn"), "", open("learn"), "learn");
-    row("Bug hunt", hunt, () => post(session === null ? { type: "startLearning" } : { type: "openSession" }), null);
+    if (state.bugHunt) row("Bug hunt", hunt, () => post(session === null ? { type: "startLearning" } : { type: "openSession" }), null);
     if (mapCount > 0) row(title("maps"), String(mapCount), open("maps"), "maps");
     doSlot.append(list);
   }

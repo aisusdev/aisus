@@ -39,6 +39,7 @@ function state(fields: Partial<HomeState> = {}): HomeState {
     run: null,
     setup: OK_CHECKS,
     session: null,
+    bugHunt: false,
     ask: { blocked: null, turns: [], estimate: null, confirm: false },
     review: null,
     practice: { blocked: null, estimate: null, confirm: false, check: null, log: [] },
@@ -203,10 +204,12 @@ describe("UI-01 sidebar states", () => {
     expect(posted).toEqual([{ type: "fix", check: "skills" }, { type: "openSettings" }]);
   });
 
-  test("session active: the Bug hunt row shows phase, step and score and opens the session; otherwise it starts one", () => {
+  test("the Bug hunt row shows only while Bug hunt is on, starts a session, and with one active shows phase, step and score and opens it", () => {
     home.render(state());
+    expect(container.querySelector(".row--hunt")).toBeNull();
+    home.render(state({ bugHunt: true }));
     container.querySelector<HTMLButtonElement>(".row--hunt")!.click();
-    home.render(state({ session: { phase: "hunting", stepIndex: 1, stepsTotal: 4, score: 30 } }));
+    home.render(state({ bugHunt: true, session: { phase: "hunting", stepIndex: 1, stepsTotal: 4, score: 30 } }));
     expect(text(".learning__status")).toEqual(["Hunting · Step 2 of 4 · Score 30"]);
     container.querySelector<HTMLButtonElement>(".row--hunt")!.click();
     expect(posted).toEqual([{ type: "startLearning" }, { type: "openSession" }]);
@@ -259,7 +262,7 @@ describe("UI-01 home and pages", () => {
   test("each row opens its page with the sections it holds, and Back or Escape returns home", () => {
     home.render(state({ maps: [map({})] }));
     expect(shown()).toEqual(["page-home"]);
-    expect(text(".do .row__label")).toEqual(["Ask about the code", "Review changes", "Check my understanding", "Bug hunt", "Maps"]);
+    expect(text(".do .row__label")).toEqual(["Ask about the code", "Review changes", "Check my understanding", "Maps"]);
     for (const [page, part] of [["ask", ".ask"], ["review", ".review"], ["learn", ".practice"], ["maps", ".maps"]] as const) {
       row(page).click();
       expect(shown()).toEqual([`page-${page}`]);
@@ -278,7 +281,7 @@ describe("UI-01 home and pages", () => {
 
   test("without a map, the home has no Review or Maps row", () => {
     home.render(state());
-    expect(text(".do .row__label")).toEqual(["Ask about the code", "Check my understanding", "Bug hunt"]);
+    expect(text(".do .row__label")).toEqual(["Ask about the code", "Check my understanding"]);
   });
 
   test("a run opens the home, an answer opens Ask and an explain-back opens Learn", () => {

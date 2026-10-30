@@ -76,7 +76,7 @@ Every command is also in the Command Palette under "aisus".
 | Place | What's there |
 |---|---|
 | Activity Bar | The aisus icon, which opens the sidebar |
-| Sidebar | A home with the folder and agent, the live run, the newest map with its one next step, what needs a look and the setup checklist. Its rows open Ask about the code, Review changes, Check my understanding, Bug hunt and your maps, where New map holds the composer |
+| Sidebar | A home with the folder and agent, the live run, the newest map with its one next step, what needs a look and the setup checklist. Its rows open Ask about the code, Review changes, Check my understanding and your maps, where New map holds the composer |
 | Sidebar title bar | Refresh and Check Setup |
 | Editor title, any file | Show in Map |
 | Editor title, map | Refresh Architecture, Show Changes on Diagram, Export Page, Audit Map, Show Hotspots and Tour, with Compare With…, Write Architecture Notes for Agents, Create Tour and Save Image in its menu |
@@ -149,6 +149,7 @@ aisus makes no AI calls of its own. Your agent does the work, on your account.
 - Skills go to `~/.agents/skills/`, which Codex and Devin read, with links in `~/.claude/skills/` for Claude Code. With `aisus.skillScope` set to `project`, they go to `.agents/skills/` and `.claude/skills/` in the repository.
 - Maps go to `.aisus/maps/` in the repository.
 - `.git/info/exclude` gains `.aisus/sessions/`, `.aisus/maps/**/draft.json` and `.aisus/maps/**/*.html`. Git reads this file and never commits it.
+- Bug hunt learning sessions are hidden while they are tested. `aisus.bugHunt.enabled` shows them in the sidebar and the Command Palette.
 - Learning sessions keep their state in `.aisus/sessions/`. Their hook entry exists only while a session runs, in `.claude/settings.local.json` for Claude Code, `.codex/hooks.json` for Codex or `.devin/hooks.v1.json` for Devin. Codex runs it once you trust it with `/hooks`.
 - Agents run with an exact list of tools. Claude Code may read, search, run the skill's scripts and edit inside `.aisus/maps/`. Codex runs in its workspace sandbox. No permission prompt is skipped.
 - With `aisus.usageLog` on (it is off by default), aisus keeps how many times you used each of its actions per day, for 90 days, in VS Code's storage. It holds no paths, labels, repository names or anything you typed. **Export Usage Log** and **Clear Usage Log** are in the sidebar's title-bar menu.

@@ -197,6 +197,7 @@ export class HomeView implements vscode.WebviewViewProvider, vscode.Disposable {
       run: this.runs.current,
       setup: root === this.setupRoot ? this.setup : null,
       session: root === null ? null : sessionSummary(root),
+      bugHunt: vscode.workspace.getConfiguration("aisus").get<boolean>("bugHunt.enabled", false) === true,
       ask: this.ask.view(root),
       review: this.review.view(root),
       practice: this.practice.view(root),
