@@ -1,0 +1,587 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>aisus cloud under /cloud</title>
+<meta name="description" content="CLD-20 proposal: every signed-in page of aisus cloud under /cloud, in the site's light design, for desktop.">
+<style>
+/* Tokens from docs/design/site-style.md. */
+@font-face{font-family:"Space Grotesk";src:url("../../apps/cloud/public/fonts/SpaceGrotesk-SemiBold.ttf") format("truetype");font-weight:600;font-display:swap}
+:root{
+  --paper:#f7f9f4;--paper-2:#eaf0e8;--white:#fffef9;--forest:#142b22;
+  --text:#182a22;--text-2:#4f6055;--line:#cad1c6;--accent:#c8ef72;
+  --leaf:#477646;--link:#315f3d;--danger:#9b342d;--header:72px;
+  --sans:"Avenir Next",Avenir,"Helvetica Neue",system-ui,sans-serif;
+  --display:"Space Grotesk",var(--sans);
+  --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+}
+*,*::before,*::after{box-sizing:border-box}
+html{color-scheme:light}
+body{margin:0;background:var(--paper);color:var(--text);font:16px/1.55 var(--sans);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+h1,h2,h3,p,ul,ol,blockquote,table{margin:0}
+ul,ol{padding:0;list-style:none}
+a{color:var(--link);text-decoration:none;border-bottom:1px solid #96ae95}
+a:hover{border-color:var(--link)}
+code{font:16px var(--mono)}
+button,input{font:inherit;color:inherit}
+button{cursor:pointer}
+h1{font:600 40px/1.15 var(--display);letter-spacing:-.025em}
+h2{font:600 24px/1.25 var(--display);letter-spacing:-.02em}
+h3{font-size:18px;font-weight:700}
+.muted{color:var(--text-2)}
+
+/* The mockup's own screen picker, outside the product. */
+.picker{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;padding:12px 24px;background:#2b2f2c;color:#f2f2ee}
+.picker strong{font-weight:650;margin-right:8px}
+.picker a{color:#f2f2ee;border:1px solid #6b716c;border-radius:3px;padding:4px 10px}
+.picker a:hover{background:#3b403c}
+.screen{display:none}
+.screen:target,.screen.default{display:block}
+body:has(.screen:target) .screen.default:not(:target){display:none}
+.note{max-width:1248px;margin:0 auto;padding:12px 24px;color:#6b716c;border-bottom:1px dashed var(--line)}
+.note b{color:var(--text)}
+
+/* Buttons. */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:48px;padding:0 20px;border-radius:3px;font-weight:650;white-space:nowrap;border:1px solid var(--forest);background:transparent;color:var(--forest)}
+.btn:hover{background:var(--paper-2)}
+.btn-primary{background:var(--forest);color:#fff}
+.btn-primary:hover{background:#28503a}
+.btn-lime{background:var(--accent);color:var(--forest);border-color:var(--accent)}
+.btn-danger{color:var(--danger);border-color:var(--danger)}
+.btn-sm{min-height:40px;padding:0 14px}
+.chip{display:inline-block;padding:0 8px;border:1px solid var(--line);border-radius:3px;background:var(--white);color:var(--text-2);font:600 16px/1.5 var(--sans);white-space:nowrap}
+.chip.plan{background:var(--accent);border-color:var(--accent);color:var(--forest)}
+.chip.free{background:var(--paper-2)}
+.dot{display:inline-block;width:10px;height:10px;border-radius:50%;background:var(--accent);border:1px solid var(--leaf);margin-right:6px}
+.dot.stale{background:#f1d58a;border-color:#a07a1d}
+.dot.none{background:var(--paper-2);border-color:var(--line)}
+
+/* Public header, as the landing page draws it. */
+.site-header{height:var(--header);border-bottom:1px solid var(--line);background:rgba(247,249,244,.95)}
+.site-header .wrap{display:flex;align-items:center;gap:30px;height:100%;width:calc(100% - 48px);max-width:1248px;margin:0 auto}
+.brand{border:0;display:flex;align-items:center;gap:10px}
+.brand img{width:140px;height:auto;display:block}
+.wordmark{font:600 30px/1 var(--display);letter-spacing:-.04em;color:var(--forest)}
+.cloud-tag{padding:0 8px;border-radius:3px;background:var(--forest);color:var(--accent);font:600 16px/1.6 var(--display)}
+.nav{margin-left:auto;display:flex;gap:24px}
+.nav a{color:var(--text);font-weight:650;border:0}
+.menu{display:none;margin-left:auto;width:48px;height:48px;border:1px solid var(--line);border-radius:3px;background:none}
+
+/* The cloud shell: its own header, an account rail and the page. */
+.app-header{height:var(--header);border-bottom:1px solid var(--line);background:var(--white)}
+.app-header .wrap{display:flex;align-items:center;gap:20px;height:100%;padding:0 24px}
+.app-header nav{display:flex;gap:4px;margin-left:24px}
+.app-header nav a{border:0;color:var(--text);font-weight:650;padding:10px 14px;border-radius:3px}
+.app-header nav a[aria-current]{background:var(--paper-2);box-shadow:inset 0 -3px 0 var(--accent)}
+.user{margin-left:auto;display:flex;align-items:center;gap:12px}
+.avatar{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#c8ef72,#477646);flex:none}
+.user a{border:0;color:var(--text);font-weight:650}
+.shell{display:grid;grid-template-columns:260px 1fr;min-height:calc(100vh - var(--header) - 49px)}
+.rail{border-right:1px solid var(--line);padding:24px 16px;background:var(--paper)}
+.rail h3{font-size:16px;color:var(--text-2);font-weight:650;margin:0 8px 8px}
+.rail a{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px 8px;border:0;border-radius:3px;color:var(--text);font-weight:600}
+.rail a:hover{background:var(--paper-2)}
+.rail a[aria-current]{background:var(--white);box-shadow:inset 3px 0 0 var(--accent),0 0 0 1px var(--line)}
+.rail hr{border:0;border-top:1px solid var(--line);margin:16px 8px}
+.main{padding:40px 48px 64px;max-width:1100px;width:100%}
+.lede{margin-top:8px;color:var(--text-2);max-width:62ch;font-size:18px}
+.head-row{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:16px}
+.tabs{display:flex;gap:4px;margin-top:24px;border-bottom:1px solid var(--line)}
+.tabs a{border:0;padding:10px 16px;color:var(--text-2);font-weight:650;margin-bottom:-1px}
+.tabs a[aria-current]{color:var(--text);border-bottom:3px solid var(--forest)}
+
+/* Cards and rows. */
+.card{border:1px solid var(--line);border-radius:3px;background:var(--white);padding:20px 24px}
+.stack{display:grid;gap:16px;margin-top:24px}
+.card-head{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;padding-bottom:14px;border-bottom:1px solid var(--line)}
+.rows li{display:grid;grid-template-columns:1fr auto auto;align-items:center;gap:16px;padding:14px 0;border-bottom:1px solid var(--paper-2)}
+.rows li:last-child{border-bottom:0;padding-bottom:0}
+.rows .name strong{font-weight:700}
+.search{display:flex;gap:12px;margin-top:24px}
+.search input{flex:1;min-height:48px;padding:0 14px;border:1px solid var(--line);border-radius:3px;background:var(--white)}
+.band{margin-top:32px;padding:20px 24px;border-radius:3px;background:var(--forest);color:#eef5e4;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:16px}
+.band b{color:#fff}
+
+/* Figures for the dashboard. */
+.figures{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:24px}
+.fig{border:1px solid var(--line);border-radius:3px;background:var(--white);padding:16px 20px}
+.fig b{display:block;font:600 36px/1.1 var(--display)}
+.repo-card .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:14px}
+.repo-card .stats div{padding:10px 12px;background:var(--paper);border-radius:3px}
+.repo-card .stats b{display:block;font:600 22px/1.2 var(--display)}
+.repo-card .more{margin-top:14px;display:grid;gap:4px}
+
+/* Tables. */
+table{width:100%;border-collapse:collapse;margin-top:16px;background:var(--white);border:1px solid var(--line)}
+th,td{text-align:left;padding:12px 16px;border-bottom:1px solid var(--line)}
+thead th{background:var(--paper-2);font-weight:650}
+.meter{height:12px;border-radius:6px;background:var(--paper-2);overflow:hidden;margin-top:10px}
+.meter i{display:block;height:100%;width:70%;background:var(--accent);border-right:2px solid var(--leaf)}
+
+/* Settings pages: a section list beside the sections. */
+.settings{display:grid;grid-template-columns:220px 1fr;gap:40px;margin-top:32px}
+.sub a{display:block;padding:8px 12px;border:0;border-left:2px solid var(--line);color:var(--text-2);font-weight:600}
+.sub a[aria-current]{border-color:var(--forest);color:var(--text)}
+.sections{display:grid;gap:24px}
+.sections h2{margin-bottom:6px}
+.line{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;padding:12px 0;border-top:1px solid var(--paper-2)}
+.cmd{display:block;margin-top:12px;padding:12px 14px;border-radius:3px;background:var(--forest);color:#f2f7ea;font:16px/1.5 var(--mono);overflow-wrap:anywhere}
+.toggle{display:inline-flex;align-items:center;gap:10px;font-weight:600}
+.toggle i{width:44px;height:26px;border-radius:13px;background:var(--forest);position:relative}
+.toggle i::after{content:"";position:absolute;right:3px;top:3px;width:20px;height:20px;border-radius:50%;background:var(--accent)}
+.danger{border-color:#d9b2ad}
+.danger h2{color:var(--danger)}
+
+/* Sign-in page. */
+.signin{display:grid;grid-template-columns:1fr 1fr;min-height:calc(100vh - var(--header) - 49px)}
+.signin .pitch{background:var(--forest);color:#e6efdc;padding:72px 64px;display:flex;flex-direction:column;justify-content:center;gap:20px}
+.signin .pitch h1{color:#fff;font-size:48px}
+.signin .pitch h1 em{font-style:normal;color:var(--accent)}
+.signin .form{display:flex;align-items:center;justify-content:center;padding:48px 24px}
+.signin .box{width:100%;max-width:440px}
+.signin .roles{margin-top:24px;display:grid;gap:10px}
+.signin .roles li{display:grid;grid-template-columns:72px 1fr;gap:12px;padding:12px 14px;border:1px solid var(--line);border-radius:3px;background:var(--white)}
+.signin .roles b{font-family:var(--display)}
+.gh-btn{width:100%;margin-top:28px;min-height:56px;font-size:18px}
+
+/* First run. */
+.stepper{display:flex;gap:8px;margin-bottom:24px}
+.stepper span{flex:1;padding-top:10px;border-top:4px solid var(--line);color:var(--text-2);font-weight:650}
+.stepper span.done{border-color:var(--leaf);color:var(--text)}
+.stepper span.now{border-color:var(--forest);color:var(--text)}
+.choices{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-top:24px}
+.choice{display:flex;flex-direction:column;gap:12px;justify-content:space-between}
+.choice ul{display:grid;gap:4px}
+.choice li::before{content:"";display:inline-block;width:8px;height:8px;margin-right:10px;background:var(--accent);border:1px solid var(--leaf)}
+
+/* Map pages: the viewer fills the window and the panel floats over it. */
+.map-page{position:relative;height:calc(100vh - var(--header) - 49px);min-height:640px}
+.viewer{position:absolute;inset:0;background:#fff;overflow:hidden}
+.viewer svg{position:absolute;left:40px;top:80px;width:min(820px,calc(100% - 480px));height:auto}
+.viewer .crumb{position:absolute;left:16px;top:16px;font:16px system-ui,sans-serif;color:#59636e}
+.viewer .crumb b{color:#1f2328}
+.viewer .toolbar{position:absolute;left:16px;bottom:16px;display:flex;gap:4px;padding:4px;border:1px solid #d1d9e0;border-radius:6px;background:#f6f8fa}
+.viewer .toolbar button{min-width:44px;height:40px;border:0;background:none;border-radius:4px}
+.panel{position:absolute;top:16px;right:16px;bottom:16px;width:380px;overflow:auto;border:1px solid var(--line);border-radius:6px;background:rgba(247,249,244,.97);box-shadow:0 20px 40px -24px #142b2259}
+.panel header{padding:18px 20px 0}
+.panel .tabs{margin-top:14px;padding:0 4px}
+.panel .tabs a{padding:8px 12px}
+.panel .body{padding:16px 20px;display:grid;gap:14px}
+.status{display:inline-block;padding:0 8px;border-radius:3px;background:var(--accent);color:var(--forest);font-weight:650}
+.status.fail{background:#f3d9d6;color:var(--danger)}
+.counts{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.counts div{padding:8px 10px;background:var(--white);border:1px solid var(--line);border-radius:3px}
+.counts b{font:600 20px var(--display);margin-right:6px}
+.hist li{display:flex;justify-content:space-between;gap:8px;padding:8px 0;border-bottom:1px solid var(--paper-2)}
+.hist li[aria-current]{font-weight:700}
+.dcard{display:block;padding:12px 14px;border:1px solid var(--line);border-radius:3px;background:var(--white);color:var(--text)}
+.dcard:hover{border-color:var(--leaf)}
+.dcard b{display:block}
+.dcard span{color:var(--text-2)}
+blockquote.ask{padding:4px 0 4px 14px;border-left:3px solid var(--accent);font-size:18px}
+.legend{display:grid;gap:6px}
+.legend li{display:flex;align-items:center;gap:10px}
+.sw{width:28px;height:20px;border-radius:3px;border:2px solid var(--forest)}
+.sw.changed{background:var(--accent)}
+.sw.touched{background:#eef5df;border-color:var(--leaf)}
+.sw.new{background:#fff;border-style:dashed;border-color:var(--leaf)}
+
+</style>
+</head>
+<body>
+
+<nav class="picker" aria-label="Mockup screens">
+  <strong>/cloud mockup</strong>
+  <a href="#landing">1. Landing header</a>
+  <a href="#signin">2. /cloud/signin</a>
+  <a href="#home">3. /cloud</a>
+  <a href="#start">4. /cloud/start</a>
+  <a href="#account">5. /cloud/u/aisusdev</a>
+  <a href="#people">6. /cloud/u/aisusdev?tab=people</a>
+  <a href="#map">7. Map</a>
+  <a href="#pull">8. Pull request</a>
+  <a href="#repo-settings">9. Repository settings</a>
+  <a href="#settings">10. /cloud/settings</a>
+  <a href="#nomap">11. No access</a>
+</nav>
+
+
+<!-- 1. Landing -->
+<section class="screen default" id="landing">
+  <p class="note"><b>/</b> The public site keeps its header. Each old signed-in path redirects to its new path under <code>/cloud</code>. Signed out, Sign in goes to <code>/cloud/signin</code>. Signed in, the same place shows Open cloud, which goes to <code>/cloud</code>.</p>
+  <header class="site-header"><div class="wrap">
+    <a class="brand" href="#landing"><span class="wordmark">aisus</span></a>
+    <nav class="nav"><a href="#landing">Features</a><a href="#landing">Get Started</a><a href="#landing">Pricing</a></nav>
+    <a class="btn btn-sm" href="#signin">Sign in</a>
+    <a class="btn btn-primary btn-sm" href="#landing">Download</a>
+    <button class="menu" aria-label="Menu">≡</button>
+  </div></header>
+  <div style="max-width:1248px;margin:0 auto;padding:72px 24px">
+    <h1 style="font-size:56px;max-width:16ch">A map of the code you can check for yourself.</h1>
+    <p class="lede">The landing page itself does not change.</p>
+    <div style="display:flex;gap:12px;margin-top:28px;flex-wrap:wrap"><a class="btn btn-primary" href="#landing">Download for VS Code</a><a class="btn" href="#signin">Sign in</a></div>
+    <div class="band" style="margin-top:48px"><span>Signed in, the header and hero show <b>Open cloud</b> in place of Sign in.</span><a class="btn btn-lime" href="#home">Open cloud</a></div>
+  </div>
+</section>
+
+<!-- 2. Sign in -->
+<section class="screen" id="signin">
+  <p class="note"><b>/cloud/signin</b> Public. Every signed-out visit to a page under <code>/cloud</code> lands here with <code>?callbackUrl=</code> and returns to that page after GitHub. Without one it returns to <code>/cloud</code>.</p>
+  <header class="site-header"><div class="wrap">
+    <a class="brand" href="#landing"><span class="wordmark">aisus</span><span class="cloud-tag">cloud</span></a>
+    <nav class="nav"><a href="#landing">Features</a><a href="#landing">Pricing</a></nav>
+    <button class="menu" aria-label="Menu">≡</button>
+  </div></header>
+  <div class="signin">
+    <div class="pitch">
+      <h1>Your maps, <em>shared with your team.</em></h1>
+      <p style="font-size:18px;max-width:44ch">aisus cloud keeps every map your repositories publish, shows what each pull request changes on it, and opens to the people GitHub already lets in.</p>
+    </div>
+    <div class="form"><div class="box">
+      <h2 style="font-size:32px">Sign in to aisus cloud</h2>
+      <p class="muted" style="margin-top:8px">aisus cloud follows your GitHub permissions.</p>
+      <ul class="roles">
+        <li><b>Read</b><span>View a repository's maps.</span></li>
+        <li><b>Write</b><span>Work with its maps and pull requests.</span></li>
+        <li><b>Admin</b><span>Manage tokens, links, plans and data.</span></li>
+      </ul>
+      <button class="btn btn-primary gh-btn">Sign in with GitHub</button>
+      <p class="muted" style="margin-top:16px">aisus asks GitHub for read:user and read:org. <a href="#landing">Privacy</a></p>
+    </div></div>
+  </div>
+</section>
+
+<!-- 3. Home -->
+<section class="screen" id="home">
+  <p class="note"><b>/cloud</b> Signed in, it shows the first run until an account keeps maps, then Repositories. Signed out, it redirects to <code>/cloud/signin?callbackUrl=/cloud</code>.</p>
+  <header class="app-header"><div class="wrap">
+    <a class="brand" href="#home"><span class="wordmark">aisus</span><span class="cloud-tag">cloud</span></a>
+    <nav><a href="#home" aria-current="page">Repositories</a><a href="#settings">Settings</a></nav>
+    <div class="user"><span class="avatar"></span><span>jianxi</span><a href="#landing">Sign out</a></div>
+    <button class="menu" aria-label="Menu">≡</button>
+  </div></header>
+  <div class="shell">
+    <aside class="rail">
+      <h3>Accounts</h3>
+      <a href="#home" aria-current="page">All repositories</a>
+      <a href="#account">jianxi <span class="chip plan">Pro</span></a>
+      <a href="#account">aisusdev <span class="chip plan">Team</span></a>
+      <a href="#account">northwind <span class="chip free">Free</span></a>
+      <hr><a class="settings-link" href="#settings">Account settings</a>
+    </aside>
+    <main class="main">
+      <div class="head-row"><div><h1>Repositories</h1><p class="lede">Every repository you can open, with the age of its main map.</p></div></div>
+      <div class="search"><input placeholder="owner/name" aria-label="Open another public repository"><a class="btn" href="#map">Open</a></div>
+      <div class="stack">
+        <section class="card">
+          <div class="card-head"><h2>aisusdev <span class="chip plan">Team</span></h2><span class="muted">Organization · admin</span></div>
+          <ul class="rows">
+            <li><span class="name">aisusdev/<strong>aisus</strong> <span class="chip">Public</span></span><span class="age muted"><i class="dot"></i>Map 2 hours ago</span><a class="btn btn-sm" href="#map">Open</a></li>
+            <li><span class="name">aisusdev/<strong>infra</strong> <span class="chip">Private</span></span><span class="age muted"><i class="dot stale"></i>Map 9 days ago, 4 stale boxes</span><a class="btn btn-sm" href="#map">Open</a></li>
+            <li><span class="name">aisusdev/<strong>website</strong> <span class="chip">Public</span></span><span class="age muted"><i class="dot none"></i>No map yet</span><a class="btn btn-sm btn-primary" href="#repo-settings">Set up</a></li>
+          </ul>
+        </section>
+        <section class="card">
+          <div class="card-head"><h2>jianxi <span class="chip plan">Pro</span></h2><span class="muted">Personal account</span></div>
+          <ul class="rows"><li><span class="name">jianxi/<strong>dotfiles</strong> <span class="chip">Public</span></span><span class="age muted"><i class="dot"></i>Map yesterday</span><a class="btn btn-sm" href="#map">Open</a></li></ul>
+        </section>
+        <section class="card">
+          <div class="card-head"><h2>northwind <span class="chip free">Free</span></h2><a class="btn btn-sm" href="#start">Ask an admin to upgrade</a></div>
+          <p class="muted" style="padding-top:14px">No repository of northwind has a map in aisus cloud yet.</p>
+        </section>
+      </div>
+      <div class="band"><span>Your other private repositories arrive with the <b>aisus GitHub app</b>.</span></div>
+    </main>
+  </div>
+</section>
+
+<!-- 4. First run -->
+<section class="screen" id="start">
+  <p class="note"><b>/cloud/start</b>, <b>/cloud/start/&lt;account&gt;</b> and <b>/cloud/start/&lt;account&gt;/done</b> The three first-run steps get their own paths in place of <code>/?account=</code> and <code>/?upgraded=</code>. Stripe returns to the third. This shows step 1.</p>
+  <header class="app-header"><div class="wrap">
+    <a class="brand" href="#home"><span class="wordmark">aisus</span><span class="cloud-tag">cloud</span></a>
+    <div class="user"><span class="avatar"></span><span>jianxi</span><a href="#landing">Sign out</a></div>
+    <button class="menu" aria-label="Menu">≡</button>
+  </div></header>
+  <main class="main" style="margin:0 auto;max-width:880px">
+    <div class="stepper"><span class="now">1. Account</span><span>2. Plan</span><span>3. Repository</span></div>
+    <h1>Where will your maps live?</h1>
+    <p class="lede">Choose your own account or an organization you administer.</p>
+    <div class="choices">
+      <section class="card choice">
+        <div><h2>Pro for jianxi</h2><p class="muted" style="margin-top:6px">Keep the maps of your own repositories, with the price from the server's settings.</p></div>
+        <ul><li>Full map history</li><li>Pull request pages and diagrams</li><li>Read-only share links</li></ul>
+        <a class="btn btn-primary" href="#start">Choose jianxi</a>
+      </section>
+      <section class="card choice">
+        <div><h2>Team for aisusdev</h2><p class="muted" style="margin-top:6px">Keep aisusdev's maps for its members, with a team dashboard.</p></div>
+        <ul><li>Organization repositories</li><li>Team dashboard</li><li>People and seats</li></ul>
+        <a class="btn btn-primary" href="#start">Choose aisusdev</a>
+      </section>
+      <section class="card choice">
+        <div><h2>Team for northwind</h2><p class="muted" style="margin-top:6px">Only an admin of northwind can start Team for it.</p></div>
+        <a class="btn" href="#start">Copy link for an admin</a>
+      </section>
+    </div>
+    <p style="margin-top:28px"><a href="#home">Not now, go to my repositories</a></p>
+  </main>
+</section>
+
+<!-- 5. Account -->
+<section class="screen" id="account">
+  <p class="note"><b>/cloud/u/&lt;owner&gt;</b> One page per account, with tabs. Every account and repository path sits under <code>/cloud/u/</code>, so no account name meets <code>signin</code>, <code>settings</code> or <code>start</code>. Repositories comes with every plan, Dashboard with Team, and People with every plan. Without Team, Dashboard shows the plan gate.</p>
+  <header class="app-header"><div class="wrap">
+    <a class="brand" href="#home"><span class="wordmark">aisus</span><span class="cloud-tag">cloud</span></a>
+    <nav><a href="#home" aria-current="page">Repositories</a><a href="#settings">Settings</a></nav>
+    <div class="user"><span class="avatar"></span><span>jianxi</span><a href="#landing">Sign out</a></div>
+    <button class="menu" aria-label="Menu">≡</button>
+  </div></header>
+  <div class="shell">
+    <aside class="rail">
+      <h3>Accounts</h3>
+      <a href="#home">All repositories</a>
+      <a href="#account">jianxi <span class="chip plan">Pro</span></a>
+      <a href="#account" aria-current="page">aisusdev <span class="chip plan">Team</span></a>
+      <a href="#account">northwind <span class="chip free">Free</span></a>
+      <hr><a class="settings-link" href="#settings">Account settings</a>
+    </aside>
+    <main class="main">
+      <div class="head-row"><div><h1>aisusdev</h1><p class="lede">Organization on Team. 7 of 10 seats in use.</p></div><a class="btn" href="#settings">Manage billing</a></div>
+      <nav class="tabs"><a href="#account">Repositories</a><a href="#account" aria-current="page">Dashboard</a><a href="#people">People</a></nav>
+      <div class="figures">
+        <div class="fig"><b>3</b><span class="muted">Repositories with maps</span></div>
+        <div class="fig"><b>6</b><span class="muted">Stale boxes</span></div>
+        <div class="fig"><b>21</b><span class="muted">Files on no box</span></div>
+        <div class="fig"><b>1</b><span class="muted">Open violation</span></div>
+      </div>
+      <div class="stack">
+        <section class="card repo-card">
+          <div class="card-head"><h2><a href="#map">aisus</a></h2><span class="muted"><i class="dot"></i>Main map 2 hours ago · 18 boxes</span></div>
+          <div class="stats"><div><b>2</b><span class="muted">Stale</span></div><div><b>18</b><span class="muted">Uncovered</span></div><div><b>0</b><span class="muted">Violations</span></div><div><b>5 → 2</b><span class="muted">Stale, last 5 checks</span></div></div>
+          <div class="more"><span><b>Most changed:</b> Upload API (6), Viewer (4)</span><span><b>Recent pull requests:</b> <a href="#pull">#10</a> passes, <a href="#pull">#9</a> fails</span></div>
+        </section>
+        <section class="card repo-card">
+          <div class="card-head"><h2><a href="#map">infra</a> <span class="chip">Private</span></h2><span class="muted"><i class="dot stale"></i>Main map 9 days ago · 9 boxes</span></div>
+          <div class="stats"><div><b>4</b><span class="muted">Stale</span></div><div><b>3</b><span class="muted">Uncovered</span></div><div><b>1</b><span class="muted">Violations</span></div><div><b>1 → 4</b><span class="muted">Stale, last 5 checks</span></div></div>
+        </section>
+      </div>
+    </main>
+  </div>
+</section>
+
+<!-- 6. People -->
+<section class="screen" id="people">
+  <p class="note"><b>/cloud/u/&lt;owner&gt;?tab=people</b> The team page is a tab of the account page, so every name is free for a repository and P-21 closes. The old <code>/&lt;owner&gt;/team</code> redirects here.</p>
+  <header class="app-header"><div class="wrap">
+    <a class="brand" href="#home"><span class="wordmark">aisus</span><span class="cloud-tag">cloud</span></a>
+    <nav><a href="#home" aria-current="page">Repositories</a><a href="#settings">Settings</a></nav>
+    <div class="user"><span class="avatar"></span><span>jianxi</span><a href="#landing">Sign out</a></div>
+    <button class="menu" aria-label="Menu">≡</button>
+  </div></header>
+  <div class="shell">
+    <aside class="rail">
+      <h3>Accounts</h3>
+      <a href="#home">All repositories</a>
+      <a href="#account">jianxi <span class="chip plan">Pro</span></a>
+      <a href="#account" aria-current="page">aisusdev <span class="chip plan">Team</span></a>
+      <a href="#account">northwind <span class="chip free">Free</span></a>
+      <hr><a class="settings-link" href="#settings">Account settings</a>
+    </aside>
+    <main class="main">
+      <div class="head-row"><div><h1>aisusdev</h1><p class="lede">Organization on Team.</p></div></div>
+      <nav class="tabs"><a href="#account">Repositories</a><a href="#account">Dashboard</a><a href="#people" aria-current="page">People</a></nav>
+      <section class="card" style="margin-top:24px">
+        <div class="head-row"><div><h2>Seats</h2><p class="muted">7 of 10 seats in use.</p></div><a class="btn" href="#people">Manage seats</a></div>
+        <div class="meter"><i></i></div>
+      </section>
+      <table class="wide">
+        <thead><tr><th>Person</th><th>Role</th></tr></thead>
+        <tbody>
+          <tr><th>jianxi <span class="muted">Jianxi Chen</span></th><td>owner</td></tr>
+          <tr><th>dennie</th><td>member</td></tr>
+          <tr><th>xplus2g4</th><td>member</td></tr>
+        </tbody>
+      </table>
+      <p style="margin-top:16px"><a href="#people">Invite or remove people on GitHub</a></p>
+    </main>
+  </div>
+</section>
+
+<!-- 7. Map -->
+<section class="screen" id="map">
+  <p class="note"><b>/cloud/u/&lt;owner&gt;/&lt;repo&gt;</b> The viewer fills the window under the cloud header, without the rail. The panel gains tabs for Overview, Branches and History, and an owner sees Settings. <code>?branch=</code>, <code>?map=</code> and <code>?compare=</code> stay as they are. A repository whose maps are public opens without signing in.</p>
+  <header class="app-header"><div class="wrap">
+    <a class="brand" href="#home"><span class="wordmark">aisus</span><span class="cloud-tag">cloud</span></a>
+    <nav><a href="#home" aria-current="page">Repositories</a><a href="#settings">Settings</a></nav>
+    <div class="user"><span class="avatar"></span><span>jianxi</span><a href="#landing">Sign out</a></div>
+    <button class="menu" aria-label="Menu">≡</button>
+  </div></header>
+  <div class="map-page">
+    <div class="viewer">
+      <div class="crumb"><a href="#account">aisusdev</a> / <b>aisus</b></div>
+      <svg viewBox="0 0 820 460" role="img" aria-label="Map placeholder">
+        <g font-family="system-ui" font-size="16" fill="#182a22">
+          <rect x="20" y="20" width="220" height="80" rx="6" fill="#fffef9" stroke="#142b22" stroke-width="2"/><text x="40" y="66">VS Code extension</text>
+          <rect x="300" y="20" width="220" height="80" rx="6" fill="#fffef9" stroke="#142b22" stroke-width="2"/><text x="320" y="66">Viewer</text>
+          <rect x="580" y="20" width="220" height="80" rx="6" fill="#fffef9" stroke="#142b22" stroke-width="2"/><text x="600" y="66">Skills</text>
+          <rect x="160" y="200" width="220" height="80" rx="6" fill="#fffef9" stroke="#142b22" stroke-width="2"/><text x="180" y="246">Core model</text>
+          <rect x="460" y="200" width="220" height="80" rx="6" fill="#fffef9" stroke="#142b22" stroke-width="2"/><text x="480" y="246">Cloud client</text>
+          <rect x="460" y="360" width="220" height="80" rx="6" fill="#fffef9" stroke="#142b22" stroke-width="2"/><text x="480" y="406">Upload API</text>
+        </g>
+        <g stroke="#477646" stroke-width="2" fill="none"><path d="M130 100 L250 200"/><path d="M410 100 L300 200"/><path d="M690 100 L600 200"/><path d="M570 280 L570 360"/></g>
+      </svg>
+      <div class="toolbar"><button>+</button><button>−</button><button>Fit</button></div>
+    </div>
+    <aside class="panel">
+      <header><h2>aisusdev/aisus</h2><p class="muted">Map of main at <code>595a251</code>, 2 hours ago</p></header>
+      <nav class="tabs"><a href="#map" aria-current="page">Overview</a><a href="#map">Branches</a><a href="#map">History</a></nav>
+      <div class="body">
+        <div class="counts"><div><b>18</b>boxes</div><div><b>2</b>stale</div><div><b>18</b>uncovered</div><div><b>0</b>violations</div></div>
+        <h3>Recent pull requests</h3>
+        <ul class="hist"><li><a href="#pull">#10 PR diagrams</a><span class="status">passes</span></li><li><a href="#pull">#9 Cloud share</a><span class="status fail">fails</span></li></ul>
+        <h3>History</h3>
+        <ul class="hist"><li aria-current="true"><span>Today 09:12 · main</span><span class="muted">Shown</span></li><li><span>Oct 28 · main</span><a href="#map">Compare</a></li><li><span>Oct 26 · main</span><a href="#map">Compare</a></li></ul>
+        <div style="display:flex;gap:8px;flex-wrap:wrap"><a class="btn btn-sm" href="#repo-settings">Settings</a><a class="btn btn-sm" href="#repo-settings">Share link</a></div>
+      </div>
+    </aside>
+  </div>
+</section>
+
+<!-- 8. Pull request -->
+<section class="screen" id="pull">
+  <p class="note"><b>/cloud/u/&lt;owner&gt;/&lt;repo&gt;/pull/&lt;n&gt;</b> and <b>…/pull/&lt;n&gt;/d/&lt;id&gt;</b> The check and PRC-07's diagrams, as in <a href="pr-diagrams-mockup.html">pr-diagrams-mockup.html</a>, under the new prefix and the cloud header.</p>
+  <header class="app-header"><div class="wrap">
+    <a class="brand" href="#home"><span class="wordmark">aisus</span><span class="cloud-tag">cloud</span></a>
+    <nav><a href="#home" aria-current="page">Repositories</a><a href="#settings">Settings</a></nav>
+    <div class="user"><span class="avatar"></span><span>jianxi</span><a href="#landing">Sign out</a></div>
+    <button class="menu" aria-label="Menu">≡</button>
+  </div></header>
+  <div class="map-page">
+    <div class="viewer">
+      <div class="crumb"><a href="#account">aisusdev</a> / <a href="#map">aisus</a> / <b>#10</b></div>
+      <svg viewBox="0 0 820 460" role="img" aria-label="Pull request map placeholder">
+        <g font-family="system-ui" font-size="16" fill="#182a22">
+          <rect x="20" y="20" width="220" height="80" rx="6" fill="#fffef9" stroke="#cad1c6" stroke-width="2"/><text x="40" y="66" fill="#4f6055">VS Code extension</text>
+          <rect x="300" y="20" width="220" height="80" rx="6" fill="#eef5df" stroke="#477646" stroke-width="2"/><text x="320" y="66">Cloud uploads DB</text>
+          <rect x="580" y="20" width="220" height="80" rx="6" fill="#fff" stroke="#477646" stroke-width="2" stroke-dasharray="6 5"/><text x="600" y="66">skills/</text>
+          <rect x="300" y="200" width="220" height="80" rx="6" fill="#c8ef72" stroke="#142b22" stroke-width="2"/><text x="320" y="246">Upload API</text>
+        </g>
+        <g stroke="#477646" stroke-width="2" fill="none"><path d="M410 100 L410 200"/><path d="M690 100 L500 200" stroke-dasharray="6 5"/></g>
+      </svg>
+      <div class="toolbar"><button>+</button><button>−</button><button>Fit</button></div>
+    </div>
+    <aside class="panel">
+      <header><h2>#10 <span class="status">passes</span></h2><p class="muted">PR diagrams from a skill · checked <code>e73c658</code></p></header>
+      <nav class="tabs"><a href="#pull" aria-current="page">Diagrams</a><a href="#pull">Check</a></nav>
+      <div class="body">
+        <a class="dcard" href="#pull"><b>How does an upload reach the database?</b><span><code>595a251</code> · 1 hour ago · 4 boxes</span></a>
+        <a class="dcard" href="#pull"><b>Changes on the main map</b><span><code>e73c658</code> · 3 hours ago · 6 boxes</span></a>
+        <ul class="legend"><li><i class="sw changed"></i>Changed</li><li><i class="sw touched"></i>Uses changed code</li><li><i class="sw new"></i>New</li></ul>
+        <p><a href="#map">Main map</a> · <a href="#pull">Pull request on GitHub</a></p>
+      </div>
+    </aside>
+  </div>
+</section>
+
+<!-- 9. Repository settings -->
+<section class="screen" id="repo-settings">
+  <p class="note"><b>/cloud/u/&lt;owner&gt;/&lt;repo&gt;/settings</b> Replaces <code>/settings/&lt;owner&gt;/&lt;repo&gt;</code>. One section list on the left, and the first section holds the publish command a new repository needs.</p>
+  <header class="app-header"><div class="wrap">
+    <a class="brand" href="#home"><span class="wordmark">aisus</span><span class="cloud-tag">cloud</span></a>
+    <nav><a href="#home" aria-current="page">Repositories</a><a href="#settings">Settings</a></nav>
+    <div class="user"><span class="avatar"></span><span>jianxi</span><a href="#landing">Sign out</a></div>
+    <button class="menu" aria-label="Menu">≡</button>
+  </div></header>
+  <main class="main" style="margin:0 auto;max-width:1100px">
+    <p><a href="#account">aisusdev</a> / <a href="#map">aisus</a></p>
+    <h1 style="margin-top:8px">Repository settings</h1>
+    <div class="settings">
+      <nav class="sub"><a href="#repo-settings" aria-current="page">Publishing</a><a href="#repo-settings">Visibility</a><a href="#repo-settings">Share links</a><a href="#repo-settings">Maps</a><a href="#repo-settings">Uploads</a><a href="#repo-settings">Delete data</a></nav>
+      <div class="sections">
+        <section class="card">
+          <h2>Publishing</h2>
+          <p class="muted">The aisus Action uploads with OIDC and needs no token. <code>aisus.mjs publish</code> reads one from AISUS_TOKEN.</p>
+          <code class="cmd">AISUS_TOKEN=… node aisus.mjs publish</code>
+          <div class="line" style="margin-top:16px"><span><b>laptop</b> <span class="muted">created 2026-10-21</span></span><button class="btn btn-sm btn-danger">Revoke</button></div>
+          <div class="line"><span><b>ci-runner</b> <span class="muted">created 2026-10-02</span></span><button class="btn btn-sm btn-danger">Revoke</button></div>
+          <div style="margin-top:12px"><button class="btn btn-primary">New token</button></div>
+        </section>
+        <section class="card">
+          <h2>Visibility</h2>
+          <div class="line"><span>Anyone can open this repository's maps without signing in.</span><span class="toggle"><i></i>Public</span></div>
+        </section>
+        <section class="card">
+          <h2>Share links</h2>
+          <p class="muted">A share link shows the main map read-only to anyone who has it, until it expires or you revoke it.</p>
+          <div class="line"><span>Link 4 <span class="muted">expires 2026-11-13 09:00</span></span><button class="btn btn-sm btn-danger">Revoke</button></div>
+          <div style="margin-top:12px"><button class="btn">New share link</button></div>
+        </section>
+        <section class="card danger">
+          <h2>Delete this repository's data</h2>
+          <p class="muted">Removes every map, check and token of aisusdev/aisus at once.</p>
+          <div style="margin-top:12px"><button class="btn btn-danger">Delete all data</button></div>
+        </section>
+      </div>
+    </div>
+  </main>
+</section>
+
+<!-- 10. Account settings -->
+<section class="screen" id="settings">
+  <p class="note"><b>/cloud/settings</b> The user's own settings: organizations, plans and billing, export and deletion. The repository list moves to <code>/cloud</code>, where it already is.</p>
+  <header class="app-header"><div class="wrap">
+    <a class="brand" href="#home"><span class="wordmark">aisus</span><span class="cloud-tag">cloud</span></a>
+    <nav><a href="#home">Repositories</a><a href="#settings" aria-current="page">Settings</a></nav>
+    <div class="user"><span class="avatar"></span><span>jianxi</span><a href="#landing">Sign out</a></div>
+    <button class="menu" aria-label="Menu">≡</button>
+  </div></header>
+  <main class="main" style="margin:0 auto;max-width:1100px">
+    <div class="head-row"><div style="display:flex;align-items:center;gap:16px"><span class="avatar" style="width:64px;height:64px"></span><div><h1>jianxi</h1><p class="muted">Signed in with GitHub</p></div></div></div>
+    <div class="settings">
+      <nav class="sub"><a href="#settings" aria-current="page">Plans and billing</a><a href="#settings">Organizations</a><a href="#settings">Your data</a><a href="#settings">Delete account</a></nav>
+      <div class="sections">
+        <section class="card">
+          <h2>Plans and billing</h2>
+          <div class="line"><span><b>jianxi</b> <span class="chip plan">Pro</span></span><button class="btn btn-sm">Manage billing</button></div>
+          <div class="line"><span><b>aisusdev</b> <span class="chip plan">Team</span> <span class="muted">10 seats</span></span><button class="btn btn-sm">Manage billing</button></div>
+          <div class="line"><span><b>northwind</b> <span class="chip free">Free</span> <span class="muted">Team keeps northwind's maps for everyone in it.</span></span><button class="btn btn-sm btn-primary">Upgrade to Team</button></div>
+        </section>
+        <section class="card">
+          <h2>Organizations</h2>
+          <p>aisusdev, northwind</p>
+          <p class="muted" style="margin-top:6px">aisus reads them from GitHub at each sign-in.</p>
+        </section>
+        <section class="card">
+          <h2>Your data</h2>
+          <p class="muted">One JSON file with your account, your organizations, and every repository you own with its plan, tokens, share links and uploads. Token and link secrets are never kept.</p>
+          <div style="margin-top:12px"><a class="btn" href="#settings">Export your data</a></div>
+        </section>
+        <section class="card danger">
+          <h2>Delete your account</h2>
+          <p class="muted">Removes your account and every repository space it owns, with their maps, checks and tokens, at once.</p>
+          <div style="margin-top:12px"><button class="btn btn-danger">Delete my account</button></div>
+        </section>
+      </div>
+    </div>
+  </main>
+</section>
+
+<!-- 11. No access -->
+<section class="screen" id="nomap">
+  <p class="note"><b>Not found or no access</b> Any page under <code>/cloud</code> that the user may not open says so inside the cloud shell, the same way whether or not the repository exists.</p>
+  <header class="app-header"><div class="wrap">
+    <a class="brand" href="#home"><span class="wordmark">aisus</span><span class="cloud-tag">cloud</span></a>
+    <nav><a href="#home">Repositories</a><a href="#settings">Settings</a></nav>
+    <div class="user"><span class="avatar"></span><span>jianxi</span><a href="#landing">Sign out</a></div>
+    <button class="menu" aria-label="Menu">≡</button>
+  </div></header>
+  <main class="main" style="margin:0 auto;max-width:720px;text-align:center;padding-top:96px">
+    <h1>No map here for you</h1>
+    <p class="lede" style="margin:12px auto 0">acme/payments has no map in aisus cloud, or your GitHub account cannot read it.</p>
+    <div style="display:flex;gap:12px;justify-content:center;margin-top:28px;flex-wrap:wrap"><a class="btn btn-primary" href="#home">Go to your repositories</a><a class="btn" href="#signin">Sign in as someone else</a></div>
+  </main>
+</section>
+
+</body>
+</html>
