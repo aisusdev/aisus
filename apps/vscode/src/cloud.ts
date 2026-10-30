@@ -67,7 +67,7 @@ function repoContext(root: string): RepoContext | null {
 
 /** Opens the cloud's settings page, where a refused upload says what to change. */
 async function openCloudSettings(): Promise<void> {
-  await vscode.env.openExternal(vscode.Uri.parse(`${cloudUrl().replace(/\/+$/, "")}/settings`));
+  await vscode.env.openExternal(vscode.Uri.parse(`${cloudUrl().replace(/\/+$/, "")}/cloud/settings`));
 }
 
 async function githubToken(createIfNone: boolean): Promise<string | undefined> {

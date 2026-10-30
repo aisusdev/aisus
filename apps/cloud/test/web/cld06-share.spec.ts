@@ -5,7 +5,7 @@ import { MAP, signInAsDev, upload } from "./support";
 
 test("CLD-06 a share link opens a private map to anyone signed out, and stops once revoked", async ({ page, browser, request }) => {
   await upload(request, "acme/shared", { branch: "main", kind: "map", map: MAP, meta: { defaultBranch: "main" } });
-  await signInAsDev(page, "/settings/acme/shared");
+  await signInAsDev(page, "/cloud/u/acme/shared/settings");
   await page.getByRole("button", { name: "Share for 7 days" }).click();
   const link = page.locator(".new-share");
   await expect(link).toContainText("/s/shr_");

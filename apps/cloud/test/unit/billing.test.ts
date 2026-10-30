@@ -171,7 +171,7 @@ describe("Payments off", () => {
     expect((await planOfAccount(db, "dev")).id).toBe("free");
     expect((await planOfAccount(db, "acme")).id).toBe("free");
     const dev = await post(checkoutRoute, "dev");
-    expect(await dev.json()).toEqual({ url: "http://cloud.test/?upgraded=dev" });
+    expect(await dev.json()).toEqual({ url: "http://cloud.test/cloud/start/dev/done" });
     expect((await post(checkoutRoute, "acme")).status).toBe(200);
     expect((await planOfAccount(db, "dev")).id).toBe("pro");
     expect((await planOfAccount(db, "acme")).id).toBe("team");
@@ -199,7 +199,7 @@ describe("CLD-07 limits", () => {
   test("Free refuses every upload with 402, naming Pro and Team and where to upgrade, and Team keeps an organization's maps (changed by ADR 0067: Free kept one private repository and any public ones)", async () => {
     const refused = await upload("acme/one", "private");
     expect(refused.status).toBe(402);
-    expect(((await refused.json()) as { message: string }).message).toBe("Maps in aisus cloud come with Pro, for your own repositories, or Team, for an organization's. acme is on Free. Upgrade at http://cloud.test/settings.");
+    expect(((await refused.json()) as { message: string }).message).toBe("Maps in aisus cloud come with Pro, for your own repositories, or Team, for an organization's. acme is on Free. Upgrade at http://cloud.test/cloud/settings.");
     expect((await upload("acme/open-docs", "public")).status).toBe(402);
     await setPlan(db, "acme", { plan: "team" }, NOW);
     expect((await upload("acme/one", "private")).status).toBe(201);
@@ -212,7 +212,7 @@ describe("CLD-07 limits", () => {
     await setPlan(db, "acme", { plan: "pro" }, NOW);
     const refused = await upload("acme/one", "private");
     expect(refused.status).toBe(402);
-    expect(((await refused.json()) as { message: string }).message).toBe("An organization's maps come with the Team plan. acme is on Pro. Upgrade at http://cloud.test/settings.");
+    expect(((await refused.json()) as { message: string }).message).toBe("An organization's maps come with the Team plan. acme is on Pro. Upgrade at http://cloud.test/cloud/settings.");
   });
 
   test("Free keeps 30 days of history and makes no share links; without Stripe keys every account has every feature", async () => {

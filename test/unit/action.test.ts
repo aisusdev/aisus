@@ -135,7 +135,7 @@ describe("CLD-09 the Action's upload", () => {
       const headers = new Headers(init?.headers);
       calls.push({ url: String(url), auth: headers.get("authorization"), body: init?.body ? JSON.parse(String(init.body)) : null });
       if (String(url).startsWith("https://actions.test/")) return Response.json({ value: "oidc-jwt" });
-      return Response.json({ status: "accepted", id: 3, url: "/acme/shop/pull/42" }, { status: 201 });
+      return Response.json({ status: "accepted", id: 3, url: "/cloud/u/acme/shop/pull/42" }, { status: 201 });
     }) as typeof fetch;
     const result = await runAction({
       env: {
@@ -156,7 +156,7 @@ describe("CLD-09 the Action's upload", () => {
     ]);
     expect(calls[1]!.body).toMatchObject({ repo: "acme/shop", branch: "feature", kind: "check", meta: { pull: 42, defaultBranch: "main" }, check: { result: "pass" } });
     expect(calls[1]!.body.map.meta.title).toBe("Shop");
-    expect(result.comment).toContain("[See it on the map in aisus cloud](https://cloud.test/acme/shop/pull/42)");
+    expect(result.comment).toContain("[See it on the map in aisus cloud](https://cloud.test/cloud/u/acme/shop/pull/42)");
   });
 
   test("without upload nothing is sent; without the id-token permission the upload is skipped and said so", async () => {

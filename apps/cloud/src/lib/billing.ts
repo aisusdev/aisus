@@ -6,6 +6,7 @@ import { eq, sql } from "drizzle-orm";
 import { cloudRefusal, planFor, type BillingConfig, type PaidPlanId, type Plan, type PlanId } from "../../plans";
 import type { Database } from "../db/client";
 import { access, accountPlans, repositories, users } from "../db/schema";
+import { CLOUD, CLOUD_SETTINGS, startPath } from "./paths";
 
 /** How far a webhook's signed time may be from now. */
 export const SIGNATURE_TOLERANCE_S = 300;
@@ -70,8 +71,8 @@ export async function checkoutUrl(config: BillingConfig, account: string, plan: 
       mode: "subscription",
       "line_items[0][price]": config.prices[plan],
       "line_items[0][quantity]": String(seats),
-      success_url: `${site}/?upgraded=${encodeURIComponent(account)}`,
-      cancel_url: `${site}/`,
+      success_url: `${site}${startPath(account, true)}`,
+      cancel_url: `${site}${CLOUD}`,
       client_reference_id: account,
       "metadata[account]": account,
       "metadata[plan]": plan,
@@ -86,7 +87,7 @@ export async function checkoutUrl(config: BillingConfig, account: string, plan: 
 
 /** A Stripe Customer Portal page for `customer`, returning to `site`. */
 export async function portalUrl(config: BillingConfig, customer: string, site: string, fetcher?: typeof fetch): Promise<string> {
-  const session = await stripe(config, "/v1/billing_portal/sessions", { customer, return_url: `${site}/settings` }, fetcher);
+  const session = await stripe(config, "/v1/billing_portal/sessions", { customer, return_url: `${site}${CLOUD_SETTINGS}` }, fetcher);
   if (typeof session["url"] !== "string") throw new Error("Stripe sent no portal page.");
   return session["url"];
 }

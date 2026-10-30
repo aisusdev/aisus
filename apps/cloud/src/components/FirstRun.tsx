@@ -1,7 +1,9 @@
 // P-7: the first run after signing in. Step 1 picks the account, step 2 starts its plan through Stripe
-// Checkout, and step 3 follows Checkout with the account's repositories to set up.
+// Checkout, and step 3 follows Checkout with the account's repositories to set up. CLD-20 gives each step
+// its own path under /cloud/start.
 import { planToBuy, type BillingConfig, type PaidPlanId } from "../../plans";
 import { FIRST_RUN_COOKIE, type HomeAccount } from "../lib/home";
+import { CLOUD, startPath } from "../lib/paths";
 import { CopyButton, PlanButton, SkipFirstRun } from "./Actions";
 import { RepositoryRows } from "./Home";
 
@@ -12,8 +14,14 @@ const OFFERS: Readonly<Record<PaidPlanId, { label: string; summary: (account: st
 
 function Step({ n, title, lede, children }: { n: number; title: string; lede: string; children: React.ReactNode }) {
   return (
-    <main className="page first-run">
-      <p className="first-run__step">Step {n} of 3</p>
+    <main className="page cloud-main cloud-main--narrow first-run">
+      <ol className="stepper" aria-label={`Step ${n} of 3`}>
+        {["Account", "Plan", "Repository"].map((label, index) => (
+          <li key={label} className={index + 1 < n ? "done" : index + 1 === n ? "now" : undefined} aria-current={index + 1 === n ? "step" : undefined}>
+            {index + 1}. {label}
+          </li>
+        ))}
+      </ol>
       <h1>{title}</h1>
       <p className="first-run__lede">{lede}</p>
       {children}
@@ -47,11 +55,11 @@ export function PickAccount({ accounts, login, billing }: { accounts: HomeAccoun
                   )}
                 </div>
                 {account.admin ? (
-                  <a className="button button--primary" href={`/?account=${encodeURIComponent(account.login)}`}>
+                  <a className="button button--primary" href={startPath(account.login)}>
                     Choose {account.login}
                   </a>
                 ) : (
-                  <CopyButton path={`/?account=${encodeURIComponent(account.login)}`} label={`Copy link for an admin of ${account.login}`} />
+                  <CopyButton path={startPath(account.login)} label={`Copy link for an admin of ${account.login}`} />
                 )}
               </li>
             );
@@ -88,7 +96,7 @@ export function StartPlan({ account, login, billing }: { account: HomeAccount; l
         <PlanButton url="/api/v1/billing/checkout" account={account.login} label={billing.payments ? "Continue to checkout" : `Start ${OFFERS[offer].label}`} primary />
       </section>
       <p className="first-run__foot">
-        <a href="/">Choose another account</a> <SkipFirstRun cookie={FIRST_RUN_COOKIE} label="Not now, keep using the free extension" />
+        <a href={startPath()}>Choose another account</a> <SkipFirstRun cookie={FIRST_RUN_COOKIE} label="Not now, keep using the free extension" />
       </p>
     </Step>
   );
@@ -107,7 +115,7 @@ export function SetUpRepository({ account }: { account: HomeAccount }) {
         <RepositoryRows account={account} />
       </section>
       <p className="first-run__foot">
-        <a href="/">Go to your repositories</a>
+        <a href={CLOUD}>Go to your repositories</a>
       </p>
     </Step>
   );

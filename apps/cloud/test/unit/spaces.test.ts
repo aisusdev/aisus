@@ -77,7 +77,7 @@ describe("CLD-14 spaces", () => {
     expect(((await refused.json()) as { message: string }).message).toContain("needs write access");
     const shared = await upload("gho_ana", { branch: "feature", space: "team", map: titled("ana's feature") });
     expect(shared.status).toBe(201);
-    expect(await shared.json()).toMatchObject({ url: "/acme/shop?branch=feature" });
+    expect(await shared.json()).toMatchObject({ url: "/cloud/u/acme/shop?branch=feature" });
 
     expect((await pull("gho_bo", "branch=feature")).body).toMatchObject({ personal: { space: "personal", map: { meta: { title: "bo's draft" } } }, team: { map: { meta: { title: "ana's feature" } } } });
     expect((await pull("gho_ana", "branch=feature")).body["personal"]).toBeNull();
@@ -102,7 +102,7 @@ describe("CLD-14 spaces", () => {
     const fourth = await upload("gho_bo", { repo: "acme/lab", branch: "b", space: "personal" });
     expect(fourth.status).toBe(402);
     expect(((await fourth.json()) as { message: string }).message).toBe(
-      "Your personal space on Free holds 3 branches: acme/lab a, acme/shop a, acme/shop b. Pro keeps every branch. Upgrade at http://cloud.test/settings.",
+      "Your personal space on Free holds 3 branches: acme/lab a, acme/shop a, acme/shop b. Pro keeps every branch. Upgrade at http://cloud.test/cloud/settings.",
     );
     await setPlan(db, "bo", { plan: "pro" });
     expect((await upload("gho_bo", { repo: "acme/lab", branch: "b", space: "personal" })).status).toBe(201);

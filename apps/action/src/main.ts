@@ -68,7 +68,7 @@ async function uploadCheck(context: ActionContext, pull: NonNullable<ReturnType<
   const token = await actionsOidcToken(context.env, context.fetcher);
   const result = await postUpload(cloud, token, payload, context.fetcher);
   if (!result.ok) return { ok: false, reason: result.message };
-  return { ok: true, page: `${cloud.replace(/\/+$/, "")}/${repo}/pull/${pull.number}` };
+  return { ok: true, page: `${cloud.replace(/\/+$/, "")}/cloud/u/${repo}/pull/${pull.number}` };
 }
 
 /** CLD-17: a push event's branch, pushed commit and default branch, or `null`. */

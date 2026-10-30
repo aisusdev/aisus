@@ -7,15 +7,15 @@ import { BILLED_APP, signInAsDev, subscribe } from "./support";
 test.use({ baseURL: `http://127.0.0.1:${BILLED_APP}` });
 
 test("CLD-18 an owner of a subscribed organization sees its people, seats and Manage seats, and a viewer sees the page without Manage seats", async ({ page, request }) => {
-  await signInAsDev(page, "/guild/guildhall");
-  await page.goto("/crew/crewlog");
-  await page.goto("/settings");
+  await signInAsDev(page, "/cloud/u/guild/guildhall");
+  await page.goto("/cloud/u/crew/crewlog");
+  await page.goto("/cloud/settings");
   await page.locator(".plans li", { hasText: /^guild:/ }).getByRole("button", { name: "Upgrade to Team" }).click();
-  await page.waitForURL("**/?upgraded=guild");
+  await page.waitForURL("**/cloud/start/guild/done");
 
-  await page.goto("/guild");
-  await page.getByRole("link", { name: "People and seats" }).click();
-  await page.waitForURL("**/guild/team");
+  await page.goto("/cloud/u/guild");
+  await page.getByRole("navigation", { name: "guild tabs" }).getByRole("link", { name: "People" }).click();
+  await page.waitForURL("**/cloud/u/guild?tab=people");
   await expect(page.locator(".team tbody th")).toHaveText(["dev · Dev Example"]);
   await expect(page.locator(".team tbody td")).toHaveText(["owner"]);
   await expect(page.getByRole("link", { name: "Invite or remove people on GitHub" })).toHaveAttribute("href", "https://github.com/orgs/guild/people");
@@ -24,7 +24,7 @@ test("CLD-18 an owner of a subscribed organization sees its people, seats and Ma
   await expect(page.getByRole("heading", { name: "Billing portal" })).toBeVisible();
 
   await subscribe(request, "crew");
-  await page.goto("/crew/team");
+  await page.goto("/cloud/u/crew?tab=people");
   await expect(page.locator(".team tbody th")).toHaveText(["dev · Dev Example"]);
   await expect(page.locator(".team tbody td")).toHaveText(["viewer"]);
   await expect(page.locator(".team__seats")).toHaveText("1 seat in use.");

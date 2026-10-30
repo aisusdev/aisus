@@ -1,20 +1,25 @@
-// The signed-out landing page keeps the interactive map and product claims.
+// The landing page keeps the interactive map and product claims. Signed in, its sign-in button opens the cloud (CLD-20).
+import { CLOUD, signInPath } from "../lib/paths";
 import { CommandPanel } from "./CommandPanel";
 import { ProductFrame } from "./ProductFrame";
 
-function Buttons() {
+function Buttons({ signedIn }: { signedIn: boolean }) {
   return (
     <div className="cta">
       <a className="btn btn-primary" href="/install" data-umami-event="install">
         <svg className="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11m0 0-4.5-4.5M12 15l4.5-4.5M5 19.5h14" /></svg>
         Download for VS Code
       </a>
-      <a className="btn" href="/signin" data-umami-event="sign-in">
+      {signedIn ? (
+        <a className="btn" href={CLOUD}>Open cloud</a>
+      ) : (
+      <a className="btn" href={signInPath()} data-umami-event="sign-in">
         <svg className="i" viewBox="0 0 24 24" aria-hidden="true">
           <path fill="currentColor" stroke="none" d="M12 .6C5.7.6.6 5.7.6 12c0 5 3.3 9.3 7.8 10.8.6.1.8-.2.8-.6v-2c-3.2.7-3.9-1.5-3.9-1.5-.5-1.3-1.3-1.3-1.3-1.7-1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1 1.8 2.7 1.3 3.4 1 .1-.8.4-1.3.7-1.6-2.6-.3-5.2-1.3-5.2-5.7 0-1.3.4-2.3 1.2-3.1-.1-.3-.5-1.5.1-3.1 0 0 1-.3 3.2 1.2a11 11 0 0 1 5.8 0c2.2-1.5 3.2-1.2 3.2-1.2.6 1.6.2 2.8.1 3.1.7.8 1.2 1.8 1.2 3.1 0 4.4-2.7 5.4-5.3 5.7.4.4.8 1.1.8 2.1v3.2c0 .3.2.7.8.6A11.4 11.4 0 0 0 23.4 12C23.4 5.7 18.3.6 12 .6Z" />
         </svg>
         Sign in with GitHub
       </a>
+      )}
     </div>
   );
 }
@@ -70,7 +75,7 @@ function CloudPreview() {
   );
 }
 
-export function Landing() {
+export function Landing({ signedIn }: { signedIn: boolean }) {
   return (
     <main className="landing">
       <section className="hero">
@@ -78,7 +83,7 @@ export function Landing() {
           <h1 className="h1"><span>Trade some of your agent&apos;s output</span> <span className="l2">for understanding.</span></h1>
           <div className="hero-aside">
             <p className="lead">Coding agents write more code than a person can follow. aisus is a toolkit for sustainable development. It helps you keep up with the code you ship.</p>
-            <Buttons />
+            <Buttons signedIn={signedIn} />
           </div>
         </div>
       </section>
@@ -134,7 +139,7 @@ export function Landing() {
           <div className="landing-close-copy">
             <h2>Open your repository as a map.</h2>
             <p>Install the extension and press Generate. Then click a box.</p>
-            <Buttons />
+            <Buttons signedIn={signedIn} />
           </div>
           <CommandPanel title="Agent skill" note="The focus is optional. Generate also runs from the editor.">
             <span className="terminal-comment"># Claude Code</span>{"\n"}

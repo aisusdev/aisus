@@ -102,8 +102,8 @@ describe("P-7 buying a plan", () => {
     expect((await checkout("acme")).status).toBe(200);
     expect((await checkout("crew")).status).toBe(403);
     expect(sent.map((params) => [params.get("metadata[account]"), params.get("success_url"), params.get("cancel_url")])).toEqual([
-      ["dev", "http://cloud.test/?upgraded=dev", "http://cloud.test/"],
-      ["acme", "http://cloud.test/?upgraded=acme", "http://cloud.test/"],
+      ["dev", "http://cloud.test/cloud/start/dev/done", "http://cloud.test/cloud"],
+      ["acme", "http://cloud.test/cloud/start/acme/done", "http://cloud.test/cloud"],
     ]);
   });
 });

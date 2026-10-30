@@ -6,12 +6,12 @@ import { MAP, signInAsDev, upload } from "./support";
 
 test("CLD-13 the audit log lists each upload, and Settings exports the owner's data as JSON", async ({ page, request }) => {
   await upload(request, "acme/audited", { branch: "main", kind: "map", map: MAP, meta: { defaultBranch: "main" } });
-  await signInAsDev(page, "/settings/acme/audited");
+  await signInAsDev(page, "/cloud/u/acme/audited/settings");
   const entry = page.locator(".audit tbody tr").first();
   await expect(entry).toContainText("GitHub Actions OIDC for acme/audited");
   await expect(entry).toContainText("KB");
 
-  await page.goto("/settings");
+  await page.goto("/cloud/settings");
   const download = page.waitForEvent("download");
   await page.getByRole("link", { name: "Export your data" }).click();
   const file = await (await download).path();

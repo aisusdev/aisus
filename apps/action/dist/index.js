@@ -10860,7 +10860,7 @@ async function uploadCheck(context, pull, report, run2) {
   const token = await actionsOidcToken(context.env, context.fetcher);
   const result = await postUpload(cloud, token, payload, context.fetcher);
   if (!result.ok) return { ok: false, reason: result.message };
-  return { ok: true, page: `${cloud.replace(/\/+$/, "")}/${repo}/pull/${pull.number}` };
+  return { ok: true, page: `${cloud.replace(/\/+$/, "")}/cloud/u/${repo}/pull/${pull.number}` };
 }
 function pushEvent(event) {
   const typed = event;
