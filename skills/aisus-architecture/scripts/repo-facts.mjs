@@ -995,7 +995,7 @@ function repoSize(root, env = process.env, limit = COUNT_LIMIT) {
 }
 
 // packages/core/agent/repo-facts.ts
-var SKILL_VERSION = "0.3.0";
+var SKILL_VERSION = "0.3.1";
 var USAGE = "repo-facts.mjs: usage: node repo-facts.mjs [--focus <text>] [--parent <run>] [--kind sequence]\n";
 function main(args) {
   let focus = "";

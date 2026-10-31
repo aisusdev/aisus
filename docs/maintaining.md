@@ -26,7 +26,7 @@ To try your build, install it into VS Code and reload. Cursor installs the same 
 ```bash
 npm ci
 npm run package
-code --install-extension aisus-0.3.0.vsix
+code --install-extension aisus-0.3.1.vsix
 ```
 
 ## The map viewer

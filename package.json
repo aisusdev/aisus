@@ -1,6 +1,6 @@
 {
   "name": "@aisus/workspace",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "private": true,
   "description": "The aisus repository: shared packages, the apps that ship them, and the gates.",
   "engines": {
