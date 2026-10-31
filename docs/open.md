@@ -1,6 +1,6 @@
 # Open problems and unfinished work
 
-Every known problem and unfinished piece of work, with an ID that never changes. Add new items with the next free ID. Remove an item when it is solved, and record its ID and commit in your shift doc. The next free ID is P-32.
+Every known problem and unfinished piece of work, with an ID that never changes. Add new items with the next free ID. Remove an item when it is solved, and record its ID and commit in your shift doc. The next free ID is P-34.
 
 ## Broken now
 
@@ -15,6 +15,8 @@ Every known problem and unfinished piece of work, with an ID that never changes.
 - **P-29 The Bug hunt leaderboard shows an end time for an active run.** `packages/viewer/session.ts` prints `endedAt` whenever it is set. An active run showed "2026-10-30 01:02", and the value moved forward as the run went on. The time is the UTC part of the ISO string, while the user's clock read 09:02.
 - **P-30 Two places break the words rules.** The sidebar's view title reads "Aisus" in VS Code 1.141, though `apps/vscode/package.json` names the container and the view "aisus". Investigation should find whether VS Code capitalises the title and whether a different field avoids it. `apps/vscode/src/learn.ts` shows em dashes in the Bug hunt mode's description, the task prompt's validation message and the hook warning.
 - **P-31 Two layout faults in the extension.** In the focused map "Ask: sidebar question to cited answer", an arrow and its "streamed answer" label cross the "VS Code extension host" group label. In the sidebar, a citation wraps inside its line number, as `staleness.ts:1` above `09`.
+- **P-32 The cloud offers no way to choose a branch when the default branch has no map.** `apps/cloud/src/app/cloud/u/[owner]/[repo]/page.tsx` returns "No map from main yet" before it draws the Branches panel, though it has already loaded `teamBranches`. A map published from another branch opens only by typing `?branch=<name>` into the address. The Maps list in the repository's settings shows each upload's branch and commit with Delete and no link to the map. The fix is planned in [shifts/2026-11-01-dennie.md](shifts/2026-11-01-dennie.md).
+- **P-33 Publishing a map takes too many steps.** From VS Code, Share to aisus cloud needs `aisus.cloud.enabled`, which is off by default. It sits in a map's ⋯ menu and asks for a space, shows the JSON and asks again before it sends. From a terminal, `aisus.mjs publish` needs the CLI downloaded from a release first. The command aisus.dev shows assumes the file is already in the folder. A map should publish with one click on a button beside it in VS Code. The fix is planned in [shifts/2026-11-01-dennie.md](shifts/2026-11-01-dennie.md).
 
 ## Unfinished work
 
