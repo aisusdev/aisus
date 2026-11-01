@@ -6,9 +6,10 @@ test("CLD-08 landing, guide, pricing and privacy render without any third-party 
   const hosts = new Set<string>();
   page.on("request", (request) => hosts.add(new URL(request.url()).host));
   await page.goto("/");
-  await expect(page.locator("h1")).toHaveText("Trade some of your agent's output for understanding.");
-  await expect(page.getByRole("img", { name: /aisus map of a checkout service/ })).toBeVisible();
-  await expect(page.locator("#start a[href='/install']")).toHaveAttribute("data-umami-event", "install");
+  await expect(page.locator("h1")).toHaveText("See your codebase as a map");
+  const hero = page.locator(".home-hero");
+  await expect(hero.getByRole("link", { name: "Get Started" })).toHaveAttribute("href", "/get-started");
+  await expect(hero.getByRole("link", { name: "Sign in" })).toHaveAttribute("href", "/cloud/signin");
   await expect(page.getByRole("link", { name: "Get Started" }).first()).toHaveAttribute("href", "/get-started");
   await expect(page.locator(".site-header .brand img")).toHaveAttribute("src", "/aisus-wordmark.png");
   await expect(page.locator("link[rel='icon']")).toHaveAttribute("href", /icon\.png/);
@@ -38,12 +39,27 @@ test("CLD-08 the billed app's pricing shows Pro's and Team's price texts", async
   await expect(pricing).toContainText("Team costs $10 per seat a month for an organization, with the team dashboard.");
 });
 
-test("CLD-08 the first map can be explored at phone width", async ({ page }) => {
+test("CLD-08 choosing the Sequence diagram tab presses it and shows the sequence demo", async ({ page }) => {
+  await page.goto("/");
+  const tab = page.getByRole("button", { name: "Sequence diagram" });
+  await tab.click();
+  await expect(tab).toHaveAttribute("aria-pressed", "true");
+  await expect(page.getByRole("img", { name: /^A sequence diagram of generating a map/ })).toBeVisible();
+});
+
+test("CLD-08 opening an FAQ question shows its answer", async ({ page }) => {
+  await page.goto("/");
+  const answer = page.getByText("Source files stay on your machine or CI runner.");
+  await expect(answer).toBeHidden();
+  await page.getByText("Does my code leave my machine?").click();
+  await expect(answer).toBeVisible();
+});
+
+test("CLD-08 at phone width the homepage is no wider than the window and the header keeps the brand and Get Started", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 900 });
   await page.goto("/");
-  const canvas = page.locator(".pf-canvas");
-  await expect(canvas).toBeVisible();
-  expect(await canvas.evaluate((element) => element.scrollWidth - element.clientWidth)).toBeGreaterThan(100);
-  await page.locator(".pf-node").filter({ hasText: "Payments" }).click();
-  await expect(page.locator(".pf-node.sel")).toContainText("Payments");
+  await expect(page.locator("h1")).toBeVisible();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBe(0);
+  await expect(page.locator(".site-header .brand img")).toBeVisible();
+  await expect(page.locator(".site-header").getByRole("link", { name: "Get Started" })).toBeVisible();
 });

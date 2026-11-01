@@ -1,6 +1,26 @@
 # The aisus copy
 
-The landing page in `cloud/src/components/Landing.tsx` already uses the landing text verbatim. The other parts below are written but not yet applied.
+The landing page in `apps/cloud/src/components/Landing.tsx` uses the homepage text below verbatim, in the order [homepage.md](homepage.md) gives. The other parts below are written but not yet applied.
+
+## Homepage
+
+The headline is "See your codebase as a map". The line under it reads: "Coding agents write more code than a person can follow. aisus draws your repository as a map whose boxes open the code they cite." The buttons read Get Started and Sign in.
+
+The feature tabs read Interactive diagram, Follow guided tour, Sequence diagram and /aisus-pr. The sentence under them follows the active tab.
+
+1. Click a box to open the lines it cites. Every save checks each box against its code.
+2. Your agent writes a tour through the map. Each stop opens its code and asks you a question.
+3. See the calls in a flow, in order. Each message opens the line that makes it.
+4. Run /aisus-pr on a branch. The pull request gets a diagram of what it changes.
+
+The FAQ asks six questions, and `Landing.tsx` holds their answers.
+
+1. How do I start using aisus?
+2. Which coding agents does it work with?
+3. Does my code leave my machine?
+4. What does checking a map cost?
+5. Can I use it in IntelliJ?
+6. Is aisus free?
 
 ## Positioning
 
@@ -26,4 +46,4 @@ Coding agents write more code than the people who keep it can follow. aisus trad
 
 ## Rules the copy follows
 
-The owner asked for half the words, prose only, nothing smaller than body text, and no slop. The landing page stays under 340 words outside navigation, buttons, the product picture and footer links. It uses no bullet lists, eyebrow labels, captions or fine print. It avoids hype words such as seamless, powerful, unlock and leverage, rhetorical questions, em dashes and exclamation marks.
+The owner asked for half the words, prose only, nothing smaller than body text, and no slop. The landing page stays under 340 words outside navigation, buttons, the product picture, the FAQ answers and footer links. It uses no bullet lists, eyebrow labels, captions or fine print. It avoids hype words such as seamless, powerful, unlock and leverage, rhetorical questions, em dashes and exclamation marks.
