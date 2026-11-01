@@ -9175,7 +9175,7 @@ function listErrors(errors) {
   }
   return listed;
 }
-var SKILL_VERSION = "0.3.1";
+var SKILL_VERSION = "0.3.2";
 function record(location, patch) {
   updateRunRecord(location.root, dirname4(location.draft), patch, () => newRunRecord({ focus: "", skillVersion: SKILL_VERSION }));
 }

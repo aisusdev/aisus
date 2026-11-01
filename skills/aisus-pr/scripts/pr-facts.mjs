@@ -293,7 +293,7 @@ function writeRunRecord(root, runDir, record) {
 }
 
 // packages/core/agent/pr-facts.ts
-var SKILL_VERSION = "0.3.1";
+var SKILL_VERSION = "0.3.2";
 var MAX_INSTRUCTIONS = 500;
 var USAGE = "pr-facts.mjs: usage: node pr-facts.mjs --pull <n> --base <branch> --head <sha> [--instructions <text>]\n";
 function main(args) {
