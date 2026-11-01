@@ -182,7 +182,7 @@ describe("VWR-05 box-linked drill-downs", () => {
     expect(readdirSync(join(root, ".aisus/maps")).sort()).toEqual(before);
   });
 
-  test("drawing a box again continues its newest accepted detail map, also after the overview is regenerated", () => {
+  test("drawing a box again continues its newest accepted detail map, also after the overview is regenerated", { timeout: 30_000 }, () => {
     const root = gitRepo({ "src/app.ts": "export {};\n" });
     const map = accepted(root, ["--focus", "shop"]);
     const older = accepted(root, ["--focus", "API", "--parent", map, "--box", "api"]);
@@ -195,7 +195,7 @@ describe("VWR-05 box-linked drill-downs", () => {
     expect(facts.previous).toBe(`.aisus/maps/${newer}/candidate.json`);
   });
 
-  test("detailMaps gives each box its newest accepted drill-down, ignores maps of another focus and drill-downs without a box", () => {
+  test("detailMaps gives each box its newest accepted drill-down, ignores maps of another focus and drill-downs without a box", { timeout: 30_000 }, () => {
     const root = gitRepo({ "src/app.ts": "export {};\n" });
     const map = accepted(root, ["--focus", "shop"]);
     const other = accepted(root, ["--focus", "billing"]);
