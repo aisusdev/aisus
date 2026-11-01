@@ -48,6 +48,7 @@ function state(fields: Partial<HomeState> = {}): HomeState {
     health: null,
     serverNow: NOW.toISOString(),
     ...fields,
+    mapTree: fields.mapTree ?? (fields.maps ?? []).map((item) => ({ item, earlier: [], children: [] })),
   };
 }
 
@@ -104,7 +105,7 @@ describe("UI-01 sidebar states", () => {
     expect(container.querySelector<HTMLTextAreaElement>(".composer__focus")!.value).toBe("half typed");
   });
 
-  test("maps: newest first with focus, agent, age and boxes; the title opens, and ⋯ shows Refresh and Delete, which post the file", () => {
+  test("maps: newest first with age and agent below and boxes on the right; the title opens, and ⋯ shows Refresh and Delete, which post the file", () => {
     home.render(state({ maps: [map({ focus: "payments" }), map({ title: null, runFolder: "architecture-old-20261001-090000", file: "/r/old.json", agent: null, boxes: 1, createdAt: "2026-10-01T09:00:00Z" })] }));
     expect(text(".current__status")).toEqual(["Map from 2 days ago · 16 boxes"]);
     const more = container.querySelector<HTMLButtonElement>(".map__more")!;
@@ -117,7 +118,8 @@ describe("UI-01 sidebar states", () => {
     home.render(state({ maps: [map({ focus: "payments" }), map({ title: null, runFolder: "architecture-old-20261001-090000", file: "/r/old.json", agent: null, boxes: 1, createdAt: "2026-10-01T09:00:00Z" })] }));
     expect(actions().hidden).toBe(false);
     expect(text(".map__title")).toEqual(["aisus", "architecture-old-20261001-090000"]);
-    expect(text(".map__meta")).toEqual(["payments · Claude Code · 2 days ago · 16 boxes", "17 days ago · 1 box"]);
+    expect(text(".map__meta")).toEqual(["2 days ago · Claude Code", "17 days ago"]);
+    expect(text(".map__count")).toEqual(["16 boxes", "1 box"]);
     click("Delete");
     container.querySelector<HTMLButtonElement>(".map__title")!.click();
     click("Refresh");
@@ -126,6 +128,28 @@ describe("UI-01 sidebar states", () => {
       { type: "openMap", file: map({}).file },
       { type: "refreshMap", file: map({}).file },
     ]);
+  });
+
+  test("VWR-07 detail maps sit under their map, named by box and marked; a closed map stays closed, and earlier versions open on request", () => {
+    const overview = map({ title: "aisus cloud: overview", runFolder: "architecture-cloud-20261016-120000", file: "/r/cloud.json" });
+    const older = map({ title: "aisus cloud: first try", runFolder: "architecture-cloud-20261015-120000", file: "/r/cloud-old.json" });
+    const auth = map({ title: "aisus cloud: sign-in and access", runFolder: "architecture-auth-20261016-130000", file: "/r/auth.json", parent: overview.runFolder, parentBox: "auth", detailOf: "Sign-in and access", boxes: 9 });
+    const tree = [{ item: overview, earlier: [older], children: [{ item: auth, earlier: [], children: [] }] }];
+    const shown = state({ maps: [auth, overview, older], mapTree: tree });
+    home.render(shown);
+    expect(text(".current__title")).toEqual(["aisus cloud: overview"]);
+    expect(text(".maps__list > .map > .map__top .map__title")).toEqual(["aisus cloud: overview"]);
+    expect(text(".map__children .map--detail .map__title")).toEqual(["Sign-in and access"]);
+    expect(text(".map--detail .map__mark")).toEqual(["↘"]);
+    expect(text(".maps__list > .map > .map__meta .map__mark")).toEqual(["1 detailed"]);
+    click("1 earlier version");
+    expect(text(".map__children .map__title")).toEqual(["Sign-in and access", "aisus cloud: first try"]);
+    container.querySelector<HTMLButtonElement>(".map--detail .map__title")!.click();
+    expect(posted).toEqual([{ type: "openMap", file: auth.file }]);
+    container.querySelector<HTMLButtonElement>(".map__toggle")!.click();
+    expect(container.querySelector(".map__children")).toBeNull();
+    home.render(shown);
+    expect(container.querySelector(".map__children")).toBeNull();
   });
 
   test("CLD-12 with aisus cloud on, a map's actions add Share to aisus cloud, which posts the file", () => {

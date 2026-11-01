@@ -800,6 +800,86 @@ select.header__folder,
 
 .map__top .map__title {
   flex: 1;
+  min-width: 0;
+}
+
+/* VWR-07: the Maps page's tree. Detail maps sit under their map behind a guide line. */
+
+.map__toggle {
+  flex: none;
+  width: 16px;
+  padding: 0;
+  font: inherit;
+  text-align: center;
+  color: var(--vscode-foreground);
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.map__toggle--none {
+  cursor: default;
+}
+
+.map__toggle:focus-visible {
+  outline: 1px solid var(--vscode-focusBorder);
+  outline-offset: -1px;
+}
+
+.map--detail .map__title {
+  font-weight: 400;
+}
+
+.map__mark {
+  flex: none;
+  padding: 0 4px;
+  border-radius: 8px;
+  color: #1f3d22;
+  background: #c8ef72;
+  white-space: nowrap;
+}
+
+.map__count {
+  flex: none;
+  color: var(--vscode-descriptionForeground);
+  white-space: nowrap;
+}
+
+.map__meta,
+.map > .map__actions {
+  padding-left: 22px;
+}
+
+.map__meta {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.map__children {
+  margin: 2px 0 0 7px;
+  padding: 0 0 0 14px;
+  list-style: none;
+  border-left: 1px solid var(--vscode-tree-indentGuidesStroke, var(--vscode-widget-border, rgba(128, 128, 128, 0.4)));
+}
+
+.map__children .map {
+  padding: 2px 0;
+}
+
+.map__earlier-line {
+  padding: 2px 0 2px 22px;
+}
+
+/* The ⋯ button shows on hover, on focus and while open. */
+.map__more {
+  opacity: 0;
+}
+
+.map__top:hover .map__more,
+.map__more:focus-visible,
+.map__more[aria-expanded="true"] {
+  opacity: 1;
 }
 
 .map__more {

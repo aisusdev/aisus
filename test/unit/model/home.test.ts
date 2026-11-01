@@ -3,7 +3,7 @@ import { mkdirSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, test } from "vitest";
 import { clock, freshnessHeader, mapStatus, relativeAge, runFigures, statusText, tokenCount } from "@aisus/core/model/home";
-import { listMaps } from "@aisus/core/model/maps";
+import { listMaps, mapTree } from "@aisus/core/model/maps";
 import type { MapItem, RunCard } from "@aisus/core/model/messages";
 import { newRunRecord, newRunSince, runFolderNames, writeRunRecord } from "@aisus/core/model/runRecord";
 import { put, tempDir } from "../support/temp";
@@ -90,6 +90,48 @@ describe("UI-01 maps list", () => {
     const root = tempDir();
     put(root, ".aisus/maps/architecture-bad-20261001-090000/candidate.json", "{ not json");
     expect(listMaps(root).map((item) => [item.title, item.boxes])).toEqual([[null, null]]);
+  });
+});
+
+describe("VWR-07 the Maps page's tree", () => {
+  const item = (runFolder: string, parent?: string, parentBox?: string): MapItem => map({ runFolder, file: `/r/${runFolder}.json`, ...(parent === undefined ? {} : { parent }), ...(parentBox === undefined ? {} : { parentBox }) });
+  const shape = (nodes: ReturnType<typeof mapTree>): unknown[] => nodes.map((node) => [node.item.runFolder, node.earlier.map((older) => older.runFolder), shape(node.children)]);
+
+  test("older maps of a focus and older drill-downs of a box fold under the newest, and drill-downs nest under any version of their parent", () => {
+    // Newest first, as listMaps gives them.
+    const items = [
+      item("architecture-deep-20261016-150000", "architecture-api-20261016-140000", "router"),
+      item("architecture-api-20261016-140000", "architecture-cloud-20261016-120000", "api"),
+      item("architecture-auth-20261016-130000", "architecture-cloud-20261016-120000", "auth"),
+      item("architecture-cloud-20261016-120000"),
+      item("architecture-routes-20261015-140000", "architecture-cloud-20261015-120000", "api"),
+      item("architecture-db-20261015-130000", "architecture-cloud-20261015-120000", "db"),
+      item("architecture-cloud-20261015-120000"),
+      item("architecture-orphan-20261014-120000", "architecture-gone-20261001-120000", "x"),
+    ];
+    expect(shape(mapTree(items))).toEqual([
+      [
+        "architecture-cloud-20261016-120000",
+        ["architecture-cloud-20261015-120000"],
+        [
+          ["architecture-api-20261016-140000", ["architecture-routes-20261015-140000"], [["architecture-deep-20261016-150000", [], []]]],
+          ["architecture-auth-20261016-130000", [], []],
+          ["architecture-db-20261015-130000", [], []],
+        ],
+      ],
+      ["architecture-orphan-20261014-120000", [], []],
+    ]);
+  });
+
+  test("a drill-down is named by its parent's box label, and has no name when the parent map lacks the box", () => {
+    const root = tempDir();
+    put(root, ".aisus/maps/architecture-cloud-20261016-120000/candidate.json", JSON.stringify({ title: "aisus cloud", components: [{ id: "auth", label: "Sign-in and access" }] }));
+    for (const [run, box] of [["architecture-auth-20261016-130000", "auth"], ["architecture-gone-20261016-140000", "missing"]] as const) {
+      put(root, `.aisus/maps/${run}/candidate.json`, JSON.stringify({ title: run, components: [{ id: "a", label: "A" }] }));
+      writeRunRecord(root, join(root, ".aisus/maps", run), newRunRecord({ kind: "drill", focus: run, parent: "architecture-cloud-20261016-120000", parentBox: box, skillVersion: "x" }));
+    }
+    const named = Object.fromEntries(listMaps(root).map((entry) => [entry.runFolder, entry.detailOf]));
+    expect(named).toEqual({ "architecture-gone-20261016-140000": undefined, "architecture-auth-20261016-130000": "Sign-in and access", "architecture-cloud-20261016-120000": undefined });
   });
 });
 

@@ -184,6 +184,19 @@ export interface MapItem {
   boxes: number | null;
   /** Boxes whose code was edited or is missing (FRS-03), or `null` without fingerprints. */
   changed: number | null;
+  /** VWR-07: a drill-down's parent run folder and the id of the box it details, from `run.json`. */
+  parent?: string;
+  parentBox?: string;
+  /** VWR-07: the label of the box a drill-down details, when its parent map is listed and has the box. */
+  detailOf?: string;
+}
+
+/** VWR-07: a map on the Maps page, with the older maps of its focus and its detail maps. */
+export interface MapNode {
+  item: MapItem;
+  /** Older maps of the same focus, or older drill-downs of the same box, newest first. */
+  earlier: MapItem[];
+  children: MapNode[];
 }
 
 /** CLD-16: a map from aisus cloud, such as "Team map of main". */
@@ -301,6 +314,8 @@ export interface HomeState {
   /** The folder the sidebar works on, or `null` when none is open. */
   root: string | null;
   maps: MapItem[];
+  /** VWR-07: `maps` as the Maps page's tree, newest top-level map first. */
+  mapTree: MapNode[];
   /** SEQ-04: the folder's sequence maps, newest first; `boxes` counts their participants. */
   sequences: MapItem[];
   /** CLD-12: whether `aisus.cloud.enabled` is on, so maps offer Share to aisus cloud. */

@@ -7,7 +7,7 @@ import * as vscode from "vscode";
 import { listCandidates } from "@aisus/core/model/discovery";
 import { untrackedFiles, numstatSince } from "@aisus/core/model/git";
 import { healthItems, uncoveredLines, type HealthItem, type HealthKind } from "@aisus/core/model/health";
-import { listMaps } from "@aisus/core/model/maps";
+import { listMaps, mapTree } from "@aisus/core/model/maps";
 import type { MapKind } from "@aisus/core/model/runFolder";
 import { MAP_DIR, CANDIDATE_FILE } from "@aisus/core/model/runFolder";
 import { fileReader, readFingerprints } from "@aisus/core/model/staleness";
@@ -188,10 +188,12 @@ export class HomeView implements vscode.WebviewViewProvider, vscode.Disposable {
         notes = [(error as Error).message];
       }
     }
+    const maps = root === null ? [] : this.mapsOf(root);
     return {
       folders: (vscode.workspace.workspaceFolders ?? []).map((folder) => ({ name: folder.name, root: folder.uri.fsPath })),
       root,
-      maps: root === null ? [] : this.mapsOf(root),
+      maps,
+      mapTree: mapTree(maps),
       sequences: root === null ? [] : this.mapsOf(root, "sequence"),
       cloud,
       cloudMaps: root === null || !cloud ? [] : (this.cloudMaps.get(root) ?? []).map((pulled) => pulled.item),

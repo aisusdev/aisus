@@ -2,7 +2,7 @@
 // Maps pages. It is built from the HomeState the host sends, and every string goes in as text.
 // The composer's text box persists across states. Typing survives updates.
 import { mapStatus, relativeAge, runFigures, tokenCount } from "@aisus/core/model/home";
-import type { AskTurn, AskView, CloudMapItem, HomeState, HomeWebviewMessage, MapItem, PracticeQuestionView, PracticeView, ReviewView, RunCard } from "@aisus/core/model/messages";
+import type { AskTurn, AskView, CloudMapItem, HomeState, HomeWebviewMessage, MapItem, MapNode, PracticeQuestionView, PracticeView, ReviewView, RunCard } from "@aisus/core/model/messages";
 import type { Grade } from "@aisus/core/model/practice";
 import type { Check } from "@aisus/core/model/preflight";
 import { renderAnswer, spanNode } from "./answer";
@@ -151,6 +151,9 @@ export function createHome(container: HTMLElement, post: Post, now: () => Date =
   const cloudSlot = el("div", "cloud-slot");
   // The maps whose ⋯ row is open, kept across states.
   const expanded = new Set<string>();
+  // VWR-07: the tree rows opened or closed by hand, and those showing their earlier versions, kept across states.
+  const opened = new Map<string, boolean>();
+  const earlierOpen = new Set<string>();
   const newMap = section("New map", "new-map");
   const reviewSlot = el("div", "review-slot");
   const rulesSlot = el("div", "rules-slot");
@@ -365,19 +368,37 @@ export function createHome(container: HTMLElement, post: Post, now: () => Date =
     return entry;
   }
 
-  function mapEntry(item: MapItem): HTMLElement {
-    const entry = el("li", "map");
-    const open = button(item.title ?? item.runFolder, "map__title", () => post({ type: "openMap", file: item.file }));
-    open.title = item.runFolder;
-    const meta = [
-      item.focus,
-      item.agent,
-      relativeAge(item.createdAt, now()),
-      item.boxes === null ? null : `${item.boxes} box${item.boxes === 1 ? "" : "es"}`,
-      item.changed !== null && item.changed > 0 ? `${item.changed} changed` : null,
-    ].filter(
-      (part): part is string => part !== null && part !== "",
-    );
+  /** VWR-07: one map of the tree, its ⋯ actions, and when open its detail maps and earlier versions. */
+  function mapEntry(node: MapNode, depth: number): HTMLElement {
+    const { item } = node;
+    const detail = item.parent !== undefined;
+    const entry = el("li", detail ? "map map--detail" : "map");
+    const open = button(item.detailOf ?? item.title ?? item.runFolder, "map__title", () => post({ type: "openMap", file: item.file }));
+    open.title = item.title ?? item.runFolder;
+    const nested = node.children.length + node.earlier.length > 0;
+    const isOpen = nested && (opened.get(item.file) ?? (depth === 0 && current?.mapTree[0] === node));
+    const top = el("div", "map__top");
+    if (nested) {
+      const toggle = button(isOpen ? "▾" : "▸", "map__toggle", () => {
+        opened.set(item.file, !isOpen);
+        if (current !== null) renderMaps(current.mapTree, current.sequences, current.cloudMaps);
+      });
+      toggle.setAttribute("aria-expanded", String(isOpen));
+      toggle.setAttribute("aria-label", `${isOpen ? "Close" : "Open"} ${open.textContent}`);
+      top.append(toggle);
+    } else top.append(el("span", "map__toggle map__toggle--none"));
+    if (detail) {
+      const mark = el("span", "map__mark", "↘");
+      mark.title = "Detail map";
+      top.append(mark);
+    }
+    top.append(open);
+    // A detail row gives the bare count, so its box's name keeps the room.
+    if (item.boxes !== null) {
+      const count = el("span", "map__count", depth === 0 ? `${item.boxes} box${item.boxes === 1 ? "" : "es"}` : String(item.boxes));
+      count.title = `${item.boxes} box${item.boxes === 1 ? "" : "es"}`;
+      top.append(count);
+    }
     // The title opens the map. The ⋯ button shows the rest of its actions in place.
     const actions = el("div", "map__actions");
     actions.id = `map-actions-${item.runFolder}`;
@@ -398,16 +419,43 @@ export function createHome(container: HTMLElement, post: Post, now: () => Date =
     more.setAttribute("aria-label", `More actions for ${item.title ?? item.runFolder}`);
     more.setAttribute("aria-controls", actions.id);
     more.setAttribute("aria-expanded", String(!actions.hidden));
-    const top = el("div", "map__top");
-    top.append(open, more);
-    entry.append(top, el("div", "map__meta", meta.join(" · ")), actions);
+    top.append(more);
+    entry.append(top);
+    if (depth === 0) {
+      const meta = [relativeAge(item.createdAt, now()), item.agent, item.changed !== null && item.changed > 0 ? `${item.changed} changed` : null].filter(
+        (part): part is string => part !== null && part !== "",
+      );
+      const line = el("div", "map__meta", meta.join(" · "));
+      if (node.children.length > 0) line.append(" ", el("span", "map__mark", `${node.children.length} detailed`));
+      entry.append(line);
+    }
+    entry.append(actions);
+    if (!isOpen) return entry;
+    const children = el("ul", "map__children");
+    for (const child of node.children) children.append(mapEntry(child, depth + 1));
+    if (node.earlier.length > 0) {
+      const showEarlier = earlierOpen.has(item.file);
+      const count = node.earlier.length;
+      const toggle = button(`${count} earlier version${count === 1 ? "" : "s"}`, "link map__earlier", () => {
+        if (showEarlier) earlierOpen.delete(item.file);
+        else earlierOpen.add(item.file);
+        if (current !== null) renderMaps(current.mapTree, current.sequences, current.cloudMaps);
+      });
+      toggle.setAttribute("aria-expanded", String(showEarlier));
+      const line = el("li", "map__earlier-line");
+      line.append(toggle);
+      children.append(line);
+      if (showEarlier) for (const older of node.earlier) children.append(mapEntry({ item: older, earlier: [], children: [] }, depth + 1));
+    }
+    entry.append(children);
     return entry;
   }
 
   /** The home's first card: the newest map with one filled button, or the composer when there is no map. */
   function renderCurrent(state: HomeState): void {
     currentSlot.replaceChildren();
-    const newest = state.maps[0];
+    // VWR-07: the newest top-level map, so a drill-down never takes the card.
+    const newest = state.mapTree[0]?.item;
     if (newest === undefined) {
       const intro = section("Map this folder", "current current--empty");
       intro.append(composer);
@@ -428,7 +476,7 @@ export function createHome(container: HTMLElement, post: Post, now: () => Date =
     } else {
       actions.append(button("Open", "button button--primary", () => post({ type: "openMap", file: newest.file })));
     }
-    card.append(title, el("div", `current__status${changed > 0 ? " current__status--changed" : ""}`, mapStatus(state.maps, now())), actions);
+    card.append(title, el("div", `current__status${changed > 0 ? " current__status--changed" : ""}`, mapStatus([newest], now())), actions);
     currentSlot.append(card);
   }
 
@@ -518,12 +566,12 @@ export function createHome(container: HTMLElement, post: Post, now: () => Date =
     cloudSlot.append(strip);
   }
 
-  function renderMaps(items: MapItem[], sequences: MapItem[], cloud: CloudMapItem[]): void {
+  function renderMaps(tree: MapNode[], sequences: MapItem[], cloud: CloudMapItem[]): void {
     maps.replaceChildren();
-    if (items.length > 0) {
+    if (tree.length > 0) {
       const list = section("", "maps");
       const entries = el("ul", "maps__list");
-      for (const item of items) entries.append(mapEntry(item));
+      for (const node of tree) entries.append(mapEntry(node, 0));
       list.append(entries);
       maps.append(list);
     }
@@ -762,7 +810,7 @@ export function createHome(container: HTMLElement, post: Post, now: () => Date =
       renderCurrent(state);
       renderAttention(state);
       renderDo(state);
-      renderMaps(state.maps, state.sequences, state.cloudMaps);
+      renderMaps(state.mapTree, state.sequences, state.cloudMaps);
       renderCloud(state);
       renderReview(state);
       renderRules(state);
