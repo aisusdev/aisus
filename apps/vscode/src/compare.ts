@@ -1,6 +1,6 @@
-// FRS-07, FRS-10: the shown map compared with an earlier one. A map made from another opens compared
-// with it. `aisus: Compare With…` picks any other map of the folder, or none, and Open baseline and
-// Swap show the earlier map in the panel.
+// FRS-07, FRS-10, FRS-11: the shown map compared with an earlier one. A map opens without a comparison.
+// `aisus: Compare With…` picks any other map of the folder, or none, and Open baseline and Swap show
+// the earlier map in the panel.
 import { readFileSync } from "node:fs";
 import { basename, dirname, join } from "node:path";
 import * as vscode from "vscode";
@@ -65,14 +65,6 @@ function facts(root: string, file: string, map: ReadMap | null, candidates: read
     repository: map?.repository ?? { url: null, revision: null },
     componentIds: map?.diagram.components.map((box) => box.id) ?? [],
   };
-}
-
-/** The earlier map `file`'s run continues, when its candidate still exists (FRS-10). */
-export function defaultBaseline(root: string, file: string): string | null {
-  const run = runOf(root, file);
-  const previous = run === null ? null : readLineage(join(root, MAP_DIR, run))?.previousRun;
-  if (!previous || previous === run) return null;
-  return listCandidates(root).find((candidate) => candidate.runFolder === previous)?.file ?? null;
 }
 
 /** The shown map `file` compared with `baseline`, or `null` when either cannot be read. */

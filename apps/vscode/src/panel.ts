@@ -21,14 +21,14 @@ import { violationArrows, type RulesService } from "./rules";
 import { parseDiagram, type ViewDiagram } from "@aisus/core/model/tolerant";
 import { changedBoxes, type FreshnessService } from "./freshness";
 import { webviewHtml } from "./html";
-import { buildComparison, compareMapsCommand, defaultBaseline, openBaseline, swapComparison } from "./compare";
+import { buildComparison, compareMapsCommand, openBaseline, swapComparison } from "./compare";
 import { openSource, openSourceRef } from "./navigate";
 import { onAction } from "./notify";
 
 export const VIEW_TYPE = "aisus.architecture";
 
 /** Where the shown map's comparison comes from (FRS-10). */
-export type CompareSource = { kind: "default" } | { kind: "file"; file: string } | { kind: "none" } | { kind: "fixed"; against: string; diff: MapDiff };
+export type CompareSource = { kind: "file"; file: string } | { kind: "none" } | { kind: "fixed"; against: string; diff: MapDiff };
 
 /** What the panel currently shows: a diagram, or an empty state with a message and maybe an action. */
 type Shown = { kind: "diagram"; doc: unknown; diagram: ViewDiagram } | { kind: "empty"; message: string; action?: "mapFolder" };
@@ -94,7 +94,7 @@ export class ArchitecturePanel {
    * FRS-10: where the comparison comes from until another file is shown: the run's earlier map by
    * default, a chosen map, none, or one compared elsewhere (PRC-03).
    */
-  private compare: CompareSource = { kind: "default" };
+  private compare: CompareSource = { kind: "none" };
   /** FRS-10: the Changes toggle, kept while the window lasts. */
   private static changesShown = true;
   /** Watches the shown map's evidence.json and audit.json (ACC-03), and its tour.json (SKL-02). */
@@ -131,8 +131,7 @@ export class ArchitecturePanel {
 
   /** The earlier map the shown one is compared with, when it is a file. */
   baselineFile(): string | null {
-    if (this.compare.kind === "file") return this.compare.file;
-    return this.compare.kind === "default" && this.file !== "" ? defaultBaseline(this.root, this.file) : null;
+    return this.compare.kind === "file" ? this.compare.file : null;
   }
 
   /** The comparison on the shown map, also for the tests. */
@@ -276,7 +275,7 @@ export class ArchitecturePanel {
     if (file !== this.file) {
       this.changes = null;
       this.ghosts = [];
-      this.compare = { kind: "default" };
+      this.compare = { kind: "none" };
     }
     this.root = root;
     this.file = file;

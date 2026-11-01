@@ -1,6 +1,6 @@
-// FRS-10: a refreshed map opens compared with the map it updated, with the boxes it kept and the
-// files no box cites; Swap and Open baseline show the earlier map in the panel, and Compare with…
-// offers No comparison.
+// FRS-10, FRS-11: a refreshed map opens without a comparison, and compared with the map it updated it
+// shows the boxes it kept and the files no box cites. Swap and Open baseline show the earlier map in
+// the panel, and Compare with… offers No comparison.
 import * as assert from "node:assert/strict";
 import { mkdirSync, rmSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
@@ -57,8 +57,15 @@ suite("FRS-10 Changes panel", () => {
     await until(() => hook.panelState().file === candidate(run), `${run} to open`);
   }
 
-  test("FRS-10 a refreshed map opens compared with the map it updated, with the boxes it kept and the files no box cites", async () => {
+  async function compareWith(run: string): Promise<void> {
+    ui.answers.quickPick.push(run);
+    await hook.postFromWebview({ type: "compareWith" });
+  }
+
+  test("FRS-11 a refreshed map opens without a comparison, and compared with the map it updated it shows the boxes it kept and the files no box cites", async () => {
     await open(REFRESH);
+    assert.equal(hook.panelCompare(), null);
+    await compareWith(BASE);
     const compare = hook.panelCompare();
     assert.equal(compare?.context?.baselineRun, BASE);
     assert.deepEqual(compare?.diff.boxes.map((entry) => entry.status), ["unchanged", "kept", "added"]);
@@ -68,6 +75,7 @@ suite("FRS-10 Changes panel", () => {
 
   test("FRS-10 Swap shows the earlier map compared with the refreshed one, and Open baseline shows it with its own comparison", async () => {
     await open(REFRESH);
+    await compareWith(BASE);
     await hook.postFromWebview({ type: "swap" });
     assert.equal(hook.panelState().file, candidate(BASE));
     const swapped = hook.panelCompare();
@@ -75,6 +83,7 @@ suite("FRS-10 Changes panel", () => {
     assert.deepEqual(swapped?.context?.warnings.map((warning) => warning.code), ["outside-history", "reversed"]);
 
     await open(REFRESH);
+    await compareWith(BASE);
     await hook.postFromWebview({ type: "openBaseline" });
     assert.equal(hook.panelState().file, candidate(BASE));
     assert.equal(hook.panelCompare(), null);
@@ -82,9 +91,11 @@ suite("FRS-10 Changes panel", () => {
 
   test("FRS-10 Compare with… tags the map this one updated, and No comparison clears it", async () => {
     await open(REFRESH);
+    await compareWith(BASE);
+    assert.notEqual(hook.panelCompare(), null);
     ui.answers.quickPick.push("No comparison");
     await hook.postFromWebview({ type: "compareWith" });
-    const items = ui.quickPicks[0]!;
+    const items = ui.quickPicks[1]!;
     assert.deepEqual(items.map((item) => [item.label, item.description ?? ""]), [["No comparison", ""], [BASE, "previous"]]);
     assert.equal(hook.panelCompare(), null);
   });
