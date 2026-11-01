@@ -45,6 +45,16 @@ test("CLD-08 the upload schema stays folded until Show the upload schema is clic
   await expect(schema).toBeVisible();
 });
 
+test("CLD-08 Copy puts the whole upload schema on the clipboard, and the button then reads Copied", async ({ page, context }) => {
+  await context.grantPermissions(["clipboard-read", "clipboard-write"]);
+  await page.goto("/privacy");
+  await page.getByText("Show the upload schema").click();
+  await page.getByRole("button", { name: "Copy the upload schema" }).click();
+  await expect(page.getByRole("button", { name: "Copied" })).toBeVisible();
+  const copied = await page.evaluate(() => navigator.clipboard.readText());
+  expect(JSON.parse(copied).title).toBe("aisus cloud upload");
+});
+
 test("CLD-08 the billed app's pricing shows Pro's and Team's price texts", async ({ page }) => {
   await page.goto(`http://127.0.0.1:${BILLED_APP}/pricing`);
   const pricing = page.locator("main");

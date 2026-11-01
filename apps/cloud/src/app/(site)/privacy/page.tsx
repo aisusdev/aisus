@@ -1,5 +1,6 @@
 // CLD-08: the privacy page: the "maps, not code" rule and the exact upload schema, folded until it is asked for.
 import { UPLOAD_SCHEMA } from "@aisus/core/model/upload";
+import { CodeBlock } from "../../../components/CodeBlock";
 import { statsWebsite } from "../../../lib/stats";
 
 export default function PrivacyPage() {
@@ -40,9 +41,7 @@ export default function PrivacyPage() {
             Show the upload schema
             <svg className="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14" /></svg>
           </summary>
-          <pre>
-            <code>{JSON.stringify(UPLOAD_SCHEMA, null, 2)}</code>
-          </pre>
+          <CodeBlock code={JSON.stringify(UPLOAD_SCHEMA, null, 2)} label="the upload schema" />
         </details>
       </section>
     </main>
