@@ -1,5 +1,5 @@
-// VWR-05: Map This Box in Detail runs Generate on the box with the map it came from, and a
-// drill-down map offers Back to overview, which opens that map.
+// VWR-05: Map This Box in Detail runs Generate on the box with the map and the box it came from.
+// The box then opens its detail map, and the detail map's trail opens the overview again.
 import * as assert from "node:assert/strict";
 import { chmodSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { homedir, tmpdir } from "node:os";
@@ -46,7 +46,7 @@ suite("VWR-05 Drill down", () => {
     const map = (components: object[]): string => JSON.stringify({ meta: { title: "Shop" }, components });
     write(root, `.aisus/maps/${OVERVIEW}/candidate.json`, map([{ id: "api", type: "backend", label: "Orders API", sources: [{ path: "src/api.ts", line: 1 }] }]));
     write(root, `.aisus/maps/${DETAIL}/candidate.json`, map([{ id: "handler", type: "backend", label: "Handler", sources: [{ path: "src/api.ts", line: 1 }] }]));
-    write(root, `.aisus/maps/${DETAIL}/run.json`, JSON.stringify({ schema: 1, kind: "drill", focus: "Orders API", paths: [], base: null, parent: OVERVIEW, createdAt: "2026-10-19T13:00:00Z", skillVersion: "test", phase: "accepted", attempts: 1 }));
+    write(root, `.aisus/maps/${DETAIL}/run.json`, JSON.stringify({ schema: 1, kind: "drill", focus: "Orders API", paths: [], base: null, parent: OVERVIEW, parentBox: "api", createdAt: "2026-10-19T13:00:00Z", skillVersion: "test", phase: "accepted", attempts: 1 }));
   });
 
   teardown(async () => {
@@ -72,14 +72,17 @@ suite("VWR-05 Drill down", () => {
     await vscode.commands.executeCommand("aisus.drillDown", { componentId: "api" });
     const terminal = await opened;
     terminals.push(terminal);
-    assert.deepEqual((terminal.creationOptions as vscode.TerminalOptions).shellArgs, [`/aisus-architecture Orders API --parent ${OVERVIEW}`]);
+    assert.deepEqual((terminal.creationOptions as vscode.TerminalOptions).shellArgs, [`/aisus-architecture Orders API --parent ${OVERVIEW} --box api`]);
   });
 
-  test("VWR-05 a drill-down map offers Back to overview, which opens the map it came from", async () => {
-    await hook.postFromHome({ type: "openMap", file: join(root, ".aisus/maps", DETAIL, "candidate.json") });
-    await until(() => hook.panelOverview() === OVERVIEW, "the drill-down to know its overview");
-    await hook.postFromWebview({ type: "backToOverview" });
+  test("VWR-05 a box with a detail map opens it, and the detail map's trail opens the overview again", async () => {
+    await hook.postFromHome({ type: "openMap", file: join(root, ".aisus/maps", OVERVIEW, "candidate.json") });
+    await until(() => hook.panelOverview()?.details["api"] === DETAIL, "the overview to know the box's detail map");
+    assert.deepEqual(hook.panelOverview()?.trail, []);
+    await hook.postFromWebview({ type: "openDetail", componentId: "api" });
+    await until(() => hook.panelState().file === join(root, ".aisus/maps", DETAIL, "candidate.json"), "the detail map to open");
+    await until(() => hook.panelOverview()?.trail[0] === OVERVIEW, "the detail map to know its trail");
+    await hook.postFromWebview({ type: "openMap", run: OVERVIEW });
     await until(() => hook.panelState().file === join(root, ".aisus/maps", OVERVIEW, "candidate.json"), "the overview to open");
-    assert.equal(hook.panelOverview(), null);
   });
 });

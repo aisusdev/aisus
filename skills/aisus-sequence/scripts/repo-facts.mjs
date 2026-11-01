@@ -1,5 +1,5 @@
 // packages/core/agent/repo-facts.ts
-import { existsSync as existsSync3 } from "node:fs";
+import { existsSync as existsSync3, readFileSync as readFileSync6 } from "node:fs";
 import { basename as basename2, join as join8 } from "node:path";
 
 // packages/core/model/git.ts
@@ -519,6 +519,7 @@ function newRunRecord(fields, now = /* @__PURE__ */ new Date()) {
     paths: fields.paths ?? [],
     base: fields.base ?? null,
     parent: fields.parent ?? null,
+    ...fields.parentBox === void 0 ? {} : { parentBox: fields.parentBox },
     createdAt: now.toISOString(),
     skillVersion: fields.skillVersion,
     phase: "created",
@@ -677,6 +678,26 @@ function previousMap(root, slug, except = null) {
     if (best === null || key > best.key) best = { run: run2, key };
   }
   return best?.run ?? null;
+}
+function detailMaps(root, run2) {
+  const slug = parseRunFolderName(run2)?.slug;
+  const best = /* @__PURE__ */ new Map();
+  let names;
+  try {
+    names = readdirSync2(join6(root, MAP_DIR));
+  } catch {
+    return {};
+  }
+  for (const name2 of names) {
+    const parsed = parseRunFolderName(name2);
+    if (parsed === null || slug === void 0 || !existsSync2(join6(root, MAP_DIR, name2, CANDIDATE_FILE))) continue;
+    const record = readRunRecord(join6(root, MAP_DIR, name2));
+    if (record?.kind !== "drill" || typeof record.parentBox !== "string" || typeof record.parent !== "string" || parseRunFolderName(record.parent)?.slug !== slug) continue;
+    const key = `${parsed.timestamp}-${String(parsed.n).padStart(6, "0")}`;
+    const current = best.get(record.parentBox);
+    if (current === void 0 || key > current.key) best.set(record.parentBox, { run: name2, key });
+  }
+  return Object.fromEntries([...best].map(([box, entry]) => [box, entry.run]));
 }
 
 // packages/core/model/coefficients.json
@@ -1009,19 +1030,21 @@ function repoSize(root, env = process.env, limit = COUNT_LIMIT) {
 
 // packages/core/agent/repo-facts.ts
 var SKILL_VERSION = "0.3.1";
-var USAGE = "repo-facts.mjs: usage: node repo-facts.mjs [--focus <text>] [--parent <run>] [--kind sequence]\n";
+var USAGE = "repo-facts.mjs: usage: node repo-facts.mjs [--focus <text>] [--parent <run> [--box <id>]] [--kind sequence]\n";
 function main(args) {
   let focus = "";
   let parent = null;
+  let box = null;
   let sequence = false;
   for (let i = 0; i < args.length; i += 2) {
     const value = args[i + 1];
-    if (value === void 0 || !["--focus", "--parent", "--kind"].includes(args[i]) || args[i] === "--kind" && value !== SEQUENCE_PREFIX) {
+    if (value === void 0 || !["--focus", "--parent", "--box", "--kind"].includes(args[i]) || args[i] === "--kind" && value !== SEQUENCE_PREFIX) {
       process.stderr.write(USAGE);
       return 2;
     }
     if (args[i] === "--focus") focus = value;
     else if (args[i] === "--kind") sequence = true;
+    else if (args[i] === "--box") box = value;
     else parent = value;
   }
   if (sequence && (focus.trim() === "" || parent !== null)) {
@@ -1034,9 +1057,14 @@ function main(args) {
 `);
     return 2;
   }
+  if (box !== null && (parent === null || !boxIds(join8(root, MAP_DIR, parent, CANDIDATE_FILE)).includes(box))) {
+    process.stderr.write(`repo-facts.mjs: --box names no box of the --parent map: ${box}
+`);
+    return 2;
+  }
   const git = collectGitFacts(root);
   const slug = slugify(focus, basename2(root));
-  const previous = parent === null && !sequence ? previousMap(root, slug) : null;
+  const previous = sequence ? null : parent === null ? previousMap(root, slug) : box === null ? null : new Map(Object.entries(detailMaps(root, parent))).get(box) ?? null;
   let reason = "no-previous";
   if (previous !== null) {
     const plan = planRefresh(root, previous);
@@ -1058,7 +1086,7 @@ function main(args) {
   let run2;
   try {
     run2 = createRunFolder(root, slug, runTimestamp(/* @__PURE__ */ new Date()), sequence ? { prefix: SEQUENCE_PREFIX } : {});
-    writeRunRecord(root, join8(root, MAP_DIR, run2), newRunRecord({ focus, skillVersion: SKILL_VERSION, ...parent === null ? {} : { kind: "drill", parent } }));
+    writeRunRecord(root, join8(root, MAP_DIR, run2), newRunRecord({ focus, skillVersion: SKILL_VERSION, ...parent === null ? {} : { kind: "drill", parent }, ...box === null ? {} : { parentBox: box } }));
     if (!sequence) writeRunFile(root, join8(root, MAP_DIR, run2), LINEAGE_FILE, lineage);
   } catch (error) {
     process.stderr.write(`repo-facts.mjs: ${error.message}
@@ -1079,5 +1107,13 @@ function main(args) {
   process.stdout.write(`${JSON.stringify(facts, null, 2)}
 `);
   return 0;
+}
+function boxIds(file) {
+  try {
+    const components2 = JSON.parse(readFileSync6(file, "utf8")).components;
+    return Array.isArray(components2) ? components2.map((component) => component?.id).filter((id) => typeof id === "string") : [];
+  } catch {
+    return [];
+  }
 }
 process.exitCode = main(process.argv.slice(2));

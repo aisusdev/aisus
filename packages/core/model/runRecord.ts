@@ -37,6 +37,8 @@ export interface RunRecord {
   base: string | null;
   /** The run folder a drill-down came from. */
   parent: string | null;
+  /** VWR-05: the id of the parent map's box a drill-down details, when it names one. */
+  parentBox?: string;
   createdAt: string;
   skillVersion: string;
   phase: RunPhase;
@@ -52,7 +54,7 @@ export interface RunRecord {
 }
 
 /** A fresh record for a run created now. */
-export function newRunRecord(fields: { kind?: RunKind; focus: string; paths?: string[]; base?: string | null; parent?: string | null; skillVersion: string }, now = new Date()): RunRecord {
+export function newRunRecord(fields: { kind?: RunKind; focus: string; paths?: string[]; base?: string | null; parent?: string | null; parentBox?: string; skillVersion: string }, now = new Date()): RunRecord {
   return {
     schema: 1,
     kind: fields.kind ?? "full",
@@ -60,6 +62,7 @@ export function newRunRecord(fields: { kind?: RunKind; focus: string; paths?: st
     paths: fields.paths ?? [],
     base: fields.base ?? null,
     parent: fields.parent ?? null,
+    ...(fields.parentBox === undefined ? {} : { parentBox: fields.parentBox }),
     createdAt: now.toISOString(),
     skillVersion: fields.skillVersion,
     phase: "created",

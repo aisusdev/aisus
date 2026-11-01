@@ -1,14 +1,15 @@
-// `node <skill>/scripts/repo-facts.mjs [--focus <text>] [--parent <run>]`, run with cwd = repo root
+// `node <skill>/scripts/repo-facts.mjs [--focus <text>] [--parent <run> [--box <id>]]`, run with cwd = repo root
 // (FR-RF-01): creates the run folder with its run.json (CST-04) and prints where the draft goes
 // (ADR 0018), with the repository's size (CST-01), the estimate for each agent (CST-03) and the read
-// budget for its tier (CST-05). With `--parent`, the run is a drill-down of that map (VWR-05).
+// budget for its tier (CST-05). With `--parent`, the run is a drill-down of that map (VWR-05). With
+// `--box`, it details that box, and continues the box's detail map as `previous`.
 // FRS-09: otherwise it records the newest earlier map with the same focus in `lineage.json`, and
 // prints its candidate as `previous` for match-ids.mjs. SEQ-02: with `--kind sequence`, the run
 // is a sequence map of the flow its focus names, which is required, and continues no earlier map.
-import { existsSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { basename, join } from "node:path";
 import { collectGitFacts, commitInfo } from "../model/git";
-import { LINEAGE_FILE, planRefresh, previousMap, writeRunFile, type Lineage } from "../model/lineage";
+import { detailMaps, LINEAGE_FILE, planRefresh, previousMap, writeRunFile, type Lineage } from "../model/lineage";
 import { skillEstimates } from "../model/estimate";
 import { READ_BUDGET, repoSize, sizeFacts } from "../model/repoSize";
 import { MAP_DIR, CANDIDATE_FILE, createRunFolder, DRAFT_FILE, parseRunFolderName, runTimestamp, SEQUENCE_PREFIX, slugify } from "../model/runFolder";
@@ -17,20 +18,22 @@ import { newRunRecord, writeRunRecord } from "../model/runRecord";
 /** The skill version, filled in by the build. */
 const SKILL_VERSION = process.env.AISUS_VERSION ?? "unknown";
 
-const USAGE = "repo-facts.mjs: usage: node repo-facts.mjs [--focus <text>] [--parent <run>] [--kind sequence]\n";
+const USAGE = "repo-facts.mjs: usage: node repo-facts.mjs [--focus <text>] [--parent <run> [--box <id>]] [--kind sequence]\n";
 
 function main(args: string[]): number {
   let focus = "";
   let parent: string | null = null;
+  let box: string | null = null;
   let sequence = false;
   for (let i = 0; i < args.length; i += 2) {
     const value = args[i + 1];
-    if (value === undefined || !["--focus", "--parent", "--kind"].includes(args[i]!) || (args[i] === "--kind" && value !== SEQUENCE_PREFIX)) {
+    if (value === undefined || !["--focus", "--parent", "--box", "--kind"].includes(args[i]!) || (args[i] === "--kind" && value !== SEQUENCE_PREFIX)) {
       process.stderr.write(USAGE);
       return 2;
     }
     if (args[i] === "--focus") focus = value;
     else if (args[i] === "--kind") sequence = true;
+    else if (args[i] === "--box") box = value;
     else parent = value;
   }
   if (sequence && (focus.trim() === "" || parent !== null)) {
@@ -42,10 +45,14 @@ function main(args: string[]): number {
     process.stderr.write(`repo-facts.mjs: --parent names no accepted map in ${MAP_DIR}/: ${parent}\n`);
     return 2;
   }
+  if (box !== null && (parent === null || !boxIds(join(root, MAP_DIR, parent, CANDIDATE_FILE)).includes(box))) {
+    process.stderr.write(`repo-facts.mjs: --box names no box of the --parent map: ${box}\n`);
+    return 2;
+  }
   // Git facts come first, so the new run folder is not among the dirty paths.
   const git = collectGitFacts(root);
   const slug = slugify(focus, basename(root));
-  const previous = parent === null && !sequence ? previousMap(root, slug) : null;
+  const previous = sequence ? null : parent === null ? previousMap(root, slug) : box === null ? null : (new Map(Object.entries(detailMaps(root, parent))).get(box) ?? null);
   let reason: Lineage["reason"] = "no-previous";
   if (previous !== null) {
     const plan = planRefresh(root, previous);
@@ -67,7 +74,7 @@ function main(args: string[]): number {
   let run: string;
   try {
     run = createRunFolder(root, slug, runTimestamp(new Date()), sequence ? { prefix: SEQUENCE_PREFIX } : {});
-    writeRunRecord(root, join(root, MAP_DIR, run), newRunRecord({ focus, skillVersion: SKILL_VERSION, ...(parent === null ? {} : { kind: "drill" as const, parent }) }));
+    writeRunRecord(root, join(root, MAP_DIR, run), newRunRecord({ focus, skillVersion: SKILL_VERSION, ...(parent === null ? {} : { kind: "drill" as const, parent }), ...(box === null ? {} : { parentBox: box }) }));
     if (!sequence) writeRunFile(root, join(root, MAP_DIR, run), LINEAGE_FILE, lineage);
   } catch (error) {
     process.stderr.write(`repo-facts.mjs: ${(error as Error).message}\n`);
@@ -86,6 +93,16 @@ function main(args: string[]): number {
   };
   process.stdout.write(`${JSON.stringify(facts, null, 2)}\n`);
   return 0;
+}
+
+/** The box ids of the map at `file`. */
+function boxIds(file: string): string[] {
+  try {
+    const components: unknown = JSON.parse(readFileSync(file, "utf8")).components;
+    return Array.isArray(components) ? components.map((component: { id?: unknown }) => component?.id).filter((id): id is string => typeof id === "string") : [];
+  } catch {
+    return [];
+  }
 }
 
 // Set the code instead of calling process.exit(): stdout to a pipe is asynchronous on macOS.

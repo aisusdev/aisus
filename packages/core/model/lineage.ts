@@ -264,3 +264,29 @@ export function previousMap(root: string, slug: string, except: string | null = 
   }
   return best?.run ?? null;
 }
+
+/**
+ * VWR-05: each box id of the map in run folder `run` with its detail map, the newest accepted
+ * drill-down of that box whose parent map has `run`'s focus slug. Box ids survive a regenerated
+ * overview through match-ids, so its boxes keep their detail maps.
+ */
+export function detailMaps(root: string, run: string): Record<string, string> {
+  const slug = parseRunFolderName(run)?.slug;
+  const best = new Map<string, { run: string; key: string }>();
+  let names: string[];
+  try {
+    names = readdirSync(join(root, MAP_DIR));
+  } catch {
+    return {};
+  }
+  for (const name of names) {
+    const parsed = parseRunFolderName(name);
+    if (parsed === null || slug === undefined || !existsSync(join(root, MAP_DIR, name, CANDIDATE_FILE))) continue;
+    const record = readRunRecord(join(root, MAP_DIR, name));
+    if (record?.kind !== "drill" || typeof record.parentBox !== "string" || typeof record.parent !== "string" || parseRunFolderName(record.parent)?.slug !== slug) continue;
+    const key = `${parsed.timestamp}-${String(parsed.n).padStart(6, "0")}`;
+    const current = best.get(record.parentBox);
+    if (current === undefined || key > current.key) best.set(record.parentBox, { run: name, key });
+  }
+  return Object.fromEntries([...best].map(([box, entry]) => [box, entry.run]));
+}

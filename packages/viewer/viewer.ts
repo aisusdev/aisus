@@ -3,6 +3,7 @@
 // webview, the diagram page and the cloud site share it.
 import { layoutDiagram } from "@aisus/core/layout/layout";
 import type { MeasureText, Scene } from "@aisus/core/layout/scene";
+import { SUBLABEL_PX } from "@aisus/core/layout/measure";
 import { layoutSequence } from "@aisus/core/layout/sequence";
 import type { ChangeOverlay, Comparison, Ghost, GhostArrow, HostMessage } from "@aisus/core/model/messages";
 import { NO_IMPORT_EVIDENCE } from "@aisus/core/model/uncertainty";
@@ -169,18 +170,24 @@ export function startViewer(mount: HTMLElement = document.body): void {
     event.preventDefault();
     finder.open();
   });
-  // VWR-05: a drill-down map's way back to the map it came from.
-  const overview = document.createElement("button");
-  overview.type = "button";
-  overview.className = "toolbar__button overview";
-  overview.textContent = "Back to overview";
+  /** VWR-05: the id of the box whose Detail mark holds `target`, or `null`. */
+  const detailOf = (target: EventTarget | null): string | null => (target instanceof Element ? (target.closest(".node__detail")?.closest(".node")?.getAttribute("data-id") ?? null) : null);
+  // VWR-05: the maps above a drill-down map, each a link, then the shown map's title.
+  const overview = document.createElement("nav");
+  overview.className = "overview";
+  overview.setAttribute("aria-label", "Maps above this one");
   overview.hidden = true;
-  overview.addEventListener("click", () => post({ type: "backToOverview" }));
   // VWR-04: the hidden list of boxes and arrows for screen readers, and Enter or Space on a box.
   const screenReader = document.createElement("div");
   let shownDiagram: ViewDiagram | undefined;
   content.addEventListener("keydown", (event) => {
     if (event.key !== "Enter" && event.key !== " ") return;
+    const detail = detailOf(event.target);
+    if (detail !== null) {
+      event.preventDefault();
+      post({ type: "openDetail", componentId: detail });
+      return;
+    }
     const id = event.target instanceof Element ? event.target.closest(".node, .message")?.getAttribute("data-id") : null;
     const component = shownDiagram?.components.find((entry) => entry.id === id);
     if (!component) return;
@@ -193,9 +200,20 @@ export function startViewer(mount: HTMLElement = document.body): void {
   const viewport = new ViewportController(svg, content, toolbar, window);
   const tooltip = new TooltipController(svg, tooltipElement, (message) => post(message));
   new NodeClicks(svg, (message) => post(message));
+  content.addEventListener("click", (event) => {
+    const detail = detailOf(event.target);
+    if (detail !== null) post({ type: "openDetail", componentId: detail });
+  });
   viewport.onChange = () => tooltip.hide();
 
   const canvasContext = document.createElement("canvas").getContext("2d");
+  /** Measures the Detail mark's text, which is drawn after the layout. */
+  const measureText: MeasureText = (text, sizePx, bold) => {
+    if (!canvasContext) return { width: text.length * sizePx * 0.6, height: sizePx * LINE_HEIGHT };
+    const family = getComputedStyle(document.body).getPropertyValue("--aisus-font-family").trim() || "sans-serif";
+    canvasContext.font = `${bold ? "bold " : ""}${sizePx}px ${family}`;
+    return { width: canvasContext.measureText(text).width, height: sizePx * LINE_HEIGHT };
+  };
   // VWR-02: the workers start with the first layout.
   let runner: ReturnType<typeof workerRunner> | undefined;
   const run: ReturnType<typeof workerRunner> = (input, direction) => (runner ??= workerRunner())(input, direction);
@@ -337,6 +355,62 @@ export function startViewer(mount: HTMLElement = document.body): void {
     tooltip.setNotes("hotspots", heat.shown ? Object.fromEntries(Object.entries(heat.boxes).map(([id, box]) => [id, box.note])) : {});
   }
 
+  /** VWR-05: the maps above the shown map, and each box id with its detail map, kept across reloads. */
+  let trail: { run: string; title: string }[] = [];
+  let details: Record<string, string> = {};
+
+  function applyOverview(): void {
+    overview.replaceChildren();
+    overview.hidden = trail.length === 0 || shownDiagram === undefined;
+    for (const entry of trail) {
+      const link = document.createElement("button");
+      link.type = "button";
+      link.className = "toolbar__button overview__map";
+      link.textContent = entry.title;
+      link.title = `Open ${entry.run}`;
+      link.addEventListener("click", () => post({ type: "openMap", run: entry.run }));
+      const separator = document.createElement("span");
+      separator.className = "overview__separator";
+      separator.setAttribute("aria-hidden", "true");
+      separator.textContent = "\u203a";
+      overview.append(link, separator);
+    }
+    const current = document.createElement("span");
+    current.className = "overview__current";
+    current.setAttribute("aria-current", "page");
+    current.textContent = shownDiagram?.title ?? "This map";
+    overview.append(current);
+  }
+
+  /** Marks each box with a detail map, and lets its box menu open that map. */
+  function applyDetails(): void {
+    for (const node of content.querySelectorAll<SVGGElement>(".node")) {
+      node.querySelector(".node__detail")?.remove();
+      const id = node.getAttribute("data-id") ?? "";
+      const box = node.querySelector(".node__box");
+      if (box === null || id.startsWith(GHOST_PREFIX)) continue;
+      const has = Object.hasOwn(details, id);
+      node.setAttribute("data-vscode-context", JSON.stringify({ webviewSection: "box", componentId: id, ...(has ? { hasDetail: true } : {}), preventDefaultContextMenuItems: true }));
+      if (!has) continue;
+      const width = Math.ceil(measureText("Detail", SUBLABEL_PX, false).width) + 16;
+      const height = Math.ceil(SUBLABEL_PX * 1.6);
+      const right = Number(box.getAttribute("x")) + Number(box.getAttribute("width")) - 8;
+      const bottom = Number(box.getAttribute("y")) + Number(box.getAttribute("height"));
+      const mark = document.createElementNS(SVG_NS, "g");
+      mark.setAttribute("class", "node__detail");
+      mark.setAttribute("tabindex", "0");
+      mark.setAttribute("role", "button");
+      mark.setAttribute("aria-label", `Open the detail map of ${node.getAttribute("aria-label") ?? id}`);
+      const pill = document.createElementNS(SVG_NS, "rect");
+      for (const [name, value] of Object.entries({ class: "node__detail-pill", x: right - width, y: bottom - height / 2, width, height, rx: height / 2 })) pill.setAttribute(name, String(value));
+      const text = document.createElementNS(SVG_NS, "text");
+      for (const [name, value] of Object.entries({ class: "node__detail-text", x: right - width / 2, y: bottom, "text-anchor": "middle", "dominant-baseline": "central", "font-size": SUBLABEL_PX })) text.setAttribute(name, String(value));
+      text.textContent = "Detail";
+      mark.append(pill, text);
+      node.append(mark);
+    }
+  }
+
   /** Each box's state against the code, kept across reloads (FRS-03). */
   let freshness: Record<string, Freshness> = {};
 
@@ -471,6 +545,7 @@ export function startViewer(mount: HTMLElement = document.body): void {
       shownDiagram = result.diagram;
       applyHighlight();
       applyFreshness();
+      applyOverview();
       tour.reapply();
       screenReader.replaceChildren(screenReaderList(result.diagram, post));
       finder.setDiagram(null);
@@ -492,6 +567,8 @@ export function startViewer(mount: HTMLElement = document.body): void {
     shownScene = scene;
     shownDiagram = result.diagram;
     applyGhosts();
+    applyDetails();
+    applyOverview();
     applyUncertainty();
     applyHotspots();
     applyCompare();
@@ -517,8 +594,10 @@ export function startViewer(mount: HTMLElement = document.body): void {
       return;
     }
     if (message.type === "overview") {
-      overview.hidden = message.parent === null;
-      overview.title = message.parent === null ? "" : `Open ${message.parent}`;
+      trail = message.trail;
+      details = message.details;
+      applyOverview();
+      applyDetails();
       return;
     }
     if (message.type === "find") {

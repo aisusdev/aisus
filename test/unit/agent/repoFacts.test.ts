@@ -3,6 +3,7 @@ import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 
 import { basename, join } from "node:path";
 import { describe, expect, test } from "vitest";
 import { skillEstimates } from "@aisus/core/model/estimate";
+import { detailMaps } from "@aisus/core/model/lineage";
 import { sizeFacts } from "@aisus/core/model/repoSize";
 import { runTimestamp } from "@aisus/core/model/runFolder";
 import { envWithoutGit, git, gitRepo, put, runScript, tempDir } from "../support/temp";
@@ -154,6 +155,56 @@ describe("FRS-09 the earlier map of the same focus", () => {
     expect(JSON.parse(readFileSync(join(root, facts.runFolder, "lineage.json"), "utf8"))).toMatchObject({ reason: "scheduled", previousRun: map });
     const drill = runScript("repo-facts", ["--focus", "payments", "--parent", map], { cwd: root }).json();
     expect(drill.previous).toBeNull();
+  });
+});
+
+describe("VWR-05 box-linked drill-downs", () => {
+  /** An accepted map drawn by repo-facts with `args` and validate, with boxes `api` and `web`. */
+  function accepted(root: string, args: string[]): string {
+    const facts = runScript("repo-facts", args, { cwd: root }).json();
+    const box = (id: string) => ({ id, type: "backend", label: id, sources: [{ path: "src/app.ts" }] });
+    put(root, facts.draft, JSON.stringify({ meta: { title: "App" }, components: [box("api"), box("web")] }));
+    expect(runScript("validate", [facts.draft], { cwd: root }).status).toBe(0);
+    return facts.runFolder.replace(".aisus/maps/", "");
+  }
+
+  test("--box records the box a drill-down details, and a box the parent map lacks is a usage error that makes no run folder", () => {
+    const root = gitRepo({ "src/app.ts": "export {};\n" });
+    const map = accepted(root, ["--focus", "shop"]);
+    const facts = runScript("repo-facts", ["--focus", "API", "--parent", map, "--box", "api"], { cwd: root }).json();
+    expect(JSON.parse(readFileSync(join(root, facts.runFolder, "run.json"), "utf8"))).toMatchObject({ kind: "drill", parent: map, parentBox: "api" });
+    const before = readdirSync(join(root, ".aisus/maps")).sort();
+    for (const args of [["--parent", map, "--box", "nope"], ["--box", "api"]]) {
+      const run = runScript("repo-facts", ["--focus", "API", ...args], { cwd: root });
+      expect(run.status).toBe(2);
+      expect(run.stdout).toBe("");
+    }
+    expect(readdirSync(join(root, ".aisus/maps")).sort()).toEqual(before);
+  });
+
+  test("drawing a box again continues its newest accepted detail map, also after the overview is regenerated", () => {
+    const root = gitRepo({ "src/app.ts": "export {};\n" });
+    const map = accepted(root, ["--focus", "shop"]);
+    const older = accepted(root, ["--focus", "API", "--parent", map, "--box", "api"]);
+    const newer = accepted(root, ["--focus", "API", "--parent", map, "--box", "api"]);
+    accepted(root, ["--focus", "Web", "--parent", map, "--box", "web"]);
+    runScript("repo-facts", ["--focus", "API", "--parent", map, "--box", "api"], { cwd: root });
+    expect(older < newer).toBe(true);
+    const regenerated = accepted(root, ["--focus", "shop"]);
+    const facts = runScript("repo-facts", ["--focus", "API", "--parent", regenerated, "--box", "api"], { cwd: root }).json();
+    expect(facts.previous).toBe(`.aisus/maps/${newer}/candidate.json`);
+  });
+
+  test("detailMaps gives each box its newest accepted drill-down, ignores maps of another focus and drill-downs without a box", () => {
+    const root = gitRepo({ "src/app.ts": "export {};\n" });
+    const map = accepted(root, ["--focus", "shop"]);
+    const other = accepted(root, ["--focus", "billing"]);
+    accepted(root, ["--focus", "API", "--parent", map, "--box", "api"]);
+    const newer = accepted(root, ["--focus", "API", "--parent", map, "--box", "api"]);
+    accepted(root, ["--focus", "Web", "--parent", map]);
+    const otherWeb = accepted(root, ["--focus", "Web", "--parent", other, "--box", "web"]);
+    expect(detailMaps(root, map)).toEqual({ api: newer });
+    expect(detailMaps(root, other)).toEqual({ web: otherWeb });
   });
 });
 

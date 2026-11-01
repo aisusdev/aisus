@@ -266,6 +266,39 @@ test("FRS-06 the freshness header's Refresh posts refresh", async () => {
   send({ type: "freshness", boxes: {}, header: null });
 });
 
+describe("VWR-05 detail maps and the trail", () => {
+  beforeEach(() => send({ type: "overview", trail: [], details: {} }));
+
+  test("a box with a detail map carries a Detail mark whose click and Enter open the detail map and no code, kept across reloads", async () => {
+    send({ type: "load", doc: DOC_A, file: "/r/a.json" });
+    await vi.waitFor(() => expect(document.querySelectorAll(".node").length).toBe(2));
+    send({ type: "overview", trail: [], details: { web: "architecture-web-20261101-120000" } });
+    expect(document.querySelectorAll(".node__detail").length).toBe(1);
+    const mark = document.querySelector('.node[data-id="web"] .node__detail')!;
+    expect(JSON.parse(document.querySelector('.node[data-id="web"]')!.getAttribute("data-vscode-context")!)).toMatchObject({ webviewSection: "box", componentId: "web", hasDetail: true });
+    expect(JSON.parse(document.querySelector('.node[data-id="api"]')!.getAttribute("data-vscode-context")!).hasDetail).toBeUndefined();
+    mark.dispatchEvent(new PointerEvent("pointerdown", { bubbles: true, button: 0, pointerId: 1, clientX: 5, clientY: 5 }));
+    mark.dispatchEvent(new PointerEvent("pointerup", { bubbles: true, button: 0, pointerId: 1, clientX: 5, clientY: 5 }));
+    mark.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+    mark.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter", bubbles: true }));
+    expect(posted).toEqual([{ type: "openDetail", componentId: "web" }, { type: "openDetail", componentId: "web" }]);
+    send({ type: "load", doc: DOC_A, file: "/r/a.json" });
+    await vi.waitFor(() => expect(document.querySelectorAll(".node__detail").length).toBe(1));
+  });
+
+  test("a drill-down shows the maps above it, outermost first, each opening its map, then its own title", async () => {
+    const overview = document.querySelector<HTMLElement>(".overview")!;
+    send({ type: "load", doc: DOC_A, file: "/r/a.json" });
+    await vi.waitFor(() => expect(document.querySelectorAll(".node").length).toBe(2));
+    expect(overview.hidden).toBe(true);
+    send({ type: "overview", trail: [{ run: "architecture-shop-1", title: "Shop" }, { run: "architecture-api-2", title: "Orders API" }], details: {} });
+    expect(overview.hidden).toBe(false);
+    expect([...overview.querySelectorAll(".overview__map, .overview__current")].map((element) => element.textContent)).toEqual(["Shop", "Orders API", "A"]);
+    for (const link of overview.querySelectorAll<HTMLButtonElement>(".overview__map")) link.click();
+    expect(posted).toEqual([{ type: "openMap", run: "architecture-shop-1" }, { type: "openMap", run: "architecture-api-2" }]);
+  });
+});
+
 describe("PRC-02 ghost boxes", () => {
   test("new box candidates are drawn as dashed boxes without a box menu, kept across reloads and cleared", async () => {
     send({ type: "load", doc: DOC_A, file: "/r/a.json" });

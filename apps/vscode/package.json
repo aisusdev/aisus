@@ -232,6 +232,11 @@
         "category": "aisus"
       },
       {
+        "command": "aisus.openDetail",
+        "title": "Open Detail Map",
+        "category": "aisus"
+      },
+      {
         "command": "aisus.find",
         "title": "Find in Map",
         "category": "aisus",
@@ -446,6 +451,10 @@
         {
           "command": "aisus.drillDown",
           "when": "false"
+        },
+        {
+          "command": "aisus.openDetail",
+          "when": "false"
         }
       ],
       "editor/title": [
@@ -559,9 +568,14 @@
           "group": "navigation@4"
         },
         {
+          "command": "aisus.openDetail",
+          "when": "webviewId == 'aisus.architecture' && webviewSection == 'box' && hasDetail",
+          "group": "navigation@5"
+        },
+        {
           "command": "aisus.drillDown",
           "when": "webviewId == 'aisus.architecture' && webviewSection == 'box'",
-          "group": "navigation@5"
+          "group": "navigation@6"
         },
         {
           "command": "aisus.onlyAllowImportsFrom",

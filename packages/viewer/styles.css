@@ -1176,9 +1176,58 @@ button.changes-panel__file:hover {
   position: absolute;
   right: 8px;
   bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  max-width: calc(100% - 16px);
+  padding: 2px 8px 2px 2px;
   background: var(--aisus-widget-background);
   border: 1px solid var(--aisus-widget-border);
+  border-radius: 4px;
   box-shadow: 0 2px 8px var(--aisus-shadow);
+}
+
+.overview__map,
+.overview__current {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.overview__separator {
+  color: var(--aisus-muted);
+}
+
+.overview__current {
+  padding-left: 6px;
+  font-weight: 600;
+}
+
+/* Detail maps (VWR-05): a box with a detail map carries a Detail mark on its lower edge */
+
+.node__detail {
+  cursor: pointer;
+}
+
+.node__detail:focus {
+  outline: none;
+}
+
+.node__detail-pill {
+  fill: var(--aisus-widget-background);
+  stroke: var(--node-color);
+  stroke-width: 1px;
+}
+
+.node__detail:hover .node__detail-pill,
+.node__detail:focus-visible .node__detail-pill {
+  fill: color-mix(in srgb, var(--node-color) 22%, var(--aisus-background));
+  stroke-width: 2px;
+}
+
+.node__detail-text {
+  fill: var(--aisus-foreground);
+  font-weight: 600;
 }
 
 .overview[hidden],

@@ -14,7 +14,7 @@ import { compareMapsCommand } from "./compare";
 import { auditMapCommand } from "./audit";
 import { flagBoxCommand } from "./feedback";
 import { createTourCommand, playTourCommand } from "./tour";
-import { drillDownCommand } from "./drill";
+import { drillDownCommand, openDetailCommand } from "./drill";
 import { copyPromptForCommand } from "./copyPrompt";
 import { removeAisusCommand } from "./removeAisus";
 import { countUsage, UsageLogService } from "./usageLog";
@@ -53,8 +53,8 @@ export interface TestHook {
   panelGhosts(): Ghost[] | undefined;
   /** The shown map's tour (SKL-02). */
   panelTour(): TourStop[] | null | undefined;
-  /** The run folder of the map the shown drill-down came from (VWR-05). */
-  panelOverview(): string | null | undefined;
+  /** The run folders of the maps above the shown map and of its boxes' detail maps (VWR-05). */
+  panelOverview(): { trail: string[]; details: Record<string, string> } | undefined;
   /** The usage log (SET-05). */
   usageLog(): UsageLog;
   reviewReport(): CheckReport | null;
@@ -162,6 +162,7 @@ export function activate(context: vscode.ExtensionContext): TestHook {
     vscode.commands.registerCommand("aisus.playTour", counted("tour", () => playTourCommand(context, runs))),
     vscode.commands.registerCommand("aisus.find", counted("find", () => ArchitecturePanel.current?.find())),
     vscode.commands.registerCommand("aisus.drillDown", counted("drillDown", (box?: { componentId?: unknown }) => drillDownCommand(context, runs, box))),
+    vscode.commands.registerCommand("aisus.openDetail", counted("drillDown", (box?: { componentId?: unknown }) => openDetailCommand(box))),
     vscode.commands.registerCommand("aisus.copyPromptFor", counted("copyPrompt", () => copyPromptForCommand(extensionUri))),
     vscode.commands.registerCommand("aisus.removeAisus", () => removeAisusCommand()),
     vscode.commands.registerCommand("aisus.exportUsageLog", () => usage.exportLog()),
@@ -176,7 +177,7 @@ export function activate(context: vscode.ExtensionContext): TestHook {
     panelCompare: () => ArchitecturePanel.current?.comparison,
     panelGhosts: () => ArchitecturePanel.current?.ghostBoxes,
     panelTour: () => ArchitecturePanel.current?.tourStops,
-    panelOverview: () => ArchitecturePanel.current?.overviewParent,
+    panelOverview: () => ArchitecturePanel.current?.overview,
     usageLog: () => usage.read(),
     reviewReport: () => review.report,
     postFromWebview: async (message) => ArchitecturePanel.current?.handleMessage(message),

@@ -42,8 +42,11 @@ export type HostMessage =
   | { type: "playTour" }
   /** VWR-03: open the finder, for Find in the map's title bar. */
   | { type: "find" }
-  /** VWR-05: the run folder of the map a drill-down came from, when that map still exists, else `null`. */
-  | { type: "overview"; parent: string | null }
+  /**
+   * VWR-05: the maps above a drill-down, outermost first, each with its run folder and title, and
+   * each box id of the shown map with the run folder of its detail map.
+   */
+  | { type: "overview"; trail: { run: string; title: string }[]; details: Record<string, string> }
   /** VWR-06: draw the shown map as an image for Save Image, answered by the request's number. */
   | { type: "image"; request: number; format: ImageFormat };
 
@@ -104,8 +107,9 @@ export type WebviewMessage =
   | { type: "openTourCode"; index: number }
   /** SKL-03: the tour was played to its last stop and finished. */
   | { type: "tourFinished" }
-  /** VWR-05: Back to overview. */
-  | { type: "backToOverview" }
+  /** VWR-05: open a map of the trail, or the detail map of box `componentId`. */
+  | { type: "openMap"; run: string }
+  | { type: "openDetail"; componentId: string }
   /** VWR-06: the SVG text or the PNG data URL of the shown map, or `null` while no map is shown. */
   | { type: "image"; request: number; data: string | null };
 

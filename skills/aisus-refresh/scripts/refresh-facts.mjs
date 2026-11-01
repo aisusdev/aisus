@@ -809,6 +809,7 @@ function newRunRecord(fields, now = /* @__PURE__ */ new Date()) {
     paths: fields.paths ?? [],
     base: fields.base ?? null,
     parent: fields.parent ?? null,
+    ...fields.parentBox === void 0 ? {} : { parentBox: fields.parentBox },
     createdAt: now.toISOString(),
     skillVersion: fields.skillVersion,
     phase: "created",

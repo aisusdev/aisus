@@ -10,6 +10,7 @@ import { AUDIT_FILE } from "@aisus/core/model/audit";
 import type { MapDiff } from "@aisus/core/model/diff";
 import { EVIDENCE_FILE } from "@aisus/core/model/evidence";
 import { readTour, TOUR_FILE, type TourStop } from "@aisus/core/model/tour";
+import { detailMaps } from "@aisus/core/model/lineage";
 import { readRunRecord } from "@aisus/core/model/runRecord";
 import { MAP_DIR, CANDIDATE_FILE } from "@aisus/core/model/runFolder";
 import type { FinishedTour } from "@aisus/core/model/practiceLog";
@@ -44,6 +45,16 @@ function repoRelative(root: string, file: string): string | null {
 }
 
 /** How a file is named in messages: repo-relative when inside the root, else the base name. */
+/** The title of the map at `file`, its run folder's name when it has none, or `null` when it can't be read. */
+function mapTitle(file: string): string | null {
+  try {
+    const title: unknown = JSON.parse(readFileSync(file, "utf8"))?.meta?.title;
+    return typeof title === "string" && title.trim() !== "" ? title : basename(dirname(file));
+  } catch {
+    return null;
+  }
+}
+
 function displayName(root: string, file: string): string {
   const rel = relative(root, file);
   return rel.startsWith("..") || rel === "" ? basename(file) : rel.split(sep).join("/");
@@ -357,20 +368,38 @@ export class ArchitecturePanel {
     void this.panel.webview.postMessage(message);
   }
 
-  /** VWR-05: the map a drill-down came from, while it exists. */
-  private parent: string | null = null;
+  /** VWR-05: the maps above the shown drill-down, outermost first, and its boxes' detail maps. */
+  private trail: { run: string; title: string }[] = [];
+  private details = new Map<string, string>();
 
-  /** The run folder of the map the shown drill-down came from, for the tests. */
-  get overviewParent(): string | null {
-    return this.parent;
+  /** The run folders of the trail and the boxes' detail maps, for the tests. */
+  get overview(): { trail: string[]; details: Record<string, string> } {
+    return { trail: this.trail.map((entry) => entry.run), details: Object.fromEntries(this.details) };
   }
 
-  /** VWR-05: tells the map which overview it came from, when it is a drill-down of one. */
+  /** VWR-05: tells the map the maps above it and which of its boxes have a detail map. */
   sendOverview(): void {
-    const parent = this.shown.kind === "diagram" && this.file !== "" ? (readRunRecord(dirname(this.file))?.parent ?? null) : null;
-    this.parent = parent !== null && existsSync(join(this.root, MAP_DIR, parent, CANDIDATE_FILE)) ? parent : null;
-    const message: HostMessage = { type: "overview", parent: this.parent };
+    this.trail = [];
+    this.details = new Map();
+    if (this.shown.kind === "diagram" && this.file !== "") {
+      const shown = basename(dirname(this.file));
+      this.details = new Map(Object.entries(detailMaps(this.root, shown)));
+      const seen = new Set([shown]);
+      for (let parent = readRunRecord(dirname(this.file))?.parent ?? null; parent !== null && !seen.has(parent); parent = readRunRecord(join(this.root, MAP_DIR, parent))?.parent ?? null) {
+        const title = mapTitle(join(this.root, MAP_DIR, parent, CANDIDATE_FILE));
+        if (title === null) break;
+        seen.add(parent);
+        this.trail.unshift({ run: parent, title });
+      }
+    }
+    const message: HostMessage = { type: "overview", trail: this.trail, details: Object.fromEntries(this.details) };
     void this.panel.webview.postMessage(message);
+  }
+
+  /** VWR-05: opens the detail map of box `id`, when it has one. */
+  openDetail(id: string): void {
+    const run = this.details.get(id);
+    if (run !== undefined) ArchitecturePanel.show(this.extensionUri, this.root, join(this.root, MAP_DIR, run, CANDIDATE_FILE));
   }
 
   /** SKL-02: reads the shown map's tour.json and sends its stops, or `null` without a valid one. */
@@ -544,8 +573,11 @@ export class ArchitecturePanel {
       case "openTourCode":
         await this.openTourStop(message.index);
         return;
-      case "backToOverview":
-        if (this.parent !== null) ArchitecturePanel.show(this.extensionUri, this.root, join(this.root, MAP_DIR, this.parent, CANDIDATE_FILE));
+      case "openMap":
+        if (this.trail.some((entry) => entry.run === message.run)) ArchitecturePanel.show(this.extensionUri, this.root, join(this.root, MAP_DIR, message.run, CANDIDATE_FILE));
+        return;
+      case "openDetail":
+        this.openDetail(message.componentId);
         return;
       case "image":
         this.answerImage(message.request, typeof message.data === "string" ? message.data : null);
