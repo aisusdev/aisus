@@ -21,7 +21,7 @@ export default async function PricingPage() {
           <p className="plan-price">No cost</p>
           <p>Make and inspect maps locally. Add the Action's architecture comment to a pull request.</p>
           <ul><li>Extension, skills and CLI</li><li>Local citation and change checks</li><li>Pull request comment</li></ul>
-          <a className="btn" href="/install" data-umami-event="install">Download aisus</a>
+          <a className="btn" href="/get-started" data-umami-event="get-started">Get Started</a>
         </article>
         <article className="plan plan-featured" id="pro">
           <h2>Pro</h2>

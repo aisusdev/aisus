@@ -24,7 +24,7 @@ Headlines use Poppins SemiBold through `--display`. The site serves the font fro
 
 ## Shape
 
-Buttons are at least 48 pixels tall with a 3-pixel radius. A primary button is pink with white text on public pages and forest with white text on signed-in pages. A secondary button is a forest outline on paper. On a forest band, the primary button turns lime with forest text. Page content sits in a column up to 1248 pixels wide, with side gutters of 24 to 64 pixels on desktop and 20 pixels on phones. The header keeps 16-pixel gutters on phones.
+Buttons are at least 48 pixels tall with a 3-pixel radius. A primary button is pink with white text on public pages and forest with white text on signed-in pages. A secondary button is a forest outline on paper. On a forest band, the primary button turns lime with forest text. Cards on public pages, such as the Pricing plans, are white with 16-pixel corners, a soft shadow and no border. Page content sits in a column up to 1248 pixels wide, with side gutters of 24 to 64 pixels on desktop and 20 pixels on phones. The header keeps 16-pixel gutters on phones.
 
 ## Mockups
 

@@ -32,6 +32,11 @@ test("CLD-08 landing, guide, pricing and privacy render without any third-party 
   expect([...hosts]).toEqual(["127.0.0.1:3210"]);
 });
 
+test("CLD-08 the Free plan's Get Started opens the guide", async ({ page }) => {
+  await page.goto("/pricing");
+  await expect(page.locator("#free").getByRole("link", { name: "Get Started" })).toHaveAttribute("href", "/get-started");
+});
+
 test("CLD-08 the billed app's pricing shows Pro's and Team's price texts", async ({ page }) => {
   await page.goto(`http://127.0.0.1:${BILLED_APP}/pricing`);
   const pricing = page.locator("main");

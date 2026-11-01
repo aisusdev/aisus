@@ -521,36 +521,55 @@ thead th { background: var(--paper-2); }
 .terminal-panel-note, .guide-article .terminal-panel-note { margin: 0; padding: 14px 19px; border-top: 1px solid #47614a; color: #b8d0b9; font-size: 14px; line-height: 1.5; }
 .guide-article .terminal-panel { margin: 22px 0 12px; }
 
-.pricing-intro { padding-top: clamp(72px, 7vw, 100px); padding-bottom: 52px; }
+.pricing-page { overflow-x: clip; }
+.pricing-intro { padding-top: clamp(48px, 6vw, 88px); padding-bottom: 44px; text-align: center; }
 .pricing-intro h1 {
-  max-width: 920px;
-  margin: 0 0 24px;
-  font: 600 clamp(42px, 4.7vw, 64px)/1.08 var(--display);
-  letter-spacing: -.03em;
+  max-width: 22ch;
+  margin: 0 auto 18px;
+  font: 600 clamp(34px, 4.2vw, 54px)/1.12 var(--display);
+  letter-spacing: -.02em;
+  color: var(--forest);
+  text-wrap: balance;
 }
-.pricing-intro p { max-width: 700px; color: var(--text-2); font-size: 18px; }
-.pricing-plans { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.pricing-intro p { max-width: 34rem; margin: 0 auto; color: var(--text-2); font-size: 18px; text-wrap: balance; }
+.pricing-plans { isolation: isolate; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 20px; }
 .plan {
+  position: relative;
   display: flex;
   flex-direction: column;
-  min-height: 420px;
-  padding: 36px;
-  border: 1px solid var(--line);
-  background: var(--white);
+  padding: 28px 24px 24px;
+  border-radius: 16px;
+  background: #ffffff;
+  box-shadow: 0 1px 2px rgba(20, 43, 34, .06), 0 14px 34px -14px rgba(20, 43, 34, .22);
 }
-.plan h2 { margin: 0 0 22px; font: 600 34px/1.12 var(--display); }
-.plan-price { margin: 0 0 24px; font-size: 23px; font-weight: 700; }
-.plan > p:not(.plan-price) { color: var(--text-2); max-width: 43ch; }
-.plan ul { list-style: none; padding: 0; margin: 20px 0 30px; }
-.plan li { padding: 10px 0; border-top: 1px solid var(--line); }
-.plan .btn, .plan .text-link { margin-top: auto; align-self: flex-start; }
-.plan-featured { background: var(--forest); border-color: var(--forest); color: var(--white); }
-.plan-featured > p:not(.plan-price) { color: #cfdfcb; }
-.plan-featured li { border-color: #496252; }
-.plan-featured .btn-primary { background: var(--accent); border-color: var(--accent); color: var(--forest); }
-.plan-featured .btn-primary:hover { background: var(--accent-hi); }
-.plan .text-link { color: #315f3d; font-weight: 700; text-decoration: underline; }
-.pricing-detail { padding-top: 42px; max-width: 1020px; }
+.plan h2 { margin: 0 0 6px; font: 600 24px/1.2 var(--display); color: var(--forest); }
+.plan-price { margin: 0 0 16px; color: var(--forest); font-size: 18px; font-weight: 700; }
+.plan > p:not(.plan-price) { margin: 0; color: var(--text-2); }
+.plan ul { list-style: none; display: flex; flex-direction: column; gap: 10px; padding: 0; margin: 20px 0 28px; }
+.plan li { position: relative; padding-left: 26px; }
+.plan li::before {
+  content: "";
+  position: absolute;
+  left: 5px;
+  top: .3em;
+  width: 5px;
+  height: 10px;
+  border: solid var(--forest);
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+.plan .btn { justify-content: center; margin-top: auto; }
+.plan .text-link { margin-top: auto; align-self: flex-start; color: #315f3d; font-weight: 700; text-decoration: underline; }
+.plan-featured::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: 4% -8% -24px;
+  border-radius: 40px;
+  background: #cfe6c0;
+  filter: blur(28px);
+}
+.pricing-detail { max-width: 760px; padding-top: 48px; text-align: center; }
 .pricing-detail p { color: var(--text-2); }
 .pricing-detail a { color: #315f3d; text-decoration: underline; }
 
@@ -561,6 +580,7 @@ thead th { background: var(--paper-2); }
   .footer-about { grid-column: 1 / -1; }
   .guide-layout { grid-template-columns: 180px minmax(0, 1fr); }
   .guide-aside { display: none; }
+  .pricing-plans { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
 @media (max-width: 900px) {
@@ -605,7 +625,7 @@ thead th { background: var(--paper-2); }
 @media (max-width: 480px) {
   .top-r { margin-left: auto; gap: 8px; }
   .top-r > .btn { min-height: 38px; padding: 8px 11px; font-size: 14px; }
-  .plan { padding: 26px 22px; min-height: 0; }
+  .plan { padding: 24px 20px 20px; }
   .home-hero .cta { flex-direction: column; align-items: stretch; }
   .feature-tab { padding: 0 16px; }
   .site-footer .footer-grid { gap: 27px 18px; }
