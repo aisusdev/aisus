@@ -170,7 +170,7 @@ thead th { background: var(--paper-2); }
 .site-footer {
   margin-top: 112px;
   background: var(--paper-2);
-  border-top: 1px solid var(--line);
+  border-top: 0;
 }
 .site-page:has(.home) .site-footer { margin-top: 0; }
 .site-footer .footer-grid {
