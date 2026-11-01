@@ -113,7 +113,7 @@ describe("UI-01 sidebar states", () => {
     expect(document.activeElement).toBe(focus);
   });
 
-  test("maps: newest first with age and agent below and no box count; the title opens, and ⋯ shows Refresh and Delete, which post the file", () => {
+  test("maps: newest first with the age below and no agent or box count; the title opens, and ⋯ shows Refresh and Delete, which post the file", () => {
     home.render(state({ maps: [map({ focus: "payments" }), map({ title: null, runFolder: "architecture-old-20261001-090000", file: "/r/old.json", agent: null, boxes: 1, createdAt: "2026-10-01T09:00:00Z" })] }));
     expect(text(".current__status")).toEqual(["Map from 2 days ago"]);
     const more = container.querySelector<HTMLButtonElement>(".map__more")!;
@@ -126,7 +126,7 @@ describe("UI-01 sidebar states", () => {
     home.render(state({ maps: [map({ focus: "payments" }), map({ title: null, runFolder: "architecture-old-20261001-090000", file: "/r/old.json", agent: null, boxes: 1, createdAt: "2026-10-01T09:00:00Z" })] }));
     expect(actions().hidden).toBe(false);
     expect(text(".map__title")).toEqual(["aisus", "architecture-old-20261001-090000"]);
-    expect(text(".map__meta")).toEqual(["2 days ago · Claude Code", "17 days ago"]);
+    expect(text(".map__meta")).toEqual(["2 days ago", "17 days ago"]);
     expect(container.querySelector(".map__count")).toBeNull();
     click("Delete");
     container.querySelector<HTMLButtonElement>(".map__title")!.click();
@@ -632,7 +632,7 @@ describe("SEQ-04 sequence maps on the Maps page", () => {
     expect(row.textContent).toContain("1");
     row.click();
     expect(text(".maps--sequence .section__title")).toEqual(["Sequence maps"]);
-    expect(text(".map--sequence .map__meta")).toEqual(["Claude Code · 2 days ago · 3 participants"]);
+    expect(text(".map--sequence .map__meta")).toEqual(["2 days ago · 3 participants"]);
     expect(text(".map--sequence .map__actions button")).toEqual(["Export page", "Create tour", "Delete"]);
     container.querySelector<HTMLButtonElement>(".map--sequence .map__title")!.click();
     expect(posted).toEqual([{ type: "openMap", file: sequence.file }]);

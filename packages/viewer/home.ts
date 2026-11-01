@@ -342,7 +342,6 @@ export function createHome(container: HTMLElement, post: Post, now: () => Date =
     const open = button(item.title ?? item.runFolder, "map__title", () => post({ type: "openMap", file: item.file }));
     open.title = item.runFolder;
     const meta = [
-      item.agent,
       relativeAge(item.createdAt, now()),
       item.boxes === null ? null : `${item.boxes} participant${item.boxes === 1 ? "" : "s"}`,
       item.changed !== null && item.changed > 0 ? `${item.changed} changed` : null,
@@ -414,7 +413,7 @@ export function createHome(container: HTMLElement, post: Post, now: () => Date =
     top.append(more);
     entry.append(top);
     if (depth === 0) {
-      const meta = [relativeAge(item.createdAt, now()), item.agent, item.changed !== null && item.changed > 0 ? `${item.changed} changed` : null].filter(
+      const meta = [relativeAge(item.createdAt, now()), item.changed !== null && item.changed > 0 ? `${item.changed} changed` : null].filter(
         (part): part is string => part !== null && part !== "",
       );
       const line = el("div", "map__meta", meta.join(" · "));
