@@ -1,6 +1,6 @@
 # Open problems and unfinished work
 
-Every known problem and unfinished piece of work, with an ID that never changes. Add new items with the next free ID. Remove an item when it is solved, and record its ID and commit in your shift doc. The next free ID is P-34.
+Every known problem and unfinished piece of work, with an ID that never changes. Add new items with the next free ID. Remove an item when it is solved, and record its ID and commit in your shift doc. The next free ID is P-35.
 
 ## Broken now
 
@@ -44,6 +44,7 @@ The steps for each are in the "Waiting" section of [archive/progress-v0.3.md](ar
 - **P-13 PRC-04 Action on this repository.** Commit a map of this repository under `.aisus/maps/`, open a pull request, and confirm the `aisus-check` job comments once and updates that comment.
 - **P-14 RCH-02 skills from GitHub and as a plugin.** Run `npx skills add aisusdev/aisus` in a scratch folder, install the plugin from a release's `aisus-skills.zip`, and confirm `/aisus-architecture` runs its scripts in Claude Code.
 - **P-15 RCH-05 store installs.** Install the extension from Open VSX and the Marketplace into a clean profile.
+- **P-34 The homepage's Works with row shows tiles instead of the tools' marks.** dennie asked for each tool's official mark, and each brand's own terms decide. JetBrains allows the IntelliJ IDEA icon with a link to jetbrains.com and the line "IntelliJ IDEA and the IntelliJ IDEA logo are trademarks of JetBrains s.r.o.". GitHub allows its mark unaltered and less prominent than aisus. Microsoft's brand page for VS Code forbids its icon on an extension's promotion. Anthropic and OpenAI ask for permission first, and Cursor and Devin publish no terms. Asking any of them is a hard stop. `TOOLS` in `apps/cloud/src/components/Landing.tsx` lists the tiles.
 - **P-16 ACC-04 ground truth.** Run `npm run eval:check-truth` once with network access, and confirm it prints `ok` for each corpus repository.
 - **P-17 IDE-01 plugin smoke.** Install the plugin's zip into IntelliJ IDEA 2026.1, generate a map of AB3, and confirm a box opens its cited lines.
 - **P-18 DOC-01 demo.** Record `docs/media/demo.gif` (generate a map, click a box, Show Changes) and put it under the README's first paragraph.
