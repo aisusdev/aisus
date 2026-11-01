@@ -37,6 +37,14 @@ test("CLD-08 the Free plan's Get Started opens the guide", async ({ page }) => {
   await expect(page.locator("#free").getByRole("link", { name: "Get Started" })).toHaveAttribute("href", "/get-started");
 });
 
+test("CLD-08 the upload schema stays folded until Show the upload schema is clicked", async ({ page }) => {
+  await page.goto("/privacy");
+  const schema = page.locator("pre");
+  await expect(schema).toBeHidden();
+  await page.getByText("Show the upload schema").click();
+  await expect(schema).toBeVisible();
+});
+
 test("CLD-08 the billed app's pricing shows Pro's and Team's price texts", async ({ page }) => {
   await page.goto(`http://127.0.0.1:${BILLED_APP}/pricing`);
   const pricing = page.locator("main");
