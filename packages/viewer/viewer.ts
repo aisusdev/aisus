@@ -104,6 +104,17 @@ export function startViewer(mount: HTMLElement = document.body): void {
   followButton.title = "Keep the highlight in step with the active editor";
   followButton.setAttribute("aria-pressed", "false");
   highlightBar.append(highlightText, followButton);
+  // FRS-12: the Compare button opens Compare With… while no comparison is shown, beside the highlight bar.
+  const compareStart = document.createElement("button");
+  compareStart.type = "button";
+  compareStart.className = "toolbar__button compare-start";
+  compareStart.textContent = "Compare";
+  compareStart.title = "Compare this map with an earlier one";
+  compareStart.hidden = true;
+  compareStart.addEventListener("click", () => post({ type: "compareWith" }));
+  const corner = document.createElement("div");
+  corner.className = "corner";
+  corner.append(compareStart, highlightBar);
   // FRS-03: how many boxes changed since the map was made.
   const freshnessBar = document.createElement("div");
   freshnessBar.className = "freshness";
@@ -194,7 +205,7 @@ export function startViewer(mount: HTMLElement = document.body): void {
     event.preventDefault();
     if (component.sources.length > 0) post({ type: "openSource", componentId: component.id, index: 0 });
   });
-  app.append(svg, toolbar, tour.start, finder.element, highlightBar, freshnessBar, changesBar, compareBar, changesPanel, emptyState, tooltipElement, legend, tour.card, screenReader, overview);
+  app.append(svg, toolbar, tour.start, finder.element, corner, freshnessBar, changesBar, compareBar, changesPanel, emptyState, tooltipElement, legend, tour.card, screenReader, overview);
   mount.append(app);
 
   const viewport = new ViewportController(svg, content, toolbar, window);
@@ -226,6 +237,8 @@ export function startViewer(mount: HTMLElement = document.body): void {
   let ghostArrows: GhostArrow[] = [];
   /** FRS-10: the comparison with an earlier map, kept across reloads until the host replaces it. */
   let compare: Comparison | null = null;
+  /** FRS-12: whether the host offers Compare With…. */
+  let pick = false;
   const changesView = new ChangesView(compareBar, changesPanel, {
     post,
     focus: (kind, index) => focusElement(kind, index),
@@ -297,6 +310,7 @@ export function startViewer(mount: HTMLElement = document.body): void {
     }
     tooltip.setNotes("compare", notes);
     changesView.show(shownDiagram, compare);
+    compareStart.hidden = !pick || compare !== null || shownDiagram === undefined;
     // The canvas makes room for the panel, so fitting never puts a box under it.
     const withPanel = !changesPanel.hidden;
     if (app.classList.contains("app--with-panel") !== withPanel) {
@@ -643,6 +657,7 @@ export function startViewer(mount: HTMLElement = document.body): void {
     }
     if (message.type === "compare") {
       compare = message.compare;
+      pick = message.pick === true;
       applyCompare();
       return;
     }

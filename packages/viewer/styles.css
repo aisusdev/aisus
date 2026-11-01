@@ -84,13 +84,41 @@ body {
   outline-offset: -1px;
 }
 
-/* Highlight bar (UI-03): which boxes cite the active file, and Follow editor */
+/* The top left corner: the Compare button (FRS-12) and the highlight bar beside it */
 
-.highlight {
+.corner {
   position: absolute;
   top: 8px;
   left: 8px;
   display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 8px;
+  /* The zoom control keeps the top right, so the corner wraps short of it. */
+  max-width: calc(100% - 184px);
+}
+
+.compare-start {
+  height: 30px;
+  background: var(--aisus-widget-background);
+  border: 1px solid var(--aisus-widget-border);
+  border-radius: 4px;
+  box-shadow: 0 2px 8px var(--aisus-shadow);
+}
+
+.compare-start:hover {
+  background: var(--aisus-hover);
+}
+
+.app--empty .corner {
+  display: none;
+}
+
+/* Highlight bar (UI-03): which boxes cite the active file, and Follow editor */
+
+.highlight {
+  display: flex;
+  white-space: nowrap;
   align-items: center;
   gap: 8px;
   padding: 2px 2px 2px 10px;

@@ -11,6 +11,7 @@ import type { MapDiff } from "@aisus/core/model/diff";
 import { EVIDENCE_FILE } from "@aisus/core/model/evidence";
 import { readTour, TOUR_FILE, type TourStop } from "@aisus/core/model/tour";
 import { detailMaps } from "@aisus/core/model/lineage";
+import { listCandidates } from "@aisus/core/model/discovery";
 import { readRunRecord } from "@aisus/core/model/runRecord";
 import { MAP_DIR, CANDIDATE_FILE } from "@aisus/core/model/runFolder";
 import type { FinishedTour } from "@aisus/core/model/practiceLog";
@@ -142,8 +143,13 @@ export class ArchitecturePanel {
     return baseline === null ? null : buildComparison(this.root, this.file, baseline, ArchitecturePanel.changesShown);
   }
 
+  /** FRS-12: whether Compare With… has a map to offer, for the map's Compare button. */
+  get pick(): boolean {
+    return this.shown.kind === "diagram" && this.shown.diagram.sequence === undefined && listCandidates(this.root).some((candidate) => candidate.file !== this.file);
+  }
+
   private sendCompare(): void {
-    const message: HostMessage = { type: "compare", compare: this.comparison };
+    const message: HostMessage = { type: "compare", compare: this.comparison, pick: this.pick };
     void this.panel.webview.postMessage(message);
   }
 

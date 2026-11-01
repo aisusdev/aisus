@@ -50,6 +50,8 @@ export interface TestHook {
   /** The new box candidates drawn on the map, and the last review's report (PRC-02). */
   /** The comparison on the shown map (FRS-07, PRC-03). */
   panelCompare(): Comparison | null | undefined;
+  /** Whether the map's Compare button shows (FRS-12). */
+  panelPick(): boolean | undefined;
   panelGhosts(): Ghost[] | undefined;
   /** The shown map's tour (SKL-02). */
   panelTour(): TourStop[] | null | undefined;
@@ -175,6 +177,7 @@ export function activate(context: vscode.ExtensionContext): TestHook {
     panelFreshness: () => ArchitecturePanel.current?.freshnessState,
     panelChanges: () => ArchitecturePanel.current?.changeOverlay,
     panelCompare: () => ArchitecturePanel.current?.comparison,
+    panelPick: () => ArchitecturePanel.current?.pick,
     panelGhosts: () => ArchitecturePanel.current?.ghostBoxes,
     panelTour: () => ArchitecturePanel.current?.tourStops,
     panelOverview: () => ArchitecturePanel.current?.overview,

@@ -28,8 +28,11 @@ export type HostMessage =
   | { type: "changes"; overlay: ChangeOverlay | null }
   /** PRC-02: new box candidates drawn as dashed ghost boxes, and PRC-06's new arrows as dashed ghost arrows; never written. */
   | { type: "ghosts"; ghosts: Ghost[]; arrows?: GhostArrow[] }
-  /** FRS-07, FRS-10: the shown map compared with an earlier one, or `null` for no comparison. */
-  | { type: "compare"; compare: Comparison | null }
+  /**
+   * FRS-07, FRS-10: the shown map compared with an earlier one, or `null` for no comparison.
+   * FRS-12: `pick` says the host offers Compare With…, which shows the map's Compare button.
+   */
+  | { type: "compare"; compare: Comparison | null; pick?: boolean }
   /** ARC-03: each box's heat level (0 to 4) and tooltip line, and whether the Hotspots toggle shows them. */
   | { type: "hotspots"; boxes: Record<string, { level: number; note: string }>; shown: boolean }
   /** ARC-01: imports that break the rules, as red arrows between the boxes, labelled with the rules. */

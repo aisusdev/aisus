@@ -533,6 +533,21 @@ describe("FRS-07 FRS-10 compare maps", () => {
     expect(document.querySelectorAll(".compare__with, .compare__swap, .change-card__baseline, .change-card[data-status='kept'], .changes-panel__uncited").length).toBe(0);
     expect(node("db").classList.contains("node--kept")).toBe(false);
   });
+
+  test("FRS-12 the Compare button shows while no comparison is shown and the host offers one, and asks the host for Compare With…", async () => {
+    send({ type: "load", doc: AFTER, file: "/r/now.json" });
+    await vi.waitFor(() => expect(document.querySelectorAll(".node").length).toBe(3));
+    const start = (): HTMLButtonElement => document.querySelector<HTMLButtonElement>(".corner .compare-start")!;
+    send({ type: "compare", compare: null, pick: true });
+    expect(start().hidden).toBe(false);
+    posted.length = 0;
+    start().click();
+    expect(posted).toEqual([{ type: "compareWith" }]);
+    send({ type: "compare", compare: { against: context.baselineRun, diff: diffMaps(BEFORE, AFTER_VIEW), context, shown: true }, pick: true });
+    expect(start().hidden).toBe(true);
+    send({ type: "compare", compare: null, pick: false });
+    expect(start().hidden).toBe(true);
+  });
 });
 
 describe("SKL-02 tour player", () => {

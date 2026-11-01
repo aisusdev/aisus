@@ -1,6 +1,7 @@
 // FRS-10, FRS-11: a refreshed map opens without a comparison, and compared with the map it updated it
 // shows the boxes it kept and the files no box cites. Swap and Open baseline show the earlier map in
-// the panel, and Compare with… offers No comparison.
+// the panel, and Compare with… offers No comparison. FRS-12: the Compare button shows when there is
+// another map to compare with.
 import * as assert from "node:assert/strict";
 import { mkdirSync, rmSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
@@ -87,6 +88,13 @@ suite("FRS-10 Changes panel", () => {
     await hook.postFromWebview({ type: "openBaseline" });
     assert.equal(hook.panelState().file, candidate(BASE));
     assert.equal(hook.panelCompare(), null);
+  });
+
+  test("FRS-12 the Compare button shows when the folder has another map", async () => {
+    await open(REFRESH);
+    assert.equal(hook.panelPick(), true);
+    rmSync(join(root, ".aisus/maps", BASE), { recursive: true, force: true });
+    assert.equal(hook.panelPick(), false);
   });
 
   test("FRS-10 Compare with… tags the map this one updated, and No comparison clears it", async () => {
