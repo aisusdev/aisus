@@ -1,12 +1,12 @@
 # The aisus site style
 
-Every page of aisus cloud, public and signed in, uses one light design. `apps/cloud/src/app/site-redesign.css` holds its tokens and loads after `globals.css`, so its values win. The map viewer keeps its own theme.
+Every page of aisus cloud, public and signed in, uses one light design. `apps/cloud/src/app/site-redesign.css` holds its tokens and loads after `globals.css`, so its values win. The map viewer keeps its own theme. Public pages sit on white inside `.site-page`, and signed-in pages sit on paper. [homepage.md](homepage.md) describes the homepage.
 
 ## Colour
 
 | Token | Value | Use |
 |---|---|---|
-| `--paper` | `#f7f9f4` | Page background |
+| `--paper` | `#f7f9f4` | Signed-in page background. Public pages set it to white |
 | `--paper-2` | `#eaf0e8` | Table headers, hover fills and quiet panels |
 | `--white` | `#fffef9` | Inputs and cards that sit on paper |
 | `--forest` | `#142b22` | Primary buttons, bands, the product frame and text on lime |
@@ -14,6 +14,7 @@ Every page of aisus cloud, public and signed in, uses one light design. `apps/cl
 | `--text-2` | `#4f6055` | Secondary text |
 | `--line` | `#cad1c6` | Borders and dividers |
 | `--accent` | `#c8ef72` | Lime for selection, status dots and the primary button on forest |
+| `--pink` | `#c92c6d` | The action colour on public pages: primary buttons, progress and link hover. On forest it appears only as a fill |
 
 Links and hover states use the deeper greens `#477646` and `#315f3d`. Danger uses `#9b342d`.
 
@@ -23,7 +24,7 @@ Headlines use Poppins SemiBold through `--display`. The site serves the font fro
 
 ## Shape
 
-Buttons are at least 48 pixels tall with a 3-pixel radius. A primary button is forest with white text. A secondary button is a forest outline on paper. On a forest band, the primary button turns lime with forest text. Page content sits in a column up to 1248 pixels wide, with side gutters of 24 to 64 pixels on desktop and 20 pixels on phones. The header keeps 16-pixel gutters on phones.
+Buttons are at least 48 pixels tall with a 3-pixel radius. A primary button is pink with white text on public pages and forest with white text on signed-in pages. A secondary button is a forest outline on paper. On a forest band, the primary button turns lime with forest text. Page content sits in a column up to 1248 pixels wide, with side gutters of 24 to 64 pixels on desktop and 20 pixels on phones. The header keeps 16-pixel gutters on phones.
 
 ## Mockups
 
