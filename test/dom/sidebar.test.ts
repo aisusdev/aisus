@@ -105,6 +105,14 @@ describe("UI-01 sidebar states", () => {
     expect(container.querySelector<HTMLTextAreaElement>(".composer__focus")!.value).toBe("half typed");
   });
 
+  test.each<[string, Partial<HomeState>]>([["no map", {}], ["a map", { maps: [map({})] }]])("a focused Focus box keeps its focus across a new state, with %s", (_, fields) => {
+    home.render(state(fields));
+    const focus = container.querySelector<HTMLTextAreaElement>(".composer__focus")!;
+    focus.focus();
+    home.render(state(fields));
+    expect(document.activeElement).toBe(focus);
+  });
+
   test("maps: newest first with age and agent below and no box count; the title opens, and ⋯ shows Refresh and Delete, which post the file", () => {
     home.render(state({ maps: [map({ focus: "payments" }), map({ title: null, runFolder: "architecture-old-20261001-090000", file: "/r/old.json", agent: null, boxes: 1, createdAt: "2026-10-01T09:00:00Z" })] }));
     expect(text(".current__status")).toEqual(["Map from 2 days ago"]);

@@ -155,6 +155,7 @@ export function createHome(container: HTMLElement, post: Post, now: () => Date =
   const opened = new Map<string, boolean>();
   const earlierOpen = new Set<string>();
   const newMap = section("New map", "new-map");
+  const intro = section("Map this folder", "current current--empty");
   const reviewSlot = el("div", "review-slot");
   const rulesSlot = el("div", "rules-slot");
   const hotspotsSlot = el("div", "hotspots-slot");
@@ -444,16 +445,16 @@ export function createHome(container: HTMLElement, post: Post, now: () => Date =
 
   /** The home's first card: the newest map with one filled button, or the composer when there is no map. */
   function renderCurrent(state: HomeState): void {
-    currentSlot.replaceChildren();
     // VWR-07: the newest top-level map, so a drill-down never takes the card.
     const newest = state.mapTree[0]?.item;
+    // The composer and its section move only when their place changes, so a focused Focus box keeps its focus.
     if (newest === undefined) {
-      const intro = section("Map this folder", "current current--empty");
-      intro.append(composer);
-      currentSlot.append(intro);
+      if (composer.parentElement !== intro) intro.append(composer);
+      if (currentSlot.firstChild !== intro || currentSlot.childNodes.length !== 1) currentSlot.replaceChildren(intro);
       return;
     }
-    newMap.append(composer);
+    if (composer.parentElement !== newMap) newMap.append(composer);
+    currentSlot.replaceChildren();
     const card = el("section", "current");
     const title = button(newest.title ?? newest.runFolder, "current__title", () => post({ type: "openMap", file: newest.file }));
     title.title = newest.runFolder;
