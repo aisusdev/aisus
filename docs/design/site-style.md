@@ -19,7 +19,7 @@ Links and hover states use the deeper greens `#477646` and `#315f3d`. Danger use
 
 ## Type
 
-Headlines use Space Grotesk SemiBold through `--display`. The site serves the font from `apps/cloud/public/fonts/` under the SIL Open Font License. Body text uses Avenir Next through `--sans`, falling back to Helvetica Neue and the system font. Code uses the system monospace stack through `--mono`. Body text is 16 pixels, and nothing on a page is smaller.
+Headlines use Poppins SemiBold through `--display`. The site serves the font from `apps/cloud/public/fonts/` under the SIL Open Font License, in `OFL-Poppins.txt`. Space Grotesk stays in that folder for the older mockups here. Body text uses Avenir Next through `--sans`, falling back to Helvetica Neue and the system font. Code uses the system monospace stack through `--mono`. Body text is 16 pixels, and nothing on a page is smaller.
 
 ## Shape
 

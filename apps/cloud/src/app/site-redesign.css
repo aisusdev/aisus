@@ -1,7 +1,7 @@
 /* The site's pale green visual language, shared across public and signed-in pages. */
 @font-face {
-  font-family: "Space Grotesk";
-  src: url("/fonts/SpaceGrotesk-SemiBold.ttf") format("truetype");
+  font-family: "Poppins";
+  src: url("/fonts/Poppins-SemiBold.ttf") format("truetype");
   font-style: normal;
   font-weight: 600;
   font-display: swap;
@@ -28,7 +28,7 @@
   --paper-2: #eaf0e8;
   --white: #fffef9;
   --sans: "Avenir Next", Avenir, "Helvetica Neue", system-ui, sans-serif;
-  --display: "Space Grotesk", var(--sans);
+  --display: "Poppins", var(--sans);
   --header: 76px;
   --section-space: clamp(84px, 7vw, 112px);
   color-scheme: light;
