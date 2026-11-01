@@ -2,17 +2,7 @@
 // Signed in, its sign-in button opens the cloud (CLD-20).
 import { CLOUD, signInPath } from "../lib/paths";
 import { FeatureTabs } from "./FeatureTabs";
-
-// Each tool shows a tile with its initials until its owner's terms allow its official mark here.
-const TOOLS = [
-  { name: "VS Code", initials: "VS" },
-  { name: "Cursor", initials: "Cu" },
-  { name: "IntelliJ", initials: "IJ" },
-  { name: "Claude Code", initials: "CC" },
-  { name: "Codex", initials: "Cx" },
-  { name: "Devin", initials: "Dv" },
-  { name: "GitHub", initials: "GH" },
-];
+import { TOOLS, ToolMark } from "./ToolMarks";
 
 const FAQ = [
   { question: "How do I start using aisus?", answer: "Install the extension in VS Code or Cursor, click the aisus icon in the Activity Bar and press Generate. The setup checklist names anything missing." },
@@ -41,7 +31,7 @@ export function Landing({ signedIn }: { signedIn: boolean }) {
         <p>Works with</p>
         <ul>
           {TOOLS.map((tool) => (
-            <li key={tool.name}><span className="tool-tile" aria-hidden="true">{tool.initials}</span>{tool.name}</li>
+            <li key={tool}><ToolMark name={tool} />{tool}</li>
           ))}
         </ul>
       </section>
