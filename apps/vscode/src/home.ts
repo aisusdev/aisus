@@ -11,7 +11,7 @@ import { listMaps } from "@aisus/core/model/maps";
 import type { MapKind } from "@aisus/core/model/runFolder";
 import { MAP_DIR, CANDIDATE_FILE } from "@aisus/core/model/runFolder";
 import { fileReader, readFingerprints } from "@aisus/core/model/staleness";
-import type { CloudStatus, HomeHostMessage, HomeState, HomeWebviewMessage, MapItem, SessionSummary } from "@aisus/core/model/messages";
+import type { CloudStatus, ComposerCli, HomeHostMessage, HomeState, HomeWebviewMessage, MapItem, SessionSummary } from "@aisus/core/model/messages";
 import { runPreflight, type Check } from "@aisus/core/model/preflight";
 import { assertWritable } from "@aisus/core/model/confine";
 import { AGENTS } from "@aisus/core/model/agents";
@@ -19,7 +19,7 @@ import type { Ask } from "./ask";
 import type { Practice } from "./practice";
 import { changedBoxes, type FreshnessService } from "./freshness";
 import { findDevinCli } from "./devin";
-import { launchEstimate } from "./estimates";
+import { detailedEnabled, taskEstimate } from "./estimates";
 import { chosenAgent, configuredRunMode, foundAgents, launchGenerate, launchNotes, launchTask, rememberAgent } from "./generate";
 import { webviewHtml } from "./html";
 import { installSkill } from "./install";
@@ -62,6 +62,8 @@ export class HomeView implements vscode.WebviewViewProvider, vscode.Disposable {
   private view: vscode.WebviewView | undefined;
   private setup: Check[] | null = null;
   private setupRoot: string | null = null;
+  /** P-26: the detailed estimate the first Generate click planned, shown until the run starts. */
+  private planned: { root: string; agent: ComposerCli; notes: string[] } | null = null;
   private readonly disposables: vscode.Disposable[] = [];
   private readonly healthCache = new Map<string, { at: number; items: HealthItem[] }>();
   /** CLD-16: each folder's maps in aisus cloud, as last pulled. */
@@ -181,6 +183,7 @@ export class HomeView implements vscode.WebviewViewProvider, vscode.Disposable {
         const launch = launchNotes(this.context, root, agent, runMode, agents.find((entry) => entry.cli === agent)?.headless ?? true);
         notes = launch.filter((note) => note.kind === "estimate" && agent !== "devin").map((note) => note.text);
         confirm = launch.some((note) => note.confirm === true);
+        if (this.planned?.root === root && this.planned.agent === agent && detailedEnabled()) notes = this.planned.notes;
       } catch (error) {
         notes = [(error as Error).message];
       }
@@ -322,8 +325,17 @@ export class HomeView implements vscode.WebviewViewProvider, vscode.Disposable {
         const cli = chosenAgent(this.context, foundAgents());
         const agent = AGENTS.find((entry) => entry.cli === cli);
         if (!agent) return;
-        // Above the threshold the sidebar sends a second, confirmed click (CST-03).
-        if (agent.cli !== "devin" && launchEstimate(root, agent.cli, "full")?.confirm === true && message.confirmed !== true) return;
+        // Above the threshold the sidebar sends a second, confirmed click (CST-03). With the detailed
+        // estimate on, the first click shows the plan for the typed focus (P-26).
+        const estimate = agent.cli === "devin" ? null : taskEstimate(root, agent.cli, "aisus-architecture", message.focus);
+        if (estimate?.confirm === true && message.confirmed !== true) {
+          if (detailedEnabled()) {
+            this.planned = { root, agent: agent.cli, notes: [estimate.text, ...estimate.details] };
+            this.send();
+          }
+          return;
+        }
+        this.planned = null;
         this.runs.dismiss();
         await launchGenerate(this.context, this.runs, root, agent, message.focus, configuredRunMode());
         this.send();

@@ -78,6 +78,11 @@
           "minimum": 0,
           "description": "Runs whose estimate reaches above this many tokens need a second click before they start."
         },
+        "aisus.estimate.detailed": {
+          "type": "boolean",
+          "default": false,
+          "description": "Before Generate starts, plan which files the focus will read and show the tokens that plan spends. Generate then always needs a second click."
+        },
         "aisus.rules.severity": {
           "type": "string",
           "enum": [

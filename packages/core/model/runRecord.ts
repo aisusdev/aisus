@@ -100,6 +100,25 @@ export function runFolderNames(root: string): Set<string> {
   }
 }
 
+/**
+ * P-26: the latest `limit` records in `root/.aisus/maps` of `kind` runs by the agent named `agent`
+ * that reached a verdict and recorded tokens, newest first. A cancelled run has no verdict.
+ */
+export function finishedRuns(root: string, agent: string, kind: RunKind, limit: number): (RunRecord & { tokens: RunTokens })[] {
+  const runs: (RunRecord & { tokens: RunTokens })[] = [];
+  for (const runFolder of runFolderNames(root)) {
+    const record = readRunRecord(join(root, MAP_DIR, runFolder));
+    const finished = record?.phase === "accepted" || record?.phase === "rejected";
+    if (finished && record.tokens !== undefined && record.agent === agent && record.kind === kind) runs.push(record as RunRecord & { tokens: RunTokens });
+  }
+  return runs.sort((a, b) => b.createdAt.localeCompare(a.createdAt)).slice(0, limit);
+}
+
+/** All tokens a run spent. */
+export function spentTokens(tokens: RunTokens): number {
+  return tokens.input + tokens.output + tokens.cacheRead + tokens.cacheWrite;
+}
+
 /** The run folder created since `before` whose record started last, or `null` when there is none yet. */
 export function newRunSince(root: string, before: ReadonlySet<string>): { runFolder: string; dir: string; record: RunRecord } | null {
   let found: { runFolder: string; dir: string; record: RunRecord } | null = null;

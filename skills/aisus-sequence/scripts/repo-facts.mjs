@@ -790,10 +790,23 @@ function estimateText(range, price) {
   const tokens = `About ${tokenAmount(range.low)}\u2013${tokenAmount(range.high)} tokens`;
   return price === null ? tokens : `${tokens} (${usd(price.low)}\u2013${usd(price.high)} at API prices)`;
 }
-function runEstimate(size, agent, kind, confirmAbove) {
-  const range = estimate(size, agent, kind);
+function calibrate(range, ratios) {
+  if (ratios.length === 0) return range;
+  const sorted = [...ratios].sort((a, b) => a - b);
+  const middle = Math.floor(sorted.length / 2);
+  const median = sorted.length % 2 === 1 ? sorted[middle] : (sorted[middle - 1] + sorted[middle]) / 2;
+  return { ...range, low: Math.round(range.low * median), high: Math.round(range.high * median) };
+}
+function calibrationText(runs) {
+  return runs === 1 ? "Scaled to what the last run in this folder spent." : `Scaled to what the last ${runs} runs in this folder spent.`;
+}
+function priced(range, agent, confirm, details) {
   const model = modelPrice(agent);
-  return { range, text: estimateText(range, model ? priceRange(range, agent, model) : null), model: model?.id ?? null, confirm: range.high > confirmAbove };
+  return { range, text: estimateText(range, model ? priceRange(range, agent, model) : null), details, model: model?.id ?? null, confirm };
+}
+function runEstimate(size, agent, kind, confirmAbove, ratios = []) {
+  const range = calibrate(estimate(size, agent, kind), ratios);
+  return priced(range, agent, range.high > confirmAbove, ratios.length === 0 ? [] : [calibrationText(ratios.length)]);
 }
 function skillEstimates(size, kind) {
   const entry = (agent) => {

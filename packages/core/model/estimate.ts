@@ -3,6 +3,7 @@
 // `pricing.json` holds each model's prices with the date and page they were read from.
 import coefficients from "./coefficients.json";
 import pricing from "./pricing.json";
+import type { ReadPlan } from "./readPlan";
 
 export type EstimateAgent = "claude" | "codex";
 export type EstimateKind = "full" | "refresh" | "ask";
@@ -110,16 +111,76 @@ export function estimateText(range: Estimate, price: { low: number; high: number
 export interface RunEstimate {
   range: Estimate;
   text: string;
+  /** Lines shown under `text`: the detailed plan and the calibration, when they apply. */
+  details: string[];
   /** The model the dollars are priced at. */
   model: string | null;
   confirm: boolean;
 }
 
-/** CST-03: the estimate of a `kind` run by `agent`, priced at the agent's default model. */
-export function runEstimate(size: SizeFacts, agent: EstimateAgent, kind: EstimateKind, confirmAbove: number): RunEstimate {
-  const range = estimate(size, agent, kind);
+/** P-26: `range` scaled by the median of `ratios`, each a past run's spent tokens over its estimate's midpoint. */
+export function calibrate(range: Estimate, ratios: readonly number[]): Estimate {
+  if (ratios.length === 0) return range;
+  const sorted = [...ratios].sort((a, b) => a - b);
+  const middle = Math.floor(sorted.length / 2);
+  const median = sorted.length % 2 === 1 ? sorted[middle]! : (sorted[middle - 1]! + sorted[middle]!) / 2;
+  return { ...range, low: Math.round(range.low * median), high: Math.round(range.high * median) };
+}
+
+/** The midpoint of `range`, which a past run's spent tokens are compared with. */
+export function midpoint(range: Estimate): number {
+  return (range.low + range.high) / 2;
+}
+
+/** The line that says the estimate follows the folder's earlier runs. */
+export function calibrationText(runs: number): string {
+  return runs === 1 ? "Scaled to what the last run in this folder spent." : `Scaled to what the last ${runs} runs in this folder spent.`;
+}
+
+function priced(range: Estimate, agent: EstimateAgent, confirm: boolean, details: string[]): RunEstimate {
   const model = modelPrice(agent);
-  return { range, text: estimateText(range, model ? priceRange(range, agent, model) : null), model: model?.id ?? null, confirm: range.high > confirmAbove };
+  return { range, text: estimateText(range, model ? priceRange(range, agent, model) : null), details, model: model?.id ?? null, confirm };
+}
+
+/** CST-03: the estimate of a `kind` run by `agent`, priced at the agent's default model and scaled by `ratios` (P-26). */
+export function runEstimate(size: SizeFacts, agent: EstimateAgent, kind: EstimateKind, confirmAbove: number, ratios: readonly number[] = []): RunEstimate {
+  const range = calibrate(estimate(size, agent, kind), ratios);
+  return priced(range, agent, range.high > confirmAbove, ratios.length === 0 ? [] : [calibrationText(ratios.length)]);
+}
+
+/**
+ * P-26: what each turn of a Generate run sends besides file content (the agent's prompt, tools and
+ * the skill), how many reads a turn makes, the turns that read nothing (writing and validating), and
+ * the output. Provisional until runs calibrate them.
+ */
+export const TURN_MODEL: Record<EstimateAgent, { perTurn: number; readsPerTurn: number; otherTurns: number; output: number }> = {
+  claude: { perTurn: 20_000, readsPerTurn: 3, otherTurns: 8, output: 20_000 },
+  codex: { perTurn: 10_000, readsPerTurn: 2, otherTurns: 8, output: 20_000 },
+};
+
+/**
+ * The tokens of a Generate run that follows `plan`. Every turn sends the whole context again, so a
+ * read stays in it for the turns after it, about half the run on average. The range takes the
+ * full run's band from `table`.
+ */
+export function detailedEstimate(plan: ReadPlan, agent: EstimateAgent, table: Coefficients = COEFFICIENTS): { range: Estimate; turns: number } {
+  const model = TURN_MODEL[agent];
+  const turns = Math.ceil(plan.reads / model.readsPerTurn) + model.otherTurns;
+  const tokens = turns * model.perTurn + (plan.readTokens * (turns + 1)) / 2 + model.output;
+  const line = table.lines[agent].full;
+  return { range: { low: Math.round(tokens * line.low), high: Math.round(tokens * line.high), basis: table.basis }, turns };
+}
+
+/** The line that states the plan behind a detailed estimate. */
+export function planText(plan: ReadPlan, turns: number): string {
+  const named = plan.matched.length === 0 ? "none of them in files the focus names" : `${plan.matched.length} of them in files the focus names`;
+  return `The run plans ${plan.reads} reads over ${turns} turns, ${named}, adding about ${tokenAmount(plan.readTokens)} tokens of code.`;
+}
+
+/** P-26: the detailed estimate of a Generate run that follows `plan`, scaled by `ratios`. It always needs a second click. */
+export function detailedRunEstimate(plan: ReadPlan, agent: EstimateAgent, ratios: readonly number[] = []): RunEstimate {
+  const { range, turns } = detailedEstimate(plan, agent);
+  return priced(calibrate(range, ratios), agent, true, [planText(plan, turns), ...(ratios.length === 0 ? [] : [calibrationText(ratios.length)])]);
 }
 
 /** What the skills' fact scripts print as `estimate`, for each agent (CST-03). */

@@ -113,13 +113,15 @@ export function createHome(container: HTMLElement, post: Post, now: () => Date =
   focus.placeholder = "Focus (optional)";
   focus.setAttribute("aria-label", "Focus");
   const controls = el("div", "composer__controls");
-  // CST-03: above the threshold the first click arms the button and the second sends the run.
+  // CST-03: above the threshold the first click arms the button and the second sends the run. The
+  // first click also tells the host the focus, so a detailed estimate can plan it (P-26).
   let generateArmed = false;
   const generate = button("Generate", "button button--primary composer__generate", () => {
     const confirm = current?.composer.confirm === true;
     if (confirm && !generateArmed) {
       generateArmed = true;
       generate.textContent = SECOND_CLICK;
+      post({ type: "generate", focus: focus.value });
       return;
     }
     generateArmed = false;
@@ -134,6 +136,12 @@ export function createHome(container: HTMLElement, post: Post, now: () => Date =
   composer.append(focus, controls, generate, copyPrompt, drawSequence, notes);
   focus.addEventListener("keydown", (event) => {
     if (event.key === "Enter" && (event.metaKey || event.ctrlKey) && !generate.disabled) generate.click();
+  });
+  // A changed focus needs a new first click, so the stated estimate is for the focus that runs.
+  focus.addEventListener("input", () => {
+    if (!generateArmed) return;
+    generateArmed = false;
+    generate.textContent = "Generate";
   });
   const runSlot = el("div", "run-slot");
   const currentSlot = el("div", "current-slot");

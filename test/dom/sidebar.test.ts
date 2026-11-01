@@ -309,15 +309,15 @@ describe("CST-03 cost before every run", () => {
     expect(posted).toEqual([{ type: "generate", focus: "payments" }]);
   });
 
-  test("above the threshold the first click asks for a second, which sends the run as confirmed", () => {
+  test("above the threshold the first click sends the focus unconfirmed and asks for a second, which sends the run as confirmed", () => {
     home.render(state({ composer: { ...state().composer, notes: [ESTIMATE], confirm: true } }));
     generate().click();
-    expect(posted).toEqual([]);
+    expect(posted).toEqual([{ type: "generate", focus: "" }]);
     expect(generate().textContent).toBe("Click again to generate");
     home.render(state({ composer: { ...state().composer, notes: [ESTIMATE], confirm: true } }));
     expect(generate().textContent).toBe("Click again to generate");
     generate().click();
-    expect(posted).toEqual([{ type: "generate", focus: "", confirmed: true }]);
+    expect(posted).toEqual([{ type: "generate", focus: "" }, { type: "generate", focus: "", confirmed: true }]);
     expect(generate().textContent).toBe("Generate");
   });
 

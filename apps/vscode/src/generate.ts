@@ -8,7 +8,7 @@ import { codexParser } from "@aisus/core/model/agentStream/codex";
 import type { ComposerAgent, ComposerCli, RunMode } from "@aisus/core/model/messages";
 import { agentLaunchArgs, AGENTS, findOnPath, headlessArgs, SKILL_SCRIPTS, skillPrompt, type Agent, type SkillName } from "@aisus/core/model/agents";
 import { devinPromptArgs, findDevinCli } from "./devin";
-import { estimateKind, launchEstimate } from "./estimates";
+import { taskEstimate } from "./estimates";
 import { pickRepoRoot } from "./folders";
 import { ensureGitExclude } from "./hooksFiles";
 import { ensureSkillIntact, skillNote, skillStatus } from "./integrity";
@@ -84,12 +84,13 @@ export function sequenceTask(flow: string): LaunchTask {
 
 /**
  * What a run of `skill` with `cli` will spend and also do: the estimate (CST-03), installing or
- * repairing the skill, and the first-run data note (SET-03).
+ * repairing the skill, and the first-run data note (SET-03). The `focus`, once known, gives a map
+ * run the detailed estimate when `aisus.estimate.detailed` is on (P-26).
  */
-export function launchNotes(context: vscode.ExtensionContext, root: string, cli: ComposerCli, mode: RunMode, headless: boolean, skillName: SkillName = "aisus-architecture"): LaunchNote[] {
+export function launchNotes(context: vscode.ExtensionContext, root: string, cli: ComposerCli, mode: RunMode, headless: boolean, skillName: SkillName = "aisus-architecture", focus?: string): LaunchNote[] {
   const notes: LaunchNote[] = [];
-  const estimate = cli === "devin" ? null : launchEstimate(root, cli, estimateKind(skillName));
-  if (estimate !== null) notes.push({ kind: "estimate", text: estimate.text, confirm: estimate.confirm });
+  const estimate = cli === "devin" ? null : taskEstimate(root, cli, skillName, focus);
+  if (estimate !== null) notes.push({ kind: "estimate", text: estimate.text, confirm: estimate.confirm }, ...estimate.details.map((text) => ({ kind: "estimate" as const, text })));
   if (cli === "devin") notes.push({ kind: "estimate", text: "Devin runs in its own terminal and reports no tokens to aisus, so there is no estimate for it." });
   const status = skillStatus(context.extensionUri, root, cli, skillName);
   const skill = skillNote(status, skillName);
@@ -132,7 +133,7 @@ export async function launchTask(context: vscode.ExtensionContext, runs: Runs, r
       vscode.commands.executeCommand("vscode.open", vscode.Uri.file(join(root, ".git", "info", "exclude"))),
     );
   }
-  const request = { root, focus: task.title, agent: { cli: agent.cli, label: agent.label }, task, estimate: agent.cli === "devin" ? null : launchEstimate(root, agent.cli, estimateKind(task.skill)) };
+  const request = { root, focus: task.title, agent: { cli: agent.cli, label: agent.label }, task, estimate: agent.cli === "devin" ? null : taskEstimate(root, agent.cli, task.skill, task.args) };
   if (mode === "sidebar" && agent.cli !== "devin" && canRunHeadless(binary)) {
     const skillDir = join(skillBase(configuredScope(), root), agent.cli === "claude" ? ".claude" : ".agents", "skills", task.skill);
     const args = headlessArgs(agent.cli, prompt, { skillDir, scripts: SKILL_SCRIPTS[task.skill], subagents: task.skill === "aisus-audit" });
@@ -190,7 +191,7 @@ export async function confirmAndLaunch(context: vscode.ExtensionContext, runs: R
   if (!agent) return;
 
   const mode = configuredRunMode();
-  const notes = launchNotes(context, root, agent.cli, mode, found.find((entry) => entry.cli === agent.cli)?.headless ?? true, task.skill);
+  const notes = launchNotes(context, root, agent.cli, mode, found.find((entry) => entry.cli === agent.cli)?.headless ?? true, task.skill, task.args);
   // The estimate alone asks only above the threshold (CST-03); every other note always asks (SET-03).
   if (notes.some((note) => note.kind !== "estimate" || note.confirm === true)) {
     const verb = task.skill === "aisus-refresh" ? "Refresh" : task.skill === "aisus-audit" ? "Audit" : task.skill === "aisus-tour" ? "Create Tour" : "Generate";

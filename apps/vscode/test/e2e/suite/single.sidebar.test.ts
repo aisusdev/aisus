@@ -99,6 +99,7 @@ suite("UI-01 aisus sidebar", () => {
     await hook.setDataNoteShown(true);
     await vscode.workspace.getConfiguration("aisus").update("runMode", undefined, vscode.ConfigurationTarget.Global);
     await vscode.workspace.getConfiguration("aisus").update("confirmAboveTokens", undefined, vscode.ConfigurationTarget.Global);
+    await vscode.workspace.getConfiguration("aisus").update("estimate.detailed", undefined, vscode.ConfigurationTarget.Global);
     installSkill();
   });
 
@@ -170,6 +171,27 @@ suite("UI-01 aisus sidebar", () => {
     const modal = ui.infos.find((call) => (call.rest[0] as { modal?: boolean } | undefined)?.modal === true);
     assert.equal(modal?.message, "Generate with Claude Code?");
     assert.match((modal?.rest[0] as { detail: string }).detail, ESTIMATE);
+  });
+
+  test("P-26 with aisus.estimate.detailed on, the first Generate click states the plan for the typed focus and starts nothing, and the second click starts the run", async () => {
+    agents(["claude"]);
+    const args = scratch("args.json");
+    Object.assign(process.env, { AISUS_STUB_STREAM: stream("claude-generate.jsonl"), AISUS_STUB_ARGS: args });
+    await vscode.workspace.getConfiguration("aisus").update("estimate.detailed", true, vscode.ConfigurationTarget.Global);
+    await reveal();
+    assert.equal(hook.homeState().state?.composer.confirm, true);
+
+    await hook.postFromHome({ type: "generate", focus: "payment flow" });
+    await until(() => (hook.homeState().state?.composer.notes ?? []).length === 2, "the plan under the estimate");
+    const [estimate, plan] = hook.homeState().state?.composer.notes ?? [];
+    assert.match(estimate ?? "", ESTIMATE);
+    assert.match(plan ?? "", /^The run plans \d+ reads over \d+ turns, /);
+    assert.equal(existsSync(args), false, "the first click launches nothing");
+
+    await hook.postFromHome({ type: "generate", focus: "payment flow", confirmed: true });
+    await settled();
+    assert.deepEqual((JSON.parse(readFileSync(args, "utf8")) as string[]).slice(0, 2), ["-p", "/aisus-architecture payment flow"]);
+    assert.equal(hook.runCard()?.estimate, estimate);
   });
 
   test("UI-02 a replayed stream shows feed, tokens and acceptance, records the run and opens the map", async () => {

@@ -48,6 +48,7 @@ const NODE_MODEL: Record<string, true> = {
   "packages/core/model/page.ts": true,
   "packages/core/model/check.ts": true,
   "packages/core/model/repoSize.ts": true,
+  "packages/core/model/readPlan.ts": true,
   "packages/core/model/agentHome.ts": true,
   "packages/core/model/lineage.ts": true,
   "packages/core/model/upload.ts": true,
