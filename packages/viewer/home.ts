@@ -361,10 +361,7 @@ export function createHome(container: HTMLElement, post: Post, now: () => Date =
     const entry = el("li", "map map--cloud");
     const open = button(item.title ?? item.runFolder, "map__title", () => post({ type: "openMap", file: item.file }));
     open.title = item.source;
-    const meta = [item.source, relativeAge(item.createdAt, now()), item.boxes === null ? null : `${item.boxes} box${item.boxes === 1 ? "" : "es"}`].filter(
-      (part): part is string => part !== null,
-    );
-    entry.append(open, el("div", "map__meta", meta.join(" · ")));
+    entry.append(open, el("div", "map__meta", `${item.source} · ${relativeAge(item.createdAt, now())}`));
     return entry;
   }
 
@@ -393,12 +390,6 @@ export function createHome(container: HTMLElement, post: Post, now: () => Date =
       top.append(mark);
     }
     top.append(open);
-    // A detail row gives the bare count, so its box's name keeps the room.
-    if (item.boxes !== null) {
-      const count = el("span", "map__count", depth === 0 ? `${item.boxes} box${item.boxes === 1 ? "" : "es"}` : String(item.boxes));
-      count.title = `${item.boxes} box${item.boxes === 1 ? "" : "es"}`;
-      top.append(count);
-    }
     // The title opens the map. The ⋯ button shows the rest of its actions in place.
     const actions = el("div", "map__actions");
     actions.id = `map-actions-${item.runFolder}`;

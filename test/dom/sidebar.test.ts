@@ -105,9 +105,9 @@ describe("UI-01 sidebar states", () => {
     expect(container.querySelector<HTMLTextAreaElement>(".composer__focus")!.value).toBe("half typed");
   });
 
-  test("maps: newest first with age and agent below and boxes on the right; the title opens, and ⋯ shows Refresh and Delete, which post the file", () => {
+  test("maps: newest first with age and agent below and no box count; the title opens, and ⋯ shows Refresh and Delete, which post the file", () => {
     home.render(state({ maps: [map({ focus: "payments" }), map({ title: null, runFolder: "architecture-old-20261001-090000", file: "/r/old.json", agent: null, boxes: 1, createdAt: "2026-10-01T09:00:00Z" })] }));
-    expect(text(".current__status")).toEqual(["Map from 2 days ago · 16 boxes"]);
+    expect(text(".current__status")).toEqual(["Map from 2 days ago"]);
     const more = container.querySelector<HTMLButtonElement>(".map__more")!;
     const actions = (): HTMLElement => container.querySelector<HTMLElement>(".map__actions")!;
     expect(actions().hidden).toBe(true);
@@ -119,7 +119,7 @@ describe("UI-01 sidebar states", () => {
     expect(actions().hidden).toBe(false);
     expect(text(".map__title")).toEqual(["aisus", "architecture-old-20261001-090000"]);
     expect(text(".map__meta")).toEqual(["2 days ago · Claude Code", "17 days ago"]);
-    expect(text(".map__count")).toEqual(["16 boxes", "1 box"]);
+    expect(container.querySelector(".map__count")).toBeNull();
     click("Delete");
     container.querySelector<HTMLButtonElement>(".map__title")!.click();
     click("Refresh");
@@ -166,7 +166,7 @@ describe("UI-01 sidebar states", () => {
     expect(row.textContent).toContain("1");
     row.click();
     expect(text(".maps--cloud .section__title")).toEqual(["aisus cloud"]);
-    expect(text(".map--cloud .map__meta")).toEqual(["Team map of main at 45bde56 · 2 days ago · 4 boxes"]);
+    expect(text(".map--cloud .map__meta")).toEqual(["Team map of main at 45bde56 · 2 days ago"]);
     container.querySelector<HTMLButtonElement>(".map--cloud .map__title")!.click();
     expect(posted).toEqual([{ type: "openMap", file: pulled.file }]);
   });
@@ -270,7 +270,7 @@ describe("UI-01 home and pages", () => {
 
   test("the map card offers Refresh when boxes changed, and Open as its one filled button otherwise", () => {
     home.render(state({ maps: [map({ changed: 3 })] }));
-    expect(text(".current__status")).toEqual(["Map from 2 days ago · 16 boxes · 3 changed"]);
+    expect(text(".current__status")).toEqual(["Map from 2 days ago · 3 changed"]);
     expect(text(".current .button--primary")).toEqual(["Refresh 3 boxes"]);
     click("Refresh 3 boxes");
     home.render(state({ maps: [map({ changed: 0 })] }));

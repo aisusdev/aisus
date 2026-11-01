@@ -42,10 +42,10 @@ describe("UI-01 wording", () => {
     expect(relativeAge("2026-10-16T12:00:00Z", NOW)).toBe("2 days ago");
   });
 
-  test("the header states the newest map's age and boxes, or that there is none", () => {
+  test("the header states the newest map's age without its box count, or that there is none", () => {
     expect(mapStatus([], NOW)).toBe("No map yet");
-    expect(mapStatus([map({}), map({ boxes: 3 })], NOW)).toBe("Map from 2 days ago · 16 boxes");
-    expect(mapStatus([map({ boxes: 1, createdAt: NOW.toISOString() })], NOW)).toBe("Map from just now · 1 box");
+    expect(mapStatus([map({}), map({ boxes: 3 })], NOW)).toBe("Map from 2 days ago");
+    expect(mapStatus([map({ boxes: 1, createdAt: NOW.toISOString() })], NOW)).toBe("Map from just now");
   });
 
   test("the run card shows elapsed time, tokens and cost when known", () => {
@@ -166,7 +166,7 @@ describe("FRS-03 freshness wording", () => {
   });
 
   test("the sidebar header adds the newest map's changed boxes", () => {
-    expect(mapStatus([map({ changed: 3 })], NOW)).toBe("Map from 2 days ago · 16 boxes · 3 changed");
-    expect(mapStatus([map({ changed: 0 })], NOW)).toBe("Map from 2 days ago · 16 boxes");
+    expect(mapStatus([map({ changed: 3 })], NOW)).toBe("Map from 2 days ago · 3 changed");
+    expect(mapStatus([map({ changed: 0 })], NOW)).toBe("Map from 2 days ago");
   });
 });

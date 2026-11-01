@@ -18,13 +18,12 @@ export function relativeAge(fromIso: string, now: Date): string {
   return "just now";
 }
 
-/** The header's map status: "Map from 2 days ago · 16 boxes", or "No map yet". */
+/** The header's map status: "Map from 2 days ago · 3 changed", or "No map yet". */
 export function mapStatus(maps: readonly MapItem[], now: Date): string {
   const newest = maps[0];
   if (newest === undefined) return "No map yet";
   const age = relativeAge(newest.createdAt, now);
   const parts = [age === "just now" ? "Map from just now" : `Map from ${age}`];
-  if (newest.boxes !== null) parts.push(`${newest.boxes} box${newest.boxes === 1 ? "" : "es"}`);
   if (newest.changed !== null && newest.changed > 0) parts.push(`${newest.changed} changed`);
   return parts.join(" · ");
 }

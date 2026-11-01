@@ -839,12 +839,6 @@ select.header__folder,
   white-space: nowrap;
 }
 
-.map__count {
-  flex: none;
-  color: var(--vscode-descriptionForeground);
-  white-space: nowrap;
-}
-
 .map__meta,
 .map > .map__actions {
   padding-left: 22px;
