@@ -8379,8 +8379,9 @@ function isTestPath(path) {
   const name = segments.pop();
   return segments.some((segment) => TEST_DIRS.has(segment.toLowerCase())) || TEST_FILES.test(name);
 }
+var INSTALLED_SKILL = /(^|\/)\.(agents|claude|codex|devin|windsurf)\/skills\/aisus-[^/]+(\/|$)/;
 function skipped(path) {
-  return path.split("/").some((segment) => SKIPPED_DIRS.includes(segment)) || isDenied(path);
+  return path.split("/").some((segment) => SKIPPED_DIRS.includes(segment)) || INSTALLED_SKILL.test(path) || isDenied(path);
 }
 function walk(root) {
   const files = [];
@@ -8395,7 +8396,7 @@ function walk(root) {
     }
     for (const entry of entries) {
       const path = dir === "" ? entry.name : `${dir}/${entry.name}`;
-      if (SKIPPED_DIRS.includes(entry.name) || isDenied(path)) continue;
+      if (skipped(path)) continue;
       if (entry.isDirectory()) pending.push(path);
       else if (entry.isFile()) files.push(path);
     }

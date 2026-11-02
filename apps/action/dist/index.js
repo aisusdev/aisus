@@ -8465,8 +8465,9 @@ function isTestPath(path2) {
   const name2 = segments.pop();
   return segments.some((segment) => TEST_DIRS.has(segment.toLowerCase())) || TEST_FILES.test(name2);
 }
+var INSTALLED_SKILL = /(^|\/)\.(agents|claude|codex|devin|windsurf)\/skills\/aisus-[^/]+(\/|$)/;
 function skipped(path2) {
-  return path2.split("/").some((segment) => SKIPPED_DIRS.includes(segment)) || isDenied(path2);
+  return path2.split("/").some((segment) => SKIPPED_DIRS.includes(segment)) || INSTALLED_SKILL.test(path2) || isDenied(path2);
 }
 function walk(root) {
   const files2 = [];
@@ -8481,7 +8482,7 @@ function walk(root) {
     }
     for (const entry of entries) {
       const path2 = dir === "" ? entry.name : `${dir}/${entry.name}`;
-      if (SKIPPED_DIRS.includes(entry.name) || isDenied(path2)) continue;
+      if (skipped(path2)) continue;
       if (entry.isDirectory()) pending.push(path2);
       else if (entry.isFile()) files2.push(path2);
     }

@@ -62,6 +62,17 @@ test("CST-01 without git, a walk measures every file, skipping the same folders,
   expect(size.lines.total).toBe(175);
 });
 
+test("SET-06 both listings leave out aisus skills installed in the repository, and keep a source folder of the same name", () => {
+  const files = { "src/app.ts": lines(10), "skills/aisus-tool/index.ts": lines(5), ".agents/skills/aisus-architecture/scripts/validate.mjs": lines(900), ".claude/skills/aisus-plan/scripts/plan-facts.mjs": lines(300), ".agents/skills/other/run.ts": lines(7) };
+  const tracked = repoSize(gitRepo(files));
+  const walked = tempDir();
+  for (const [rel, content] of Object.entries(files)) put(walked, rel, content);
+  for (const size of [tracked, repoSize(walked, envWithoutGit())]) {
+    expect(byLanguage(size)["TypeScript"]).toEqual([3, 22, 0]);
+    expect(byLanguage(size)["JavaScript"]).toBeUndefined();
+  }
+});
+
 test("CST-01 neither listing measures a link, even when its lines would only be estimated", () => {
   const linked = (root: string): string => {
     put(root, "a.ts", lines(3));
