@@ -1,6 +1,6 @@
 # Open problems and unfinished work
 
-Every known problem and unfinished piece of work, with an ID that never changes. Add new items with the next free ID. Remove an item when it is solved, and record its ID and commit in your shift doc. The next free ID is P-36.
+Every known problem and unfinished piece of work, with an ID that never changes. Add new items with the next free ID. Remove an item when it is solved, and record its ID and commit in your shift doc. The next free ID is P-37.
 
 ## Broken now
 
@@ -35,7 +35,6 @@ Every known problem and unfinished piece of work, with an ID that never changes.
 - **P-23 The team page shows no seats bought after a first purchase.** Stripe's `checkout.session.completed` carries no seat count, and `applyEvent` in `apps/cloud/src/lib/billing.ts` stores seats only from `customer.subscription.updated`. Until the seats change in the portal, a new Team account's page says "N seats in use" without "of M". A first step is for `checkoutUrl` to add the seat count to the session's metadata, beside the account and plan it already sends, and for `applyEvent` to store it.
 - **P-24 People removed on GitHub stay on the team page.** `teamOf` in `apps/cloud/src/lib/team.ts` and `seatsOf` read the stored access rows. `checkAccess` rechecks a row only when that same person signs in or opens one of the account's repositories, so someone who left the organization and never returns stays listed and counts as a seat. A first step is to recheck the account's rows older than `ACCESS_TTL_MS` when an owner opens the page, with the owner's token or the GitHub App (P-8).
 
-- **P-35 The guide has no IntelliJ page.** dennie wants IntelliJ set up on a page of its own beside Get Started, which now covers VS Code and VS Code-based editors only. The page would add the skills, run them in Claude Code or Codex, and open the map page the skill writes, as the README's IntelliJ section says. Its link goes in the guide's left panel in `apps/cloud/src/app/(site)/get-started/page.tsx`.
 
 ## Waiting on a hard stop or a manual check
 
@@ -46,6 +45,7 @@ The steps for each are in the "Waiting" section of [archive/progress-v0.3.md](ar
 - **P-13 PRC-04 Action on this repository.** Commit a map of this repository under `.aisus/maps/`, open a pull request, and confirm the `aisus-check` job comments once and updates that comment.
 - **P-14 RCH-02 skills from GitHub and as a plugin.** Run `npx skills add aisusdev/aisus` in a scratch folder, install the plugin from a release's `aisus-skills.zip`, and confirm `/aisus-architecture` runs its scripts in Claude Code.
 - **P-15 RCH-05 store installs.** Install the extension from Open VSX and the Marketplace into a clean profile.
+- **P-36 No release carries the IntelliJ plugin yet.** `.github/workflows/release.yml` now builds `aisus-intellij-<version>.zip` with JDK 21, and the guide's Download the IntelliJ release button goes to `/install/intellij`. Until a tag is pushed, that address opens the releases page. A dry-run tag such as `v0.3.3-rc.1` tests the new step without releasing, and pushing either tag needs a teammate's go. The zip built on this Mac as `apps/intellij/build/distributions/aisus-intellij-0.3.2.zip`.
 - **P-16 ACC-04 ground truth.** Run `npm run eval:check-truth` once with network access, and confirm it prints `ok` for each corpus repository.
 - **P-17 IDE-01 plugin smoke.** Install the plugin's zip into IntelliJ IDEA 2026.1, generate a map of AB3, and confirm a box opens its cited lines.
 - **P-18 DOC-01 demo.** Record `docs/media/demo.gif` (generate a map, click a box, Show Changes) and put it under the README's first paragraph.
