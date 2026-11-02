@@ -16,7 +16,7 @@ test("CLD-08 landing, guide, pricing and privacy render without any third-party 
   await expect(page.locator("#pricing")).toHaveCount(0);
   await expect(page.getByRole("link", { name: "Gallery" })).toHaveCount(0);
   await page.goto("/get-started");
-  await expect(page.locator("h1")).toHaveText("Get started with aisus");
+  await expect(page.locator("h1")).toHaveText("Get Started");
   await expect(page.locator("main")).toContainText("/aisus-architecture");
   await page.goto("/pricing");
   await expect(page.locator("main")).toContainText("This server gives every account everything in aisus cloud.");
@@ -53,6 +53,26 @@ test("CLD-08 Copy puts the whole upload schema on the clipboard, and the button 
   await expect(page.getByRole("button", { name: "Copied" })).toBeVisible();
   const copied = await page.evaluate(() => navigator.clipboard.readText());
   expect(JSON.parse(copied).title).toBe("aisus cloud upload");
+});
+
+test("CLD-08 choosing the VSIX tab shows the Install from VSIX steps", async ({ page }) => {
+  await page.goto("/get-started");
+  const vsix = page.locator("#vsix");
+  await expect(vsix).toBeHidden();
+  await page.getByRole("tab", { name: "VSIX" }).click();
+  await expect(vsix).toBeVisible();
+  await expect(vsix).toContainText("Install from VSIX…");
+});
+
+test("CLD-08 choosing Codex shows its install command and $aisus-architecture, and the choice survives a reload", async ({ page }) => {
+  await page.goto("/get-started");
+  await page.getByRole("tab", { name: "Codex" }).click();
+  await expect(page.locator("#agent-codex")).toBeVisible();
+  await expect(page.locator("#agent-codex")).toContainText("npm install -g @openai/codex");
+  await expect(page.locator("#generate")).toContainText("$aisus-architecture checkout flow");
+  await page.reload();
+  await expect(page.getByRole("tab", { name: "Codex" })).toHaveAttribute("aria-selected", "true");
+  await expect(page.locator("#generate")).toContainText("$aisus-architecture checkout flow");
 });
 
 test("CLD-08 the billed app's pricing shows Pro's and Team's price texts", async ({ page }) => {

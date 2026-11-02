@@ -1,69 +1,145 @@
-// A release-accurate path from installation to the first code-linked map.
+// The guide from installation to a first map: install aisus, prepare an agent, generate a map.
+import { AgentTabs, PanelTabs, SkillCommand } from "../../../components/GuideTabs";
+import { CodeBlock } from "../../../components/CodeBlock";
+import { GeneratePicture, VsixPicture } from "../../../components/GuidePictures";
 import { releasesRepo } from "../../../lib/install";
-import { CommandPanel } from "../../../components/CommandPanel";
 
-const sections = [
-  { href: "#install", label: "Install aisus" },
+// Change both together whenever the guide's steps change.
+const UPDATED = "2026-11-02";
+const UPDATED_TEXT = "2 November 2026";
+
+const MARKETPLACE = "https://marketplace.visualstudio.com/items?itemName=aisus.aisus";
+
+const SECTIONS = [
+  { href: "#install", label: "Installation" },
+  { href: "#agent", label: "Prepare your agent" },
   { href: "#generate", label: "Generate a map" },
-  { href: "#inspect", label: "Inspect cited code" },
-  { href: "#freshness", label: "Check what changed" },
-  { href: "#share", label: "Share a map" },
 ];
+
+const SUBSTEPS = [
+  { href: "#marketplace", label: "Install from the Marketplace" },
+  { href: "#vsix", label: "Install from a VSIX" },
+  { href: "#agent-cli", label: "Install your agent" },
+  { href: "#skills", label: "Install the skills" },
+  { href: "#generate-vscode", label: "Generate in VS Code" },
+  { href: "#generate-skill", label: "Generate with the skill" },
+];
+
+function ExtensionsKeys() {
+  return (
+    <>
+      <kbd>⌘</kbd><kbd>⇧</kbd><kbd>X</kbd> on macOS, or <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>X</kbd> on Windows and Linux
+    </>
+  );
+}
 
 export default function GetStartedPage() {
   const repo = releasesRepo();
   return (
     <main className="guide-page">
       <div className="wrap guide-layout">
-        <nav className="guide-sidebar" aria-label="Get Started navigation">
-          <strong>Get Started</strong>
-          <a className="active" href="#overview">Introduction</a>
-          {sections.map((section) => <a key={section.href} href={section.href}>{section.label}</a>)}
+        <nav className="guide-sidebar" aria-label="Guide">
+          <strong>Guide</strong>
+          <a className="active" href="#top-of-guide">Get Started</a>
+          {SECTIONS.map((section, i) => <a key={section.href} className="guide-sub" href={section.href}>{i + 1}. {section.label}</a>)}
         </nav>
         <article className="guide-article">
-          <div className="guide-intro" id="overview">
-            <nav className="breadcrumb" aria-label="Breadcrumb"><a href="/">aisus</a><span aria-hidden="true">›</span><span>Get Started</span></nav>
-            <h1>Get started with aisus</h1>
-            <p>Install aisus where you work, generate a map with the agent you already use, and follow a box back to its code. Local maps do not need an aisus cloud account.</p>
-          </div>
+          <header className="guide-intro" id="top-of-guide">
+            <h1>Get Started</h1>
+            <p className="guide-updated">Last updated <time dateTime={UPDATED}>{UPDATED_TEXT}</time></p>
+          </header>
+
           <section id="install">
-            <h2>Install aisus</h2>
-            <p>For VS Code, Cursor or Devin Desktop, download the current VSIX and choose <strong>Install from VSIX…</strong> in the Extensions view. Open a repository, then select the aisus icon in the Activity Bar.</p>
-            <p><a className="btn btn-primary" href="/install" data-umami-event="install">Download for VS Code</a></p>
-            <p className="guide-note">The sidebar setup checklist names anything still needed for your chosen agent. Viewing an existing map does not need an agent.</p>
-            <h3>Use the skills without the extension</h3>
-            <p>In a repository, install the aisus skills for Claude Code or Codex. Node.js 18 or newer and a signed-in agent are needed to generate a map.</p>
-            <CommandPanel title="Install skills">{`npx skills add ${repo}`}</CommandPanel>
-            <p>The generated map can open as a standalone HTML page, including when you work in a JetBrains IDE.</p>
+            <h2><span className="guide-step">1</span>Installation</h2>
+            <p>Install the extension in VS Code from the Marketplace, or from a VSIX file in any VS Code-based editor.</p>
+            <PanelTabs
+              label="Ways to install"
+              tabs={[
+                {
+                  id: "marketplace",
+                  name: "VS Code Marketplace",
+                  content: (
+                    <>
+                      <ol className="steps">
+                        <li>Open the <b>Extensions</b> view with <ExtensionsKeys />.</li>
+                        <li>Search for <b>aisus</b>.</li>
+                        <li>Press <b>Install</b>.</li>
+                      </ol>
+                      <p>To install from a terminal instead, run this command. <a href={MARKETPLACE}>View on Marketplace ↗</a></p>
+                      <CodeBlock code="code --install-extension aisus.aisus" label="the install command" language="shell" />
+                    </>
+                  ),
+                },
+                {
+                  id: "vsix",
+                  name: "VSIX",
+                  content: (
+                    <>
+                      <div className="steps-with-picture">
+                        <ol className="steps">
+                          <li>Download the VSIX file.<a className="btn btn-primary steps-button" href="/install" data-umami-event="install">Download the VSIX</a></li>
+                          <li>In the <b>Extensions</b> view, open the <b>⋯</b> menu at its top.</li>
+                          <li>Choose <b>Install from VSIX…</b> and pick the file you downloaded.</li>
+                        </ol>
+                        <VsixPicture />
+                      </div>
+                      <p>Cursor and other VS Code-based editors install aisus this way.</p>
+                    </>
+                  ),
+                },
+              ]}
+            />
           </section>
+
+          <section id="agent">
+            <h2><span className="guide-step">2</span>Prepare your agent</h2>
+            <p id="agent-cli">aisus asks the coding agent you already use to draw the map. Install its command-line tool. It needs Node.js 18 or newer.</p>
+            <AgentTabs
+              panels={{
+                "Claude Code": (
+                  <>
+                    <p>Install Claude Code, then run <code>claude</code> once in a terminal to sign in.</p>
+                    <CodeBlock code="npm install -g @anthropic-ai/claude-code" label="the Claude Code install command" language="shell" />
+                  </>
+                ),
+                Codex: (
+                  <>
+                    <p>Install Codex, then run <code>codex</code> once in a terminal to sign in.</p>
+                    <CodeBlock code="npm install -g @openai/codex" label="the Codex install command" language="shell" />
+                  </>
+                ),
+                Devin: (
+                  <p>Devin&apos;s command-line tool installs from its own guide. <a href="https://docs.devin.ai/cli">Open Devin&apos;s install guide ↗</a></p>
+                ),
+              }}
+            />
+            <p>The aisus sidebar&apos;s setup checklist names anything still missing.</p>
+            <h3 id="skills">Prefer the skills alone?</h3>
+            <p>Add the aisus skills to your repository, and run them from your agent without the extension.</p>
+            <CodeBlock code={`npx skills add ${repo}`} label="the skills command" language="shell" />
+          </section>
+
           <section id="generate">
-            <h2>Generate a map</h2>
-            <p>In the aisus sidebar, choose <strong>Generate</strong>. Give it an optional focus such as “checkout flow,” then choose Claude Code, Codex or Devin. The agent writes a map and checks its citations.</p>
-            <p>With the skills alone, run one of these commands in the repository:</p>
-            <CommandPanel title="Generate a map">
-              <span className="terminal-comment"># Claude Code</span>{"\n"}
-              /aisus-architecture checkout flow{"\n\n"}
-              <span className="terminal-comment"># Codex</span>{"\n"}
-              $aisus-architecture checkout flow
-            </CommandPanel>
-            <p>The focus can be left out. The agent uses its own tokens or subscription allowance to generate the map.</p>
-          </section>
-          <section id="inspect">
-            <h2>Inspect cited code</h2>
-            <p>Open the map from the aisus Maps list. Click a box to open the file and lines it cites. Follow an arrow to the next component, then check the source behind its description.</p>
-          </section>
-          <section id="freshness">
-            <h2>Check what changed</h2>
-            <p>aisus compares map citations with your working copy as you edit. A box shows when its code has moved, changed or gone missing. Choose <strong>Refresh Architecture</strong> to ask your agent to update the changed part.</p>
-            <p className="guide-note">Checking citations uses no agent tokens. Refreshing a map asks your agent to generate an update.</p>
-          </section>
-          <section id="share">
-            <h2>Share a map</h2>
-            <p>Commit an accepted map with its repository to make it available for local checks and the aisus GitHub Action. The Action can comment on a pull request with touched boxes, stale citations and code the map does not cover.</p>
-            <p>aisus cloud is optional. It receives maps and check results when you choose to upload them; source files stay on your machine or CI runner. <a href="/pricing">Compare the cloud plans</a> before setting up an upload.</p>
+            <h2><span className="guide-step">3</span>Generate a map</h2>
+            <h3 id="generate-vscode">In VS Code</h3>
+            <div className="steps-with-picture steps-panel">
+              <ol className="steps">
+                <li>Click the <b>aisus</b> icon in the Activity Bar.</li>
+                <li>Type a focus such as <i>checkout flow</i>, or leave it empty to map the whole repository.</li>
+                <li>Press <b>Generate</b>.</li>
+                <li>Choose <b>Claude Code</b>, <b>Codex</b> or <b>Devin</b>. The map opens when your agent finishes.</li>
+              </ol>
+              <GeneratePicture />
+            </div>
+            <h3 id="generate-skill">With the skill</h3>
+            <p>Start your agent in the repository and run its command. The focus is optional. The agent uses its own tokens or subscription to draw the map.</p>
+            <SkillCommand />
           </section>
         </article>
-        <aside className="guide-aside" aria-label="On this page"><strong>On this page</strong>{sections.map((section) => <a key={section.href} href={section.href}>{section.label}</a>)}</aside>
+        <aside className="guide-aside" aria-label="On this page">
+          <strong>On this page</strong>
+          {SUBSTEPS.map((step) => <a key={step.href} href={step.href}>{step.label}</a>)}
+        </aside>
       </div>
     </main>
   );
