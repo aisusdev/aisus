@@ -1,6 +1,6 @@
 # Open problems and unfinished work
 
-Every known problem and unfinished piece of work, with an ID that never changes. Add new items with the next free ID. Remove an item when it is solved, and record its ID and commit in your shift doc. The next free ID is P-35.
+Every known problem and unfinished piece of work, with an ID that never changes. Add new items with the next free ID. Remove an item when it is solved, and record its ID and commit in your shift doc. The next free ID is P-36.
 
 ## Broken now
 
@@ -34,6 +34,8 @@ Every known problem and unfinished piece of work, with an ID that never changes.
 - **P-10 Release v0.3.3** after P-5. A teammate pushes the tag. Then delete the v0.3.0 release with `gh release delete v0.3.0 -R aisusdev/aisus --cleanup-tag --yes`.
 - **P-23 The team page shows no seats bought after a first purchase.** Stripe's `checkout.session.completed` carries no seat count, and `applyEvent` in `apps/cloud/src/lib/billing.ts` stores seats only from `customer.subscription.updated`. Until the seats change in the portal, a new Team account's page says "N seats in use" without "of M". A first step is for `checkoutUrl` to add the seat count to the session's metadata, beside the account and plan it already sends, and for `applyEvent` to store it.
 - **P-24 People removed on GitHub stay on the team page.** `teamOf` in `apps/cloud/src/lib/team.ts` and `seatsOf` read the stored access rows. `checkAccess` rechecks a row only when that same person signs in or opens one of the account's repositories, so someone who left the organization and never returns stays listed and counts as a seat. A first step is to recheck the account's rows older than `ACCESS_TTL_MS` when an owner opens the page, with the owner's token or the GitHub App (P-8).
+
+- **P-35 The guide has no IntelliJ page.** dennie wants IntelliJ set up on a page of its own beside Get Started, which now covers VS Code and VS Code-based editors only. The page would add the skills, run them in Claude Code or Codex, and open the map page the skill writes, as the README's IntelliJ section says. Its link goes in the guide's left panel in `apps/cloud/src/app/(site)/get-started/page.tsx`.
 
 ## Waiting on a hard stop or a manual check
 
