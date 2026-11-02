@@ -105,7 +105,9 @@ export function renderScene(content: SVGGElement, diagram: ViewDiagram, scene: S
     if (!component) continue;
     const { x, y, w, h } = node.rect;
     // VWR-04: Tab reaches each box, and its name says what it is and which code it opens.
-    const g = svgEl("g", { class: `node node--${node.type}`, "data-id": node.id, "data-index": node.index, tabindex: 0, role: "button", "aria-label": boxName(component) });
+    // PLN-01: a plan draws the boxes it adds dashed and the boxes it removes faded.
+    const planned = diagram.plan && component.tag === "new" ? " node--planned" : diagram.plan && component.tag === "removed" ? " node--removed" : "";
+    const g = svgEl("g", { class: `node node--${node.type}${planned}`, "data-id": node.id, "data-index": node.index, tabindex: 0, role: "button", "aria-label": boxName(component) });
     // UI-05: the box's native context menu (Open code), with the browser's own items left out.
     g.setAttribute("data-vscode-context", JSON.stringify({ webviewSection: "box", componentId: node.id, preventDefaultContextMenuItems: true }));
     g.append(svgEl("rect", { class: "node__box", x, y, width: w, height: h, rx: NODE_RADIUS }));

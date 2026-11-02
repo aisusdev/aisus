@@ -356,6 +356,21 @@ export function createHome(container: HTMLElement, post: Post, now: () => Date =
     return entry;
   }
 
+  /** PLN-01: a plan map, which opens, exports and deletes like a sequence map. */
+  function planEntry(item: MapItem): HTMLElement {
+    const entry = el("li", "map map--plan");
+    const open = button(item.title ?? item.runFolder, "map__title", () => post({ type: "openMap", file: item.file }));
+    open.title = item.runFolder;
+    const meta = [relativeAge(item.createdAt, now()), item.changed !== null && item.changed > 0 ? `${item.changed} changed` : null].filter((part): part is string => part !== null && part !== "");
+    const actions = el("div", "map__actions");
+    actions.append(
+      button("Export page", "link", () => post({ type: "exportMap", file: item.file })),
+      button("Delete", "link link--danger", () => post({ type: "deleteMap", file: item.file })),
+    );
+    entry.append(open, el("div", "map__meta", meta.join(" · ")), actions);
+    return entry;
+  }
+
   /** CLD-16: a map from aisus cloud, which says where it comes from and opens when clicked. */
   function cloudEntry(item: CloudMapItem): HTMLElement {
     const entry = el("li", "map map--cloud");
@@ -378,7 +393,7 @@ export function createHome(container: HTMLElement, post: Post, now: () => Date =
     if (nested) {
       const toggle = button(isOpen ? "▾" : "▸", "map__toggle", () => {
         opened.set(item.file, !isOpen);
-        if (current !== null) renderMaps(current.mapTree, current.sequences, current.cloudMaps);
+        if (current !== null) renderMaps(current);
       });
       toggle.setAttribute("aria-expanded", String(isOpen));
       toggle.setAttribute("aria-label", `${isOpen ? "Close" : "Open"} ${open.textContent}`);
@@ -430,7 +445,7 @@ export function createHome(container: HTMLElement, post: Post, now: () => Date =
       const toggle = button(`${count} earlier version${count === 1 ? "" : "s"}`, "link map__earlier", () => {
         if (showEarlier) earlierOpen.delete(item.file);
         else earlierOpen.add(item.file);
-        if (current !== null) renderMaps(current.mapTree, current.sequences, current.cloudMaps);
+        if (current !== null) renderMaps(current);
       });
       toggle.setAttribute("aria-expanded", String(showEarlier));
       const line = el("li", "map__earlier-line");
@@ -493,7 +508,7 @@ export function createHome(container: HTMLElement, post: Post, now: () => Date =
     const session = state.session;
     const hunt = session === null ? "" : `${session.phase[0]?.toUpperCase() ?? ""}${session.phase.slice(1)}${session.stepsTotal > 0 ? ` · Step ${Math.min(session.stepIndex + 1, session.stepsTotal)} of ${session.stepsTotal}` : ""} · Score ${session.score}`;
     // The rows are rebuilt only when they change, so a focused row keeps its focus across states.
-    const mapCount = state.maps.length + state.sequences.length + state.cloudMaps.length;
+    const mapCount = state.maps.length + state.sequences.length + state.plans.length + state.cloudMaps.length;
     const key = JSON.stringify([state.root, hasMap && state.maps.length, mapCount, state.bugHunt, hunt]);
     if (key === doKey) return;
     doKey = key;
@@ -557,7 +572,8 @@ export function createHome(container: HTMLElement, post: Post, now: () => Date =
     cloudSlot.append(strip);
   }
 
-  function renderMaps(tree: MapNode[], sequences: MapItem[], cloud: CloudMapItem[]): void {
+  function renderMaps(state: HomeState): void {
+    const { mapTree: tree, sequences, plans, cloudMaps: cloud } = state;
     maps.replaceChildren();
     if (tree.length > 0) {
       const list = section("", "maps");
@@ -577,6 +593,13 @@ export function createHome(container: HTMLElement, post: Post, now: () => Date =
       const list = section("Sequence maps", "maps maps--sequence");
       const entries = el("ul", "maps__list");
       for (const item of sequences) entries.append(sequenceEntry(item));
+      list.append(entries);
+      maps.append(list);
+    }
+    if (plans.length > 0) {
+      const list = section("Plans", "maps maps--plan");
+      const entries = el("ul", "maps__list");
+      for (const item of plans) entries.append(planEntry(item));
       list.append(entries);
       maps.append(list);
     }
@@ -795,13 +818,13 @@ export function createHome(container: HTMLElement, post: Post, now: () => Date =
       renderHeader(state);
       if (state.root === null && selected !== "home") showPage("home");
       // A page that needs a map goes home when the last map goes.
-      if ((state.maps.length === 0 && selected === "review") || (state.maps.length + state.sequences.length + state.cloudMaps.length === 0 && selected === "maps")) showPage("home");
+      if ((state.maps.length === 0 && selected === "review") || (state.maps.length + state.sequences.length + state.plans.length + state.cloudMaps.length === 0 && selected === "maps")) showPage("home");
       renderComposer(state);
       renderRun(state.run);
       renderCurrent(state);
       renderAttention(state);
       renderDo(state);
-      renderMaps(state.mapTree, state.sequences, state.cloudMaps);
+      renderMaps(state);
       renderCloud(state);
       renderReview(state);
       renderRules(state);

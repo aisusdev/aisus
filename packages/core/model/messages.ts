@@ -321,6 +321,8 @@ export interface HomeState {
   mapTree: MapNode[];
   /** SEQ-04: the folder's sequence maps, newest first; `boxes` counts their participants. */
   sequences: MapItem[];
+  /** PLN-01: the folder's plan maps, newest first. */
+  plans: MapItem[];
   /** CLD-12: whether `aisus.cloud.enabled` is on, so maps offer Share to aisus cloud. */
   cloud: boolean;
   /** CLD-16: the branch's maps in aisus cloud, team map first, each with where it comes from. */

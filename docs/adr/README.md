@@ -76,3 +76,4 @@ Decisions for Sustain in [MADR 4.0](https://adr.github.io/madr/) format; the pro
 | [0070](0070-maps-and-learning-sessions-live-in-the-aisus-folder.md) | Maps and learning sessions live in the .aisus folder | accepted | 2026-10-26 |
 | [0071](0071-maps-sync-through-personal-and-team-spaces-per-branch.md) | Maps sync through personal and team spaces per branch | accepted | 2026-10-26 |
 | [0072](0072-a-drill-down-records-the-box-it-details.md) | A drill-down records the box it details | accepted | 2026-11-01 |
+| [0073](0073-a-plan-map-cites-its-spec.md) | A plan map cites its spec | accepted | 2026-11-02 |

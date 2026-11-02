@@ -76,6 +76,8 @@ export interface ViewDiagram {
    * messages, so that clicks, freshness and citations find either by id. It has no connections or boundaries.
    */
   sequence?: ViewSequence;
+  /** PLN-01: set for a plan map, whose `meta.output` lies in a `plan-` run folder. */
+  plan?: true;
   /** Root `layout`, only when `mode` is `"grid"`. */
   grid?: GridLayout;
   components: ViewComponent[];
@@ -319,6 +321,7 @@ export function readDiagram(value: unknown): TolerantResult {
   const meta = value["meta"];
   const title = isObj(meta) ? str(meta["title"]) : undefined;
   if (title) diagram.title = title;
+  if (isObj(meta) && /^\.aisus\/maps\/plan-[^/]+\/[^/]+$/.test(str(meta["output"]) ?? "")) diagram.plan = true;
   const grid = readGrid(value["layout"]);
   if (grid) diagram.grid = grid;
   return { ok: true, diagram, skipped };

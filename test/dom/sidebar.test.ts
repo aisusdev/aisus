@@ -32,6 +32,7 @@ function state(fields: Partial<HomeState> = {}): HomeState {
     root: "/r",
     maps: [],
     sequences: [],
+    plans: [],
     cloud: false,
     cloudMaps: [],
     cloudStatus: null,

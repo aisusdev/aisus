@@ -8877,6 +8877,7 @@ function readDiagram(value) {
   const meta = value["meta"];
   const title = isObj(meta) ? str(meta["title"]) : void 0;
   if (title) diagram.title = title;
+  if (isObj(meta) && /^\.aisus\/maps\/plan-[^/]+\/[^/]+$/.test(str(meta["output"]) ?? "")) diagram.plan = true;
   const grid = readGrid(value["layout"]);
   if (grid) diagram.grid = grid;
   return { ok: true, diagram, skipped: skipped2 };

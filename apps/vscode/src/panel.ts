@@ -304,7 +304,7 @@ export class ArchitecturePanel {
       return;
     }
     const sequence = result.diagram.sequence !== undefined;
-    this.panel.title = `${sequence ? "Sequence" : "Architecture"}: ${result.diagram.title ?? basename(this.file)}`;
+    this.panel.title = `${sequence ? "Sequence" : result.diagram.plan ? "Plan" : "Architecture"}: ${result.diagram.title ?? basename(this.file)}`;
     // The webview gets the parsed JSON only (NFR-SEC-01), never source files.
     this.shown = { kind: "diagram", doc: result.value, diagram: result.diagram };
     this.send();

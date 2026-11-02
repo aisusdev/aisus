@@ -195,6 +195,7 @@ export class HomeView implements vscode.WebviewViewProvider, vscode.Disposable {
       maps,
       mapTree: mapTree(maps),
       sequences: root === null ? [] : this.mapsOf(root, "sequence"),
+      plans: root === null ? [] : this.mapsOf(root, "plan"),
       cloud,
       cloudMaps: root === null || !cloud ? [] : (this.cloudMaps.get(root) ?? []).map((pulled) => pulled.item),
       cloudStatus: root === null ? null : (this.cloudStatus.get(root) ?? null),
