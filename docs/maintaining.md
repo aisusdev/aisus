@@ -110,8 +110,8 @@ Deploying is a hard stop. Get a teammate's go first.
 
 Pushing a release tag is a hard stop. Get a teammate's go first.
 
-- Pushing a `v*` tag runs `.github/workflows/release.yml`. It publishes the `.vsix`, `aisus-skills.zip`, `aisus.mjs`, `aisus-action.js` and `SHA256SUMS`.
-- `/install` on aisus.dev redirects to the newest release's `.vsix`. It reads `AISUS_RELEASES_REPO`, which the server sets to `aisusdev/aisus`.
+- Pushing a `v*` tag runs `.github/workflows/release.yml`. It publishes the `.vsix`, the IntelliJ plugin as `aisus-intellij-<version>.zip`, `aisus-skills.zip`, `aisus.mjs`, `aisus-action.js` and `SHA256SUMS`. The workflow sets up JDK 21 and runs `./gradlew buildPlugin` for the plugin.
+- `/install` on aisus.dev redirects to the newest release's `.vsix`, and `/install/intellij` to its IntelliJ zip. Both read `AISUS_RELEASES_REPO`, which the server sets to `aisusdev/aisus`.
 
 ## Docs
 

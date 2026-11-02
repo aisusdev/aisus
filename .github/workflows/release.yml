@@ -29,10 +29,20 @@ jobs:
       - run: npm run build:release
       - run: npm run action
       - run: git diff --exit-code apps/action/dist skills
+      # The IntelliJ plugin packs the viewer's copy and the CLI that the steps above built (IDE-01).
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: "21"
+      - name: Build the IntelliJ plugin
+        run: |
+          node esbuild.mjs --intellij
+          cd apps/intellij && ./gradlew --no-daemon buildPlugin
       - name: Assemble the release files
         run: |
           mkdir -p release/files
           cp aisus-*.vsix release/files/
+          cp apps/intellij/build/distributions/aisus-intellij-*.zip release/files/
           (cd release/plugin && zip -qr ../files/aisus-skills.zip skills .claude-plugin)
           cp apps/action/dist/index.js release/files/aisus-action.js
           cp apps/vscode/dist/cli/aisus.mjs release/files/aisus.mjs
