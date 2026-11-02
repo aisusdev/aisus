@@ -435,14 +435,7 @@ thead th { background: var(--paper-2); }
 .fd-comment-head b { color: #1f2328; }
 .fd-avatar { width: 22px; height: 22px; border-radius: 50%; background: #d1d9e0; }
 .fd-comment-body { padding: 12px; }
-.fd-comment-title { margin-bottom: 8px; font-weight: 600; }
-.fd-shot { background: #ffffff; border: 1px solid #d1d9e0; border-radius: 4px; }
-.fd-legend { display: flex; flex-wrap: wrap; gap: 6px 16px; margin-top: 8px; color: #59636e; font-size: 13px; }
-.fd-legend span { display: flex; align-items: center; gap: 6px; }
-.fd-legend i { width: 14px; height: 10px; border: 2px solid; border-radius: 2px; }
-.fd-legend .changed { border-color: #bc4c00; }
-.fd-legend .uses { border-color: #9a6700; border-style: dotted; }
-.fd-legend .new { border-color: #1a7f37; border-style: dashed; }
+.fd-shot-img { display: block; width: auto; max-width: 100%; height: auto; max-height: 250px; margin: 0 auto; border: 1px solid #d1d9e0; border-radius: 4px; }
 .fd-legend-foot { margin-top: 10px; color: #59636e; font-size: 13px; }
 .fd-link { color: #0969da; }
 .fd-status { display: flex; align-items: center; justify-content: space-between; gap: 12px; height: 22px; padding: 0 10px; background: #f8f8f8; border-top: 1px solid #e5e5e5; font-size: 12px; }

@@ -405,13 +405,14 @@ function sequenceScene(f: number, still: boolean): Frame {
   };
 }
 
-const COMMAND = ["", "/aisus-pr", "/aisus-pr show how tours", "/aisus-pr show how tours reach the viewer"];
+// Pull request #10 of the aisus repository, and the comment /aisus-pr left on it with the diagram it drew.
+const COMMAND = ["", "/aisus", "/aisus-pr", "/aisus-pr"];
 const PROGRESS = [
-  "Reading pull request #212, Add guided tours",
-  "9 files changed, 3 boxes touched",
-  "Drew 5 boxes, 1 of them new",
-  "The diagram is valid",
-  "Commented on #212 with its aisus cloud page",
+  "Reading pull request #10 on prc-07",
+  "38 files changed since main",
+  "Marked the touched boxes on the main map",
+  "Published the diagram to aisus cloud",
+  "Commented on #10",
 ];
 
 function pullRequestScene(f: number, tick: number): Frame {
@@ -422,39 +423,22 @@ function pullRequestScene(f: number, tick: number): Frame {
         <div className="fd-panel">
           <div className="fd-panel-tabs"><span>PROBLEMS</span><span>OUTPUT</span><span className="on">TERMINAL</span></div>
           <div className="fd-term">
-            <div className="fd-muted">~/aisus on guided-tours</div>
+            <div className="fd-muted">~/aisus on prc-07</div>
             <div className="fd-prompt"><span className="fd-muted">&gt; </span>{COMMAND[Math.min(f, 3)]}<span className="fd-caret" style={{ opacity: tick % 2 ? 1 : 0 }} /></div>
             {PROGRESS.map((line, i) => <div key={line} className="fd-out fd-fade" style={{ opacity: f >= 4 + i ? 1 : 0 }}><b>●</b> {line}</div>)}
           </div>
         </div>
         <div className="fd-web">
           <div className="fd-page">
-            <div className="fd-url"><span>github.com/aisusdev/aisus/pull/212</span></div>
+            <div className="fd-url"><span>github.com/aisusdev/aisus/pull/10</span></div>
             <div className="fd-pr">
-              <div className="fd-pr-title">Add guided tours <span>#212</span></div>
-              <div className="fd-pr-meta"><span className="fd-open">Open</span>4 commits into main from guided-tours</div>
+              <div className="fd-pr-title">PRC-07: pull request diagrams from the aisus-pr skill <span>#10</span></div>
+              <div className="fd-pr-meta"><span className="fd-open">Open</span>7 commits into main from prc-07</div>
               <div className={posted ? "fd-comment on" : "fd-comment"}>
-                <div className="fd-comment-head"><span className="fd-avatar" /><b>you</b> commented now</div>
+                <div className="fd-comment-head"><span className="fd-avatar" /><b>xplus2g4</b> commented now</div>
                 <div className="fd-comment-body">
-                  <div className="fd-comment-title">Show how tours reach the viewer</div>
-                  <svg className="fd-svg fd-shot" viewBox="0 0 420 150" aria-hidden="true">
-                    <defs><marker id="fd-pr-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#1f2328" /></marker></defs>
-                    {["M120 40L153 66", "M120 110L153 84", "M300 75H269"].map((d) => <path key={d} d={d} fill="none" stroke="#1f2328" strokeWidth="1.25" markerEnd="url(#fd-pr-arrow)" />)}
-                    <rect x="10" y="20" width="110" height="40" rx="6" fill="rgba(9,105,218,.12)" stroke="#0969da" strokeWidth="1.5" />
-                    <text x="65" y="44" textAnchor="middle" fontSize="12" fontWeight="700" fill="#1f2328">Sidebar</text>
-                    <rect x="10" y="90" width="110" height="40" rx="6" fill="rgba(26,127,55,.12)" stroke="#1a7f37" strokeWidth="2" strokeDasharray="5 3" />
-                    <text x="65" y="114" textAnchor="middle" fontSize="12" fontWeight="700" fill="#1f2328">Tour skill</text>
-                    <rect x="155" y="55" width="110" height="40" rx="6" fill="rgba(9,105,218,.12)" stroke="#bc4c00" strokeWidth="3" />
-                    <text x="210" y="79" textAnchor="middle" fontSize="12" fontWeight="700" fill="#1f2328">Viewer</text>
-                    <rect x="300" y="55" width="110" height="40" rx="6" fill="rgba(154,103,0,.12)" stroke="#9a6700" strokeWidth="1.5" strokeDasharray="2 3" />
-                    <text x="355" y="79" textAnchor="middle" fontSize="12" fontWeight="700" fill="#1f2328">Cloud</text>
-                  </svg>
-                  <div className="fd-legend">
-                    <span><i className="changed" />Changed in this pull request</span>
-                    <span><i className="uses" />Uses changed code</span>
-                    <span><i className="new" />New in this pull request</span>
-                  </div>
-                  <div className="fd-legend-foot"><span className="fd-link">Open in aisus cloud</span> · drawn from 3f9c2a1 by /aisus-pr</div>
+                  <img className="fd-shot-img" src="/aisus-pr-10.png" alt="" width="1126" height="1100" />
+                  <div className="fd-legend-foot"><span className="fd-link">Open in aisus cloud</span> · drawn from d59fc01 by /aisus-pr</div>
                 </div>
               </div>
             </div>
@@ -463,7 +447,7 @@ function pullRequestScene(f: number, tick: number): Frame {
       </>
     ),
     status: "Claude Code",
-    branch: "guided-tours",
+    branch: "prc-07",
   };
 }
 
