@@ -23,6 +23,12 @@ describe("install", () => {
     expect(installTarget([release("v0.1.0", ["notes.txt"])], REPO)).toBe(`https://github.com/${REPO}/releases`);
   });
 
+  test("/install/intellij goes to the newest published release's IntelliJ zip, never the skills zip, and to the releases page without one", () => {
+    const releases = [release("v0.4.0", ["aisus-intellij-0.4.0.zip"], true), release("v0.3.3", ["aisus-skills.zip", "aisus-0.3.3.vsix"]), release("v0.3.2", ["aisus-skills.zip", "aisus-intellij-0.3.2.zip"])];
+    expect(installTarget(releases, REPO, "intellij")).toBe(`https://github.com/${REPO}/releases/download/v0.3.2/aisus-intellij-0.3.2.zip`);
+    expect(installTarget([release("v0.3.1", ["aisus-skills.zip", "aisus-0.3.1.vsix"])], REPO, "intellij")).toBe(`https://github.com/${REPO}/releases`);
+  });
+
   test("the releases come from AISUS_RELEASES_REPO, and a failing or unreachable GitHub falls back to the releases page", async () => {
     expect(releasesRepo({ AISUS_RELEASES_REPO: REPO })).toBe(REPO);
     expect(releasesRepo({ AISUS_RELEASES_REPO: "not a repository" })).toBe("aisusdev/aisus");
