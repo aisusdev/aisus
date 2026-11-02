@@ -90,6 +90,21 @@ test("CLD-08 the IntelliJ page's Download button opens /install/intellij", async
   await expect(page.getByRole("link", { name: "Download the IntelliJ release" })).toHaveAttribute("href", "/install/intellij");
 });
 
+test("CLD-08 the left panel lists /aisus-pr as a link with no chevron, and it opens Explain a PR with /aisus-pr", async ({ page }) => {
+  await page.goto("/get-started");
+  const tree = page.getByRole("navigation", { name: "Guide" });
+  await expect(tree.getByRole("button", { name: /\/aisus-pr/ })).toHaveCount(0);
+  await tree.getByRole("link", { name: "/aisus-pr", exact: true }).click();
+  await expect(page.locator("h1")).toHaveText("Explain a PR with /aisus-pr");
+});
+
+test("CLD-08 after choosing Codex on Get Started, the /aisus-pr page shows $aisus-pr", async ({ page }) => {
+  await page.goto("/get-started");
+  await page.getByRole("tab", { name: "Codex" }).click();
+  await page.goto("/get-started/aisus-pr");
+  await expect(page.locator("#run")).toContainText("$aisus-pr");
+});
+
 test("CLD-08 the billed app's pricing shows Pro's and Team's price texts", async ({ page }) => {
   await page.goto(`http://127.0.0.1:${BILLED_APP}/pricing`);
   const pricing = page.locator("main");

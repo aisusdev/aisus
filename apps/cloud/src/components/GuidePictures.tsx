@@ -98,6 +98,33 @@ export function PluginsPicture() {
   );
 }
 
+/** Pull request #10 on the aisus repository, with the comment /aisus-pr left on it and the diagram it drew. */
+export function PullRequestPicture() {
+  return (
+    <figure className="guide-shot" role="img" aria-label="Pull request #10 on the aisus repository, with the comment /aisus-pr left on it: the diagram of the change, a link to its page in aisus cloud, and the commit it was drawn from">
+      <div className="fd fd-window">
+        <div className="fd-titlebar"><i className="r" /><i className="y" /><i className="g" /><span>github.com/aisusdev/aisus/pull/10</span></div>
+        <div className="fd-pr pr-page">
+          <div className="fd-pr-title">PRC-07: pull request diagrams from the aisus-pr skill <span>#10</span></div>
+          <div className="fd-pr-meta"><span className="fd-open">Open</span>7 commits into main from prc-07</div>
+          <div className="fd-comment on">
+            <div className="fd-comment-head"><span className="fd-avatar" /><b>xplus2g4</b> commented</div>
+            <div className="fd-comment-body">
+              <div className="pr-diagram">
+                <img src="/aisus-pr-10.png" alt="" width="1126" height="1100" />
+                <Num n={1} />
+              </div>
+              <div className="fd-legend-foot">
+                <span className="pr-mark fd-link">Open in aisus cloud<Num n={2} /></span> · <span className="pr-mark">drawn from <code>d59fc01</code><Num n={3} /></span> by /aisus-pr
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </figure>
+  );
+}
+
 export function GeneratePicture() {
   return (
     <Window label="The aisus sidebar in VS Code, with checkout flow typed as the focus, the Generate button, and the agent picker listing Claude Code, Codex and Devin">

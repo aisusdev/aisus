@@ -98,10 +98,10 @@ export function AgentTabs({ panels }: { panels: Record<AgentName, ReactNode> }) 
   return <TabStrip tabs={tabs} label="Agents" selected={AGENTS.indexOf(agent)} onSelect={(index) => choose(AGENTS[index]!)} />;
 }
 
-/** The skill command for the chosen agent: `$` in Codex, `/` in Claude Code and Devin. */
-export function SkillCommand() {
+/** A skill's command for the chosen agent: `$` in Codex, `/` in Claude Code and Devin. */
+export function SkillCommand({ skill = "aisus-architecture", args = "checkout flow" }: { skill?: string; args?: string }) {
   const [agent] = useAgent();
-  const command = `${agent === "Codex" ? "$" : "/"}aisus-architecture checkout flow`;
+  const command = `${agent === "Codex" ? "$" : "/"}${skill}${args === "" ? "" : ` ${args}`}`;
   return (
     <>
       <p className="code-label">In {agent}</p>
