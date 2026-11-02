@@ -1,5 +1,5 @@
 ---
-status: accepted
+status: superseded by [ADR-0074](0074-skills-install-into-the-project-by-default.md)
 date: 2026-10-18
 decision-makers: implementer
 ---

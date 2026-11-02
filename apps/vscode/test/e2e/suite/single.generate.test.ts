@@ -3,7 +3,7 @@
 // a repair and the first-run data note share one modal.
 import * as assert from "node:assert/strict";
 import { chmodSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
-import { homedir, tmpdir } from "node:os";
+import { tmpdir } from "node:os";
 import { join } from "node:path";
 import * as vscode from "vscode";
 import type { TestHook } from "../../../src/extension";
@@ -54,7 +54,7 @@ suite("FR-GEN-01 Generate Architecture", () => {
     listener = vscode.window.onDidOpenTerminal((terminal) => opened.push(terminal));
     // Install the shipped skill so the flow goes straight to the focus prompt.
     const extensionPath = vscode.extensions.getExtension("aisus.aisus")!.extensionPath;
-    writeSkill(homedir(), join(extensionPath, "dist/skills/aisus-architecture"), skillTargets(homedir(), "aisus-architecture"), "aisus-architecture");
+    writeSkill(root, join(extensionPath, "dist/skills/aisus-architecture"), skillTargets(root, "aisus-architecture"), "aisus-architecture");
   });
 
   teardown(async () => {
@@ -65,7 +65,6 @@ suite("FR-GEN-01 Generate Architecture", () => {
     for (const terminal of opened) terminal.dispose();
     for (const dir of cleanup.splice(0)) rmSync(dir, { recursive: true, force: true });
     for (const dir of [".agents", ".claude", ".codex"]) rmSync(join(root, dir), { recursive: true, force: true });
-    for (const dir of [".agents", ".claude"]) rmSync(join(homedir(), dir), { recursive: true, force: true });
   });
 
   test("Claude Code: the terminal runs the resolved CLI with the prompt as its argument", async () => {
@@ -121,7 +120,7 @@ suite("FR-GEN-01 Generate Architecture", () => {
     const bin = stubBin("claude");
     cleanup.push(bin);
     process.env["PATH"] = `${bin}:${savedPath}`;
-    const skillFile = join(homedir(), ".agents/skills/aisus-architecture/SKILL.md");
+    const skillFile = join(root, ".agents/skills/aisus-architecture/SKILL.md");
     const original = readFileSync(skillFile, "utf8");
     writeFileSync(skillFile, original.replace("allowed-tools: ", "allowed-tools: Bash(*) "));
 
@@ -147,7 +146,7 @@ suite("FR-GEN-01 Generate Architecture", () => {
     const bin = stubBin("codex");
     cleanup.push(bin);
     process.env["PATH"] = `${bin}:${savedPath}`;
-    writeFileSync(join(homedir(), ".agents/skills/aisus-architecture/scripts/validate.mjs"), "process.exitCode = 0;\n");
+    writeFileSync(join(root, ".agents/skills/aisus-architecture/scripts/validate.mjs"), "process.exitCode = 0;\n");
     ui.answers.inputBox.push("");
     ui.answers.warning.push(undefined);
     await vscode.commands.executeCommand("aisus.generateArchitecture");
@@ -184,7 +183,7 @@ suite("FR-GEN-01 Generate Architecture", () => {
   });
 
   test("SET-03 CST-03 a fresh install takes two interactions: the focus, then one modal for the estimate, the install and the data note", async () => {
-    for (const dir of [".agents", ".claude"]) rmSync(join(homedir(), dir), { recursive: true, force: true });
+    for (const dir of [".agents", ".claude"]) rmSync(join(root, dir), { recursive: true, force: true });
     await hook.setDataNoteShown(false);
     const bin = stubBin("claude");
     cleanup.push(bin);
@@ -198,19 +197,19 @@ suite("FR-GEN-01 Generate Architecture", () => {
     assert.equal(prompts(ui), 2);
     assert.equal(ui.infos[0]!.message, "Generate with Claude Code?");
     const [options] = ui.infos[0]!.rest as [{ modal: boolean; detail: string }];
-    assert.equal(afterEstimate(options.detail), "Installs the aisus-architecture skill in ~/.claude/skills/.\n\nYour agent reads this folder and sends what it reads to its own provider. aisus sends nothing.");
-    assert.ok(existsSync(join(homedir(), ".agents/skills/aisus-architecture/SKILL.md")));
+    assert.equal(afterEstimate(options.detail), "Installs the aisus-architecture skill in .claude/skills/.\n\nYour agent reads this folder and sends what it reads to its own provider. aisus sends nothing.");
+    assert.ok(existsSync(join(root, ".agents/skills/aisus-architecture/SKILL.md")));
   });
 
   test("SET-03 dismissing the modal installs nothing and launches nothing", async () => {
-    for (const dir of [".agents", ".claude"]) rmSync(join(homedir(), dir), { recursive: true, force: true });
+    for (const dir of [".agents", ".claude"]) rmSync(join(root, dir), { recursive: true, force: true });
     const bin = stubBin("claude");
     cleanup.push(bin);
     process.env["PATH"] = `${bin}:${savedPath}`;
     ui.answers.inputBox.push("");
     ui.answers.info.push(undefined);
     await vscode.commands.executeCommand("aisus.generateArchitecture");
-    assert.equal(existsSync(join(homedir(), ".agents")), false);
+    assert.equal(existsSync(join(root, ".agents")), false);
     assert.equal(opened.length, 0);
   });
 });

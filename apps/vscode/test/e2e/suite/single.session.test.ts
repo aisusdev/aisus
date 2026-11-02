@@ -3,7 +3,6 @@
 // terminal → session panel.
 import * as assert from "node:assert/strict";
 import { chmodSync, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
-import { homedir } from "node:os";
 import { join } from "node:path";
 import * as vscode from "vscode";
 import type { TestHook } from "../../../src/extension";
@@ -49,7 +48,6 @@ suite("Learning session launcher", () => {
     if (savedPath === undefined) delete process.env["PATH"];
     else process.env["PATH"] = savedPath;
     for (const dir of ["bin", ".agents", ".claude", ".devin", ".aisus"]) rmSync(join(root, dir), { recursive: true, force: true });
-    for (const dir of [".agents", ".claude"]) rmSync(join(homedir(), dir), { recursive: true, force: true });
     rmSync(join(root, ".gitignore"), { force: true });
   });
 
@@ -84,7 +82,7 @@ suite("Learning session launcher", () => {
     ui.answers.inputBox.push("add a helper");
     await vscode.commands.executeCommand("aisus.startLearning");
 
-    assert.ok(existsSync(join(homedir(), ".agents/skills/aisus-bugfix/SKILL.md")), "skill installed in the home folder");
+    assert.ok(existsSync(join(root, ".agents/skills/aisus-bugfix/SKILL.md")), "skill installed in the repository");
     assert.match(readFileSync(join(root, HOOKS), "utf8"), /\.agents\/skills\/aisus-bugfix\/scripts\/session-hook\.mjs/);
     assert.ok(existsSync(join(root, HOOKS)), "hooks merged");
     assert.equal(terminals.length, 1);

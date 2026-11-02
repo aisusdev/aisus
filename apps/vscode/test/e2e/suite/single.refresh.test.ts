@@ -3,7 +3,7 @@
 import * as assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import { chmodSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
-import { homedir, tmpdir } from "node:os";
+import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import * as vscode from "vscode";
 import type { TestHook } from "../../../src/extension";
@@ -54,7 +54,7 @@ suite("FRS-06 Refresh from the UI", () => {
 
   function installSkills(...names: string[]): void {
     const extensionPath = vscode.extensions.getExtension("aisus.aisus")!.extensionPath;
-    for (const name of names) writeSkill(homedir(), join(extensionPath, "dist/skills", name), skillTargets(homedir(), name), name);
+    for (const name of names) writeSkill(root, join(extensionPath, "dist/skills", name), skillTargets(root, name), name);
   }
 
   /** Runs `action` and returns the argument the terminal it opens passes to the agent. */
@@ -102,7 +102,7 @@ suite("FRS-06 Refresh from the UI", () => {
     await vscode.workspace.getConfiguration("aisus").update("runMode", undefined, vscode.ConfigurationTarget.Global);
     for (const dir of cleanup.splice(0)) rmSync(dir, { recursive: true, force: true });
     for (const dir of [".aisus/maps", "src", ".git"]) rmSync(join(root, dir), { recursive: true, force: true });
-    for (const dir of [".agents", ".claude"]) rmSync(join(homedir(), dir), { recursive: true, force: true });
+    for (const dir of [".agents", ".claude"]) rmSync(join(root, dir), { recursive: true, force: true });
   });
 
   test("FRS-06 the map's title-bar Refresh runs the refresh skill on the shown map", async () => {
@@ -157,15 +157,15 @@ suite("FRS-06 Refresh from the UI", () => {
   });
 
   test("FRS-06 SAF-01 CST-03 a missing refresh skill is installed after one modal", async () => {
-    rmSync(join(homedir(), ".agents/skills/aisus-refresh"), { recursive: true, force: true });
-    rmSync(join(homedir(), ".claude/skills/aisus-refresh"), { force: true });
+    rmSync(join(root, ".agents/skills/aisus-refresh"), { recursive: true, force: true });
+    rmSync(join(root, ".claude/skills/aisus-refresh"), { force: true });
     await vscode.commands.executeCommand("aisus.openArchitecture");
     await until(() => hook.panelState().open, "the map");
     ui.answers.info.push("Refresh");
     await launched(() => vscode.commands.executeCommand("aisus.refreshArchitecture"));
     assert.equal(ui.infos[0]!.message, "Refresh with Claude Code?");
-    assert.equal(afterEstimate((ui.infos[0]!.rest[0] as { detail: string }).detail), "Installs the aisus-refresh skill in ~/.claude/skills/.");
-    assert.ok(readFileSync(join(homedir(), ".agents/skills/aisus-refresh/SKILL.md"), "utf8").includes("name: aisus-refresh"));
+    assert.equal(afterEstimate((ui.infos[0]!.rest[0] as { detail: string }).detail), "Installs the aisus-refresh skill in .claude/skills/.");
+    assert.ok(readFileSync(join(root, ".agents/skills/aisus-refresh/SKILL.md"), "utf8").includes("name: aisus-refresh"));
   });
 
   test("FRS-08 a map due a full drawing is drawn again with its focus", async () => {

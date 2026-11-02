@@ -4,7 +4,7 @@
 import * as assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import { chmodSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
-import { homedir, tmpdir } from "node:os";
+import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import * as vscode from "vscode";
 import type { TestHook } from "../../../src/extension";
@@ -64,7 +64,7 @@ suite("PRC-02 Review changes", () => {
     chmodSync(join(bin, "claude"), 0o755);
     process.env["PATH"] = `${bin}:${savedPath}`;
     const extensionPath = vscode.extensions.getExtension("aisus.aisus")!.extensionPath;
-    for (const name of ["aisus-architecture", "aisus-refresh"]) writeSkill(homedir(), join(extensionPath, "dist/skills", name), skillTargets(homedir(), name), name);
+    for (const name of ["aisus-architecture", "aisus-refresh"]) writeSkill(root, join(extensionPath, "dist/skills", name), skillTargets(root, name), name);
     await hook.setDataNoteShown(true);
     await vscode.workspace.getConfiguration("aisus").update("runMode", "terminal", vscode.ConfigurationTarget.Global);
 
@@ -88,7 +88,7 @@ suite("PRC-02 Review changes", () => {
     await vscode.workspace.getConfiguration("aisus").update("runMode", undefined, vscode.ConfigurationTarget.Global);
     for (const dir of cleanup.splice(0)) rmSync(dir, { recursive: true, force: true });
     for (const path of [".aisus/maps", "src", ".git", "aisus.config.json"]) rmSync(join(root, path), { recursive: true, force: true });
-    for (const dir of [".agents", ".claude"]) rmSync(join(homedir(), dir), { recursive: true, force: true });
+    for (const dir of [".agents", ".claude"]) rmSync(join(root, dir), { recursive: true, force: true });
   });
 
   async function reviewBranch(): Promise<void> {

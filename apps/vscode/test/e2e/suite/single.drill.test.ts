@@ -2,7 +2,7 @@
 // The box then opens its detail map, and the detail map's trail opens the overview again.
 import * as assert from "node:assert/strict";
 import { chmodSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
-import { homedir, tmpdir } from "node:os";
+import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import * as vscode from "vscode";
 import type { TestHook } from "../../../src/extension";
@@ -39,7 +39,7 @@ suite("VWR-05 Drill down", () => {
     chmodSync(join(bin, "claude"), 0o755);
     savedPath = process.env["PATH"];
     process.env["PATH"] = `${bin}:${savedPath}`;
-    writeSkill(homedir(), join(vscode.extensions.getExtension("aisus.aisus")!.extensionPath, "dist/skills/aisus-architecture"), skillTargets(homedir(), "aisus-architecture"), "aisus-architecture");
+    writeSkill(root, join(vscode.extensions.getExtension("aisus.aisus")!.extensionPath, "dist/skills/aisus-architecture"), skillTargets(root, "aisus-architecture"), "aisus-architecture");
     await hook.setDataNoteShown(true);
     await vscode.workspace.getConfiguration("aisus").update("runMode", "terminal", vscode.ConfigurationTarget.Global);
     write(root, "src/api.ts", "export const api = () => 1;\n");
@@ -57,7 +57,7 @@ suite("VWR-05 Drill down", () => {
     await vscode.workspace.getConfiguration("aisus").update("runMode", undefined, vscode.ConfigurationTarget.Global);
     for (const path of [".aisus/maps", "src"]) rmSync(join(root, path), { recursive: true, force: true });
     rmSync(bin, { recursive: true, force: true });
-    for (const dir of [".agents", ".claude"]) rmSync(join(homedir(), dir), { recursive: true, force: true });
+    for (const dir of [".agents", ".claude"]) rmSync(join(root, dir), { recursive: true, force: true });
   });
 
   test("VWR-05 Map This Box in Detail runs Generate on the box with the map it came from", async () => {

@@ -148,7 +148,7 @@ aisus makes no AI calls of its own. Your agent does the work, on your account.
 
 ## What it touches on your machine
 
-- Skills go to `~/.agents/skills/`, which Codex and Devin read, with links in `~/.claude/skills/` for Claude Code. With `aisus.skillScope` set to `project`, they go to `.agents/skills/` and `.claude/skills/` in the repository.
+- Skills go to `.agents/skills/` in the repository, which Codex and Devin read, with links in `.claude/skills/` for Claude Code. With `aisus.skillScope` set to `user`, they go to `~/.agents/skills/` and `~/.claude/skills/` in your home folder.
 - Maps go to `.aisus/maps/` in the repository.
 - `.git/info/exclude` gains `.aisus/sessions/`, `.aisus/maps/**/draft.json` and `.aisus/maps/**/*.html`. Git reads this file and never commits it.
 - Bug hunt learning sessions are hidden while they are tested. `aisus.bugHunt.enabled` shows them in the sidebar and the Command Palette.

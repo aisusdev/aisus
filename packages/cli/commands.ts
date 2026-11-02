@@ -70,7 +70,7 @@ function chosenMap(args: CliArgs): { run: string; dir: string; doc: unknown } | 
 }
 
 export function install(args: CliArgs): CommandResult {
-  const scope = one(args, "--scope") ?? "user";
+  const scope = one(args, "--scope") ?? "project";
   if (scope !== "user" && scope !== "project") return usage("--scope is user or project");
   const base = skillBase(scope, args.root, args.env["HOME"] ?? args.env["USERPROFILE"] ?? homedir());
   const installed: string[] = [];
@@ -88,7 +88,7 @@ export function install(args: CliArgs): CommandResult {
 export function verifySkills(args: CliArgs): CommandResult {
   const agent = (one(args, "--agent") ?? "claude") as AgentId;
   if (!["claude", "codex", "devin"].includes(agent)) return usage("--agent is claude, codex or devin");
-  const scope = one(args, "--scope") ?? "user";
+  const scope = one(args, "--scope") ?? "project";
   if (scope !== "user" && scope !== "project") return usage("--scope is user or project");
   let hashes: SkillHashes;
   try {

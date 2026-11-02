@@ -3,7 +3,7 @@
 // replays recorded streams (test/fixtures/streams/stub-agent.mjs).
 import * as assert from "node:assert/strict";
 import { chmodSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
-import { homedir, tmpdir } from "node:os";
+import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import * as vscode from "vscode";
 import type { TestHook } from "../../../src/extension";
@@ -85,7 +85,7 @@ suite("UI-01 aisus sidebar", () => {
   }
 
   function installSkill(): void {
-    writeSkill(homedir(), join(extensionPath(), "dist/skills/aisus-architecture"), skillTargets(homedir(), "aisus-architecture"), "aisus-architecture");
+    writeSkill(root, join(extensionPath(), "dist/skills/aisus-architecture"), skillTargets(root, "aisus-architecture"), "aisus-architecture");
   }
 
   suiteSetup(async () => {
@@ -116,7 +116,7 @@ suite("UI-01 aisus sidebar", () => {
     await vscode.workspace.getConfiguration("aisus").update("runMode", undefined, vscode.ConfigurationTarget.Global);
     for (const dir of cleanup.splice(0)) rmSync(dir, { recursive: true, force: true });
     rmSync(join(root, ".aisus/maps"), { recursive: true, force: true });
-    for (const dir of [".agents", ".claude"]) rmSync(join(homedir(), dir), { recursive: true, force: true });
+    for (const dir of [".agents", ".claude"]) rmSync(join(root, dir), { recursive: true, force: true });
   });
 
   test("UI-01 revealing the container shows the view for this folder", async () => {
@@ -128,7 +128,7 @@ suite("UI-01 aisus sidebar", () => {
   });
 
   test("UI-01 SET-03 CST-03 Generate from the sidebar takes one click, states only the estimate, installs the skill and launches with the typed focus", async () => {
-    for (const dir of [".agents", ".claude"]) rmSync(join(homedir(), dir), { recursive: true, force: true });
+    for (const dir of [".agents", ".claude"]) rmSync(join(root, dir), { recursive: true, force: true });
     await hook.setDataNoteShown(false);
     agents(["claude"]);
     const args = scratch("args.json");
@@ -144,7 +144,7 @@ suite("UI-01 aisus sidebar", () => {
     assert.deepEqual(argv.slice(0, 2), ["-p", "/aisus-architecture payment flow"]);
     assert.deepEqual(argv.slice(argv.indexOf("--permission-mode"), argv.indexOf("--permission-mode") + 2), ["--permission-mode", "dontAsk"]);
     assert.equal(prompts(ui), 0, "no prompt besides the click");
-    assert.ok(existsSync(join(homedir(), ".claude/skills/aisus-architecture/SKILL.md")));
+    assert.ok(existsSync(join(root, ".claude/skills/aisus-architecture/SKILL.md")));
     assert.deepEqual(hook.homeState().state?.composer.notes, [estimate]);
     assert.equal(hook.runCard()?.estimate, estimate);
   });

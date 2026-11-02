@@ -28,25 +28,25 @@ suite("FR-INS-01 Install Agent Skills", () => {
     rmSync(join(root, ".gitignore"), { force: true });
   });
 
-  test("SAF-06 FRS-05 ACC-05 SKL-02 a fresh install copies every skill, links .claude and leaves .devin and .gitignore alone", async () => {
+  test("SAF-06 FRS-05 ACC-05 SKL-02 SET-06 a fresh install copies every skill into the repository, links .claude and leaves .devin and .gitignore alone", async () => {
     await vscode.commands.executeCommand("aisus.installSkills");
     for (const file of ["SKILL.md", "agents/openai.yaml", "references/map-format.md", "references/example.json", "scripts/validate.mjs", "scripts/repo-facts.mjs"]) {
-      assert.ok(existsSync(join(home, ".agents/skills/aisus-architecture", file)), file);
+      assert.ok(existsSync(join(root, ".agents/skills/aisus-architecture", file)), file);
     }
     for (const file of ["SKILL.md", "agents/openai.yaml", "references/bug-taxonomy.md", "scripts/session.mjs", "scripts/session-hook.mjs"]) {
-      assert.ok(existsSync(join(home, ".agents/skills/aisus-bugfix", file)), file);
+      assert.ok(existsSync(join(root, ".agents/skills/aisus-bugfix", file)), file);
     }
     for (const file of ["SKILL.md", "agents/openai.yaml", "references/map-format.md", "scripts/refresh-facts.mjs", "scripts/validate.mjs"]) {
-      assert.ok(existsSync(join(home, ".agents/skills/aisus-refresh", file)), file);
+      assert.ok(existsSync(join(root, ".agents/skills/aisus-refresh", file)), file);
     }
     for (const file of ["SKILL.md", "agents/openai.yaml", "scripts/audit-record.mjs"]) {
-      assert.ok(existsSync(join(home, ".agents/skills/aisus-audit", file)), file);
+      assert.ok(existsSync(join(root, ".agents/skills/aisus-audit", file)), file);
     }
     for (const file of ["SKILL.md", "agents/openai.yaml", "scripts/tour-record.mjs"]) {
-      assert.ok(existsSync(join(home, ".agents/skills/aisus-tour", file)), file);
+      assert.ok(existsSync(join(root, ".agents/skills/aisus-tour", file)), file);
     }
     for (const name of ["aisus-architecture", "aisus-audit", "aisus-bugfix", "aisus-pr", "aisus-refresh", "aisus-tour"]) {
-      const link = join(home, ".claude/skills", name);
+      const link = join(root, ".claude/skills", name);
       assert.equal(lstatSync(link).isSymbolicLink(), true);
       assert.equal(readlinkSync(link), `../../.agents/skills/${name}`);
       assert.ok(existsSync(join(link, "SKILL.md")), "link resolves to the skill");
@@ -55,13 +55,13 @@ suite("FR-INS-01 Install Agent Skills", () => {
     assert.equal(existsSync(join(root, ".gitignore")), false, "no .gitignore at install");
     assert.equal(ui.warnings.length, 0, "no overwrite prompt on a fresh install");
     assert.equal(ui.infos.length, 1);
-    assert.match(ui.infos[0]!.message, /~\/\.agents\/skills\//);
+    assert.match(ui.infos[0]!.message, /in \.agents\/skills\//);
     assert.doesNotMatch(ui.infos[0]!.message, /hooks/);
   });
 
   test("ACC-05 SKL-02 SEQ-02 an existing install is replaced after Overwrite", async () => {
     await vscode.commands.executeCommand("aisus.installSkills");
-    const marker = join(home, ".agents/skills/aisus-architecture/marker.txt");
+    const marker = join(root, ".agents/skills/aisus-architecture/marker.txt");
     writeFileSync(marker, "old");
     ui.answers.warning.push("Overwrite");
     await vscode.commands.executeCommand("aisus.installSkills");
@@ -69,13 +69,13 @@ suite("FR-INS-01 Install Agent Skills", () => {
     assert.equal(ui.warnings[0]!.message, "Overwrite the existing aisus-architecture, aisus-audit, aisus-bugfix, aisus-plan, aisus-pr, aisus-refresh, aisus-sequence and aisus-tour skills?");
     assert.deepEqual(ui.warnings[0]!.rest, [{ modal: true }, "Overwrite"]);
     assert.equal(existsSync(marker), false, "overwrite removes the old install first");
-    assert.equal(lstatSync(join(home, ".claude/skills/aisus-architecture")).isSymbolicLink(), true);
+    assert.equal(lstatSync(join(root, ".claude/skills/aisus-architecture")).isSymbolicLink(), true);
     assert.equal(ui.infos.length, 2);
   });
 
   test("Cancel leaves an existing install untouched", async () => {
     await vscode.commands.executeCommand("aisus.installSkills");
-    const marker = join(home, ".agents/skills/aisus-architecture/marker.txt");
+    const marker = join(root, ".agents/skills/aisus-architecture/marker.txt");
     writeFileSync(marker, "old");
     ui.answers.warning.push(undefined);
     await vscode.commands.executeCommand("aisus.installSkills");
@@ -86,22 +86,22 @@ suite("FR-INS-01 Install Agent Skills", () => {
 
   test("a lone .claude entry also triggers the overwrite prompt", async () => {
     await vscode.commands.executeCommand("aisus.installSkills");
-    rmSync(join(home, ".agents"), { recursive: true, force: true });
+    rmSync(join(root, ".agents"), { recursive: true, force: true });
     ui.answers.warning.push(undefined);
     await vscode.commands.executeCommand("aisus.installSkills");
     assert.equal(ui.warnings.length, 1);
-    assert.equal(existsSync(join(home, ".agents")), false, "cancel changed nothing");
+    assert.equal(existsSync(join(root, ".agents")), false, "cancel changed nothing");
   });
 
-  test("SET-01 with aisus.skillScope set to project the skills go into the repository", async () => {
+  test("SET-01 SET-06 with aisus.skillScope set to user the skills go into the home folder", async () => {
     const config = vscode.workspace.getConfiguration("aisus");
-    await config.update("skillScope", "project", vscode.ConfigurationTarget.Global);
+    await config.update("skillScope", "user", vscode.ConfigurationTarget.Global);
     try {
       await vscode.commands.executeCommand("aisus.installSkills");
-      assert.ok(existsSync(join(root, ".agents/skills/aisus-architecture/SKILL.md")));
-      assert.equal(lstatSync(join(root, ".claude/skills/aisus-architecture")).isSymbolicLink(), true);
-      assert.equal(existsSync(join(home, ".agents")), false);
-      assert.match(ui.infos[0]!.message, /in \.agents\/skills\//);
+      assert.ok(existsSync(join(home, ".agents/skills/aisus-architecture/SKILL.md")));
+      assert.equal(lstatSync(join(home, ".claude/skills/aisus-architecture")).isSymbolicLink(), true);
+      assert.equal(existsSync(join(root, ".agents")), false);
+      assert.match(ui.infos[0]!.message, /in ~\/\.agents\/skills\//);
     } finally {
       await config.update("skillScope", undefined, vscode.ConfigurationTarget.Global);
     }

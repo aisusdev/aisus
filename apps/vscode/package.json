@@ -49,14 +49,14 @@
         "aisus.skillScope": {
           "type": "string",
           "enum": [
-            "user",
-            "project"
+            "project",
+            "user"
           ],
           "enumDescriptions": [
-            "Install the skills in your home folder (~/.claude/skills, ~/.agents/skills). Nothing is added to the repository.",
-            "Install the skills in the repository (.claude/skills, .agents/skills)."
+            "Install the skills in the repository (.claude/skills, .agents/skills).",
+            "Install the skills in your home folder (~/.claude/skills, ~/.agents/skills). Nothing is added to the repository."
           ],
-          "default": "user",
+          "default": "project",
           "description": "Where aisus installs its agent skills."
         },
         "aisus.runMode": {

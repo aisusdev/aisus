@@ -2,7 +2,7 @@
 // map, and Create tour on a map launches the tour skill for its run folder.
 import * as assert from "node:assert/strict";
 import { chmodSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
-import { homedir, tmpdir } from "node:os";
+import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import * as vscode from "vscode";
 import type { TestHook } from "../../../src/extension";
@@ -65,7 +65,7 @@ suite("SKL-02 Guided tours", () => {
     await vscode.workspace.getConfiguration("aisus").update("runMode", undefined, vscode.ConfigurationTarget.Global);
     for (const path of [".aisus/maps", "src"]) rmSync(join(root, path), { recursive: true, force: true });
     if (bin !== undefined) rmSync(bin, { recursive: true, force: true });
-    for (const dir of [".agents", ".claude"]) rmSync(join(homedir(), dir), { recursive: true, force: true });
+    for (const dir of [".agents", ".claude"]) rmSync(join(root, dir), { recursive: true, force: true });
   });
 
   test("SKL-02 Tour opens each stop's code beside the map", async () => {
@@ -88,7 +88,7 @@ suite("SKL-02 Guided tours", () => {
     chmodSync(join(bin, "claude"), 0o755);
     savedPath = process.env["PATH"];
     process.env["PATH"] = `${bin}:${savedPath}`;
-    writeSkill(homedir(), join(vscode.extensions.getExtension("aisus.aisus")!.extensionPath, "dist/skills/aisus-tour"), skillTargets(homedir(), "aisus-tour"), "aisus-tour");
+    writeSkill(root, join(vscode.extensions.getExtension("aisus.aisus")!.extensionPath, "dist/skills/aisus-tour"), skillTargets(root, "aisus-tour"), "aisus-tour");
     await hook.setDataNoteShown(true);
     await vscode.workspace.getConfiguration("aisus").update("runMode", "terminal", vscode.ConfigurationTarget.Global);
     const opened = new Promise<vscode.Terminal>((resolve) => {
