@@ -1,5 +1,5 @@
-// The Get Started page's two pictures: VS Code in its Light Modern colours, with pink numbers that match the steps
-// beside them. Screen readers get one description each, because a picture stands for the editor.
+// The guide's pictures: VS Code in its Light Modern colours and a JetBrains IDE's Settings, with pink numbers that
+// match the steps beside them. Screen readers get one description each, because a picture stands for the editor.
 import type { ReactNode } from "react";
 
 function Num({ n }: { n: number }) {
@@ -54,6 +54,47 @@ export function VsixPicture() {
         </div>
       </div>
     </Window>
+  );
+}
+
+export function PluginsPicture() {
+  return (
+    <figure className="guide-shot" role="img" aria-label="The Plugins page of a JetBrains IDE's Settings, with the gear menu open and Install Plugin from Disk… selected">
+      <div className="fd fd-window ij-window">
+        <div className="fd-titlebar"><i className="r" /><i className="y" /><i className="g" /><span>Settings</span></div>
+        <div className="fd-body">
+          <div className="ij-tree">
+            <div className="ij-search">Search</div>
+            <span>Appearance &amp; Behavior</span>
+            <span>Keymap</span>
+            <span>Editor</span>
+            <span className="on">Plugins<Num n={2} /></span>
+            <span>Version Control</span>
+            <span>Tools</span>
+          </div>
+          <div className="ij-main">
+            <div className="ij-head">
+              <span className="ij-tab">Marketplace</span>
+              <span className="ij-tab on">Installed</span>
+              <span className="ij-gear">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3" /><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.3 5.3l2.1 2.1M16.6 16.6l2.1 2.1M5.3 18.7l2.1-2.1M16.6 7.4l2.1-2.1" /></svg>
+                <Num n={3} />
+              </span>
+            </div>
+            <div className="gs-row"><span className="gs-tile" /><span className="gs-lines"><i /><i /></span></div>
+            <div className="gs-row"><span className="gs-tile" /><span className="gs-lines"><i /><i /></span></div>
+            <div className="ij-menu">
+              <span>Manage Plugin Repositories…</span>
+              <span>HTTP Proxy Settings…</span>
+              <hr />
+              <span className="on">Install Plugin from Disk…<Num n={4} /></span>
+              <hr />
+              <span>Disable All Downloaded Plugins</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </figure>
   );
 }
 

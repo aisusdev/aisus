@@ -75,6 +75,21 @@ test("CLD-08 choosing Codex shows its install command and $aisus-architecture, a
   await expect(page.locator("#generate")).toContainText("$aisus-architecture checkout flow");
 });
 
+test("CLD-08 the guide's left panel opens the page being read, and its chevron folds the steps away", async ({ page }) => {
+  await page.goto("/get-started");
+  const tree = page.getByRole("navigation", { name: "Guide" });
+  await expect(tree.getByRole("link", { name: "1. Installation" })).toBeVisible();
+  await expect(tree.getByRole("link", { name: "1. Install the plugin" })).toBeHidden();
+  await tree.getByRole("button", { name: "Hide the steps of Get Started" }).click();
+  await expect(tree.getByRole("link", { name: "1. Installation" })).toBeHidden();
+});
+
+test("CLD-08 the IntelliJ page's Download button opens /install/intellij", async ({ page }) => {
+  await page.goto("/get-started/intellij");
+  await expect(page.locator("h1")).toHaveText("Installation for IntelliJ IDEA");
+  await expect(page.getByRole("link", { name: "Download the IntelliJ release" })).toHaveAttribute("href", "/install/intellij");
+});
+
 test("CLD-08 the billed app's pricing shows Pro's and Team's price texts", async ({ page }) => {
   await page.goto(`http://127.0.0.1:${BILLED_APP}/pricing`);
   const pricing = page.locator("main");

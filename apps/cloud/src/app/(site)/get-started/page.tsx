@@ -2,6 +2,7 @@
 import { AgentTabs, PanelTabs, SkillCommand } from "../../../components/GuideTabs";
 import { CodeBlock } from "../../../components/CodeBlock";
 import { GeneratePicture, VsixPicture } from "../../../components/GuidePictures";
+import { GuideTree } from "../../../components/GuideTree";
 import { releasesRepo } from "../../../lib/install";
 
 // Change both together whenever the guide's steps change.
@@ -9,12 +10,6 @@ const UPDATED = "2026-11-02";
 const UPDATED_TEXT = "2 November 2026";
 
 const MARKETPLACE = "https://marketplace.visualstudio.com/items?itemName=aisus.aisus";
-
-const SECTIONS = [
-  { href: "#install", label: "Installation" },
-  { href: "#agent", label: "Prepare your agent" },
-  { href: "#generate", label: "Generate a map" },
-];
 
 const SUBSTEPS = [
   { href: "#marketplace", label: "Install from the Marketplace" },
@@ -38,11 +33,7 @@ export default function GetStartedPage() {
   return (
     <main className="guide-page">
       <div className="wrap guide-layout">
-        <nav className="guide-sidebar" aria-label="Guide">
-          <strong>Guide</strong>
-          <a className="active" href="#top-of-guide">Get Started</a>
-          {SECTIONS.map((section, i) => <a key={section.href} className="guide-sub" href={section.href}>{i + 1}. {section.label}</a>)}
-        </nav>
+        <GuideTree current="/get-started" />
         <article className="guide-article">
           <header className="guide-intro" id="top-of-guide">
             <h1>Get Started</h1>

@@ -469,9 +469,16 @@ thead th { background: var(--paper-2); }
   flex-direction: column;
 }
 .guide-sidebar strong, .guide-aside strong { margin-bottom: 12px; color: var(--forest); }
-.guide-sidebar a { padding: 7px 12px; margin-left: -12px; border-radius: 8px; color: var(--text-2); }
+.guide-sidebar a { padding: 7px 12px; border-radius: 8px; color: var(--text-2); }
 .guide-sidebar a.active { color: var(--forest); font-weight: 700; }
-.guide-sidebar a.guide-sub { padding-left: 26px; }
+.guide-sidebar a.guide-sub { display: block; padding-left: 40px; }
+.guide-row { display: flex; align-items: center; margin-left: -12px; }
+.guide-row a { flex: 1; padding-left: 4px; }
+.guide-toggle { display: grid; place-items: center; flex: none; width: 32px; height: 32px; padding: 0; border: 0; border-radius: 8px; background: none; color: var(--text-2); cursor: pointer; }
+.guide-toggle:hover { background: var(--paper-2); color: var(--forest); }
+.guide-toggle .i { width: 16px; height: 16px; stroke-width: 2.2; transition: transform .2s; }
+.guide-toggle[aria-expanded="true"] .i { transform: rotate(90deg); }
+.guide-children { margin-left: -12px; }
 .guide-sidebar a:hover { background: var(--paper-2); color: var(--forest); }
 .guide-aside { padding-left: 18px; border-left: 1px solid var(--line); }
 .guide-aside a { padding: 6px 0; color: var(--text-2); }
@@ -567,6 +574,21 @@ kbd {
 .gs-pick > span.on { background: rgba(0, 95, 184, .12); }
 .gs-num { position: absolute; z-index: 3; right: 6px; top: 50%; transform: translateY(-50%); display: grid; place-items: center; width: 20px; height: 20px; border-radius: 50%; background: var(--pink); box-shadow: 0 0 0 2px #ffffff; color: #ffffff; font: 700 12px/1 var(--sans); letter-spacing: 0; }
 .fd-activity .gs-num { top: -6px; right: 0; transform: none; }
+.ij-window .fd-body { background: #ffffff; }
+.ij-tree { display: flex; flex: 0 0 140px; flex-direction: column; gap: 2px; padding: 10px 8px; background: #f7f8fa; border-right: 1px solid #ebecf0; color: #1e1f22; }
+.ij-tree > span { position: relative; padding: 3px 8px; border-radius: 4px; white-space: nowrap; }
+.ij-tree > span.on { background: #d5e1ff; }
+.ij-search { margin-bottom: 6px; padding: 3px 8px; border: 1px solid #ebecf0; border-radius: 4px; background: #ffffff; color: #6c707e; }
+.ij-main { position: relative; flex: 1; min-width: 0; padding: 8px 0 14px; }
+.ij-head { display: flex; align-items: center; gap: 10px; height: 32px; padding: 0 12px; border-bottom: 1px solid #ebecf0; color: #1e1f22; }
+.ij-tab { align-self: stretch; display: flex; align-items: center; color: #6c707e; }
+.ij-tab.on { color: #1e1f22; box-shadow: inset 0 -2px 0 #3574f0; }
+.ij-gear { position: relative; margin-left: auto; padding-right: 24px; }
+.ij-gear svg { display: block; width: 16px; height: 16px; fill: none; stroke: #6c707e; stroke-width: 1.8; }
+.ij-menu { position: absolute; z-index: 2; top: 38px; right: 8px; width: 215px; display: flex; flex-direction: column; padding: 4px; border: 1px solid #ebecf0; border-radius: 6px; background: #ffffff; box-shadow: 0 6px 18px rgba(0, 0, 0, .18); color: #1e1f22; }
+.ij-menu > span { position: relative; padding: 4px 34px 4px 10px; border-radius: 4px; white-space: nowrap; }
+.ij-menu > span.on { background: #3574f0; color: #ffffff; }
+.ij-menu hr { width: 100%; margin: 4px 0; border: 0; border-top: 1px solid #ebecf0; }
 .guide-shot .fd-titlebar span { margin-right: 52px; }
 
 .pricing-page { overflow-x: clip; }
@@ -730,6 +752,8 @@ kbd {
   .guide-sidebar strong { display: none; }
   .guide-sidebar a { flex: none; margin: 0; padding: 8px 11px; }
   .guide-sidebar a.guide-sub { padding-left: 11px; }
+  .guide-node, .guide-row, .guide-children:not([hidden]) { display: contents; }
+  .guide-toggle { display: none; }
   .guide-shot .fd-window { zoom: .78; }
   .panel-body, .steps-with-picture.steps-panel { padding: 18px 16px; }
   .pricing-plans { grid-template-columns: 1fr; }
