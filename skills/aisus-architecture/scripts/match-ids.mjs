@@ -134,9 +134,10 @@ var DRAFT_FILE = "draft.json";
 var CANDIDATE_FILE = "candidate.json";
 var RUN_NAME_PATTERN = /^([a-z0-9]+)-(.+)-(\d{8}-\d{6})(?:-(\d+))?$/;
 var SEQUENCE_PREFIX = "sequence";
+var PLAN_PREFIX = "plan";
 function mapKindOf(name) {
   const prefix = parseRunName(name)?.prefix;
-  return prefix === "architecture" || prefix === SEQUENCE_PREFIX ? prefix : null;
+  return prefix === "architecture" || prefix === SEQUENCE_PREFIX || prefix === PLAN_PREFIX ? prefix : null;
 }
 function parseRunName(name) {
   const match = RUN_NAME_PATTERN.exec(name);
@@ -152,7 +153,7 @@ function locateDraft(arg, cwd) {
     throw new Error(`expected a path of the form <repo>/${MAP_DIR}/<run>/${DRAFT_FILE}, got ${arg}`);
   }
   const kind = mapKindOf(run);
-  if (kind === null) throw new Error(`run folder "${run}" does not match architecture-<slug>-<YYYYMMDD-HHMMSS>[-N] or sequence-<slug>-<YYYYMMDD-HHMMSS>[-N]`);
+  if (kind === null) throw new Error(`run folder "${run}" does not match architecture-, sequence- or plan-<slug>-<YYYYMMDD-HHMMSS>[-N]`);
   return { root, run, slug: parseRunName(run).slug, draft, kind };
 }
 function mapRootOf(runDir) {

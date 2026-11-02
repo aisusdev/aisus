@@ -7578,7 +7578,7 @@ function probeMessage(path, probe) {
       return `${path} cannot be read: ${probe.reason}`;
   }
 }
-function checkCitations(doc, root) {
+function checkCitations(doc, root, spec) {
   const rootReal = realpathSync(root);
   const cache = /* @__PURE__ */ new Map();
   const issues = [];
@@ -7594,7 +7594,7 @@ function checkCitations(doc, root) {
         });
         return;
       }
-      if (isDenied(path)) {
+      if (path !== spec && isDenied(path)) {
         issues.push({ code: "DeniedCitation", pointer: `${base}/path`, message: `${path} is on the deny-list and cannot be cited` });
         return;
       }
@@ -7651,9 +7651,10 @@ var MAP_DIR = ".aisus/maps";
 var CANDIDATE_FILE = "candidate.json";
 var RUN_NAME_PATTERN = /^([a-z0-9]+)-(.+)-(\d{8}-\d{6})(?:-(\d+))?$/;
 var SEQUENCE_PREFIX = "sequence";
+var PLAN_PREFIX = "plan";
 function mapKindOf(name) {
   const prefix = parseRunName(name)?.prefix;
-  return prefix === "architecture" || prefix === SEQUENCE_PREFIX ? prefix : null;
+  return prefix === "architecture" || prefix === SEQUENCE_PREFIX || prefix === PLAN_PREFIX ? prefix : null;
 }
 function parseRunName(name) {
   const match = RUN_NAME_PATTERN.exec(name);

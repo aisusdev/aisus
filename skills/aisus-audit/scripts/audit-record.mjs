@@ -7670,7 +7670,7 @@ function probeMessage(path, probe) {
       return `${path} cannot be read: ${probe.reason}`;
   }
 }
-function checkCitations(doc, root) {
+function checkCitations(doc, root, spec) {
   const rootReal = realpathSync(root);
   const cache = /* @__PURE__ */ new Map();
   const issues = [];
@@ -7686,7 +7686,7 @@ function checkCitations(doc, root) {
         });
         return;
       }
-      if (isDenied(path)) {
+      if (path !== spec && isDenied(path)) {
         issues.push({ code: "DeniedCitation", pointer: `${base}/path`, message: `${path} is on the deny-list and cannot be cited` });
         return;
       }

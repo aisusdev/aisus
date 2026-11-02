@@ -123,9 +123,9 @@ function probeMessage(path: string, probe: Exclude<FileProbe, { kind: "text" }>)
 /**
  * Checks every cited source of a schema-valid map (components, or participants and messages) against the repo at
  * `root`: path syntax, deny-list, resolution inside the root, file kind and size, lines.
- * Each distinct path is probed once.
+ * Each distinct path is probed once. `spec`, a plan's own spec (PLN-01), is exempt from the deny-list.
  */
-export function checkCitations(doc: MapDoc, root: string): Issue[] {
+export function checkCitations(doc: MapDoc, root: string, spec?: string): Issue[] {
   const rootReal = realpathSync(root);
   const cache = new Map<string, FileProbe>();
   const issues: Issue[] = [];
@@ -141,7 +141,7 @@ export function checkCitations(doc: MapDoc, root: string): Issue[] {
         });
         return;
       }
-      if (isDenied(path)) {
+      if (path !== spec && isDenied(path)) {
         issues.push({ code: "DeniedCitation", pointer: `${base}/path`, message: `${path} is on the deny-list and cannot be cited` });
         return;
       }

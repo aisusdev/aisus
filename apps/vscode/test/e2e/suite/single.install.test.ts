@@ -66,7 +66,7 @@ suite("FR-INS-01 Install Agent Skills", () => {
     ui.answers.warning.push("Overwrite");
     await vscode.commands.executeCommand("aisus.installSkills");
     assert.equal(ui.warnings.length, 1);
-    assert.equal(ui.warnings[0]!.message, "Overwrite the existing aisus-architecture, aisus-audit, aisus-bugfix, aisus-pr, aisus-refresh, aisus-sequence and aisus-tour skills?");
+    assert.equal(ui.warnings[0]!.message, "Overwrite the existing aisus-architecture, aisus-audit, aisus-bugfix, aisus-plan, aisus-pr, aisus-refresh, aisus-sequence and aisus-tour skills?");
     assert.deepEqual(ui.warnings[0]!.rest, [{ modal: true }, "Overwrite"]);
     assert.equal(existsSync(marker), false, "overwrite removes the old install first");
     assert.equal(lstatSync(join(home, ".claude/skills/aisus-architecture")).isSymbolicLink(), true);

@@ -30,6 +30,7 @@ const common = {
 const SCRIPT_ENTRIES = {
   "repo-facts": "packages/core/agent/repo-facts.ts",
   "refresh-facts": "packages/core/agent/refresh-facts.ts",
+  "plan-facts": "packages/core/agent/plan-facts.ts",
   "match-ids": "packages/core/agent/match-ids.ts",
   "render-html": "packages/core/agent/render-html.ts",
   validate: "packages/core/agent/validate.ts",
@@ -175,6 +176,9 @@ export async function buildSkillsAndCli(out) {
   // PRC-07: the pull request skill draws in the same format and validates with the same script.
   cpSync(join(root, "skills/aisus-architecture/references"), join(out, "skills/aisus-pr/references"), { recursive: true });
   results.push(await buildScripts(join(out, "skills/aisus-pr/scripts"), ["pr-facts", "pr-publish", "validate"]));
+  // PLN-01: the plan skill draws in the same format, beside its own plan-format.md.
+  cpSync(join(root, "skills/aisus-architecture/references"), join(out, "skills/aisus-plan/references"), { recursive: true });
+  results.push(await buildScripts(join(out, "skills/aisus-plan/scripts"), ["plan-facts", "match-ids", "validate", "render-html"]));
   writeSkillHashes(out);
   const page = await buildPage();
   results.push(
@@ -211,6 +215,7 @@ function syncCommittedSkills(out) {
     rmSync(join(root, "skills", name, "references"), { recursive: true, force: true });
     cpSync(join(root, "skills/aisus-architecture/references"), join(root, "skills", name, "references"), { recursive: true });
   }
+  cpSync(join(root, "skills/aisus-architecture/references"), join(root, "skills/aisus-plan/references"), { recursive: true });
 }
 
 async function buildDist() {

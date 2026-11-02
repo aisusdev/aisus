@@ -7925,9 +7925,10 @@ var MAP_DIR = ".aisus/maps";
 var CANDIDATE_FILE = "candidate.json";
 var RUN_NAME_PATTERN = /^([a-z0-9]+)-(.+)-(\d{8}-\d{6})(?:-(\d+))?$/;
 var SEQUENCE_PREFIX = "sequence";
+var PLAN_PREFIX = "plan";
 function mapKindOf(name2) {
   const prefix = parseRunName(name2)?.prefix;
-  return prefix === "architecture" || prefix === SEQUENCE_PREFIX ? prefix : null;
+  return prefix === "architecture" || prefix === SEQUENCE_PREFIX || prefix === PLAN_PREFIX ? prefix : null;
 }
 function parseRunName(name2) {
   const match = RUN_NAME_PATTERN.exec(name2);
@@ -7960,8 +7961,7 @@ function listCandidates(root, kind = "architecture") {
   }
   const candidates = [];
   for (const runFolder of folders) {
-    const sequence = mapKindOf(runFolder) === SEQUENCE_PREFIX;
-    if (kind !== "all" && sequence !== (kind === "sequence")) continue;
+    if (kind !== "all" && (mapKindOf(runFolder) ?? "architecture") !== kind) continue;
     const file = (0, import_node_path.join)(root, MAP_DIR, runFolder, CANDIDATE_FILE);
     try {
       const real = (0, import_node_fs.realpathSync)(file);
