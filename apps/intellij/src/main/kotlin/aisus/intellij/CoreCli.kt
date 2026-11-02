@@ -8,7 +8,7 @@ import java.nio.file.Path
 object CoreCli {
     fun preflight(cli: Path, root: Path): List<String> = command(cli, root, "preflight", "--format", "markdown")
 
-    fun install(cli: Path, root: Path, scope: String = "user"): List<String> = command(cli, root, "install", "--scope", scope, "--format", "markdown")
+    fun install(cli: Path, root: Path, scope: String = "project"): List<String> = command(cli, root, "install", "--scope", scope, "--format", "markdown")
 
     fun check(cli: Path, root: Path, base: String): List<String> = command(cli, root, "check", "--base", base, "--format", "markdown")
 

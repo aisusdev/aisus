@@ -24,7 +24,7 @@ class CoreCliTest {
     @Test
     fun `each command runs the CLI with the repository as root`() {
         assertEquals(listOf("/core/dist/cli/aisus.mjs", "preflight", "--root", "/work/shop", "--format", "markdown"), CoreCli.preflight(cli, root))
-        assertEquals(listOf("/core/dist/cli/aisus.mjs", "install", "--root", "/work/shop", "--scope", "user", "--format", "markdown"), CoreCli.install(cli, root))
+        assertEquals(listOf("/core/dist/cli/aisus.mjs", "install", "--root", "/work/shop", "--scope", "project", "--format", "markdown"), CoreCli.install(cli, root))
         assertEquals(listOf("/core/dist/cli/aisus.mjs", "check", "--root", "/work/shop", "--base", "origin/main", "--format", "markdown"), CoreCli.check(cli, root, "origin/main"))
         assertEquals(listOf("/core/dist/cli/aisus.mjs", "export-page", "--root", "/work/shop", "--map", "architecture-shop-20261019-090000"), CoreCli.exportPage(cli, root, "architecture-shop-20261019-090000"))
     }

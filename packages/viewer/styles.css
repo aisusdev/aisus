@@ -955,6 +955,15 @@ button.changes-panel__file:hover {
   stroke-width: 1.5px;
 }
 
+/* PLN-01: a plan's new boxes are dashed, as code not yet written, and its removed boxes faded. */
+.node--planned .node__box {
+  stroke-dasharray: 6 4;
+}
+
+.node--removed {
+  opacity: 0.45;
+}
+
 .node__label {
   fill: var(--aisus-foreground);
   font-weight: bold;

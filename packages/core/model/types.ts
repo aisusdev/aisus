@@ -138,7 +138,12 @@ export type IssueCode =
   | "BrokenCitation"
   | "SecretLike"
   /** ACC-05: a box or arrow the audit has no entry for. */
-  | "MissingEntry";
+  | "MissingEntry"
+  /** PLN-01: a plan's spec is missing, too large or empty, or a box not tagged `new` cites it. */
+  | "SpecMissing"
+  | "SpecTooLarge"
+  | "SpecEmpty"
+  | "SpecCitation";
 
 /** One finding, located by the RFC 6901 JSON pointer of the offending instance (`""` = whole document). */
 export interface Issue {

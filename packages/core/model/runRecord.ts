@@ -8,8 +8,8 @@ import { isJsonObject } from "./types";
 
 export const RUN_FILE = "run.json";
 
-/** PRC-07: a `pull` run holds a diagram drawn for a pull request's instructions, kept in its focus. */
-export type RunKind = "full" | "refresh" | "drill" | "pull";
+/** PRC-07: a `pull` run holds a diagram drawn for a pull request's instructions, kept in its focus. PLN-01: a `plan` run holds a plan map. */
+export type RunKind = "full" | "refresh" | "drill" | "pull" | "plan";
 export type RunPhase = "created" | "validating" | "accepted" | "rejected";
 
 /** The estimate stated before the run (CST-03). */
@@ -33,7 +33,7 @@ export interface RunRecord {
   focus: string;
   /** Path globs a refresh or drill-down is limited to; empty for a whole run. */
   paths: string[];
-  /** The run folder a refresh starts from. */
+  /** The run folder a refresh or a plan starts from. */
   base: string | null;
   /** The run folder a drill-down came from. */
   parent: string | null;

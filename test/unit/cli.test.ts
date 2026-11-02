@@ -44,7 +44,7 @@ describe("RCH-03 install and verify-skills", () => {
     const root = tempDir();
     const installed = cli(["install", "--scope", "project", "--root", root], { cwd: root });
     expect(installed.status).toBe(0);
-    expect(installed.json()).toEqual({ status: "installed", base: root, skills: ["aisus-architecture", "aisus-audit", "aisus-bugfix", "aisus-pr", "aisus-refresh", "aisus-sequence", "aisus-tour"] });
+    expect(installed.json()).toEqual({ status: "installed", base: root, skills: ["aisus-architecture", "aisus-audit", "aisus-bugfix", "aisus-plan", "aisus-pr", "aisus-refresh", "aisus-sequence", "aisus-tour"] });
     expect(existsSync(join(root, ".claude/skills/aisus-refresh/SKILL.md"))).toBe(true);
 
     const intact = cli(["verify-skills", "--scope", "project"], { cwd: root });
@@ -55,14 +55,17 @@ describe("RCH-03 install and verify-skills", () => {
     expect(changed.json().skills["aisus-architecture"]).toEqual({ intact: false, differing: 1, otherCopies: [] });
   });
 
-  test("install defaults to the user's home, and missing skills do not verify", () => {
+  test("SET-06 install defaults to the project and --scope user to the home folder, and missing skills do not verify", () => {
     const root = tempDir();
     const home = tempDir();
     const env = { ...process.env, HOME: home, USERPROFILE: home };
     expect(cli(["verify-skills"], { cwd: root, env }).json().skills["aisus-architecture"]).toEqual({ intact: false, differing: null, otherCopies: [] });
-    expect(cli(["install"], { cwd: root, env }).json().base).toBe(home);
-    expect(existsSync(join(home, ".agents/skills/aisus-architecture/scripts/render-html.mjs"))).toBe(true);
+    expect(cli(["install", "--root", root], { cwd: root, env }).json().base).toBe(root);
+    expect(existsSync(join(root, ".agents/skills/aisus-architecture/scripts/render-html.mjs"))).toBe(true);
+    expect(existsSync(join(home, ".agents"))).toBe(false);
     expect(cli(["verify-skills"], { cwd: root, env }).status).toBe(0);
+    expect(cli(["install", "--scope", "user", "--root", root], { cwd: root, env }).json().base).toBe(home);
+    expect(cli(["verify-skills", "--scope", "user"], { cwd: root, env }).status).toBe(0);
   });
 });
 

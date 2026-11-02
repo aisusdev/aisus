@@ -9,13 +9,14 @@ import { importLanguage, importLinks } from "../model/evidence/graph";
 import { isTestPath, listFiles } from "../model/repoSize";
 import { fingerprint, writeFingerprints } from "../model/fingerprints";
 import { collectGitFacts, repositoryFromGit } from "../model/git";
+import { builtEvidence, planCounts, specCitationIssues, specIssues, specPath, type PlanCounts } from "../model/plan";
 import { MAP_DIR, CANDIDATE_FILE, locateDraft, publishCandidate, type DraftLocation } from "../model/runFolder";
 import { newRunRecord, readRunRecord, RUN_FILE, updateRunRecord, type RunRecord } from "../model/runRecord";
 import { writeJson } from "../model/session";
 import { checkSubmission, REMOVED_FIELD_MESSAGE } from "../model/submission";
 import { fileReader } from "../model/staleness";
 import { isSequence } from "../model/sequence";
-import { stringifyDocument, type Issue, type MapDoc } from "../model/types";
+import { stringifyDocument, type ArchitectureDoc, type Issue, type MapDoc } from "../model/types";
 
 const MAX_LISTED_ERRORS = 50;
 const HINT = "Fix exactly these errors and run the validator again.";
@@ -27,6 +28,8 @@ interface Report {
   warnings: { pointer: string; message: string }[];
   /** ACC-01: what to review once after acceptance; only on an accepted report. */
   evidence?: Evidence["findings"];
+  /** PLN-01: how many boxes a plan adds, changes and removes; only on a plan's accepted report. */
+  plan?: PlanCounts;
   hint?: string;
 }
 
@@ -85,15 +88,26 @@ function main(args: string[]): number {
     return 1;
   }
 
+  // PLN-01: a plan is checked against its spec first, and its new boxes may cite that spec.
+  const spec = location.kind === "plan" ? specPath(location.run) : undefined;
+  if (spec !== undefined) {
+    const specErrors = specIssues(fileReader(location.root)(spec));
+    if (specErrors.length > 0) {
+      record(location, { phase: "rejected" });
+      process.stdout.write(`${JSON.stringify({ status: "rejected", errors: listErrors(specErrors), warnings: [], hint: HINT } satisfies Report, null, 2)}\n`);
+      return 1;
+    }
+  }
+
   const git = collectGitFacts(location.root);
   const { removed, errors } = checkSubmission(
     value,
     {
       output: `${MAP_DIR}/${location.run}/${location.slug}.html`,
       repository: git ? repositoryFromGit(git) : null,
-      kind: location.kind,
+      kind: location.kind === "sequence" ? "sequence" : "architecture",
     },
-    (doc) => checkCitations(doc, location.root),
+    (doc) => [...checkCitations(doc, location.root, spec), ...(spec === undefined ? [] : specCitationIssues(doc as ArchitectureDoc, spec))],
   );
   const warnings = removed.map((pointer) => ({ pointer, message: REMOVED_FIELD_MESSAGE }));
 
@@ -111,12 +125,19 @@ function main(args: string[]): number {
     const readText = (path: string): string | null => read(path)?.toString("utf8") ?? null;
     const sources = listFiles(location.root).files.filter((path) => importLanguage(path) !== null && !isTestPath(path));
     evidence = checkEvidence(doc.components, readText, { connections: doc.connections ?? [], links: importLinks(sources, readText) });
+    if (spec !== undefined) evidence = { ...evidence, findings: builtEvidence(doc, evidence.findings) };
+  }
+  const plan = spec === undefined || isSequence(doc) ? undefined : planCounts(doc);
+  if (plan !== undefined && plan.new + plan.changed + plan.removed === 0) {
+    warnings.push({ pointer: "/components", message: "PlanWithoutChange: no box is tagged new, changed or removed, so the code already does what the spec asks" });
   }
   try {
     const runDir = dirname(location.draft);
     assertWritable(location.root, join(runDir, CANDIDATE_FILE));
     publishCandidate(location.draft, stringifyDocument(value));
-    writeFingerprints(location.root, runDir, fingerprint(doc, location.root, git?.head ?? null));
+    // The spec is no code, so its citations are never stale.
+    const prints = fingerprint(doc, location.root, git?.head ?? null);
+    writeFingerprints(location.root, runDir, { ...prints, citations: prints.citations.filter((print) => print.path !== spec) });
     if (evidence !== null) {
       assertWritable(location.root, join(runDir, EVIDENCE_FILE));
       writeJson(join(runDir, EVIDENCE_FILE), evidence);
@@ -131,6 +152,7 @@ function main(args: string[]): number {
     errors: [],
     warnings,
     ...(evidence === null ? {} : { evidence: evidence.findings }),
+    ...(plan === undefined ? {} : { plan }),
   };
   process.stdout.write(`${JSON.stringify(report, null, 2)}\n`);
   return 0;

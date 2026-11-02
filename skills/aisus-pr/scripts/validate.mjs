@@ -7622,7 +7622,7 @@ function probeMessage(path, probe) {
       return `${path} cannot be read: ${probe.reason}`;
   }
 }
-function checkCitations(doc, root) {
+function checkCitations(doc, root, spec) {
   const rootReal = realpathSync(root);
   const cache = /* @__PURE__ */ new Map();
   const issues = [];
@@ -7638,7 +7638,7 @@ function checkCitations(doc, root) {
         });
         return;
       }
-      if (isDenied(path)) {
+      if (path !== spec && isDenied(path)) {
         issues.push({ code: "DeniedCitation", pointer: `${base}/path`, message: `${path} is on the deny-list and cannot be cited` });
         return;
       }
@@ -8259,8 +8259,9 @@ function isTestPath(path) {
   const name = segments.pop();
   return segments.some((segment) => TEST_DIRS.has(segment.toLowerCase())) || TEST_FILES.test(name);
 }
+var INSTALLED_SKILL = /(^|\/)\.(agents|claude|codex|devin|windsurf)\/skills\/aisus-[^/]+(\/|$)/;
 function skipped(path) {
-  return path.split("/").some((segment) => SKIPPED_DIRS.includes(segment)) || isDenied(path);
+  return path.split("/").some((segment) => SKIPPED_DIRS.includes(segment)) || INSTALLED_SKILL.test(path) || isDenied(path);
 }
 function walk(root) {
   const files = [];
@@ -8275,7 +8276,7 @@ function walk(root) {
     }
     for (const entry of entries) {
       const path = dir === "" ? entry.name : `${dir}/${entry.name}`;
-      if (SKIPPED_DIRS.includes(entry.name) || isDenied(path)) continue;
+      if (skipped(path)) continue;
       if (entry.isDirectory()) pending.push(path);
       else if (entry.isFile()) files.push(path);
     }
@@ -8317,9 +8318,10 @@ var DRAFT_FILE = "draft.json";
 var CANDIDATE_FILE = "candidate.json";
 var RUN_NAME_PATTERN = /^([a-z0-9]+)-(.+)-(\d{8}-\d{6})(?:-(\d+))?$/;
 var SEQUENCE_PREFIX = "sequence";
+var PLAN_PREFIX = "plan";
 function mapKindOf(name) {
   const prefix = parseRunName(name)?.prefix;
-  return prefix === "architecture" || prefix === SEQUENCE_PREFIX ? prefix : null;
+  return prefix === "architecture" || prefix === SEQUENCE_PREFIX || prefix === PLAN_PREFIX ? prefix : null;
 }
 function parseRunName(name) {
   const match = RUN_NAME_PATTERN.exec(name);
@@ -8335,7 +8337,7 @@ function locateDraft(arg, cwd) {
     throw new Error(`expected a path of the form <repo>/${MAP_DIR}/<run>/${DRAFT_FILE}, got ${arg}`);
   }
   const kind = mapKindOf(run2);
-  if (kind === null) throw new Error(`run folder "${run2}" does not match architecture-<slug>-<YYYYMMDD-HHMMSS>[-N] or sequence-<slug>-<YYYYMMDD-HHMMSS>[-N]`);
+  if (kind === null) throw new Error(`run folder "${run2}" does not match architecture-, sequence- or plan-<slug>-<YYYYMMDD-HHMMSS>[-N]`);
   return { root, run: run2, slug: parseRunName(run2).slug, draft, kind };
 }
 function mapRootOf(runDir) {
@@ -8429,10 +8431,6 @@ function writeFingerprints(root, runDir, prints) {
   writeJson(path, prints);
 }
 
-// packages/core/model/runRecord.ts
-import { readdirSync as readdirSync2, readFileSync as readFileSync4 } from "node:fs";
-import { join as join7 } from "node:path";
-
 // packages/core/model/types.ts
 function isJsonObject(value) {
   return typeof value === "object" && value !== null && !Array.isArray(value);
@@ -8445,7 +8443,93 @@ function stringifyDocument(value) {
 `;
 }
 
+// packages/core/model/secrets.ts
+var PATTERNS = [
+  { kind: "private key", pattern: /-----BEGIN [A-Z ]*PRIVATE KEY-----/ },
+  { kind: "GitHub token", pattern: /\b(gh[pousr]_[A-Za-z0-9]{20,}|github_pat_[A-Za-z0-9_]{20,})/ },
+  { kind: "API key", pattern: /\bsk-[A-Za-z0-9_-]{20,}/ },
+  { kind: "Slack token", pattern: /\bxox[abprs]-[A-Za-z0-9-]{10,}/ },
+  { kind: "AWS access key", pattern: /\bAKIA[0-9A-Z]{16}\b/ }
+];
+function entropy(text) {
+  const counts = /* @__PURE__ */ new Map();
+  for (const char of text) counts.set(char, (counts.get(char) ?? 0) + 1);
+  let bits = 0;
+  for (const count of counts.values()) {
+    const p = count / text.length;
+    bits -= p * Math.log2(p);
+  }
+  return bits;
+}
+function highEntropyRun(text) {
+  for (const match of text.matchAll(/[A-Za-z0-9+_=-]{32,}/g)) {
+    const run2 = match[0];
+    if (/^[0-9a-fA-F]+$/.test(run2)) continue;
+    if (/\d/.test(run2) && /[a-z]/.test(run2) && /[A-Z]/.test(run2) && entropy(run2) >= 4.2) return true;
+  }
+  return false;
+}
+function secretKind(text) {
+  for (const { kind, pattern } of PATTERNS) if (pattern.test(text)) return kind;
+  return highEntropyRun(text) ? "high-entropy string" : null;
+}
+function findSecrets(value, pointer = "") {
+  if (typeof value === "string") {
+    const kind = secretKind(value);
+    return kind === null ? [] : [{ code: "SecretLike", pointer, message: `looks like a secret (${kind}). Remove it from the diagram.` }];
+  }
+  if (Array.isArray(value)) return value.flatMap((item, index) => findSecrets(item, `${pointer}/${index}`));
+  if (typeof value === "object" && value !== null) {
+    return Object.entries(value).flatMap(([key, item]) => findSecrets(item, `${pointer}/${pointerToken(key)}`));
+  }
+  return [];
+}
+
+// packages/core/model/plan.ts
+var SPEC_FILE = "spec.md";
+var MAX_SPEC_BYTES = 200 * 1024;
+function specPath(run2) {
+  return `${MAP_DIR}/${run2}/${SPEC_FILE}`;
+}
+function specIssues(bytes) {
+  const issue = (code, message) => [{ code, pointer: "", message }];
+  if (bytes === null) return issue("SpecMissing", `${SPEC_FILE} is missing from the run folder. Write the spec there and run the validator again.`);
+  if (bytes.length > MAX_SPEC_BYTES) return issue("SpecTooLarge", `${SPEC_FILE} has ${bytes.length} bytes; the limit is ${MAX_SPEC_BYTES}. Keep only the spec's requirements.`);
+  const text = Buffer.from(bytes).toString("utf8");
+  if (text.trim() === "") return issue("SpecEmpty", `${SPEC_FILE} is empty. Write the spec there and run the validator again.`);
+  const kind = secretKind(text);
+  return kind === null ? [] : issue("SecretLike", `${SPEC_FILE} looks like it holds a secret (${kind}). Remove it from the spec.`);
+}
+function specCitationIssues(doc, spec) {
+  const issues = [];
+  doc.components.forEach((component, i) => {
+    (component.sources ?? []).forEach((source, k) => {
+      if (source.path === spec && component.tag !== "new") {
+        issues.push({ code: "SpecCitation", pointer: `/components/${i}/sources/${k}/path`, message: `Only a box tagged \`new\` may cite ${SPEC_FILE}; \`${component.id}\` cites existing code instead` });
+      }
+    });
+  });
+  return issues;
+}
+function planCounts(doc) {
+  const count = (tag) => doc.components.filter((component) => component.tag === tag).length;
+  return { new: count("new"), changed: count("changed"), removed: count("removed") };
+}
+function builtEvidence(doc, findings) {
+  const planned = new Set(doc.components.filter((component) => component.tag === "new").map((component) => component.id));
+  const connections = doc.connections ?? [];
+  return findings.filter((finding) => {
+    if (finding.component !== void 0 && planned.has(finding.component)) return false;
+    if ("between" in finding && finding.between !== void 0 && finding.between.some((id) => planned.has(id))) return false;
+    const arrow = /^\/connections\/(\d+)$/.exec(finding.pointer);
+    const connection = arrow === null ? void 0 : connections[Number(arrow[1])];
+    return connection === void 0 || !(planned.has(connection.from) || planned.has(connection.to));
+  });
+}
+
 // packages/core/model/runRecord.ts
+import { readdirSync as readdirSync2, readFileSync as readFileSync4 } from "node:fs";
+import { join as join7 } from "node:path";
 var RUN_FILE = "run.json";
 function newRunRecord(fields, now = /* @__PURE__ */ new Date()) {
   return {
@@ -9052,48 +9136,6 @@ function validateSequence(value) {
   return compiledSequence(value) ? [] : (compiledSequence.errors ?? []).map(toIssue);
 }
 
-// packages/core/model/secrets.ts
-var PATTERNS = [
-  { kind: "private key", pattern: /-----BEGIN [A-Z ]*PRIVATE KEY-----/ },
-  { kind: "GitHub token", pattern: /\b(gh[pousr]_[A-Za-z0-9]{20,}|github_pat_[A-Za-z0-9_]{20,})/ },
-  { kind: "API key", pattern: /\bsk-[A-Za-z0-9_-]{20,}/ },
-  { kind: "Slack token", pattern: /\bxox[abprs]-[A-Za-z0-9-]{10,}/ },
-  { kind: "AWS access key", pattern: /\bAKIA[0-9A-Z]{16}\b/ }
-];
-function entropy(text) {
-  const counts = /* @__PURE__ */ new Map();
-  for (const char of text) counts.set(char, (counts.get(char) ?? 0) + 1);
-  let bits = 0;
-  for (const count of counts.values()) {
-    const p = count / text.length;
-    bits -= p * Math.log2(p);
-  }
-  return bits;
-}
-function highEntropyRun(text) {
-  for (const match of text.matchAll(/[A-Za-z0-9+_=-]{32,}/g)) {
-    const run2 = match[0];
-    if (/^[0-9a-fA-F]+$/.test(run2)) continue;
-    if (/\d/.test(run2) && /[a-z]/.test(run2) && /[A-Z]/.test(run2) && entropy(run2) >= 4.2) return true;
-  }
-  return false;
-}
-function secretKind(text) {
-  for (const { kind, pattern } of PATTERNS) if (pattern.test(text)) return kind;
-  return highEntropyRun(text) ? "high-entropy string" : null;
-}
-function findSecrets(value, pointer = "") {
-  if (typeof value === "string") {
-    const kind = secretKind(value);
-    return kind === null ? [] : [{ code: "SecretLike", pointer, message: `looks like a secret (${kind}). Remove it from the diagram.` }];
-  }
-  if (Array.isArray(value)) return value.flatMap((item, index) => findSecrets(item, `${pointer}/${index}`));
-  if (typeof value === "object" && value !== null) {
-    return Object.entries(value).flatMap(([key, item]) => findSecrets(item, `${pointer}/${pointerToken(key)}`));
-  }
-  return [];
-}
-
 // packages/core/model/submission.ts
 var META_DROPS = ["viewBox", "views", "animation", "translations", "visual_preset", "engineering_profile"];
 var COMPONENT_DROPS = ["pos", "size", "row", "col", "icon", "brand"];
@@ -9217,15 +9259,25 @@ function main(args) {
 `);
     return 1;
   }
+  const spec = location.kind === "plan" ? specPath(location.run) : void 0;
+  if (spec !== void 0) {
+    const specErrors = specIssues(fileReader(location.root)(spec));
+    if (specErrors.length > 0) {
+      record(location, { phase: "rejected" });
+      process.stdout.write(`${JSON.stringify({ status: "rejected", errors: listErrors(specErrors), warnings: [], hint: HINT }, null, 2)}
+`);
+      return 1;
+    }
+  }
   const git = collectGitFacts(location.root);
   const { removed, errors } = checkSubmission(
     value,
     {
       output: `${MAP_DIR}/${location.run}/${location.slug}.html`,
       repository: git ? repositoryFromGit(git) : null,
-      kind: location.kind
+      kind: location.kind === "sequence" ? "sequence" : "architecture"
     },
-    (doc2) => checkCitations(doc2, location.root)
+    (doc2) => [...checkCitations(doc2, location.root, spec), ...spec === void 0 ? [] : specCitationIssues(doc2, spec)]
   );
   const warnings = removed.map((pointer) => ({ pointer, message: REMOVED_FIELD_MESSAGE }));
   if (errors.length > 0) {
@@ -9242,12 +9294,18 @@ function main(args) {
     const readText = (path) => read(path)?.toString("utf8") ?? null;
     const sources = listFiles(location.root).files.filter((path) => importLanguage(path) !== null && !isTestPath(path));
     evidence = checkEvidence(doc.components, readText, { connections: doc.connections ?? [], links: importLinks(sources, readText) });
+    if (spec !== void 0) evidence = { ...evidence, findings: builtEvidence(doc, evidence.findings) };
+  }
+  const plan = spec === void 0 || isSequence(doc) ? void 0 : planCounts(doc);
+  if (plan !== void 0 && plan.new + plan.changed + plan.removed === 0) {
+    warnings.push({ pointer: "/components", message: "PlanWithoutChange: no box is tagged new, changed or removed, so the code already does what the spec asks" });
   }
   try {
     const runDir = dirname4(location.draft);
     assertWritable(location.root, join9(runDir, CANDIDATE_FILE));
     publishCandidate(location.draft, stringifyDocument(value));
-    writeFingerprints(location.root, runDir, fingerprint(doc, location.root, git?.head ?? null));
+    const prints = fingerprint(doc, location.root, git?.head ?? null);
+    writeFingerprints(location.root, runDir, { ...prints, citations: prints.citations.filter((print) => print.path !== spec) });
     if (evidence !== null) {
       assertWritable(location.root, join9(runDir, EVIDENCE_FILE));
       writeJson(join9(runDir, EVIDENCE_FILE), evidence);
@@ -9261,7 +9319,8 @@ function main(args) {
     candidate: `${MAP_DIR}/${location.run}/${CANDIDATE_FILE}`,
     errors: [],
     warnings,
-    ...evidence === null ? {} : { evidence: evidence.findings }
+    ...evidence === null ? {} : { evidence: evidence.findings },
+    ...plan === void 0 ? {} : { plan }
   };
   process.stdout.write(`${JSON.stringify(report, null, 2)}
 `);

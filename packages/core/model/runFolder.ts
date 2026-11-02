@@ -14,13 +14,15 @@ export const SLUG_MAX = 40;
 export const RUN_NAME_PATTERN = /^([a-z0-9]+)-(.+)-(\d{8}-\d{6})(?:-(\d+))?$/;
 /** SEQ-01: the prefix of sequence map runs, which sit beside architecture runs. */
 export const SEQUENCE_PREFIX = "sequence";
+/** PLN-01: the prefix of plan runs, architecture maps of how a spec will leave the code. */
+export const PLAN_PREFIX = "plan";
 /** The kinds of map a run folder holds, named by its prefix. */
-export type MapKind = "architecture" | "sequence";
+export type MapKind = "architecture" | "sequence" | "plan";
 
 /** The kind of map a run folder holds, or `null` when its name is no map run's. */
 export function mapKindOf(name: string): MapKind | null {
   const prefix = parseRunName(name)?.prefix;
-  return prefix === "architecture" || prefix === SEQUENCE_PREFIX ? prefix : null;
+  return prefix === "architecture" || prefix === SEQUENCE_PREFIX || prefix === PLAN_PREFIX ? prefix : null;
 }
 /** `architecture-<slug>-<YYYYMMDD-HHMMSS>[-N]` */
 export const RUN_FOLDER_PATTERN = /^architecture-(.+)-(\d{8}-\d{6})(?:-(\d+))?$/;
@@ -158,7 +160,7 @@ export interface DraftLocation {
 
 /**
  * Interprets a validator argument (absolute or relative to `cwd`) as
- * `<R>/.aisus/maps/<run>/draft.json`, with `<run>` an architecture or sequence run folder name. Throws with a usage
+ * `<R>/.aisus/maps/<run>/draft.json`, with `<run>` an architecture, sequence or plan run folder name. Throws with a usage
  * message otherwise.
  */
 export function locateDraft(arg: string, cwd: string): DraftLocation {
@@ -170,7 +172,7 @@ export function locateDraft(arg: string, cwd: string): DraftLocation {
     throw new Error(`expected a path of the form <repo>/${MAP_DIR}/<run>/${DRAFT_FILE}, got ${arg}`);
   }
   const kind = mapKindOf(run);
-  if (kind === null) throw new Error(`run folder "${run}" does not match architecture-<slug>-<YYYYMMDD-HHMMSS>[-N] or sequence-<slug>-<YYYYMMDD-HHMMSS>[-N]`);
+  if (kind === null) throw new Error(`run folder "${run}" does not match architecture-, sequence- or plan-<slug>-<YYYYMMDD-HHMMSS>[-N]`);
   return { root, run, slug: parseRunName(run)!.slug, draft, kind };
 }
 

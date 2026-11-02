@@ -90,12 +90,15 @@ export function tierOf(nonTestLines: number): Tier {
   return nonTestLines < TIER_BOUNDS.M ? "S" : nonTestLines <= TIER_BOUNDS.L ? "M" : "L";
 }
 
-/** Whether a size, and the imports read with it, leave `path` out: skipped folders and deny-listed paths. */
+/** SET-06: aisus's own skills where an agent loads them, which a project install puts in the repository. */
+const INSTALLED_SKILL = /(^|\/)\.(agents|claude|codex|devin|windsurf)\/skills\/aisus-[^/]+(\/|$)/;
+
+/** Whether a size, and the imports read with it, leave `path` out: skipped folders, installed aisus skills and deny-listed paths. */
 export function skipped(path: string): boolean {
-  return path.split("/").some((segment) => SKIPPED_DIRS.includes(segment)) || isDenied(path);
+  return path.split("/").some((segment) => SKIPPED_DIRS.includes(segment)) || INSTALLED_SKILL.test(path) || isDenied(path);
 }
 
-/** Every file under `root`, skipping links, {@link SKIPPED_DIRS} and deny-listed paths. */
+/** Every file under `root`, skipping links and what {@link skipped} leaves out. */
 function walk(root: string): string[] {
   const files: string[] = [];
   const pending = [""];
@@ -109,7 +112,7 @@ function walk(root: string): string[] {
     }
     for (const entry of entries) {
       const path = dir === "" ? entry.name : `${dir}/${entry.name}`;
-      if (SKIPPED_DIRS.includes(entry.name) || isDenied(path)) continue;
+      if (skipped(path)) continue;
       if (entry.isDirectory()) pending.push(path);
       else if (entry.isFile()) files.push(path);
     }

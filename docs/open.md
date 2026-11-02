@@ -1,6 +1,6 @@
 # Open problems and unfinished work
 
-Every known problem and unfinished piece of work, with an ID that never changes. Add new items with the next free ID. Remove an item when it is solved, and record its ID and commit in your shift doc. The next free ID is P-37.
+Every known problem and unfinished piece of work, with an ID that never changes. Add new items with the next free ID. Remove an item when it is solved, and record its ID and commit in your shift doc. The next free ID is P-38.
 
 ## Broken now
 
@@ -56,3 +56,4 @@ The steps for each are in the "Waiting" section of [archive/progress-v0.3.md](ar
 Not planned. A shift may propose any of these.
 
 - **P-20 Learning-session ideas.** A guided mode with per-step check commands, a Buddy Tour mode, a shared leaderboard (it needs network access and an ADR), an Open Learning Session command separate from Start Learning Session, a node finder and a history browser.
+- **P-37 Plan ideas.** An aisus: Plan From Spec… command that sends the open file to `aisus-plan`, and a view that compares a plan with a later architecture map to show what was built as planned.

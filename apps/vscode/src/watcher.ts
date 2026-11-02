@@ -103,10 +103,13 @@ export class CandidateWatcher implements vscode.Disposable {
       case "notify": {
         if (this.quiet(action.root)) return;
         const run = basename(dirname(action.file));
+        const kind = mapKindOf(run);
         const choice =
-          mapKindOf(run) === "sequence"
+          kind === "sequence"
             ? await vscode.window.showInformationMessage(`New sequence map: \`${run}\``, "Open")
-            : await vscode.window.showInformationMessage(`New architecture diagram: \`${run}\``, "Open");
+            : kind === "plan"
+              ? await vscode.window.showInformationMessage(`New plan map: \`${run}\``, "Open")
+              : await vscode.window.showInformationMessage(`New architecture diagram: \`${run}\``, "Open");
         if (choice === "Open") ArchitecturePanel.show(this.extensionUri, action.root, action.file);
         return;
       }

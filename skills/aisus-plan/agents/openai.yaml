@@ -1,0 +1,5 @@
+interface:
+  display_name: "aisus Plan"
+  short_description: "Draw how a spec will change this repository for aisus"
+policy:
+  allow_implicit_invocation: false

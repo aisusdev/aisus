@@ -7925,9 +7925,10 @@ var MAP_DIR = ".aisus/maps";
 var CANDIDATE_FILE = "candidate.json";
 var RUN_NAME_PATTERN = /^([a-z0-9]+)-(.+)-(\d{8}-\d{6})(?:-(\d+))?$/;
 var SEQUENCE_PREFIX = "sequence";
+var PLAN_PREFIX = "plan";
 function mapKindOf(name2) {
   const prefix = parseRunName(name2)?.prefix;
-  return prefix === "architecture" || prefix === SEQUENCE_PREFIX ? prefix : null;
+  return prefix === "architecture" || prefix === SEQUENCE_PREFIX || prefix === PLAN_PREFIX ? prefix : null;
 }
 function parseRunName(name2) {
   const match = RUN_NAME_PATTERN.exec(name2);
@@ -7960,8 +7961,7 @@ function listCandidates(root, kind = "architecture") {
   }
   const candidates = [];
   for (const runFolder of folders) {
-    const sequence = mapKindOf(runFolder) === SEQUENCE_PREFIX;
-    if (kind !== "all" && sequence !== (kind === "sequence")) continue;
+    if (kind !== "all" && (mapKindOf(runFolder) ?? "architecture") !== kind) continue;
     const file = (0, import_node_path.join)(root, MAP_DIR, runFolder, CANDIDATE_FILE);
     try {
       const real = (0, import_node_fs.realpathSync)(file);
@@ -8465,8 +8465,9 @@ function isTestPath(path2) {
   const name2 = segments.pop();
   return segments.some((segment) => TEST_DIRS.has(segment.toLowerCase())) || TEST_FILES.test(name2);
 }
+var INSTALLED_SKILL = /(^|\/)\.(agents|claude|codex|devin|windsurf)\/skills\/aisus-[^/]+(\/|$)/;
 function skipped(path2) {
-  return path2.split("/").some((segment) => SKIPPED_DIRS.includes(segment)) || isDenied(path2);
+  return path2.split("/").some((segment) => SKIPPED_DIRS.includes(segment)) || INSTALLED_SKILL.test(path2) || isDenied(path2);
 }
 function walk(root) {
   const files2 = [];
@@ -8481,7 +8482,7 @@ function walk(root) {
     }
     for (const entry of entries) {
       const path2 = dir === "" ? entry.name : `${dir}/${entry.name}`;
-      if (SKIPPED_DIRS.includes(entry.name) || isDenied(path2)) continue;
+      if (skipped(path2)) continue;
       if (entry.isDirectory()) pending.push(path2);
       else if (entry.isFile()) files2.push(path2);
     }
@@ -8877,6 +8878,7 @@ function readDiagram(value) {
   const meta = value["meta"];
   const title = isObj(meta) ? str(meta["title"]) : void 0;
   if (title) diagram.title = title;
+  if (isObj(meta) && /^\.aisus\/maps\/plan-[^/]+\/[^/]+$/.test(str(meta["output"]) ?? "")) diagram.plan = true;
   const grid = readGrid(value["layout"]);
   if (grid) diagram.grid = grid;
   return { ok: true, diagram, skipped: skipped2 };

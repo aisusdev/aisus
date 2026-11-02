@@ -41,10 +41,10 @@ code --install-extension aisus-0.3.2.vsix
 - Each skill is a folder under `skills/`, holding `SKILL.md`, `references/` and script sources that `npm run build` bundles into `apps/vscode/dist/skills/`.
 - The build also regenerates the integrity hashes the extension checks before it launches a skill. Commit them with the change.
 - Users install the skills with `npx skills add aisusdev/aisus`, or through the extension's **aisus: Install Agent Skills**.
-- To put the skills in another project from a terminal, build once and run the CLI. Use `--scope user` for your home folder instead.
+- To put the skills in another project from a terminal, build once and run the CLI. Add `--scope user` for your home folder instead.
 
   ```bash
-  node apps/vscode/dist/cli/aisus.mjs install --root /path/to/project --scope project
+  node apps/vscode/dist/cli/aisus.mjs install --root /path/to/project
   ```
 
 ## The core CLI

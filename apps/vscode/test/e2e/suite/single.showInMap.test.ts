@@ -2,7 +2,7 @@
 // Map this folder launches Generate with the folder as the focus; a box's menu opens its code.
 import * as assert from "node:assert/strict";
 import { chmodSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
-import { homedir, tmpdir } from "node:os";
+import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import * as vscode from "vscode";
 import type { TestHook } from "../../../src/extension";
@@ -65,7 +65,7 @@ suite("UI-03 Show in Map and UI-05 menus", () => {
     chmodSync(join(bin, "claude"), 0o755);
     process.env["PATH"] = `${bin}:${savedPath}`;
     const extensionPath = vscode.extensions.getExtension("aisus.aisus")!.extensionPath;
-    writeSkill(homedir(), join(extensionPath, "dist/skills/aisus-architecture"), skillTargets(homedir(), "aisus-architecture"), "aisus-architecture");
+    writeSkill(root, join(extensionPath, "dist/skills/aisus-architecture"), skillTargets(root, "aisus-architecture"), "aisus-architecture");
     await hook.setDataNoteShown(true);
     await vscode.workspace.getConfiguration("aisus").update("runMode", "terminal", vscode.ConfigurationTarget.Global);
   });
@@ -78,7 +78,7 @@ suite("UI-03 Show in Map and UI-05 menus", () => {
     await vscode.workspace.getConfiguration("aisus").update("runMode", undefined, vscode.ConfigurationTarget.Global);
     for (const dir of cleanup.splice(0)) rmSync(dir, { recursive: true, force: true });
     for (const dir of [".aisus/maps", "src"]) rmSync(join(root, dir), { recursive: true, force: true });
-    for (const dir of [".agents", ".claude"]) rmSync(join(homedir(), dir), { recursive: true, force: true });
+    for (const dir of [".agents", ".claude"]) rmSync(join(root, dir), { recursive: true, force: true });
   });
 
   test("UI-03 Show in Map opens the map beside the editor, marks the citing box and keeps the editor active", async () => {

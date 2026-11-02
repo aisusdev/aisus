@@ -47,7 +47,7 @@ Decisions for Sustain in [MADR 4.0](https://adr.github.io/madr/) format; the pro
 | [0041](0041-pre-approved-skill-commands-run-no-caller-named-program.md) | Pre-approved skill commands run no caller-named program | accepted | 2026-10-18 |
 | [0042](0042-session-hooks-live-only-while-a-session-runs.md) | Session hooks live only while a session runs | accepted | 2026-10-18 |
 | [0043](0043-skills-are-checked-against-the-shipped-copy-before-launch.md) | Skills are checked against the shipped copy before launch | accepted | 2026-10-18 |
-| [0044](0044-skills-install-per-user-by-default.md) | Skills install per user by default | accepted | 2026-10-18 |
+| [0044](0044-skills-install-per-user-by-default.md) | Skills install per user by default | superseded by [ADR-0074](0074-skills-install-into-the-project-by-default.md) | 2026-10-18 |
 | [0045](0045-run-json-records-each-run.md) | run.json records each run | accepted | 2026-10-18 |
 | [0046](0046-generate-streams-headless-runs-into-the-sidebar.md) | Generate streams headless runs into the sidebar | accepted | 2026-10-18 |
 | [0047](0047-the-viewer-reaches-its-host-through-a-bridge.md) | The viewer reaches its host through a bridge and colours itself from tokens | accepted | 2026-10-18 |
@@ -76,3 +76,5 @@ Decisions for Sustain in [MADR 4.0](https://adr.github.io/madr/) format; the pro
 | [0070](0070-maps-and-learning-sessions-live-in-the-aisus-folder.md) | Maps and learning sessions live in the .aisus folder | accepted | 2026-10-26 |
 | [0071](0071-maps-sync-through-personal-and-team-spaces-per-branch.md) | Maps sync through personal and team spaces per branch | accepted | 2026-10-26 |
 | [0072](0072-a-drill-down-records-the-box-it-details.md) | A drill-down records the box it details | accepted | 2026-11-01 |
+| [0073](0073-a-plan-map-cites-its-spec.md) | A plan map cites its spec | accepted | 2026-11-02 |
+| [0074](0074-skills-install-into-the-project-by-default.md) | Skills install into the project by default | accepted | 2026-11-02 |
