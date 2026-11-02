@@ -41,7 +41,7 @@ export default function PrivacyPage() {
             Show the upload schema
             <svg className="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14" /></svg>
           </summary>
-          <CodeBlock code={JSON.stringify(UPLOAD_SCHEMA, null, 2)} label="the upload schema" />
+          <CodeBlock code={JSON.stringify(UPLOAD_SCHEMA, null, 2)} label="the upload schema" language="json" tall />
         </details>
       </section>
     </main>
