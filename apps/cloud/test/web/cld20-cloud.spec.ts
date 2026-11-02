@@ -21,6 +21,13 @@ test("CLD-20 the landing page's Sign in opens /cloud/signin", async ({ page }) =
   await expect(page.getByRole("button", { name: "Sign in with GitHub" })).toBeVisible();
 });
 
+test("CLD-20 signed in, /cloud is white and its primary button is pink", async ({ page }) => {
+  await signInAsDev(page, "/cloud");
+  await expect(page.locator("body")).toHaveCSS("background-color", "rgb(255, 255, 255)");
+  await expect(page.locator(".cloud-page")).toHaveCSS("background-color", "rgb(255, 255, 255)");
+  await expect(page.locator(".cloud-main .button--primary").first()).toHaveCSS("background-color", "rgb(201, 44, 109)");
+});
+
 test("CLD-20 each old signed-in path answers 308 to its new path with its query, and public paths answer without a redirect", async ({ request }) => {
   const moved: [string, string][] = [
     ["/signin?callbackUrl=%2Facme", "/cloud/signin?callbackUrl=%2Facme"],

@@ -3,13 +3,14 @@
 import type { ReactNode } from "react";
 import { currentUser } from "../../auth";
 import { CloudNav } from "../../components/CloudNav";
+import { HeaderShadow } from "../../components/HeaderShadow";
 import { CLOUD, signInPath } from "../../lib/paths";
 import "./cloud.css";
 
 export default async function CloudLayout({ children }: { children: ReactNode }) {
   const user = await currentUser();
   return (
-    <>
+    <div className="cloud-page">
       <header className="cloud-header">
         <a className="brand brand-wordmark" href={user ? CLOUD : "/"} aria-label="aisus cloud home">
           <img src="/aisus-wordmark.png" alt="aisus" width="120" height="41" />
@@ -32,7 +33,8 @@ export default async function CloudLayout({ children }: { children: ReactNode })
           </nav>
         )}
       </header>
+      <HeaderShadow />
       <div id="page-content" className="cloud-content">{children}</div>
-    </>
+    </div>
   );
 }

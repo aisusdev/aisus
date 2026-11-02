@@ -23,7 +23,7 @@ export function Landing({ signedIn }: { signedIn: boolean }) {
           <a className="btn btn-primary" href="/get-started" data-umami-event="get-started">Get Started</a>
           {signedIn
             ? <a className="btn" href={CLOUD}>Open cloud</a>
-            : <a className="btn" href={signInPath()} data-umami-event="sign-in">Sign in</a>}
+            : <a className="btn" href={signInPath()} data-umami-event="sign-in">Sign in with GitHub</a>}
         </div>
       </section>
 

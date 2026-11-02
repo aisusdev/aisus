@@ -4,7 +4,7 @@ The landing page in `apps/cloud/src/components/Landing.tsx` uses the homepage te
 
 ## Homepage
 
-The headline is "See your codebase as a map". The line under it reads: "Coding agents write more code than a person can follow. aisus draws your repository as a map whose boxes open the code they cite." The buttons read Get Started and Sign in.
+The headline is "See your codebase as a map". The line under it reads: "Coding agents write more code than a person can follow. aisus draws your repository as a map whose boxes open the code they cite." The buttons read Get Started and Sign in with GitHub.
 
 The feature tabs read Interactive diagram, Follow guided tour, Sequence diagram and /aisus-pr. The sentence under them follows the active tab.
 

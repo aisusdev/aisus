@@ -9,7 +9,7 @@ test("CLD-08 landing, guide, pricing and privacy render without any third-party 
   await expect(page.locator("h1")).toHaveText("See your codebase as a map");
   const hero = page.locator(".home-hero");
   await expect(hero.getByRole("link", { name: "Get Started" })).toHaveAttribute("href", "/get-started");
-  await expect(hero.getByRole("link", { name: "Sign in" })).toHaveAttribute("href", "/cloud/signin");
+  await expect(hero.getByRole("link", { name: "Sign in with GitHub", exact: true })).toHaveAttribute("href", "/cloud/signin");
   await expect(page.getByRole("link", { name: "Get Started" }).first()).toHaveAttribute("href", "/get-started");
   await expect(page.locator(".site-header .brand img")).toHaveAttribute("src", "/aisus-wordmark.png");
   await expect(page.locator("link[rel='icon']")).toHaveAttribute("href", /icon\.png/);
