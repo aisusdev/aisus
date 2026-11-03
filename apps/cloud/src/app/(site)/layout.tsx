@@ -14,14 +14,22 @@ const LINKS = [
   { href: "/#faq", label: "FAQ" },
 ];
 
+// The runner: the three-node map as a figure heading for the wordmark. The head is the root and the legs are its children.
 function Brand() {
   return (
     <a className="brand brand-wordmark" href="/" aria-label="aisus home">
-      <svg className="brand-icon" viewBox="0 0 24 24" aria-hidden="true">
-        <rect x="8.5" y="2.5" width="7" height="5" rx="1" />
-        <rect x="2.5" y="16.5" width="7" height="5" rx="1" />
-        <rect x="14.5" y="16.5" width="7" height="5" rx="1" />
-        <path d="M12 7.5v4.5M6 16.5V12h12v4.5" />
+      <svg className="brand-icon" viewBox="17.75 2 118 118" aria-hidden="true">
+        <g fill="none" stroke="#023422" strokeWidth="6.5" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M120 12.5L120.25 27C106 26 85 31 77 44C74 50 73 57 73 63.4L61.5 63.5L62.5 13.5Z" fill="#477464" stroke="none" />
+          <path d="M62.44 16.5Q62.5 13.5 65.5 13.45L117 12.55Q120 12.5 120.03 15.5L120.47 60Q120.5 63 117.5 63.03L64.5 63.47Q61.5 63.5 61.56 60.5Z" />
+          <circle cx="105" cy="40" r="6" fill="#023422" stroke="none" />
+          <path d="M114.5 49.5Q106 59 97 51" strokeWidth="6" />
+          <path d="M22.5 67.5L33.33 67.33L33.17 95.17L22 95Z" fill="#477464" stroke="none" />
+          <path d="M22.45 70.5Q22.5 67.5 25.5 67.45L52 67.05Q55 67 55.05 70L55.45 92.5Q55.5 95.5 52.5 95.46L25 95.04Q22 95 22.05 92Z" />
+          <path d="M98 81.5L109 81.33L108.83 109.33L97.5 109.5Z" fill="#477464" stroke="none" />
+          <path d="M97.95 84.5Q98 81.5 101 81.45L128 81.05Q131 81 131.05 84L131.45 106Q131.5 109 128.5 109.04L100.5 109.46Q97.5 109.5 97.55 106.5Z" />
+          <path d="M104 63.25L114.5 81.25M84 63.25V81.25H55.25" />
+        </g>
       </svg>
       <img src="/aisus-wordmark.png" alt="aisus" width="160" height="55" />
     </a>

@@ -131,13 +131,9 @@ thead th { background: var(--paper-2); }
 }
 .brand-wordmark { gap: 10px; }
 .brand-icon {
-  width: 30px;
-  height: 30px;
+  width: 36px;
+  height: 36px;
   flex: none;
-  fill: none;
-  stroke: var(--forest);
-  stroke-width: 1.7;
-  stroke-linejoin: round;
 }
 .brand-wordmark img {
   display: block;
@@ -737,7 +733,7 @@ kbd {
   .wrap { padding-inline: 20px; }
   .site-header .wrap, .guide-page .guide-layout { width: calc(100% - 32px); padding-inline: 0; }
   .site-header .wrap { gap: 16px; }
-  .brand-icon { width: 26px; height: 26px; }
+  .brand-icon { width: 32px; height: 32px; }
   .brand-wordmark img { height: 28px; }
   .top-r .account { display: none; }
   .site-footer .footer-grid { grid-template-columns: 1fr 1fr; gap: 32px; padding-top: 52px; }
