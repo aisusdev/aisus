@@ -17,12 +17,18 @@ function Window({ label, children }: { label: string; children: ReactNode }) {
   );
 }
 
+// The extension's Activity Bar icon, apps/vscode/media/aisus.svg: the runner in one colour.
 const MAP_ICON = (
-  <svg viewBox="0 0 24 24" aria-hidden="true">
-    <rect x="8.5" y="2.5" width="7" height="5" rx="1" />
-    <rect x="2.5" y="16.5" width="7" height="5" rx="1" />
-    <rect x="14.5" y="16.5" width="7" height="5" rx="1" />
-    <path d="M12 7.5v4.5M6 16.5V12h12v4.5" />
+  <svg viewBox="0 0 24 24" aria-hidden="true" strokeLinecap="round">
+    <path d="M20.75 2.75v2.5C17.75 5 13.75 6 12.25 8.5 11.5 9.75 11.25 11.25 11.25 12.75h-2v-10z" fill="currentColor" stroke="none" />
+    <rect x="9.25" y="2.75" width="11.5" height="10" rx="1.25" />
+    <circle cx="17.5" cy="7.75" r="1.15" fill="currentColor" stroke="none" />
+    <path d="M19.5 9.75q-1.75 2-3.5.25" strokeWidth="1.3" />
+    <rect x="1.25" y="14.25" width="2.25" height="5" fill="currentColor" stroke="none" />
+    <rect x="1.25" y="14.25" width="6" height="5" rx="1.25" />
+    <rect x="16.25" y="16.75" width="2.25" height="5" fill="currentColor" stroke="none" />
+    <rect x="16.25" y="16.75" width="6" height="5" rx="1.25" />
+    <path d="M17.25 12.75l2 4M13.25 12.75v4h-6" />
   </svg>
 );
 const FILES_ICON = <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3h9l5 5v13H5z" /><path d="M14 3v5h5" /></svg>;

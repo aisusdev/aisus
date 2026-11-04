@@ -181,6 +181,23 @@ function MapIcon() {
   );
 }
 
+// The extension's Activity Bar icon, apps/vscode/media/aisus.svg: the runner in one colour.
+function ActivityIcon() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" strokeLinecap="round">
+      <path d="M20.75 2.75v2.5C17.75 5 13.75 6 12.25 8.5 11.5 9.75 11.25 11.25 11.25 12.75h-2v-10z" fill="currentColor" stroke="none" />
+      <rect x="9.25" y="2.75" width="11.5" height="10" rx="1.25" />
+      <circle cx="17.5" cy="7.75" r="1.15" fill="currentColor" stroke="none" />
+      <path d="M19.5 9.75q-1.75 2-3.5.25" strokeWidth="1.3" />
+      <rect x="1.25" y="14.25" width="2.25" height="5" fill="currentColor" stroke="none" />
+      <rect x="1.25" y="14.25" width="6" height="5" rx="1.25" />
+      <rect x="16.25" y="16.75" width="2.25" height="5" fill="currentColor" stroke="none" />
+      <rect x="16.25" y="16.75" width="6" height="5" rx="1.25" />
+      <path d="M17.25 12.75l2 4M13.25 12.75v4h-6" />
+    </svg>
+  );
+}
+
 function Pane({ title, children }: { title: string; children: ReactNode }) {
   return (
     <div className="fd-pane">
@@ -471,7 +488,7 @@ export function FeatureDemo({ scene, playing }: { scene: number; playing: boolea
             <svg viewBox="0 0 24 24"><path d="M5 3h9l5 5v13H5z" /><path d="M14 3v5h5" /></svg>
             <svg viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6" /><path d="M15 15l5.5 5.5" /></svg>
             <svg viewBox="0 0 24 24"><circle cx="6" cy="5" r="2.5" /><circle cx="6" cy="19" r="2.5" /><circle cx="18" cy="8" r="2.5" /><path d="M6 7.5v9M18 10.5c0 4-6 3-12 6" /></svg>
-            <span className="on"><MapIcon /></span>
+            <span className="on"><ActivityIcon /></span>
           </div>
           <div className="fd-main" data-scene={["map", "tour", "sequence", "pr"][scene]}>{frame.body}</div>
         </div>

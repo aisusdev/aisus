@@ -380,9 +380,9 @@ thead th { background: var(--paper-2); }
   border-right: 1px solid #e5e5e5;
 }
 .fd-activity svg, .fd-status svg, .fd-tab svg { fill: none; stroke-linejoin: round; }
-.fd-activity svg { width: 24px; height: 24px; stroke: #616161; stroke-width: 1.4; }
+.fd-activity svg { width: 24px; height: 24px; color: #616161; stroke: #616161; stroke-width: 1.4; }
 .fd-activity .on { display: flex; justify-content: center; width: 48px; box-shadow: inset 2px 0 0 #005fb8; }
-.fd-activity .on svg { stroke: #1f1f1f; stroke-width: 1.5; }
+.fd-activity .on svg { color: #1f1f1f; stroke: #1f1f1f; stroke-width: 1.5; }
 .fd-main { flex: 1; min-width: 0; height: 540px; display: flex; }
 .fd-pane { flex: 3 1 0; min-width: 0; display: flex; flex-direction: column; }
 .fd-editor { flex: 2 1 0; min-width: 0; display: flex; flex-direction: column; border-left: 1px solid #e5e5e5; background: #ffffff; }
