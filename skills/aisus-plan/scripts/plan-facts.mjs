@@ -854,7 +854,7 @@ function stripAppOwned(value) {
 }
 
 // packages/core/agent/plan-facts.ts
-var SKILL_VERSION = "0.3.3";
+var SKILL_VERSION = "0.3.4";
 var USAGE = "usage: node plan-facts.mjs --list | --focus <text> [--base <run>]";
 function fail(message) {
   process.stderr.write(`plan-facts.mjs: ${message}

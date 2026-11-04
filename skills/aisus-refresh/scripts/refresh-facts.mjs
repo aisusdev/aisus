@@ -1161,7 +1161,7 @@ function stripAppOwned(value) {
 }
 
 // packages/core/agent/refresh-facts.ts
-var SKILL_VERSION = "0.3.3";
+var SKILL_VERSION = "0.3.4";
 var NOT_SOURCE = /* @__PURE__ */ new Set(["node_modules", "dist", "out", "build", "coverage", "target", "vendor"]);
 var USAGE = "usage: node refresh-facts.mjs --from <run> [--paths <glob>\u2026]";
 function fail(message) {

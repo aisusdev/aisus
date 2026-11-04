@@ -1,13 +1,13 @@
 {
   "name": "@aisus/viewer",
-  "version": "0.3.3",
+  "version": "0.3.4",
   "private": true,
   "description": "aisus's map viewer, shared by the VS Code extension, the cloud and the IntelliJ plugin.",
   "exports": {
     "./*": "./*.ts"
   },
   "dependencies": {
-    "@aisus/core": "0.3.3",
+    "@aisus/core": "0.3.4",
     "elkjs": "0.12.0"
   }
 }

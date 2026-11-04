@@ -1,13 +1,13 @@
 {
   "name": "@aisus/cli",
-  "version": "0.3.3",
+  "version": "0.3.4",
   "private": true,
   "description": "aisus's core CLI: installs skills, reports staleness, runs pull request checks and publishes to the cloud.",
   "exports": {
     "./*": "./*.ts"
   },
   "dependencies": {
-    "@aisus/cloud-client": "0.3.3",
-    "@aisus/core": "0.3.3"
+    "@aisus/cloud-client": "0.3.4",
+    "@aisus/core": "0.3.4"
   }
 }
