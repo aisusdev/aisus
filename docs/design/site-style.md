@@ -24,7 +24,7 @@ Headlines use Poppins SemiBold through `--display`. The site serves the font fro
 
 ## Shape
 
-Buttons are at least 48 pixels tall with a 3-pixel radius. A primary button is pink with white text. A secondary button is a forest outline on paper. On a forest band, the primary button turns lime with forest text. Cards, such as the Pricing plans and the signed-in account cards, are white with 16-pixel corners, a soft shadow and no border. Page content sits in a column up to 1248 pixels wide, with side gutters of 24 to 64 pixels on desktop and 20 pixels on phones. The header keeps 16-pixel gutters on phones.
+On the public site, buttons are pills at least 48 pixels tall, with 44 in the header and 52 in the hero. A primary button is pink with white text over a soft pink shadow. It darkens on hover and sinks a pixel when pressed. Get Started ends in an arrow that slides right on hover. A secondary button is a forest outline on paper. A button reached with Tab shows a forest ring 3 pixels outside it. The signed-in cloud's buttons keep 3-pixel corners. On a forest band, the primary button turns lime with forest text. Cards, such as the Pricing plans and the signed-in account cards, are white with 16-pixel corners, a soft shadow and no border. Page content sits in a column up to 1248 pixels wide, with side gutters of 24 to 64 pixels on desktop and 20 pixels on phones. The header keeps 16-pixel gutters on phones.
 
 ## Mockups
 

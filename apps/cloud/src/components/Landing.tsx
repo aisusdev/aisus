@@ -2,6 +2,7 @@
 // Signed in, its sign-in button opens the cloud (CLD-20).
 import { CLOUD, signInPath } from "../lib/paths";
 import { FeatureTabs } from "./FeatureTabs";
+import { GoArrow } from "./GoArrow";
 import { TOOLS, ToolMark } from "./ToolMarks";
 
 const FAQ = [
@@ -20,7 +21,7 @@ export function Landing({ signedIn }: { signedIn: boolean }) {
         <h1>See your codebase as a map</h1>
         <p>Coding agents write more code than a person can follow. aisus draws your repository as a map whose boxes open the code they cite.</p>
         <div className="cta">
-          <a className="btn btn-primary" href="/get-started" data-umami-event="get-started">Get Started</a>
+          <a className="btn btn-primary" href="/get-started" data-umami-event="get-started">Get Started<GoArrow /></a>
           {signedIn
             ? <a className="btn" href={CLOUD}>Open cloud</a>
             : <a className="btn" href={signInPath()} data-umami-event="sign-in">Sign in with GitHub</a>}

@@ -136,3 +136,30 @@ test("CLD-08 at phone width the homepage is no wider than the window and the hea
   await expect(page.locator(".site-header .brand img")).toBeVisible();
   await expect(page.locator(".site-header").getByRole("link", { name: "Get Started" })).toBeVisible();
 });
+
+test("CLD-08 at desktop width the header's Get Started sits in the centred capsule after the links, and Sign in sits to its right", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto("/");
+  const header = page.locator(".site-header");
+  const capsule = header.locator(".header-centre");
+  const start = capsule.getByRole("link", { name: "Get Started" });
+  await expect(start).toHaveAttribute("href", "/get-started");
+  const bar = (await header.boundingBox())!;
+  const group = (await capsule.boundingBox())!;
+  const button = (await start.boundingBox())!;
+  const lastLink = (await capsule.locator(".nav a").last().boundingBox())!;
+  const signIn = (await header.locator(".top-r .account a").boundingBox())!;
+  expect(Math.abs(group.x + group.width / 2 - (bar.x + bar.width / 2))).toBeLessThanOrEqual(2);
+  expect(button.x).toBeGreaterThan(lastLink.x + lastLink.width);
+  expect(signIn.x).toBeGreaterThan(group.x + group.width);
+});
+
+test("CLD-08 at phone width the header's Get Started is at least 44 pixels tall and sits beside the menu button", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/");
+  const button = (await page.locator(".site-header").getByRole("link", { name: "Get Started" }).boundingBox())!;
+  const menu = (await page.locator(".site-header .menu summary").boundingBox())!;
+  expect(button.height).toBeGreaterThanOrEqual(44);
+  expect(menu.x).toBeGreaterThan(button.x + button.width);
+  expect(menu.x - (button.x + button.width)).toBeLessThanOrEqual(12);
+});

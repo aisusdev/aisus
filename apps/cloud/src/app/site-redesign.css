@@ -114,6 +114,21 @@ thead th { background: var(--paper-2); }
 .button--danger { color: #9b342d; border-color: #9b342d; }
 .btn-sm { min-height: 42px; padding: 9px 16px; }
 
+/* On the public site, buttons are pills. The pink primary sits on a soft pink shadow, and a pressed button sinks a pixel. */
+.site-page .btn {
+  border-width: 1.5px;
+  border-radius: 999px;
+  padding-inline: 22px;
+  transition: background .15s, border-color .15s, box-shadow .15s, transform .1s;
+}
+.site-page .btn-primary { box-shadow: 0 6px 16px -6px rgba(201, 44, 109, .6); }
+.site-page .btn:active { transform: translateY(1px); }
+.site-page .btn-primary:active { box-shadow: 0 2px 6px -2px rgba(201, 44, 109, .6); }
+.site-page .btn:focus-visible { outline: 2px solid var(--forest); outline-offset: 3px; }
+.site-page .btn-sm { min-height: 44px; padding: 0 18px; }
+.go-arrow { width: 18px; height: 18px; stroke-width: 2.2; transition: transform .15s; }
+.btn:hover .go-arrow { transform: translateX(3px); }
+
 .site-header {
   background: rgba(255, 255, 255, .96);
   border-bottom: 0;
@@ -140,7 +155,18 @@ thead th { background: var(--paper-2); }
   width: auto;
   height: 32px;
 }
-.nav { margin-left: 12px; gap: 28px; }
+/* The header has three columns. The brand sits left, a pale green capsule of the links and Get Started sits in the middle, and the account link sits right. */
+.site-header .header-inner { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); }
+.site-header .brand { justify-self: start; }
+.header-centre {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  padding: 4px 4px 4px 24px;
+  border-radius: 999px;
+  background: var(--paper-2);
+}
+.nav { gap: 24px; }
 .nav a, .account a {
   color: var(--text);
   font-size: 16px;
@@ -152,7 +178,7 @@ thead th { background: var(--paper-2); }
   background: none;
   color: #477646;
 }
-.top-r { margin-left: auto; gap: 22px; }
+.top-r { justify-self: end; margin-left: 0; gap: 22px; }
 .account { gap: 14px; }
 .menu summary { border-color: var(--line); }
 .menu nav {
@@ -244,7 +270,7 @@ thead th { background: var(--paper-2); }
   text-wrap: balance;
 }
 .home-hero .cta { justify-content: center; margin-top: 28px; }
-.home-hero .btn { min-height: 48px; padding: 11px 24px; font-size: 17px; }
+.home-hero .btn { min-height: 52px; padding: 0 28px; font-size: 17px; }
 
 .works {
   max-width: 1248px;
@@ -723,6 +749,12 @@ kbd {
   .pricing-plans { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
+/* Where the links fold into the menu, the capsule goes and Get Started sits at the right beside the menu. */
+@media (max-width: 1020px) {
+  .site-header .header-inner { display: flex; }
+  .header-centre { margin-left: auto; padding: 0; background: none; }
+}
+
 @media (max-width: 900px) {
   .nav { display: none; }
   .menu { display: block; }
@@ -767,14 +799,21 @@ kbd {
 }
 
 @media (max-width: 480px) {
-  .top-r { margin-left: auto; gap: 8px; }
-  .top-r > .btn { min-height: 38px; padding: 8px 11px; font-size: 14px; }
+  .site-header .wrap { gap: 10px; }
+  .top-r { gap: 8px; }
+  .header-centre .btn { padding: 0 14px; }
   .plan { padding: 24px 20px 20px; }
   .home-hero .cta { flex-direction: column; align-items: stretch; }
   .feature-tab { padding: 0 16px; }
   .site-footer .footer-grid { gap: 27px 18px; }
 }
 
+/* On the narrowest phones, the header's Get Started drops its arrow so the row fits. */
+@media (max-width: 370px) {
+  .site-header .go-arrow { display: none; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
+  .site-page .btn, .go-arrow { transition: none; }
 }

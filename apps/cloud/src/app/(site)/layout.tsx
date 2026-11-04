@@ -1,6 +1,7 @@
 // The public site's header and footer. Signed out, Sign in opens /cloud/signin. Signed in, Open cloud opens /cloud (CLD-20).
 import type { ReactNode } from "react";
 import { currentUser } from "../../auth";
+import { GoArrow } from "../../components/GoArrow";
 import { HeaderShadow } from "../../components/HeaderShadow";
 import { CLOUD, signInPath } from "../../lib/paths";
 import { GALLERY_ENABLED } from "../../lib/siteFeatures";
@@ -44,12 +45,14 @@ export default async function SiteLayout({ children }: { children: ReactNode }) 
       <header className="site-header">
         <div className="wrap header-inner">
           <Brand />
-          <nav className="nav" aria-label="Main">
-            {LINKS.map((link) => <a key={link.href} href={link.href}>{link.label}</a>)}
-          </nav>
+          <div className="header-centre">
+            <nav className="nav" aria-label="Main">
+              {LINKS.map((link) => <a key={link.href} href={link.href}>{link.label}</a>)}
+            </nav>
+            <a className="btn btn-primary btn-sm" href="/get-started" data-umami-event="get-started">Get Started<GoArrow /></a>
+          </div>
           <div className="top-r">
             <span className="account">{account}</span>
-            <a className="btn btn-primary btn-sm" href="/get-started" data-umami-event="get-started">Get Started</a>
             <details className="menu">
               <summary aria-label="Menu"><svg className="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" /></svg></summary>
               <nav aria-label="Menu">
