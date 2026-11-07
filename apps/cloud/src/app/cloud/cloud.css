@@ -30,7 +30,6 @@ html:has(.cloud-page), body:has(.cloud-page) { background: #ffffff; }
 }
 .cloud-header.scrolled { box-shadow: 0 8px 24px -12px rgba(20, 43, 34, .35); }
 .cloud-header .brand { gap: 10px; border: 0; }
-.cloud-header .brand img { width: 120px; }
 .cloud-tag {
   padding: 0 8px;
   border-radius: 3px;
