@@ -26,6 +26,7 @@
     "Education"
   ],
   "version": "0.3.4",
+  "license": "Apache-2.0",
   "publisher": "aisus",
   "private": true,
   "engines": {

@@ -1,6 +1,7 @@
 {
   "name": "@aisus/core",
   "version": "0.3.4",
+  "license": "Apache-2.0",
   "private": true,
   "description": "aisus's shared logic: the map model, its layout and the skill scripts.",
   "exports": {
