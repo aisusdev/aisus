@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>aisus poster: scenario study</title>
+<link rel="stylesheet" href="../poster.css">
+<script>if (self === top) document.documentElement.classList.add("solo")</script>
+<style>
+  html, body { width: 2245px; height: 630px; position: relative; overflow: hidden; }
+
+  /* Each story is one row: its title and user story on the left, then four comic panels. */
+  .rows {
+    position: absolute; left: 110px; right: 110px; top: 0;
+    display: grid; grid-template-columns: 1fr auto; grid-template-rows: 288px 3px 288px;
+    column-gap: 44px; row-gap: 16px;
+  }
+
+  .text { display: flex; flex-direction: column; justify-content: flex-end; padding-bottom: 6px; }
+  .text.top { justify-content: flex-start; padding: 6px 0 0; }
+
+  h2 {
+    margin-bottom: auto;
+    font-family: var(--chunky); font-weight: 400; font-size: 92px; line-height: 1; color: var(--pink);
+  }
+
+  h3 { display: flex; align-items: center; gap: 16px; font-family: var(--chunky); font-weight: 400; font-size: 50px; line-height: 1; color: var(--ink); }
+  h3 span {
+    width: 58px; height: 58px; flex: none; border-radius: 50%; background: var(--pink); color: #fff;
+    display: flex; align-items: center; justify-content: center; font-size: 38px; padding-top: 4px;
+  }
+  .text p { margin-top: 14px; font-size: 28px; line-height: 1.38; color: var(--text); }
+  .text p b { font-weight: 600; color: var(--ink); }
+
+  .strip { display: grid; grid-template-columns: repeat(4, 288px); gap: 18px; }
+
+  /* The divider between the two stories matches the rule above the sponsors. */
+  .divider { grid-column: 1 / -1; background: var(--line); border-radius: 2px; }
+  .panel {
+    height: 288px; display: flex; flex-direction: column;
+    border: 4px solid var(--forest); border-radius: 8px; overflow: hidden;
+    background: var(--card); box-shadow: 5px 5px 0 var(--forest);
+  }
+  .panel img { flex: 1; min-height: 0; width: 100%; object-fit: cover; display: block; border-bottom: 4px solid var(--forest); }
+  .panel p { height: 44px; flex: none; display: flex; align-items: center; justify-content: center; font-size: 23px; color: var(--text); white-space: nowrap; }
+  .panel p b { font-weight: 600; color: var(--ink); margin-right: 0.3em; }
+</style>
+</head>
+<body>
+  <div class="rows">
+    <div class="text">
+      <h2>Scenario study</h2>
+      <h3><span>1</span>Learning a codebase</h3>
+      <p>A new teammate wants <b>a picture of the whole system</b> before changing any of it.</p>
+    </div>
+    <div class="strip">
+      <div class="panel"><img src="../assets/comic/learn-1.png" alt="A new developer buried in files"><p>Day one. Too many files.</p></div>
+      <div class="panel"><img src="../assets/comic/learn-2.png" alt="aisus draws a map on the laptop"><p><b>aisus</b>draws the map.</p></div>
+      <div class="panel"><img src="../assets/comic/learn-3.png" alt="Clicking a box opens its code"><p>Each box opens its code.</p></div>
+      <div class="panel"><img src="../assets/comic/learn-4.png" alt="The developer explains the map to a teammate"><p>Now I can explain it.</p></div>
+    </div>
+    <div class="divider"></div>
+
+    <div class="text top">
+      <h3><span>2</span>See the impact before AI builds it</h3>
+      <p>Before an agent writes code, see <b>what it will add, change and remove</b>.</p>
+    </div>
+    <div class="strip">
+      <div class="panel"><img src="../assets/comic/plan-1.png" alt="The developer asks an agent for a change"><p>I ask for PDF export.</p></div>
+      <div class="panel"><img src="../assets/comic/plan-2.png" alt="aisus shows the plan before the agent starts"><p><b>aisus</b>maps the plan.</p></div>
+      <div class="panel"><img src="../assets/comic/plan-3.png" alt="The developer circles a wrong change and edits the spec"><p>I fix the spec first.</p></div>
+      <div class="panel"><img src="../assets/comic/plan-4.png" alt="The team approves the finished change"><p>Built as we planned.</p></div>
+    </div>
+  </div>
+</body>
+</html>

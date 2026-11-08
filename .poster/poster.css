@@ -47,18 +47,3 @@ html.solo { background: var(--paper); }
 
 .chunky { font-family: var(--chunky); font-weight: 400; letter-spacing: 0.01em; }
 
-.placeholder {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-direction: column;
-  gap: 8px;
-  border: 4px dashed #9fb09f;
-  border-radius: 18px;
-  background: repeating-linear-gradient(135deg, rgba(74, 119, 102, 0.06) 0 18px, transparent 18px 36px);
-  color: var(--text-2);
-  font-family: var(--body);
-  font-weight: 500;
-  text-align: center;
-}
-.placeholder small { font-size: 22px; font-weight: 400; }
