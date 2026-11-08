@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>aisus poster: how we built it</title>
+<link rel="stylesheet" href="../poster.css">
+<script>if (self === top) document.documentElement.classList.add("solo")</script>
+<style>
+  html, body { width: 2245px; height: 445px; position: relative; overflow: hidden; }
+
+  h2 {
+    position: absolute; left: 0; right: 0; top: 0; height: 110px;
+    display: flex; align-items: flex-end; justify-content: center; gap: 26px;
+    font-family: var(--chunky); font-weight: 400; font-size: 92px; line-height: 1; color: var(--pink);
+  }
+  h2 img { height: 104px; display: block; margin-bottom: -2px; }
+
+  .tiles {
+    position: absolute; left: 110px; right: 110px; top: 144px; height: 290px;
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 44px;
+  }
+  .tiles .placeholder { font-size: 34px; }
+</style>
+</head>
+<body>
+  <h2>How we built <img src="../assets/trimmed/aisus-wordmark.png" alt="aisus"></h2>
+
+  <div class="tiles">
+    <div class="placeholder">Architecture<small>Placeholder</small></div>
+    <div class="placeholder">Tech stack<small>Placeholder</small></div>
+    <div class="placeholder">Team and process<small>Placeholder</small></div>
+  </div>
+</body>
+</html>
