@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>aisus poster: features</title>
+<link rel="stylesheet" href="../poster.css">
+<script>if (self === top) document.documentElement.classList.add("solo")</script>
+<style>
+  html, body { width: 2245px; height: 700px; position: relative; overflow: hidden; }
+
+  h2 {
+    position: absolute; left: 0; right: 0; top: 0; text-align: center;
+    font-family: var(--chunky); font-weight: 400; font-size: 92px; line-height: 1; color: var(--pink);
+  }
+
+  .row {
+    position: absolute; left: 110px; right: 110px; top: 140px;
+    display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 40px;
+  }
+
+  .feature h3 { margin-top: 24px; text-align: center; font-family: var(--chunky); font-weight: 400; font-size: 44px; line-height: 1; color: var(--ink); white-space: nowrap; }
+  .feature h3 code { font-family: inherit; }
+
+  .window {
+    height: 480px; border-radius: 16px; overflow: hidden;
+    background: var(--card); box-shadow: var(--shadow); border: 2px solid #d5dccf;
+    display: flex; flex-direction: column;
+  }
+  .window .bar { height: 40px; flex: none; background: #ecefe8; border-bottom: 2px solid #dde3d8; display: flex; align-items: center; gap: 10px; padding: 0 16px; }
+  .window .bar i { width: 14px; height: 14px; border-radius: 50%; display: block; }
+  .window .shot { flex: 1; margin: 16px; font-size: 28px; }
+</style>
+</head>
+<body>
+  <h2>Visualizes your project &amp; guides your learning</h2>
+
+  <div class="row">
+    <section class="feature">
+      <div class="window">
+        <div class="bar"><i style="background:#ff5f57"></i><i style="background:#febc2e"></i><i style="background:#28c840"></i></div>
+        <div class="placeholder shot">Screenshot<small>Interactive diagram</small></div>
+      </div>
+      <h3>Interactive diagram</h3>
+    </section>
+
+    <section class="feature">
+      <div class="window">
+        <div class="bar"><i style="background:#ff5f57"></i><i style="background:#febc2e"></i><i style="background:#28c840"></i></div>
+        <div class="placeholder shot">Screenshot<small>Check my understanding</small></div>
+      </div>
+      <h3>Check my understanding</h3>
+    </section>
+
+    <section class="feature">
+      <div class="window">
+        <div class="bar"><i style="background:#ff5f57"></i><i style="background:#febc2e"></i><i style="background:#28c840"></i></div>
+        <div class="placeholder shot">Screenshot<small>/aisus-pr comment</small></div>
+      </div>
+      <h3>/aisus-pr</h3>
+    </section>
+
+    <section class="feature">
+      <div class="window">
+        <div class="bar"><i style="background:#ff5f57"></i><i style="background:#febc2e"></i><i style="background:#28c840"></i></div>
+        <div class="placeholder shot">Screenshot<small>aisus cloud dashboard</small></div>
+      </div>
+      <h3>aisus cloud</h3>
+    </section>
+  </div>
+</body>
+</html>
