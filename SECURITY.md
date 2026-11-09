@@ -1,6 +1,6 @@
 # Security policy
 
-Report a security problem privately. Open the repository's **Security** tab and choose **Report a vulnerability**. The report reaches only the maintainers. Please keep it out of public issues until a fix is released.
+Report a security problem privately. Open the repository's **Security** tab and choose **Report a vulnerability**. The report reaches only the maintainers. You can also email aisus.dev@gmail.com. Please keep the problem out of public issues until a fix is released.
 
 Include what you found, the steps to reproduce it and the version of aisus you used. A maintainer replies within seven days, agrees a date for the fix with you and credits you in the release notes unless you would rather not be named.
 

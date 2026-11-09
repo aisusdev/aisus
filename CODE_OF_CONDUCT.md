@@ -20,7 +20,7 @@ aisus is built by people with different backgrounds, languages and levels of exp
 
 ## Reporting
 
-Tell a maintainer if someone breaks this code. To keep the details private, open an issue that asks a maintainer to contact you, and leave the details out of it. A maintainer then gets in touch with you directly. Reports are handled in confidence.
+Email aisus.dev@gmail.com if someone breaks this code. Only the maintainers read that address, and reports are handled in confidence.
 
 ## What happens next
 
