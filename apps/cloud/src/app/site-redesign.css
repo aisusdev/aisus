@@ -611,6 +611,11 @@ kbd {
 .docs-page .markdown li { color: var(--text-2); line-height: 1.65; }
 .docs-page .markdown table { margin: 16px 0; }
 .docs-page .guide-updated a { color: var(--text-2); }
+/* A drawn Mermaid diagram sits centred in a bordered box, which scrolls sideways when the diagram is wider. */
+.mermaid-diagram { margin: 18px 0; padding: 20px; overflow-x: auto; border: 1px solid var(--line); border-radius: 12px; background: #ffffff; text-align: center; }
+.mermaid-diagram svg { display: inline-block; max-width: none; height: auto; }
+/* Labels keep the line height Mermaid measured them with, rather than the article's. */
+.docs-page .mermaid-diagram p { margin: 0; line-height: 1.5; color: inherit; }
 .ij-window .fd-body { background: #ffffff; }
 .ij-tree { display: flex; flex: 0 0 140px; flex-direction: column; gap: 2px; padding: 10px 8px; background: #f7f8fa; border-right: 1px solid #ebecf0; color: #1e1f22; }
 .ij-tree > span { position: relative; padding: 3px 8px; border-radius: 4px; white-space: nowrap; }

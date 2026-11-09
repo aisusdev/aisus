@@ -65,6 +65,14 @@ test("CLD-08 Get Started's panel links to the docs", async ({ page }) => {
   await expect(page.getByRole("navigation", { name: "Guide" }).getByRole("link", { name: "GitHub Action", exact: true })).toHaveAttribute("href", "/docs/github-action");
 });
 
+test("CLD-08 the architecture page draws its four Mermaid diagrams as SVG without requesting another host", async ({ page }) => {
+  const hosts = new Set<string>();
+  page.on("request", (request) => hosts.add(new URL(request.url()).host));
+  await page.goto("/docs/architecture");
+  await expect(page.locator(".mermaid-diagram svg")).toHaveCount(4);
+  expect([...hosts]).toEqual(["127.0.0.1:3210"]);
+});
+
 test("CLD-08 a code-only cell in a docs table stays on one line", async ({ page }) => {
   await page.goto("/docs/architecture");
   const cell = page.locator(".markdown td:first-child > code", { hasText: /^types\.ts$/ }).first();

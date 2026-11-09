@@ -24,6 +24,7 @@
   "dependencies": {
     "@electric-sql/pglite": "0.5.10",
     "drizzle-orm": "0.45.4",
+    "mermaid": "12.2.0",
     "next": "16.4.2",
     "next-auth": "4.24.15",
     "react": "19.3.1",

@@ -78,3 +78,4 @@ Decisions for Sustain in [MADR 4.0](https://adr.github.io/madr/) format; the pro
 | [0072](0072-a-drill-down-records-the-box-it-details.md) | A drill-down records the box it details | accepted | 2026-11-01 |
 | [0073](0073-a-plan-map-cites-its-spec.md) | A plan map cites its spec | accepted | 2026-11-02 |
 | [0074](0074-skills-install-into-the-project-by-default.md) | Skills install into the project by default | accepted | 2026-11-02 |
+| [0075](0075-the-docs-pages-draw-mermaid-diagrams-in-the-browser.md) | The docs pages draw Mermaid diagrams in the browser | accepted | 2026-11-09 |

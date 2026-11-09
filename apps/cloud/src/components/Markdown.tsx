@@ -1,6 +1,7 @@
 // Renders parsed markdown as React elements; text is always text.
 import type { ReactNode } from "react";
 import type { Block, Inline } from "../lib/markdown";
+import { MermaidDiagram } from "./MermaidDiagram";
 
 function Spans({ spans }: { spans: Inline[] }) {
   return (
@@ -61,6 +62,7 @@ export function Markdown({ blocks }: { blocks: Block[] }) {
             return block.ordered ? <ol key={index}>{items}</ol> : <ul key={index}>{items}</ul>;
           }
           case "code":
+            if (block.lang === "mermaid") return <MermaidDiagram key={index} source={block.text} />;
             return (
               <pre key={index}>
                 <code>{block.text}</code>

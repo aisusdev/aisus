@@ -330,7 +330,7 @@ sequenceDiagram
       H-->>U: error "Stale reference: `<path>` no longer exists"
     else lines beyond the file
       H->>E: open in the other column, no selection
-      H-->>U: error "Stale reference: `<path>` has N lines; …"
+      H-->>U: error "Stale reference: `<path>` has N lines, …"
     else ok
       H->>E: open in the other column, select lines, highlight 2 s
     end
