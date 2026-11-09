@@ -1,11 +1,12 @@
 // CLD-08: the docs pages' markdown, parsed into blocks the page renders as React elements. Nothing
-// is ever treated as HTML. Covers headings, paragraphs, lists, fenced code, tables, quotes and rules.
+// is ever treated as HTML. Covers headings, paragraphs, images, lists, fenced code, tables, quotes and rules.
 
 export type Inline = { kind: "text"; text: string } | { kind: "code"; text: string } | { kind: "strong"; text: string } | { kind: "em"; text: string } | { kind: "link"; text: string; href: string };
 
 export type Block =
   | { kind: "heading"; level: number; id: string; spans: Inline[] }
   | { kind: "paragraph"; spans: Inline[] }
+  | { kind: "image"; alt: string; src: string }
   | { kind: "list"; ordered: boolean; items: Inline[][] }
   | { kind: "code"; lang: string; text: string }
   | { kind: "table"; head: Inline[][]; rows: Inline[][][] }
@@ -62,7 +63,15 @@ function cells(line: string): string[] {
   return line.trim().replace(/^\|/, "").replace(/\|$/, "").split("|").map((cell) => cell.trim());
 }
 
-export function parseMarkdown(source: string, docPath: (path: string) => string | null = () => null): Block[] {
+/**
+ * Parses `source`. `docPath` gives a relative link's page, and `imagePath` a relative image's
+ * address. An image line whose address is `null` shows its alt text instead.
+ */
+export function parseMarkdown(
+  source: string,
+  docPath: (path: string) => string | null = () => null,
+  imagePath: (src: string) => string | null = () => null,
+): Block[] {
   const lines = source.replace(/\r\n?/g, "\n").split("\n");
   const blocks: Block[] = [];
   let paragraph: string[] = [];
@@ -108,6 +117,13 @@ export function parseMarkdown(source: string, docPath: (path: string) => string 
     if (/^\s*>\s?/.test(line)) {
       flush();
       blocks.push({ kind: "quote", spans: inline(line.replace(/^\s*>\s?/, ""), docPath) });
+      continue;
+    }
+    const image = new RegExp(String.raw`^\s*!\[([^\]]*)\]\((${TARGET})\)\s*$`).exec(line);
+    if (image) {
+      flush();
+      const src = imagePath(image[2]!);
+      blocks.push(src === null ? { kind: "paragraph", spans: [{ kind: "text", text: image[1]! }] } : { kind: "image", alt: image[1]!, src });
       continue;
     }
     if (/^\s*(-{3,}|\*{3,})\s*$/.test(line)) {

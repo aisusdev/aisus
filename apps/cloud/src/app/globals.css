@@ -408,6 +408,14 @@ input[type="text"] {
   color: var(--text-2);
 }
 
+.markdown img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin: 24px 0;
+  border-radius: 8px;
+}
+
 .markdown blockquote {
   margin: 16px 0;
   padding: 4px 18px;

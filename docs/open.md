@@ -1,12 +1,11 @@
 # Open problems and unfinished work
 
-Every known problem and unfinished piece of work, with an ID that never changes. Add new items with the next free ID. Remove an item when it is solved, and record its ID and commit in your shift doc. The next free ID is P-39.
+Every known problem and unfinished piece of work, with an ID that never changes. Add new items with the next free ID. Remove an item when it is solved, and record its ID and commit in your shift doc. The next free ID is P-40.
 
 ## Broken now
 
 - **P-1 Windows unit tests fail in CI.** `check (windows-latest)` fails in `validate.test.ts`, `session.test.ts`, `hooksFiles.test.ts` and `repoFacts.test.ts`, as in run 40316109729. Ubuntu and macOS pass. This is ENG-01's open `[ci]` half.
 - **P-2 The e2e job fails in CI.** On Linux under xvfb, LRN-01's Claude session test, SAF-06's hook test and SKL-02's tour test's setup fail, as in run 40316109729. The same suite passes locally on macOS.
-- **P-4 `/docs` on aisus.dev answers 500.** The cloud's image copies neither `README.md` nor `docs/`, which `apps/cloud/src/lib/docs.ts` reads at request time.
 - **P-25 On a phone, the map page's side panel covers the freshness bar.** Below the phone breakpoint, `.map-side` in `apps/cloud/src/app/globals.css` docks at the foot of the window, 12 pixels from the bottom and up to 40% of its height. The viewer's `.freshness` bar sits 8 pixels from the bottom too, so the panel hides it with its Refresh link on the map, pull request and share link pages. A first step is to dock the panel above the bar, or to fold the panel to its title until it is tapped.
 - **P-26 A folder's first run is still estimated far below what it spends.** Estimates now scale to what the folder's last five finished runs spent, and `aisus.estimate.detailed` plans a Generate run's reads (see [shifts/2026-11-01-xplus2g4.md](shifts/2026-11-01-xplus2g4.md)). Before a folder has a finished run, the estimate still comes from the provisional `packages/core/model/coefficients.json` and from `TURN_MODEL` in `packages/core/model/estimate.ts`. On this repository the old estimate said 160k–320k tokens against 1.46M spent, and the detailed one says 610k–1.2M. The fix is the CST-06 bench and `npm run bench:fit`, which need paid agent calls (P-11). Ask runs write no `run.json`, so their estimates are never scaled.
 - **P-27 Start Learning Session can look as if nothing happened on macOS.** After the agent is chosen, `ensureSkillIntact` in `apps/vscode/src/integrity.ts` asks to reinstall the `aisus-bugfix` skill in a modal warning. On macOS that is a native dialog, which can open behind the window. Until it is answered, no terminal, session panel or notification appears. Bug hunt is hidden behind `aisus.bugHunt.enabled` since 5581589, and the command still behaves this way. A first step is to show the reinstall question before the mode and task pickers, or as a notification.
@@ -48,6 +47,7 @@ The steps for each are in the "Waiting" section of [archive/progress-v0.3.md](ar
 - **P-17 IDE-01 plugin smoke.** Install the plugin's zip into IntelliJ IDEA 2026.1, generate a map of AB3, and confirm a box opens its cited lines.
 - **P-18 DOC-01 demo.** Record `docs/media/demo.gif` (generate a map, click a box, Show Changes) and put it under the README's first paragraph.
 - **P-19 CLD-10 Postgres.** The cloud runs on PGlite. Adding `pg@8` with `@types/pg` to `apps/cloud/` needs a go. `apps/cloud/src/db/client.ts` would then use Postgres when `AISUS_DB` is a Postgres URL.
+- **P-39 Deploy the docs fix to aisus.dev.** `main` now copies the README, `CONTRIBUTING.md`, `docs/*.md` and `docs/media/` into the cloud's image, which fixes the 500 on `/docs` (P-4) and adds the Contributing, Maintaining and GitHub Action pages. With a teammate's go, run `infra/deploy.sh`, then check that `/docs`, `/docs/contributing` and `/docs/media/map-and-code.png` answer 200.
 
 ## Ideas
 

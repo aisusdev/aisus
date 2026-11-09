@@ -22,6 +22,10 @@ COPY --from=build /app/package.json /app/package-lock.json ./
 COPY --from=build /app/node_modules ./node_modules
 COPY --from=build /app/apps/cloud ./apps/cloud
 COPY --from=build /app/packages ./packages
+# The docs pages render these files and serve docs/media/ at request time (CLD-08).
+COPY --from=build /app/README.md /app/CONTRIBUTING.md ./
+COPY --from=build /app/docs/*.md ./docs/
+COPY --from=build /app/docs/media ./docs/media
 VOLUME /data
 EXPOSE 3000
 HEALTHCHECK --interval=30s --timeout=5s CMD node -e "fetch('http://127.0.0.1:3000/api/health').then((r) => process.exit(r.ok ? 0 : 1), () => process.exit(1))"

@@ -49,6 +49,8 @@ export function Markdown({ blocks }: { blocks: Block[] }) {
                 <Spans spans={block.spans} />
               </p>
             );
+          case "image":
+            return <img key={index} src={block.src} alt={block.alt} />;
           case "list": {
             const items = block.items.map((item, at) => (
               <li key={at}>

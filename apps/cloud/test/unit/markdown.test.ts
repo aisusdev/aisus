@@ -1,6 +1,6 @@
 // CLD-08: the docs renderer's links: web links and published pages only, never a script URL.
 import { expect, test } from "vitest";
-import { docPath } from "../../src/lib/docs";
+import { docImage, docPath } from "../../src/lib/docs";
 import { inline, linkTarget, parseMarkdown } from "../../src/lib/markdown";
 
 test("CLD-08 links go to the web, to anchors or to published docs; script URLs become text", () => {
@@ -24,4 +24,15 @@ test("CLD-08 headings, tables, lists and fences parse; markup stays text", () =>
   expect(blocks.map((block) => block.kind)).toEqual(["heading", "table", "list", "code"]);
   expect(blocks[0]).toMatchObject({ level: 1, id: "title-bxb", spans: [{ kind: "text", text: "Title <b>x</b>" }] });
   expect(blocks[3]).toEqual({ kind: "code", lang: "ts", text: "<script>" });
+});
+
+test("CLD-08 an image under docs/media/ becomes an image block; any other image shows its alt text", () => {
+  const image = (src: string): string | null => docImage("README.md", src);
+  const blocks = parseMarkdown("![A map](docs/media/map-and-code.png)\n\n![Elsewhere](apps/cloud/public/aisus-pr-10.png)\n\n![Script](javascript:alert(1))", () => null, image);
+  expect(blocks).toEqual([
+    { kind: "image", alt: "A map", src: "/docs/media/map-and-code.png" },
+    { kind: "paragraph", spans: [{ kind: "text", text: "Elsewhere" }] },
+    { kind: "paragraph", spans: [{ kind: "text", text: "Script" }] },
+  ]);
+  expect(docImage("docs/architecture.md", "media/map-and-code.png")).toBe("/docs/media/map-and-code.png");
 });
