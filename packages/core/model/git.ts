@@ -95,8 +95,9 @@ export function collectGitFacts(root: string, env: NodeJS.ProcessEnv = process.e
   if (program === undefined) return null;
   const top = run(program, root, GIT_READS.topLevel);
   if (top === null) return null;
+  // The native call expands Windows short names such as RUNNER~1, which git never prints.
   try {
-    if (realpathSync(top.trim()) !== realpathSync(root)) return null;
+    if (realpathSync.native(top.trim()) !== realpathSync.native(root)) return null;
   } catch {
     return null;
   }

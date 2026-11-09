@@ -87,7 +87,7 @@ function collectGitFacts(root, env = process.env) {
   const top = run(program, root, GIT_READS.topLevel);
   if (top === null) return null;
   try {
-    if (realpathSync(top.trim()) !== realpathSync(root)) return null;
+    if (realpathSync.native(top.trim()) !== realpathSync.native(root)) return null;
   } catch {
     return null;
   }

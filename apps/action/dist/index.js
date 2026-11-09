@@ -8315,7 +8315,7 @@ function collectGitFacts(root, env = process.env) {
   const top = run(program, root, GIT_READS.topLevel);
   if (top === null) return null;
   try {
-    if ((0, import_node_fs3.realpathSync)(top.trim()) !== (0, import_node_fs3.realpathSync)(root)) return null;
+    if (import_node_fs3.realpathSync.native(top.trim()) !== import_node_fs3.realpathSync.native(root)) return null;
   } catch {
     return null;
   }
