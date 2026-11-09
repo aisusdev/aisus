@@ -8,6 +8,7 @@ import { parseMarkdown, type Block, type Inline } from "./markdown";
 export const PUBLISHED_DOCS: readonly { slug: string; file: string; title: string; group: DocGroup }[] = [
   { slug: "", file: "README.md", title: "Overview", group: "Use aisus" },
   { slug: "github-action", file: "docs/github-action.md", title: "GitHub Action", group: "Use aisus" },
+  { slug: "cloud", file: "docs/cloud.md", title: "aisus cloud", group: "Use aisus" },
   { slug: "contributing", file: "CONTRIBUTING.md", title: "Contributing", group: "Contribute" },
   { slug: "maintaining", file: "docs/maintaining.md", title: "Maintaining", group: "Contribute" },
   { slug: "architecture", file: "docs/architecture.md", title: "Architecture", group: "Contribute" },

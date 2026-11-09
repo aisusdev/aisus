@@ -73,6 +73,12 @@ test("CLD-08 the architecture page draws its four Mermaid diagrams as SVG withou
   expect([...hosts]).toEqual(["127.0.0.1:3210"]);
 });
 
+test("CLD-08 the docs panel opens the aisus cloud guide", async ({ page }) => {
+  await page.goto("/docs");
+  await page.locator("main nav .guide-row").getByRole("link", { name: "aisus cloud", exact: true }).click();
+  await expect(page.locator("h1")).toHaveText("aisus cloud");
+});
+
 test("CLD-08 a code-only cell in a docs table stays on one line", async ({ page }) => {
   await page.goto("/docs/architecture");
   const cell = page.locator(".markdown td:first-child > code", { hasText: /^types\.ts$/ }).first();
