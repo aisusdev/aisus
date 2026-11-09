@@ -1,5 +1,5 @@
 import { spawnSync } from "node:child_process";
-import { mkdirSync, mkdtempSync, realpathSync, rmSync, writeFileSync } from "node:fs";
+import { chmodSync, mkdirSync, mkdtempSync, realpathSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { afterEach } from "vitest";
@@ -12,9 +12,9 @@ afterEach(() => {
   for (const dir of created.splice(0)) rmSync(dir, { recursive: true, force: true });
 });
 
-/** A fresh real-path temp folder, removed after the current test. */
+/** A fresh real-path temp folder, removed after the current test. Windows short names such as RUNNER~1 are expanded, as git prints them. */
 export function tempDir(prefix = "aisus-"): string {
-  const dir = realpathSync(mkdtempSync(join(tmpdir(), prefix)));
+  const dir = realpathSync.native(mkdtempSync(join(tmpdir(), prefix)));
   created.push(dir);
   return dir;
 }
@@ -24,6 +24,17 @@ export function put(root: string, rel: string, content: string | Uint8Array): st
   const path = join(root, rel);
   mkdirSync(dirname(path), { recursive: true });
   writeFileSync(path, content);
+  return path;
+}
+
+/**
+ * A stub agent named `name` that the host's PATH lookup finds: `name.CMD` on Windows, spelled as
+ * the default PATHEXT spells it, and an executable script elsewhere.
+ */
+export function executable(dir: string, name: string, script = "exit 0"): string {
+  if (process.platform === "win32") return put(dir, `${name}.CMD`, `@echo off\r\n${script}\r\n`);
+  const path = put(dir, name, `#!/bin/sh\n${script}\n`);
+  chmodSync(path, 0o755);
   return path;
 }
 

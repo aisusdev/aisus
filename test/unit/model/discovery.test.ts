@@ -60,7 +60,8 @@ describe("FR-VIEW-01 repo root of a browsed file", () => {
     ["/w/repo/docs/diagram.json", "/w/folder"],
     ["/w/repo/.aisus/maps/candidate.json", "/w/folder"],
   ])("%s → %s", (file, expected) => {
-    expect(repoRootFor(file, "/w/folder")).toBe(expected);
+    // The paths are written with /, and join gives each in the host's own form.
+    expect(repoRootFor(join(file), join("/w/folder"))).toBe(join(expected));
   });
 });
 describe("SEQ-01 sequence runs", () => {

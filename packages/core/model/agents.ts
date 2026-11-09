@@ -56,6 +56,8 @@ export interface HeadlessOptions {
  */
 export function headlessArgs(cli: "claude" | "codex", prompt: string, options: HeadlessOptions): string[] {
   if (cli === "codex") return ["exec", "--json", "--sandbox", options.readOnly ? "read-only" : "workspace-write", prompt];
+  // The script rules use `/` throughout, as copied prompts and hook commands do on Windows.
+  const skillDir = options.skillDir.split("\\").join("/");
   const tools = options.readOnly
     ? ["Read", "Grep", "Glob"]
     : [
@@ -63,7 +65,7 @@ export function headlessArgs(cli: "claude" | "codex", prompt: string, options: H
         "Grep",
         "Glob",
         ...(options.subagents ? ["Task"] : []),
-        ...(options.scripts ?? SKILL_SCRIPTS["aisus-architecture"]).map((script) => `Bash(node ${options.skillDir}/scripts/${script} *)`),
+        ...(options.scripts ?? SKILL_SCRIPTS["aisus-architecture"]).map((script) => `Bash(node ${skillDir}/scripts/${script} *)`),
         "Edit(./.aisus/maps/**)",
       ];
   const resume = options.resume === undefined ? [] : ["--resume", options.resume];

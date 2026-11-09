@@ -36,7 +36,7 @@ test("PRC-05 a pull request from a fork is never updated, whatever else holds", 
 test("PRC-05 the agent runs the sidebar's headless argv for the refresh, in a fresh home, with only PATH, its home and its key", () => {
   const home = "/tmp/aisus-refresh-x";
   const env = { PATH: "/usr/bin", ANTHROPIC_API_KEY: "sk-ant", OPENAI_API_KEY: "sk-openai", GITHUB_TOKEN: "ghs_secret" };
-  const skill = join(home, ".claude/skills/aisus-refresh/scripts");
+  const skill = "/tmp/aisus-refresh-x/.claude/skills/aisus-refresh/scripts";
   expect(refreshCommand("claude", "architecture-shop-20261019-120000", ["src/api/handler.ts", "src/billing"], home, env)).toEqual({
     args: [
       "-p",

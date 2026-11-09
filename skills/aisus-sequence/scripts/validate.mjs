@@ -8117,7 +8117,7 @@ import { realpathSync as realpathSync3 } from "node:fs";
 
 // packages/core/model/which.ts
 import { accessSync, constants, statSync as statSync2 } from "node:fs";
-import { delimiter, join as join2, posix, win32 } from "node:path";
+import { join as join2, posix, win32 } from "node:path";
 function isExecutableFile(path, platform) {
   try {
     if (!statSync2(path).isFile()) return false;
@@ -8129,9 +8129,9 @@ function isExecutableFile(path, platform) {
 }
 function findOnPath(cli, env, platform = process.platform) {
   const pathValue = env["PATH"] ?? env["Path"] ?? "";
-  const extensions = platform === "win32" ? ["", ...(env["PATHEXT"] ?? ".COM;.EXE;.BAT;.CMD").split(";").filter(Boolean)] : [""];
+  const extensions = platform === "win32" ? (env["PATHEXT"] ?? ".COM;.EXE;.BAT;.CMD").split(";").filter(Boolean) : [""];
   const absolute2 = platform === "win32" ? win32.isAbsolute : posix.isAbsolute;
-  for (const dir of pathValue.split(platform === "win32" ? ";" : delimiter)) {
+  for (const dir of pathValue.split(platform === "win32" ? win32.delimiter : posix.delimiter)) {
     if (!absolute2(dir)) continue;
     for (const extension of extensions) {
       const candidate = join2(dir, cli + extension);

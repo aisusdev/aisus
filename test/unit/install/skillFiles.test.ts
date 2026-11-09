@@ -1,9 +1,15 @@
 // FR-INS-01 file operations: the symlink layout and the copy fallback when linking fails.
-import { existsSync, lstatSync, readFileSync, readlinkSync, symlinkSync } from "node:fs";
+import { existsSync, lstatSync, readFileSync, readlinkSync, realpathSync, symlinkSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, test } from "vitest";
 import { skillInstalled, skillTargets, writeSkill } from "@aisus/core/install/skillFiles";
 import { put, tempDir } from "../support/temp";
+
+/** The `.claude` entry is a relative link on Linux and macOS, and a junction to the `.agents` folder on Windows, where junctions are always absolute. */
+function expectLinkedToAgents(targets: { claudeLink: string; agentsDir: string }): void {
+  if (process.platform === "win32") expect(realpathSync.native(targets.claudeLink)).toBe(realpathSync.native(targets.agentsDir));
+  else expect(readlinkSync(targets.claudeLink)).toBe("../../.agents/skills/aisus-architecture");
+}
 
 function source(): string {
   const dir = tempDir();
@@ -15,14 +21,14 @@ function source(): string {
 describe("FR-INS-01 skill files", () => {
   const NAME = "aisus-architecture";
 
-  test("copies into .agents and links .claude relatively", () => {
+  test("copies into .agents and links .claude to it, relatively on Linux and macOS", () => {
     const root = tempDir();
     const targets = skillTargets(root, NAME);
     expect(skillInstalled(targets)).toBe(false);
     expect(writeSkill(root, source(), targets, NAME)).toBe("symlink");
     expect(readFileSync(join(root, ".agents/skills/aisus-architecture/scripts/validate.mjs"), "utf8")).toBe("// v\n");
     expect(lstatSync(targets.claudeLink).isSymbolicLink()).toBe(true);
-    expect(readlinkSync(targets.claudeLink)).toBe("../../.agents/skills/aisus-architecture");
+    expectLinkedToAgents(targets);
     expect(readFileSync(join(targets.claudeLink, "SKILL.md"), "utf8")).toBe("new skill\n");
     expect(skillInstalled(targets)).toBe(true);
   });
@@ -50,7 +56,7 @@ describe("FR-INS-01 skill files", () => {
 
     writeSkill(root, source(), targets, NAME);
     expect(existsSync(join(targets.agentsDir, "old.txt"))).toBe(false);
-    expect(readlinkSync(targets.claudeLink)).toBe("../../.agents/skills/aisus-architecture");
+    expectLinkedToAgents(targets);
     expect(readFileSync(join(elsewhere, "keep.txt"), "utf8")).toBe("keep");
   });
 

@@ -1,9 +1,9 @@
 // SAF-04: agents launch with the prompt alone and only from absolute PATH entries.
-import { chmodSync } from "node:fs";
+import { delimiter, dirname, join } from "node:path";
 import { describe, expect, test } from "vitest";
 import { agentLaunchArgs, agentPrompt, AGENTS, copiedPrompt, findOnPath, headlessArgs, PROMPT_TARGETS, SKILL_SCRIPTS, skillPrompt } from "@aisus/core/model/agents";
 import { devinPromptArgs } from "../../../apps/vscode/src/devin";
-import { put, tempDir } from "../support/temp";
+import { executable, tempDir } from "../support/temp";
 
 /** Flags that turn off an agent's permission checks. Two-word flags are matched as adjacent elements. */
 const FORBIDDEN = [
@@ -87,6 +87,11 @@ describe("SAF-04 launch arguments", () => {
     expect(forbiddenIn(argv)).toEqual([]);
   });
 
+  test("P-1 a Windows skill folder's backslashes become / in the script rules", () => {
+    const argv = headlessArgs("claude", "/aisus-audit x", { skillDir: "C:\\Users\\u\\.claude\\skills\\aisus-audit", scripts: SKILL_SCRIPTS["aisus-audit"] });
+    expect(argv).toContain("Bash(node C:/Users/u/.claude/skills/aisus-audit/scripts/audit-record.mjs *)");
+  });
+
   test("UI-06 a question is read-only and a follow-up resumes the session", () => {
     const argv = headlessArgs("claude", "What calls the validator?", { skillDir: "/s", readOnly: true, resume: "sess-1" });
     expect(argv.slice(argv.indexOf("--allowedTools"))).toEqual(["--allowedTools", "Read", "Grep", "Glob"]);
@@ -106,15 +111,12 @@ describe("SAF-04 launch arguments", () => {
 
   test("a relative PATH entry is skipped even when it holds the binary", () => {
     const root = tempDir();
-    const local = put(root, "bin/claude", "#!/bin/sh\n");
-    chmodSync(local, 0o755);
-    const elsewhere = tempDir();
-    const real = put(elsewhere, "claude", "#!/bin/sh\n");
-    chmodSync(real, 0o755);
+    executable(join(root, "bin"), "claude");
+    const real = executable(tempDir(), "claude");
     const cwd = process.cwd();
     process.chdir(root);
     try {
-      expect(findOnPath("claude", { PATH: `bin:.:${elsewhere}` }, "linux")).toBe(real);
+      expect(findOnPath("claude", { PATH: ["bin", ".", dirname(real)].join(delimiter) })).toBe(real);
     } finally {
       process.chdir(cwd);
     }

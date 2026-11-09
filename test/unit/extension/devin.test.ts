@@ -4,7 +4,7 @@ import { chmodSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, test } from "vitest";
 import { devinFallbackPaths, devinPromptArgs, findDevinCli } from "../../../apps/vscode/src/devin";
-import { put, tempDir } from "../support/temp";
+import { executable, put, tempDir } from "../support/temp";
 
 function stubDevin(dir: string, name = "devin"): string {
   const path = join(dir, name);
@@ -46,7 +46,7 @@ describe("devinFallbackPaths", () => {
 describe("findDevinCli", () => {
   test("a devin on PATH wins over every fallback", () => {
     const bin = tempDir();
-    const onPath = stubDevin(bin);
+    const onPath = executable(bin, "devin");
     const found = findDevinCli({ PATH: bin, HOME: tempDir() }, () => true);
     expect(found).toBe(onPath);
   });

@@ -1,21 +1,16 @@
 // LRN-01: Start Learning offers Claude Code and Codex as well as Devin, and launches each with the
 // skill prompt alone.
-import { chmodSync } from "node:fs";
-import { join } from "node:path";
 import { expect, test } from "vitest";
 import { sessionAgents, sessionArgs } from "../../../apps/vscode/src/sessionAgents";
-import { put, tempDir } from "../support/temp";
+import { executable, tempDir } from "../support/temp";
 
 test("LRN-01 Claude Code, Codex and Devin on PATH are offered in that order", () => {
   const bin = tempDir();
-  for (const name of ["devin", "codex", "claude"]) {
-    put(bin, name, "#!/bin/sh\n");
-    chmodSync(join(bin, name), 0o755);
-  }
-  expect(sessionAgents({ PATH: bin, HOME: tempDir() }, () => false, "linux").map((entry) => [entry.label, entry.binary])).toEqual([
-    ["Claude Code", join(bin, "claude")],
-    ["Codex", join(bin, "codex")],
-    ["Devin", join(bin, "devin")],
+  const [devin, codex, claude] = ["devin", "codex", "claude"].map((name) => executable(bin, name));
+  expect(sessionAgents({ PATH: bin, HOME: tempDir() }, () => false).map((entry) => [entry.label, entry.binary])).toEqual([
+    ["Claude Code", claude],
+    ["Codex", codex],
+    ["Devin", devin],
   ]);
 });
 

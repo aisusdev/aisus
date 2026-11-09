@@ -1,6 +1,6 @@
 # Open problems and unfinished work
 
-Every known problem and unfinished piece of work, with an ID that never changes. Add new items with the next free ID. Remove an item when it is solved, and record its ID and commit in your shift doc. The next free ID is P-40.
+Every known problem and unfinished piece of work, with an ID that never changes. Add new items with the next free ID. Remove an item when it is solved, and record its ID and commit in your shift doc. The next free ID is P-41.
 
 ## Broken now
 
@@ -15,6 +15,7 @@ Every known problem and unfinished piece of work, with an ID that never changes.
 - **P-31 Two layout faults in the extension.** In the focused map "Ask: sidebar question to cited answer", an arrow and its "streamed answer" label cross the "VS Code extension host" group label. In the sidebar, a citation wraps inside its line number, as `staleness.ts:1` above `09`.
 - **P-32 The cloud offers no way to choose a branch when the default branch has no map.** `apps/cloud/src/app/cloud/u/[owner]/[repo]/page.tsx` returns "No map from main yet" before it draws the Branches panel, though it has already loaded `teamBranches`. A map published from another branch opens only by typing `?branch=<name>` into the address. The Maps list in the repository's settings shows each upload's branch and commit with Delete and no link to the map. The fix is planned in [shifts/2026-11-01-dennie.md](shifts/2026-11-01-dennie.md).
 - **P-33 Publishing a map takes too many steps.** From VS Code, Share to aisus cloud needs `aisus.cloud.enabled`, which is off by default. It sits in a map's ⋯ menu and asks for a space, shows the JSON and asks again before it sends. From a terminal, `aisus.mjs publish` needs the CLI downloaded from a release first. The command aisus.dev shows assumes the file is already in the folder. A map should publish with one click on a button beside it in VS Code. The fix is planned in [shifts/2026-11-01-dennie.md](shifts/2026-11-01-dennie.md).
+- **P-40 The FRS-06 refresh e2e test fails now and then.** "a missing refresh skill is installed after one modal" in `apps/vscode/test/e2e/suite/single.refresh.test.ts` once received "New architecture diagram: `architecture-refresh-20261018-120000`" where it expected the "Refresh with Claude Code?" modal, on 2026-11-09 on macOS. The next run passed. A first step is to find which watcher announces that candidate before the modal, and whether an earlier test leaves it running.
 
 ## Unfinished work
 

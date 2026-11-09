@@ -3,7 +3,7 @@
 // file — a user's own hooks must always survive.
 import { spawnSync } from "node:child_process";
 import { existsSync, readdirSync, readFileSync, rmSync, symlinkSync } from "node:fs";
-import { join } from "node:path";
+import { join, sep } from "node:path";
 import { describe, expect, test } from "vitest";
 import { ensureGitExclude, EXCLUDE_LINES, mergeAgentHooks, mergeHooks, mergeSessionHooks, removeHooks, removeHooksWhenIdle, AISUS_HOOK_MARKER, aisusHooks } from "../../../apps/vscode/src/hooksFiles";
 import { put, tempDir } from "../support/temp";
@@ -202,7 +202,7 @@ describe("LRN-01 Claude Code and Codex hooks", () => {
   const CLAUDE = ".claude/settings.local.json";
   const CODEX = ".codex/hooks.json";
   const read = (root: string, file: string): Record<string, any> => JSON.parse(readFileSync(join(root, file), "utf8"));
-  const command = (root: string): string => `node "${join(root, ".agents/skills/aisus-bugfix/scripts/session-hook.mjs")}"`;
+  const command = (root: string): string => `node "${join(root, ".agents/skills/aisus-bugfix/scripts/session-hook.mjs").split(sep).join("/")}"`;
 
   test("a Claude Code session merges PreToolUse for Edit, Write, NotebookEdit and Agent into its local settings, keeping the user's, once", () => {
     const root = tempDir();

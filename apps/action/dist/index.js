@@ -8250,9 +8250,9 @@ function isExecutableFile(path2, platform) {
 }
 function findOnPath(cli, env, platform = process.platform) {
   const pathValue = env["PATH"] ?? env["Path"] ?? "";
-  const extensions = platform === "win32" ? ["", ...(env["PATHEXT"] ?? ".COM;.EXE;.BAT;.CMD").split(";").filter(Boolean)] : [""];
+  const extensions = platform === "win32" ? (env["PATHEXT"] ?? ".COM;.EXE;.BAT;.CMD").split(";").filter(Boolean) : [""];
   const absolute2 = platform === "win32" ? import_node_path2.win32.isAbsolute : import_node_path2.posix.isAbsolute;
-  for (const dir of pathValue.split(platform === "win32" ? ";" : import_node_path2.delimiter)) {
+  for (const dir of pathValue.split(platform === "win32" ? import_node_path2.win32.delimiter : import_node_path2.posix.delimiter)) {
     if (!absolute2(dir)) continue;
     for (const extension of extensions) {
       const candidate = (0, import_node_path2.join)(dir, cli + extension);
@@ -10302,12 +10302,13 @@ var SKILL_SCRIPTS = {
 };
 function headlessArgs(cli, prompt, options) {
   if (cli === "codex") return ["exec", "--json", "--sandbox", options.readOnly ? "read-only" : "workspace-write", prompt];
+  const skillDir = options.skillDir.split("\\").join("/");
   const tools = options.readOnly ? ["Read", "Grep", "Glob"] : [
     "Read",
     "Grep",
     "Glob",
     ...options.subagents ? ["Task"] : [],
-    ...(options.scripts ?? SKILL_SCRIPTS["aisus-architecture"]).map((script) => `Bash(node ${options.skillDir}/scripts/${script} *)`),
+    ...(options.scripts ?? SKILL_SCRIPTS["aisus-architecture"]).map((script) => `Bash(node ${skillDir}/scripts/${script} *)`),
     "Edit(./.aisus/maps/**)"
   ];
   const resume = options.resume === void 0 ? [] : ["--resume", options.resume];

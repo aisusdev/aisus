@@ -1,9 +1,9 @@
 // FR-GEN-01 prompt formats and CLI lookup on PATH.
-import { chmodSync, mkdirSync } from "node:fs";
-import { join } from "node:path";
+import { mkdirSync } from "node:fs";
+import { basename, delimiter, join } from "node:path";
 import { describe, expect, test } from "vitest";
 import { agentPrompt, AGENTS, findOnPath } from "@aisus/core/model/agents";
-import { put, tempDir } from "../support/temp";
+import { executable, put, tempDir } from "../support/temp";
 
 const [claude, codex] = AGENTS as [(typeof AGENTS)[number], (typeof AGENTS)[number]];
 
@@ -28,30 +28,37 @@ describe("FR-GEN-01 prompt", () => {
 });
 
 describe("FR-GEN-01 PATH lookup", () => {
-  function executable(dir: string, name: string): string {
-    const path = put(dir, name, "#!/bin/sh\n");
-    chmodSync(path, 0o755);
-    return path;
-  }
-
   test("finds the first executable match in PATH order", () => {
     const [a, b] = [tempDir(), tempDir()];
     executable(b, "claude");
     const first = executable(a, "claude");
-    expect(findOnPath("claude", { PATH: `${a}:${b}` }, "darwin")).toBe(first);
+    expect(findOnPath("claude", { PATH: [a, b].join(delimiter) })).toBe(first);
   });
 
-  test("skips non-executable files, folders and empty entries", () => {
-    const [plain, folder, good] = [tempDir(), tempDir(), tempDir()];
-    put(plain, "codex", "not executable");
-    mkdirSync(join(folder, "codex"));
+  test("skips folders and empty entries", () => {
+    const [folder, good] = [tempDir(), tempDir()];
     const expected = executable(good, "codex");
-    expect(findOnPath("codex", { PATH: `:${plain}:${folder}:${good}` }, "linux")).toBe(expected);
+    mkdirSync(join(folder, basename(expected)));
+    expect(findOnPath("codex", { PATH: ["", folder, good].join(delimiter) })).toBe(expected);
+  });
+
+  test.skipIf(process.platform === "win32")("skips a file without the executable bit (Windows has no such bit)", () => {
+    const [plain, good] = [tempDir(), tempDir()];
+    put(plain, "codex", "not executable");
+    const expected = executable(good, "codex");
+    expect(findOnPath("codex", { PATH: `${plain}:${good}` }, "linux")).toBe(expected);
   });
 
   test("returns undefined when absent or PATH is unset", () => {
     expect(findOnPath("claude", { PATH: tempDir() }, "darwin")).toBeUndefined();
     expect(findOnPath("claude", {}, "darwin")).toBeUndefined();
+  });
+
+  test("on Windows passes over a file without an extension and finds one with a PATHEXT extension in a later folder", () => {
+    const [bare, later] = [tempDir(), tempDir()];
+    put(bare, "claude", "#!/bin/sh\n");
+    const cmd = put(later, "claude.CMD", "@echo off\n");
+    expect(findOnPath("claude", { Path: `${bare};${later}`, PATHEXT: ".EXE;.CMD" }, "win32")).toBe(cmd);
   });
 
   test("on Windows tries each PATHEXT extension", () => {

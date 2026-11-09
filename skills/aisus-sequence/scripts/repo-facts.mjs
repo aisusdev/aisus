@@ -91,7 +91,7 @@ function parseDiff(text) {
 
 // packages/core/model/which.ts
 import { accessSync, constants, statSync } from "node:fs";
-import { delimiter, join, posix, win32 } from "node:path";
+import { join, posix, win32 } from "node:path";
 function isExecutableFile(path, platform) {
   try {
     if (!statSync(path).isFile()) return false;
@@ -103,9 +103,9 @@ function isExecutableFile(path, platform) {
 }
 function findOnPath(cli, env, platform = process.platform) {
   const pathValue = env["PATH"] ?? env["Path"] ?? "";
-  const extensions = platform === "win32" ? ["", ...(env["PATHEXT"] ?? ".COM;.EXE;.BAT;.CMD").split(";").filter(Boolean)] : [""];
+  const extensions = platform === "win32" ? (env["PATHEXT"] ?? ".COM;.EXE;.BAT;.CMD").split(";").filter(Boolean) : [""];
   const absolute = platform === "win32" ? win32.isAbsolute : posix.isAbsolute;
-  for (const dir of pathValue.split(platform === "win32" ? ";" : delimiter)) {
+  for (const dir of pathValue.split(platform === "win32" ? win32.delimiter : posix.delimiter)) {
     if (!absolute(dir)) continue;
     for (const extension of extensions) {
       const candidate = join(dir, cli + extension);

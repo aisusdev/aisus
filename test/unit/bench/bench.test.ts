@@ -1,15 +1,15 @@
 // CST-06: the bench's dry run shows each run's argv and isolated environment and starts nothing; its
 // parsers read recorded transcripts; bench:plan refuses a series above the cap.
-import { chmodSync, existsSync, readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { join, sep } from "node:path";
 import { expect, test } from "vitest";
 import { main as bench } from "../../../tools/bench/bench";
 import { summarizeStream } from "@aisus/core/model/agentStream/summary";
 import { main as plan } from "../../../tools/bench/plan";
 import { claudeParser } from "@aisus/core/model/agentStream/claude";
 import { codexParser } from "@aisus/core/model/agentStream/codex";
-import { put, tempDir } from "../support/temp";
+import { executable, tempDir } from "../support/temp";
 import { repoRoot } from "../support/sourceScan";
 
 interface DryRun {
@@ -18,11 +18,11 @@ interface DryRun {
 }
 
 /** A PATH holding stub `claude` and `codex` executables, and the bench's other variables. */
-function benchEnv(extra: NodeJS.ProcessEnv = {}): { env: NodeJS.ProcessEnv; bin: string; cache: string } {
+function benchEnv(extra: NodeJS.ProcessEnv = {}): { env: NodeJS.ProcessEnv; bin: string; claude: string; codex: string; cache: string } {
   const bin = tempDir("aisus-bench-bin-");
-  for (const name of ["claude", "codex"]) chmodSync(put(bin, name, "#!/bin/sh\nexit 0\n"), 0o755);
+  const [claude, codex] = [executable(bin, "claude"), executable(bin, "codex")];
   const cache = join(tempDir("aisus-bench-cache-"), "cache");
-  return { bin, cache, env: { PATH: bin, AISUS_BENCH_CACHE: cache, ANTHROPIC_BASE_URL: "https://elsewhere.invalid", OPENAI_API_KEY: "sk-inherited", ...extra } };
+  return { bin, claude, codex, cache, env: { PATH: bin, AISUS_BENCH_CACHE: cache, ANTHROPIC_BASE_URL: "https://elsewhere.invalid", OPENAI_API_KEY: "sk-inherited", ...extra } };
 }
 
 async function dryRun(args: string[], env: NodeJS.ProcessEnv): Promise<{ code: number; text: string; json: DryRun }> {
@@ -32,16 +32,16 @@ async function dryRun(args: string[], env: NodeJS.ProcessEnv): Promise<{ code: n
 }
 
 test("CST-06 FRS-09 a dry run prints the argv and the whole environment of each run, isolated, and starts nothing", async () => {
-  const { env, bin, cache } = benchEnv({ AISUS_BENCH_ANTHROPIC_API_KEY: "sk-ant-test" });
+  const { env, bin, claude, cache } = benchEnv({ AISUS_BENCH_ANTHROPIC_API_KEY: "sk-ant-test" });
   const { code, json } = await dryRun(["--agent", "claude", "--repo", "ab3", "--kind", "full"], env);
   expect(code).toBe(0);
   expect(json.runs).toHaveLength(1);
   const [run] = json.runs;
   const home = join(tmpdir(), "aisus-bench-<run>", "home");
-  const skill = join(home, ".claude/skills/aisus-architecture/scripts");
+  const skill = join(home, ".claude/skills/aisus-architecture/scripts").split(sep).join("/");
   expect(run!.run).toBe("20261018-120000-ab3-claude-full-1");
   expect(run!.argv).toEqual([
-    join(bin, "claude"),
+    claude,
     "-p",
     "/aisus-architecture",
     "--output-format",
@@ -72,10 +72,10 @@ test("CST-06 FRS-09 a dry run prints the argv and the whole environment of each 
 });
 
 test("CST-06 Codex refreshes from the changed commit with its own home and key, and question kinds run read-only once per question", async () => {
-  const { env, bin } = benchEnv();
+  const { env, bin, codex } = benchEnv();
   const refresh = (await dryRun(["--agent", "codex", "--repo", "zulip", "--kind", "refresh"], env)).json.runs[0]!;
   const home = join(tmpdir(), "aisus-bench-<run>", "home");
-  expect(refresh.argv).toEqual([join(bin, "codex"), "exec", "--json", "--sandbox", "workspace-write", "$aisus-refresh --from <base run>"]);
+  expect(refresh.argv).toEqual([codex, "exec", "--json", "--sandbox", "workspace-write", "$aisus-refresh --from <base run>"]);
   expect(refresh.env).toEqual({ PATH: bin, HOME: home, LANG: "C.UTF-8", CODEX_HOME: join(home, ".codex"), CODEX_API_KEY: "<missing>" });
   expect(refresh.steps[0]).toMatch(/at 4dacd6db094d5a8f5bacc4fe4e3f58da358a20b0$/);
 

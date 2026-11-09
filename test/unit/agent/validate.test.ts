@@ -182,7 +182,7 @@ describe("FR-VAL-01 CLI exit paths", () => {
     expect(runFiles(root)).toEqual(["candidate.json", "evidence.json", "fingerprints.json", "run.json"]);
   });
 
-  test("CST-04 a read-only run folder is an I/O error: exit 2 and the draft stays", () => {
+  test.skipIf(process.platform === "win32")("CST-04 a read-only run folder is an I/O error: exit 2 and the draft stays (Windows ignores a folder's read-only mode)", () => {
     const { root, draftText } = setup(draftDoc());
     const dir = join(root, ".aisus/maps", RUN);
     chmodSync(dir, 0o555);
