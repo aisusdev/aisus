@@ -2,6 +2,8 @@
 
 aisus draws your repository's architecture as a map that opens the code behind every box and tells you when the code has moved on.
 
+![A map of how aisus generates a map, beside the code one box cites. The box's card names validate.ts lines 104 to 135, which are open on the right.](docs/media/map-and-code.png)
+
 A coding agent you already use writes the map. aisus runs Claude Code, Codex and Devin, and gives them a skill to follow. For GitHub Copilot, Cursor, Gemini CLI, OpenCode and Devin Desktop, **Copy prompt for…** under Generate copies a prompt to paste. Each box cites the lines it describes, and a click opens them. aisus compares every box with the code it cites. It shows which boxes have changed without spending a token.
 
 Maps use the [Archify](https://github.com/tt-a1i/archify) JSON format (`schema_version: 1`). aisus is not affiliated with Archify.
@@ -166,6 +168,28 @@ aisus makes no AI calls of its own. Your agent does the work, on your account.
 3. In each repository you mapped, delete `.aisus/` if you no longer want its maps and sessions, and the three aisus lines from `.git/info/exclude`.
 
 To leave aisus cloud, choose **Delete my account** in its settings. Your account and every repository space it owns are removed at once.
+
+## Roadmap
+
+Each item links to its issue, where the details and progress live.
+
+**Now**
+- Every CI job green: unit tests on Windows ([#13](https://github.com/aisusdev/aisus/issues/13)) and e2e tests on Linux ([#14](https://github.com/aisusdev/aisus/issues/14)).
+- Working docs pages on aisus.dev ([#15](https://github.com/aisusdev/aisus/issues/15)).
+- A demo GIF in this README ([#16](https://github.com/aisusdev/aisus/issues/16)).
+
+**Next**
+- A sidebar grouped into tabs ([#2](https://github.com/aisusdev/aisus/issues/2)).
+- Refresh that keeps the old map beside the new one ([#5](https://github.com/aisusdev/aisus/issues/5)).
+- Clearer tours ([#3](https://github.com/aisusdev/aisus/issues/3), [#6](https://github.com/aisusdev/aisus/issues/6)).
+- The IntelliJ plugin's store listing ([#7](https://github.com/aisusdev/aisus/issues/7)).
+- A gallery on aisus.dev for trying maps of public repositories ([#9](https://github.com/aisusdev/aisus/issues/9)).
+- The extension on Open VSX, for Cursor ([#17](https://github.com/aisusdev/aisus/issues/17)).
+
+**Later**
+- Publishing a map with one click from VS Code ([#18](https://github.com/aisusdev/aisus/issues/18)).
+- Postgres for aisus cloud ([#19](https://github.com/aisusdev/aisus/issues/19)).
+- Map schemas and fixtures written fresh ([#20](https://github.com/aisusdev/aisus/issues/20)).
 
 ## Contributing
 
