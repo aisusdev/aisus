@@ -1,6 +1,6 @@
 # Open problems and unfinished work
 
-Every known problem and unfinished piece of work, with an ID that never changes. Add new items with the next free ID. Remove an item when it is solved, and record its ID and commit in your shift doc. The next free ID is P-41.
+Every known problem and unfinished piece of work, with an ID that never changes. Add new items with the next free ID. Remove an item when it is solved, and record its ID and commit in your shift doc. The next free ID is P-42.
 
 ## Broken now
 
@@ -45,7 +45,7 @@ The steps for each are in the "Waiting" section of [archive/progress-v0.3.md](ar
 - **P-16 ACC-04 ground truth.** Run `npm run eval:check-truth` once with network access, and confirm it prints `ok` for each corpus repository.
 - **P-17 IDE-01 plugin smoke.** Install the plugin's zip into IntelliJ IDEA 2026.1, generate a map of AB3, and confirm a box opens its cited lines.
 - **P-19 CLD-10 Postgres.** The cloud runs on PGlite. Adding `pg@8` with `@types/pg` to `apps/cloud/` needs a go. `apps/cloud/src/db/client.ts` would then use Postgres when `AISUS_DB` is a Postgres URL.
-- **P-39 Deploy the docs fix to aisus.dev.** `main` now copies the README, `CONTRIBUTING.md`, `docs/*.md` and `docs/media/` into the cloud's image, which fixes the 500 on `/docs` (P-4) and adds the Contributing, Maintaining and GitHub Action pages. dennie gave the go on 2026-11-09, and the first try timed out on SSH, because this Mac's address had changed to 137.132.26.105. Run `infra/aws-up.sh` with the `aisus` profile to allow the new address, then `infra/deploy.sh`, then check that `/docs`, `/docs/contributing` and `/docs/media/demo.gif` answer 200.
+- **P-41 Nothing protects the server or its data from removal.** On 2026-11-09 `infra/aws-down.sh --yes` ran by accident and removed the server with its only disk, so aisus cloud's database and Umami's history were lost. Three safeguards wait for a choice. Termination protection on the instance is free and makes `aws-down.sh` fail until someone turns it off. `aws-down.sh` could ask for the domain to be typed instead of `--yes`. Daily snapshots of the disk through Data Lifecycle Manager, with 7 kept, cost under US$1 a month and need a teammate's go.
 
 ## Ideas
 

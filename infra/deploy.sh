@@ -33,9 +33,11 @@ REF=${1:-main}
 
 # A value is read without the spaces a paste can leave around it.
 setting() { grep -m1 "^$1=" "$secrets" | cut -d= -f2- | sed 's/^[[:space:]]*//; s/[[:space:]]*$//' || true; }
+# The file is rewritten without the old line, because sed -i takes different arguments on macOS and Linux.
 remember() {
-  sed -i "/^$1=/d" "$secrets"
-  printf '%s=%s\n' "$1" "$2" >> "$secrets"
+  local kept
+  kept=$(grep -v "^$1=" "$secrets" || true)
+  { [[ -z $kept ]] || printf '%s\n' "$kept"; printf '%s=%s\n' "$1" "$2"; } > "$secrets"
 }
 for name in NEXTAUTH_SECRET METRICS_TOKEN UMAMI_APP_SECRET UMAMI_DB_PASSWORD UMAMI_ADMIN_PASSWORD GRAFANA_ADMIN_PASSWORD; do
   [[ -n "$(setting "$name")" ]] || remember "$name" "$(openssl rand -hex 24)"
