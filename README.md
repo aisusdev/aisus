@@ -174,7 +174,6 @@ To leave aisus cloud, choose **Delete my account** in its settings. Your account
 Each item links to its issue, where the details and progress live.
 
 **Now**
-- Every CI job green: the e2e tests on Linux ([#14](https://github.com/aisusdev/aisus/issues/14)).
 - Working docs pages on aisus.dev ([#15](https://github.com/aisusdev/aisus/issues/15)).
 - A demo GIF in this README ([#16](https://github.com/aisusdev/aisus/issues/16)).
 
