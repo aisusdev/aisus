@@ -15,8 +15,8 @@ export const PUBLISHED_DOCS: readonly { slug: string; file: string; title: strin
 /** The folder of images the docs pages may show, served under /docs/media/. */
 export const MEDIA_DIR = "docs/media";
 
-/** A plain PNG file name, the only kind /docs/media/ serves. */
-export const MEDIA_FILE = /^[a-z0-9][a-z0-9-]*\.png$/;
+/** A plain PNG or GIF file name, the kinds /docs/media/ serves. */
+export const MEDIA_FILE = /^[a-z0-9][a-z0-9-]*\.(png|gif)$/;
 
 /** The docs page a repository-relative markdown link points at, or `null` when it is not published. */
 export function docPath(from: string, href: string): string | null {

@@ -35,10 +35,10 @@ test("CLD-08 landing, guide, pricing and privacy render without any third-party 
 test("CLD-08 the docs show the README's image from this server, and link Contributing, Maintaining and GitHub Action", async ({ page, request }) => {
   await page.goto("/docs");
   const image = page.locator(".markdown img").first();
-  await expect(image).toHaveAttribute("src", "/docs/media/map-and-code.png");
-  const response = await request.get("/docs/media/map-and-code.png");
+  await expect(image).toHaveAttribute("src", "/docs/media/demo.gif");
+  const response = await request.get("/docs/media/demo.gif");
   expect(response.status()).toBe(200);
-  expect(response.headers()["content-type"]).toBe("image/png");
+  expect(response.headers()["content-type"]).toBe("image/gif");
   for (const [name, text] of [["Contributing", "Contributing to aisus"], ["Maintaining", "Maintaining aisus"], ["GitHub Action", "The aisus GitHub Action"]] as const) {
     await page.locator("main nav").getByRole("link", { name, exact: true }).click();
     await expect(page.locator(".markdown h2").first()).toHaveText(text);

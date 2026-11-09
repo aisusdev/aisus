@@ -26,11 +26,11 @@ test("CLD-08 headings, tables, lists and fences parse; markup stays text", () =>
   expect(blocks[3]).toEqual({ kind: "code", lang: "ts", text: "<script>" });
 });
 
-test("CLD-08 an image under docs/media/ becomes an image block; any other image shows its alt text", () => {
+test("CLD-08 a PNG or GIF under docs/media/ becomes an image block; any other image shows its alt text", () => {
   const image = (src: string): string | null => docImage("README.md", src);
-  const blocks = parseMarkdown("![A map](docs/media/map-and-code.png)\n\n![Elsewhere](apps/cloud/public/aisus-pr-10.png)\n\n![Script](javascript:alert(1))", () => null, image);
+  const blocks = parseMarkdown("![A map](docs/media/demo.gif)\n\n![Elsewhere](apps/cloud/public/aisus-pr-10.png)\n\n![Script](javascript:alert(1))", () => null, image);
   expect(blocks).toEqual([
-    { kind: "image", alt: "A map", src: "/docs/media/map-and-code.png" },
+    { kind: "image", alt: "A map", src: "/docs/media/demo.gif" },
     { kind: "paragraph", spans: [{ kind: "text", text: "Elsewhere" }] },
     { kind: "paragraph", spans: [{ kind: "text", text: "Script" }] },
   ]);

@@ -44,9 +44,8 @@ The steps for each are in the "Waiting" section of [archive/progress-v0.3.md](ar
 - **P-36 No release carries the IntelliJ plugin yet.** `.github/workflows/release.yml` now builds `aisus-intellij-<version>.zip` with JDK 21, and the guide's Download the IntelliJ release button goes to `/install/intellij`. Until a tag is pushed, that address opens the releases page. A dry-run tag such as `v0.3.3-rc.1` tests the new step without releasing, and pushing either tag needs a teammate's go. The zip built on this Mac as `apps/intellij/build/distributions/aisus-intellij-0.3.2.zip`.
 - **P-16 ACC-04 ground truth.** Run `npm run eval:check-truth` once with network access, and confirm it prints `ok` for each corpus repository.
 - **P-17 IDE-01 plugin smoke.** Install the plugin's zip into IntelliJ IDEA 2026.1, generate a map of AB3, and confirm a box opens its cited lines.
-- **P-18 DOC-01 demo.** Record `docs/media/demo.gif` (generate a map, click a box, Show Changes) and put it under the README's first paragraph.
 - **P-19 CLD-10 Postgres.** The cloud runs on PGlite. Adding `pg@8` with `@types/pg` to `apps/cloud/` needs a go. `apps/cloud/src/db/client.ts` would then use Postgres when `AISUS_DB` is a Postgres URL.
-- **P-39 Deploy the docs fix to aisus.dev.** `main` now copies the README, `CONTRIBUTING.md`, `docs/*.md` and `docs/media/` into the cloud's image, which fixes the 500 on `/docs` (P-4) and adds the Contributing, Maintaining and GitHub Action pages. With a teammate's go, run `infra/deploy.sh`, then check that `/docs`, `/docs/contributing` and `/docs/media/map-and-code.png` answer 200.
+- **P-39 Deploy the docs fix to aisus.dev.** `main` now copies the README, `CONTRIBUTING.md`, `docs/*.md` and `docs/media/` into the cloud's image, which fixes the 500 on `/docs` (P-4) and adds the Contributing, Maintaining and GitHub Action pages. With a teammate's go, run `infra/deploy.sh`, then check that `/docs`, `/docs/contributing` and `/docs/media/demo.gif` answer 200.
 
 ## Ideas
 

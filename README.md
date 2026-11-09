@@ -2,7 +2,7 @@
 
 aisus draws your repository's architecture as a map that opens the code behind every box and tells you when the code has moved on.
 
-![A map of how aisus generates a map, beside the code one box cites. The box's card names validate.ts lines 104 to 135, which are open on the right.](docs/media/map-and-code.png)
+![aisus in VS Code. A map opens from the sidebar, Show Changes marks the boxes a commit range touched, and a click on a box opens the lines it cites beside the map.](docs/media/demo.gif)
 
 A coding agent you already use writes the map. aisus runs Claude Code, Codex and Devin, and gives them a skill to follow. For GitHub Copilot, Cursor, Gemini CLI, OpenCode and Devin Desktop, **Copy prompt for…** under Generate copies a prompt to paste. Each box cites the lines it describes, and a click opens them. aisus compares every box with the code it cites. It shows which boxes have changed without spending a token.
 
@@ -175,7 +175,6 @@ Each item links to its issue, where the details and progress live.
 
 **Now**
 - Working docs pages on aisus.dev ([#15](https://github.com/aisusdev/aisus/issues/15)).
-- A demo GIF in this README ([#16](https://github.com/aisusdev/aisus/issues/16)).
 
 **Next**
 - A sidebar grouped into tabs ([#2](https://github.com/aisusdev/aisus/issues/2)).

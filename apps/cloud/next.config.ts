@@ -15,7 +15,7 @@ const config: NextConfig = {
   // The docs pages read the repository's README, CONTRIBUTING and docs/, and serve docs/media/ (CLD-08).
   outputFileTracingIncludes: {
     "/docs/\\[\\[\\.\\.\\.slug\\]\\]": ["../../README.md", "../../CONTRIBUTING.md", "../../docs/*.md"],
-    "/docs/media/\\[file\\]": ["../../docs/media/*.png"],
+    "/docs/media/\\[file\\]": ["../../docs/media/*"],
   },
   async headers() {
     return [{ source: "/:path*", headers: [{ key: "X-Content-Type-Options", value: "nosniff" }, { key: "Referrer-Policy", value: "same-origin" }, { key: "X-Frame-Options", value: "DENY" }] }];
