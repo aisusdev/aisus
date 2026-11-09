@@ -42,6 +42,17 @@ export function candidateOf(mapDir: string, path: string, sep: string): string |
 }
 
 /**
+ * What a path under `<root>/.aisus/sessions/` is to the session watcher: the `active` lock, a run
+ * folder's `session.json`, or `undefined` for every other file there.
+ */
+export function sessionFileOf(sessionsDir: string, path: string, sep: string): "active" | "session" | undefined {
+  if (!path.startsWith(sessionsDir + sep)) return undefined;
+  const parts = path.slice(sessionsDir.length + sep.length).split(sep);
+  if (parts.length === 1 && parts[0] === "active") return "active";
+  return parts.length === 2 && parts[0] !== "" && parts[1] === "session.json" ? "session" : undefined;
+}
+
+/**
  * Whether a candidate that `exists` now is new, judged against the candidates already `known`,
  * which it updates. File watchers can miss a file created inside a folder created a moment
  * before, so "new" comes from this comparison rather than from the event kind.

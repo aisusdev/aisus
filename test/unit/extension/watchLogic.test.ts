@@ -1,6 +1,6 @@
 // FR-WAT-01: 300 ms debouncing and the reload / switch / notify / deleted decisions.
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
-import { candidateOf, ChangeBatch, DEBOUNCE_MS, noteCandidate, watchAction, type CandidateChange } from "../../../apps/vscode/src/watchLogic";
+import { candidateOf, ChangeBatch, DEBOUNCE_MS, noteCandidate, sessionFileOf, watchAction, type CandidateChange } from "../../../apps/vscode/src/watchLogic";
 
 describe("FR-WAT-01 debouncing", () => {
   beforeEach(() => vi.useFakeTimers());
@@ -90,5 +90,19 @@ describe("FR-WAT-01 candidates from any event in a run folder", () => {
     expect(noteCandidate(known, "/r/.aisus/maps/a/candidate.json", true)).toBe(false);
     expect(noteCandidate(known, "/r/.aisus/maps/a/candidate.json", false)).toBe(false);
     expect(noteCandidate(known, "/r/.aisus/maps/a/candidate.json", true)).toBe(true);
+  });
+});
+
+describe("P-2 SAF-06 session watcher paths", () => {
+  test("only the lock and a run's session.json under .aisus/sessions/ count", () => {
+    const sessions = "/r/.aisus/sessions";
+    expect(sessionFileOf(sessions, "/r/.aisus/sessions/active", "/")).toBe("active");
+    expect(sessionFileOf(sessions, "/r/.aisus/sessions/bugfix-a-20261019-120000/session.json", "/")).toBe("session");
+    expect(sessionFileOf(sessions, "/r/.aisus/sessions/bugfix-a-20261019-120000/events.jsonl", "/")).toBeUndefined();
+    expect(sessionFileOf(sessions, "/r/.aisus/sessions/bugfix-a-20261019-120000/manifest.json", "/")).toBeUndefined();
+    expect(sessionFileOf(sessions, "/r/.aisus/sessions/bugfix-a-20261019-120000", "/")).toBeUndefined();
+    expect(sessionFileOf(sessions, "/r/.aisus/sessions/a/b/session.json", "/")).toBeUndefined();
+    expect(sessionFileOf(sessions, "/r/.aisus/maps/active", "/")).toBeUndefined();
+    expect(sessionFileOf("C:\\r\\.aisus\\sessions", "C:\\r\\.aisus\\sessions\\active", "\\")).toBe("active");
   });
 });

@@ -1,13 +1,14 @@
-// Watches `<folder>/.aisus/sessions/{active,*/session.json}` in every workspace folder and reloads
-// the session panel (ADR 0034). Reuses the ChangeBatch debounce of the diagram watcher;
+// Watches `<folder>/.aisus/sessions/**` in every workspace folder, keeps the lock and each run's
+// `session.json`, and reloads the session panel (ADR 0034). Reuses the ChangeBatch debounce of the diagram watcher;
 // no notifications — a learning session writes session.json every turn. When the lock goes,
 // the session's hook entries go with it (spec v0.3 SAF-06).
-import { basename } from "node:path";
+import { basename, join, sep } from "node:path";
 import * as vscode from "vscode";
+import { SESSIONS_DIR } from "@aisus/core/model/session";
 import { removeHooksWhenIdle } from "./hooksFiles";
 import { onAction } from "./notify";
 import { SessionPanel } from "./sessionPanel";
-import { ChangeBatch } from "./watchLogic";
+import { ChangeBatch, sessionFileOf } from "./watchLogic";
 
 export class SessionWatcher implements vscode.Disposable {
   private readonly watchers = new Map<string, vscode.FileSystemWatcher[]>();
@@ -31,14 +32,17 @@ export class SessionWatcher implements vscode.Disposable {
 
   private watch(folders: readonly vscode.WorkspaceFolder[]): void {
     for (const folder of folders) {
-      const watchers = [".aisus/sessions/active", ".aisus/sessions/*/session.json"].map((pattern) => {
-        const watcher = vscode.workspace.createFileSystemWatcher(new vscode.RelativePattern(folder, pattern));
-        watcher.onDidCreate((uri) => this.batch.add(uri.fsPath, true));
-        watcher.onDidChange((uri) => this.batch.add(uri.fsPath, false));
-        watcher.onDidDelete((uri) => this.batch.add(uri.fsPath, false));
-        return watcher;
-      });
-      this.watchers.set(folder.uri.toString(), watchers);
+      // A `**` pattern goes to VS Code's recursive watcher, which also sees a sessions folder
+      // created after the watch starts. An exact path does not on Linux.
+      const sessions = join(folder.uri.fsPath, SESSIONS_DIR);
+      const watcher = vscode.workspace.createFileSystemWatcher(new vscode.RelativePattern(folder, `${SESSIONS_DIR}/**`));
+      const onEvent = (created: boolean) => (uri: vscode.Uri): void => {
+        if (sessionFileOf(sessions, uri.fsPath, sep) !== undefined) this.batch.add(uri.fsPath, created);
+      };
+      watcher.onDidCreate(onEvent(true));
+      watcher.onDidChange(onEvent(false));
+      watcher.onDidDelete(onEvent(false));
+      this.watchers.set(folder.uri.toString(), [watcher]);
     }
   }
 
