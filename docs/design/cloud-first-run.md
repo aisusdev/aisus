@@ -10,7 +10,7 @@ This plan starts from privacy-first. It tied ship-fast for the highest judge tot
 4. **"Your repositories" shows one card per account.** The card header shows the plan and its usage, for example "acme · Free · 0 of 1 private repositories". Anyone who administers one of the account's repositories also sees "Upgrade to Team" with the seat count next to it. Each row shows the repository name, private or public, the user's role and a status: "No map yet" with Set up, or "Map 2 h ago" with Open. The card footer links to "Add or remove repositories on GitHub". An "Open another public repository" field takes owner/name. When the install granted exactly one repository, the user goes straight to its setup.
 5. **Set up opens /<owner>/<repo>, which now shows a three-step checklist** instead of "No map from main yet". Step 1, Make a map, has two tabs:
    - VS Code: Download, then Generate.
-   - Claude Code or Codex: `npx skills add kerktaiheng/aisus`, then `/aisus-architecture`.
+   - Claude Code or Codex: `npx skills add aisusdev/aisus`, then `/aisus-architecture`.
 
    Both tabs end with one line to copy, `git add .archify && git commit -m "Add aisus map" && git push`. A user who has already committed a map skips this step.
 6. **Step 2 adds the workflow in one commit.** "Add this workflow on GitHub" opens GitHub's new-file editor with `.github/workflows/aisus.yml` already filled in. The file runs on push to the default branch and on pull_request, and sets `id-token: write`, `upload: true` and this site's `cloud-url`. The user presses Commit changes. The YAML is also shown on the page with a Copy button.
@@ -33,7 +33,7 @@ Which day ships which steps:
 
 | Where | Change | Size |
 |---|---|---|
-| Release (owner, §7 hard stop) | Push a v* tag on day 1, and again after day 2 for the Action change. Today `gh release view -R kerktaiheng/aisus` answers "release not found". That means /install and every aisus.mjs download lead to an empty releases page. | ops, day 1 |
+| Release (owner, §7 hard stop) | Push a v* tag on day 1, and again after day 2 for the Action change. Today `gh release view -R aisusdev/aisus` answers "release not found". That means /install and every aisus.mjs download lead to an empty releases page. | ops, day 1 |
 | `cloud/src/lib/github.ts` | Add `repositories(token)`, which calls GET /user/repos for the 100 most recently pushed repositories with permissions. Add `adminOrganizations(token)`, which calls GET /user/memberships/orgs and keeps role admin. Both are read live and never stored. | +45, day 1 |
 | `cloud/src/app/page.tsx`, `cloud/src/components/Home.tsx` (new), `layout.tsx`, `signin/page.tsx` | **Signed out:** the landing page uses SignInButton directly. Pricing is built from PLANS without the private-repository rows. **Signed in:** the page renders "Your repositories", with account cards (plan badge, seats, Upgrade) and rows merged from GitHub's list and spacesOf (status, then Set up or Open). It also has the "Open another public repository" field, the private-repositories line and the ?upgraded= banner. **Navigation:** sign-in returns to /, and the header gets a Repositories link. The home lives at / because github.com/start is a real user, and a new top-level /start route would hide that user's maps. | +200, day 1 |
 | `cloud/src/lib/store.ts` | Add `mainMapTimes(db, fullNames)`, the latest default-branch map of each repository, for the status column. | +25, day 1 |

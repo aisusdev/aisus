@@ -19,7 +19,7 @@ secrets=$state/secrets.env
 . "$state/server.env"
 touch "$secrets"
 chmod 600 "$secrets"
-REPO_URL=${AISUS_REPO:-https://github.com/kerktaiheng/aisus.git}
+REPO_URL=${AISUS_REPO:-https://github.com/aisusdev/aisus.git}
 
 ssh_server() {
   ssh -i "$state/aisus.pem" -o StrictHostKeyChecking=accept-new -o UserKnownHostsFile="$state/known_hosts" -o ConnectTimeout=15 "ec2-user@$AISUS_HOST" "$@"

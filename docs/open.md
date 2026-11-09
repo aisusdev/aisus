@@ -22,7 +22,6 @@ Every known problem and unfinished piece of work, with an ID that never changes.
 
 - **P-5 The toolkit cut, the rest.** The renames and the move to `.aisus/maps/` and `.aisus/sessions/` are built (ADR 0070). Still to do:
   - Skills installed into a repository become real copies in `.agents/skills/` and `.claude/skills/`, with no symbolic link. `packages/core/install/skillFiles.ts` still links.
-  - Every link names `aisusdev/aisus`. `git grep kerktaiheng` still finds the README, `apps/vscode/package.json`, `infra/` and `docs/architecture.md`.
   - Every file copied from the project named in `THIRD_PARTY_NOTICES.md` gets replaced: the two map schemas in `packages/core/model/schemas/` (`architecture` and `common`), every fixture under `fixtures/maps/`, `skills/aisus-architecture/references/example.json`, `skills/aisus-refresh/references/example.json` and both skills' `references/map-format.md`.
   - Write the schemas clean-room. One agent describes the format's fields from the current schemas and validator, in its own words. A second agent writes new schemas from that description without opening the old files. A script then checks that the new and old schemas accept and refuse the same documents.
   - Write the new fixtures as invented systems with the same coverage: nesting, wide graphs, Japanese and Korean labels, portrait cards, first drafts, a base and head pair, and a skill run. First list what every test reads from every fixture.

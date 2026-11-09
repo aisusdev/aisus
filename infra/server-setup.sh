@@ -4,7 +4,7 @@
 # 2 GB of swap for the cloud's build, and a clone of the repository. deploy.sh --setup runs it as
 # root over SSH, with AISUS_REPO naming the public repository to clone.
 set -euo pipefail
-: "${AISUS_REPO:?set AISUS_REPO, such as https://github.com/kerktaiheng/aisus.git}"
+: "${AISUS_REPO:?set AISUS_REPO, such as https://github.com/aisusdev/aisus.git}"
 
 COMPOSE_VERSION=v5.6.1
 BUILDX_VERSION=v0.38.1

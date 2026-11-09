@@ -11,9 +11,9 @@ test("RCH-05 package.json carries the store metadata and a PNG icon", () => {
   expect(pkg).toMatchObject({
     icon: "media/icon.png",
     preview: true,
-    repository: { type: "git", url: "https://github.com/kerktaiheng/aisus.git" },
-    homepage: "https://github.com/kerktaiheng/aisus#readme",
-    bugs: { url: "https://github.com/kerktaiheng/aisus/issues" },
+    repository: { type: "git", url: "https://github.com/aisusdev/aisus.git" },
+    homepage: "https://github.com/aisusdev/aisus#readme",
+    bugs: { url: "https://github.com/aisusdev/aisus/issues" },
     categories: ["Visualization", "AI", "Education"],
   });
   expect(pkg["keywords"]).toContain("architecture");

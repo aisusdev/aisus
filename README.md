@@ -12,7 +12,7 @@ Generating a map needs Node.js 18 or newer and Claude Code or Codex, installed a
 
 ### VS Code, Cursor or Devin Desktop
 
-1. Download `aisus-<version>.vsix` from the [latest release](https://github.com/kerktaiheng/aisus/releases) and choose **Install from VSIX…** in the Extensions view.
+1. Download `aisus-<version>.vsix` from the [latest release](https://github.com/aisusdev/aisus/releases) and choose **Install from VSIX…** in the Extensions view.
 2. Click the aisus icon in the Activity Bar.
 3. Type an optional focus, such as "payment flow", and click **Generate**.
 
@@ -20,19 +20,19 @@ The sidebar's setup checklist names anything missing and offers a fix for each.
 
 ### IntelliJ and other JetBrains IDEs
 
-1. Add the skills with `npx skills add kerktaiheng/aisus`.
+1. Add the skills with `npx skills add aisusdev/aisus`.
 2. In the repository, run `/aisus-architecture` in Claude Code or `$aisus-architecture` in Codex.
 3. Open the `.html` page the skill writes in `.aisus/maps/<run>/`. Each box opens its code in your JetBrains IDE, VS Code, Cursor or GitHub.
 
 ### Skill only
 
-1. Add the skills with `npx skills add kerktaiheng/aisus`.
+1. Add the skills with `npx skills add aisusdev/aisus`.
 2. Run `/aisus-architecture payment flow` in Claude Code or `$aisus-architecture payment flow` in Codex. The focus is optional.
 3. Open the `.html` page beside the map in a browser, or open the map in the aisus extension.
 
 ### Claude Code plugin
 
-1. Download `aisus-skills.zip` from the [latest release](https://github.com/kerktaiheng/aisus/releases) and unzip it with `unzip aisus-skills.zip -d aisus-skills`.
+1. Download `aisus-skills.zip` from the [latest release](https://github.com/aisusdev/aisus/releases) and unzip it with `unzip aisus-skills.zip -d aisus-skills`.
 2. In Claude Code, run `/plugin marketplace add ./aisus-skills`.
 3. Run `/plugin install aisus@aisus`.
 
@@ -54,7 +54,7 @@ The sidebar's setup checklist names anything missing and offers a fix for each.
          - uses: actions/checkout@v5
            with:
              fetch-depth: 0
-         - uses: kerktaiheng/aisus/apps/action@main
+         - uses: aisusdev/aisus/apps/action@main
    ```
 
 3. Open a pull request. aisus comments with the boxes it touches, the boxes it leaves stale and the code no box covers.
@@ -64,7 +64,7 @@ Setting `fail-on: stale,new-box` in the Action's `with:` block fails the check o
 ### aisus cloud
 
 1. Sign in to aisus cloud with GitHub, open your repository's settings and create an upload token.
-2. On the default branch, run `node aisus.mjs publish --url <cloud address>` with the token in `AISUS_TOKEN`. `aisus.mjs` comes with each [release](https://github.com/kerktaiheng/aisus/releases).
+2. On the default branch, run `node aisus.mjs publish --url <cloud address>` with the token in `AISUS_TOKEN`. `aisus.mjs` comes with each [release](https://github.com/aisusdev/aisus/releases).
 3. In the Action's `with:` block, set `upload: true` and `cloud-url: <cloud address>`, and add `id-token: write` to the permissions. Each pull request then gets its own page.
 
 The map appears at `/cloud/u/<owner>/<repo>` and each pull request at `/cloud/u/<owner>/<repo>/pull/<n>`. Accounts start on Free, which keeps no maps in the cloud. The extension, the skills, the CLI and the Action's pull request comment stay free and local. Pro, US$5 a month in Settings, keeps the maps of your own repositories, public and private, with all history, pull request pages and share links. Team, US$10 per seat a month, does the same for an organization's repositories and adds the dashboard. A self-hosted server without Stripe keys gives every account everything. Settings exports all your data as one JSON file, and each repository's settings list its uploads with how each was signed. To host it yourself, set `NEXTAUTH_URL`, `NEXTAUTH_SECRET`, `GITHUB_CLIENT_ID` and `GITHUB_CLIENT_SECRET` from a GitHub OAuth app, and run `docker compose -f infra/local/compose.yaml up --build`. In a repository's settings, owners make read-only share links to its map that expire after 1, 7 or 30 days and can be revoked. `/cloud/u/<owner>?tab=dashboard` is the team's dashboard: each repository's map age, stale boxes, uncovered files, rule violations, most changed boxes, trend and recent pull requests, with no figure about any one person. Only maps and check results are uploaded, never code.
