@@ -3,6 +3,7 @@ import { CodeBlock } from "../../../../components/CodeBlock";
 import { PullRequestPicture } from "../../../../components/GuidePictures";
 import { SkillCommand } from "../../../../components/GuideTabs";
 import { GuideTree } from "../../../../components/GuideTree";
+import { docTree } from "../../../../lib/docs";
 
 // Change both together whenever the page's steps change.
 const UPDATED = "2026-11-02";
@@ -21,7 +22,7 @@ export default function AisusPrPage() {
   return (
     <main className="guide-page">
       <div className="wrap guide-layout">
-        <GuideTree current="/get-started/aisus-pr" />
+        <GuideTree current="/get-started/aisus-pr" docs={docTree()} />
         <article className="guide-article">
           <header className="guide-intro">
             <h1>Explain a PR with /aisus-pr</h1>

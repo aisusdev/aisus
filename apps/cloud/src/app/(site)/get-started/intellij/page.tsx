@@ -1,6 +1,7 @@
 // The guide's IntelliJ page: install the aisus plugin from a release's zip, then open its tool window.
 import { PluginsPicture } from "../../../../components/GuidePictures";
 import { GuideTree } from "../../../../components/GuideTree";
+import { docTree } from "../../../../lib/docs";
 
 // Change both together whenever the page's steps change.
 const UPDATED = "2026-11-02";
@@ -15,7 +16,7 @@ export default function IntellijPage() {
   return (
     <main className="guide-page">
       <div className="wrap guide-layout">
-        <GuideTree current="/get-started/intellij" />
+        <GuideTree current="/get-started/intellij" docs={docTree()} />
         <article className="guide-article">
           <header className="guide-intro">
             <h1>Installation for IntelliJ IDEA</h1>

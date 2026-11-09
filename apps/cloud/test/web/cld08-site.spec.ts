@@ -23,7 +23,7 @@ test("CLD-08 landing, guide, pricing and privacy render without any third-party 
   await page.goto("/docs");
   await expect(page.locator(".markdown h2").first()).toBeVisible();
   await page.getByRole("link", { name: "Architecture" }).first().click();
-  await expect(page.locator(".markdown")).toContainText("aisus architecture");
+  await expect(page.locator("h1")).toHaveText("Architecture");
   await page.goto("/privacy");
   await expect(page.locator("main")).toContainText("Maps, not code");
   await expect(page.locator("pre")).toContainText('"title": "aisus cloud upload"');
@@ -32,17 +32,43 @@ test("CLD-08 landing, guide, pricing and privacy render without any third-party 
   expect([...hosts]).toEqual(["127.0.0.1:3210"]);
 });
 
-test("CLD-08 the docs show the README's image from this server, and link Contributing, Maintaining and GitHub Action", async ({ page, request }) => {
+test("CLD-08 the docs show the README's image from this server, and their panel opens Contributing, Maintaining and GitHub Action", async ({ page, request }) => {
   await page.goto("/docs");
   const image = page.locator(".markdown img").first();
   await expect(image).toHaveAttribute("src", "/docs/media/demo.gif");
   const response = await request.get("/docs/media/demo.gif");
   expect(response.status()).toBe(200);
   expect(response.headers()["content-type"]).toBe("image/gif");
-  for (const [name, text] of [["Contributing", "Contributing to aisus"], ["Maintaining", "Maintaining aisus"], ["GitHub Action", "The aisus GitHub Action"]] as const) {
-    await page.locator("main nav").getByRole("link", { name, exact: true }).click();
-    await expect(page.locator(".markdown h2").first()).toHaveText(text);
+  for (const name of ["Contributing", "Maintaining", "GitHub Action"]) {
+    await page.locator("main nav .guide-row").getByRole("link", { name, exact: true }).click();
+    await expect(page.locator("h1")).toHaveText(name);
   }
+});
+
+test("CLD-08 the header and the footer link to the docs", async ({ page }) => {
+  await page.goto("/");
+  await expect(page.getByRole("navigation", { name: "Main" }).getByRole("link", { name: "Docs" })).toHaveAttribute("href", "/docs");
+  await expect(page.getByRole("navigation", { name: "Project" }).getByRole("link", { name: "Docs" })).toHaveAttribute("href", "/docs");
+});
+
+test("CLD-08 a docs page is marked in the panel, titled with its name, and lists its sections under On this page", async ({ page }) => {
+  await page.goto("/docs/architecture");
+  await expect(page.getByRole("navigation", { name: "Guide" }).locator("a[aria-current=page]")).toHaveText("Architecture");
+  await expect(page.locator("h1")).toHaveText("Architecture");
+  const sections = page.getByRole("complementary", { name: "On this page" }).getByRole("link");
+  await expect(sections.first()).toHaveText("Components");
+  await expect(sections).toHaveCount(await page.locator(".markdown h2").count());
+});
+
+test("CLD-08 Get Started's panel links to the docs", async ({ page }) => {
+  await page.goto("/get-started");
+  await expect(page.getByRole("navigation", { name: "Guide" }).getByRole("link", { name: "GitHub Action", exact: true })).toHaveAttribute("href", "/docs/github-action");
+});
+
+test("CLD-08 a code-only cell in a docs table stays on one line", async ({ page }) => {
+  await page.goto("/docs/architecture");
+  const cell = page.locator(".markdown td:first-child > code", { hasText: /^types\.ts$/ }).first();
+  expect(await cell.evaluate((code) => code.getClientRects().length)).toBe(1);
 });
 
 test("CLD-08 the Free plan's Get Started opens the guide", async ({ page }) => {

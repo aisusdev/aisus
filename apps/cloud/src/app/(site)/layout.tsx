@@ -13,6 +13,7 @@ const LINKS = [
   { href: "/pricing", label: "Pricing" },
   ...(GALLERY_ENABLED ? [{ href: "/gallery", label: "Gallery" }] : []),
   { href: "/#faq", label: "FAQ" },
+  { href: "/docs", label: "Docs" },
 ];
 
 // The runner: the three-node map as a figure heading for the wordmark. The head is the root and the legs are its children.
@@ -82,6 +83,7 @@ export default async function SiteLayout({ children }: { children: ReactNode }) 
           </nav>
           <nav className="footer-links" aria-label="Project">
             <strong>Project</strong>
+            <a href="/docs">Docs</a>
             <a href={MARKETPLACE}>VS Code extension ↗</a>
             <a href="https://github.com/aisusdev/aisus">GitHub ↗</a>
             <a href="/privacy">Privacy</a>

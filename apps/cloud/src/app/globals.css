@@ -710,6 +710,17 @@ code {
   overflow-wrap: anywhere;
 }
 
+/* Code in a docs table breaks only between words, so a column is never narrower than its longest word, and a
+   code-only first column stays on one line. A table wider than the page scrolls inside its own box. */
+.markdown td code,
+.markdown th code {
+  overflow-wrap: normal;
+}
+
+.markdown td:first-child > code:only-child {
+  white-space: nowrap;
+}
+
 /* The shared map viewer keeps its own look; its container sits under the header. */
 .map-shell {
   position: fixed;

@@ -3,6 +3,7 @@ import { AgentTabs, PanelTabs, SkillCommand } from "../../../components/GuideTab
 import { CodeBlock } from "../../../components/CodeBlock";
 import { GeneratePicture, VsixPicture } from "../../../components/GuidePictures";
 import { GuideTree } from "../../../components/GuideTree";
+import { docTree } from "../../../lib/docs";
 import { releasesRepo } from "../../../lib/install";
 
 // Change both together whenever the guide's steps change.
@@ -33,7 +34,7 @@ export default function GetStartedPage() {
   return (
     <main className="guide-page">
       <div className="wrap guide-layout">
-        <GuideTree current="/get-started" />
+        <GuideTree current="/get-started" docs={docTree()} />
         <article className="guide-article">
           <header className="guide-intro" id="top-of-guide">
             <h1>Get Started</h1>

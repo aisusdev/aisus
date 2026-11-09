@@ -27,8 +27,9 @@ function Spans({ spans }: { spans: Inline[] }) {
   );
 }
 
+// The page's title is its h1, so a `##` heading renders as h2 and a stray `#` heading as h2 too.
 function heading(level: number, id: string, children: ReactNode) {
-  const Tag = `h${Math.min(level + 1, 6)}` as "h2";
+  const Tag = `h${Math.min(Math.max(level, 2), 6)}` as "h2";
   return (
     <Tag id={id} key={id}>
       {children}
