@@ -42,14 +42,49 @@ export function candidateOf(mapDir: string, path: string, sep: string): string |
 }
 
 /**
- * What a path under `<root>/.aisus/sessions/` is to the session watcher: the `active` lock, a run
- * folder's `session.json`, or `undefined` for every other file there.
+ * What a path under `<root>/.aisus/` is to the session watcher: the `active` lock, a run folder's
+ * `session.json`, one of the folders `.aisus` and `.aisus/sessions`, or `undefined` for every other path.
  */
-export function sessionFileOf(sessionsDir: string, path: string, sep: string): "active" | "session" | undefined {
-  if (!path.startsWith(sessionsDir + sep)) return undefined;
-  const parts = path.slice(sessionsDir.length + sep.length).split(sep);
-  if (parts.length === 1 && parts[0] === "active") return "active";
-  return parts.length === 2 && parts[0] !== "" && parts[1] === "session.json" ? "session" : undefined;
+export function sessionPathOf(root: string, path: string, sep: string): "lock" | "session" | "folder" | undefined {
+  if (!path.startsWith(root + sep)) return undefined;
+  const parts = path.slice(root.length + sep.length).split(sep);
+  if (parts[0] !== ".aisus") return undefined;
+  if (parts.length === 1 || (parts.length === 2 && parts[1] === "sessions")) return "folder";
+  if (parts[1] !== "sessions") return undefined;
+  if (parts.length === 3 && parts[2] === "active") return "lock";
+  return parts.length === 4 && parts[2] !== "" && parts[3] === "session.json" ? "session" : undefined;
+}
+
+/** How often a {@link LockPoll} checks the session lock. */
+export const LOCK_POLL_MS = 1_000;
+
+/**
+ * Checks a lock once a second while it exists and calls `onGone` once it is gone, then stops.
+ * File watchers can miss the lock's deletion, as VS Code's recursive watcher on Linux does inside
+ * a folder created together with its parent.
+ */
+export class LockPoll {
+  private timer: NodeJS.Timeout | undefined;
+
+  constructor(
+    private readonly exists: () => boolean,
+    private readonly onGone: () => void,
+  ) {}
+
+  /** Starts checking when the lock exists and no check is running. */
+  start(): void {
+    if (this.timer !== undefined || !this.exists()) return;
+    this.timer = setInterval(() => {
+      if (this.exists()) return;
+      this.dispose();
+      this.onGone();
+    }, LOCK_POLL_MS);
+  }
+
+  dispose(): void {
+    clearInterval(this.timer);
+    this.timer = undefined;
+  }
 }
 
 /**

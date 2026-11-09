@@ -1,6 +1,6 @@
 // FR-WAT-01: 300 ms debouncing and the reload / switch / notify / deleted decisions.
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
-import { candidateOf, ChangeBatch, DEBOUNCE_MS, noteCandidate, sessionFileOf, watchAction, type CandidateChange } from "../../../apps/vscode/src/watchLogic";
+import { candidateOf, ChangeBatch, DEBOUNCE_MS, LOCK_POLL_MS, LockPoll, noteCandidate, sessionPathOf, watchAction, type CandidateChange } from "../../../apps/vscode/src/watchLogic";
 
 describe("FR-WAT-01 debouncing", () => {
   beforeEach(() => vi.useFakeTimers());
@@ -94,15 +94,43 @@ describe("FR-WAT-01 candidates from any event in a run folder", () => {
 });
 
 describe("P-2 SAF-06 session watcher paths", () => {
-  test("only the lock and a run's session.json under .aisus/sessions/ count", () => {
-    const sessions = "/r/.aisus/sessions";
-    expect(sessionFileOf(sessions, "/r/.aisus/sessions/active", "/")).toBe("active");
-    expect(sessionFileOf(sessions, "/r/.aisus/sessions/bugfix-a-20261019-120000/session.json", "/")).toBe("session");
-    expect(sessionFileOf(sessions, "/r/.aisus/sessions/bugfix-a-20261019-120000/events.jsonl", "/")).toBeUndefined();
-    expect(sessionFileOf(sessions, "/r/.aisus/sessions/bugfix-a-20261019-120000/manifest.json", "/")).toBeUndefined();
-    expect(sessionFileOf(sessions, "/r/.aisus/sessions/bugfix-a-20261019-120000", "/")).toBeUndefined();
-    expect(sessionFileOf(sessions, "/r/.aisus/sessions/a/b/session.json", "/")).toBeUndefined();
-    expect(sessionFileOf(sessions, "/r/.aisus/maps/active", "/")).toBeUndefined();
-    expect(sessionFileOf("C:\\r\\.aisus\\sessions", "C:\\r\\.aisus\\sessions\\active", "\\")).toBe("active");
+  test("the lock, a run's session.json and the .aisus and .aisus/sessions folders count, and nothing else", () => {
+    const at = (path: string): string | undefined => sessionPathOf("/r", path, "/");
+    expect(at("/r/.aisus/sessions/active")).toBe("lock");
+    expect(at("/r/.aisus/sessions/bugfix-a-20261019-120000/session.json")).toBe("session");
+    expect([at("/r/.aisus"), at("/r/.aisus/sessions")]).toEqual(["folder", "folder"]);
+    expect(at("/r/.aisus/sessions/bugfix-a-20261019-120000/events.jsonl")).toBeUndefined();
+    expect(at("/r/.aisus/sessions/bugfix-a-20261019-120000/manifest.json")).toBeUndefined();
+    expect(at("/r/.aisus/sessions/bugfix-a-20261019-120000")).toBeUndefined();
+    expect(at("/r/.aisus/sessions/a/b/session.json")).toBeUndefined();
+    expect([at("/r/.aisus/maps"), at("/r/.aisus/maps/active"), at("/r/src/.aisus/sessions/active"), at("/other/.aisus/sessions/active")]).toEqual([undefined, undefined, undefined, undefined]);
+    expect(sessionPathOf("C:\\r", "C:\\r\\.aisus\\sessions\\active", "\\")).toBe("lock");
+  });
+});
+
+describe("P-2 SAF-06 lock check", () => {
+  beforeEach(() => vi.useFakeTimers());
+  afterEach(() => vi.useRealTimers());
+
+  test("a lock that exists is checked once a second, and its going is reported once", () => {
+    let exists = true;
+    let gone = 0;
+    const poll = new LockPoll(() => exists, () => (gone += 1));
+    poll.start();
+    poll.start();
+    vi.advanceTimersByTime(LOCK_POLL_MS * 3);
+    expect(gone).toBe(0);
+    exists = false;
+    vi.advanceTimersByTime(LOCK_POLL_MS);
+    expect(gone).toBe(1);
+    vi.advanceTimersByTime(LOCK_POLL_MS * 3);
+    expect(gone).toBe(1);
+  });
+
+  test("no check starts while there is no lock", () => {
+    let gone = 0;
+    new LockPoll(() => false, () => (gone += 1)).start();
+    vi.advanceTimersByTime(LOCK_POLL_MS * 3);
+    expect(gone).toBe(0);
   });
 });
