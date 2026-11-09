@@ -31,3 +31,5 @@ apps/vscode/LICENSE
 .idea/
 .DS_Store
 marketing/
+# Design tool state, kept outside the repository.
+.impeccable/
