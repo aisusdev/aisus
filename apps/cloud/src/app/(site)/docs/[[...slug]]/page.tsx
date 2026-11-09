@@ -9,12 +9,11 @@ export default async function DocsPage({ params }: { params: Promise<{ slug?: st
   if (!doc) notFound();
   return (
     <main className="page">
-      <nav className="muted">
-        {PUBLISHED_DOCS.map((entry, index) => (
-          <span key={entry.slug}>
-            {index > 0 ? " · " : ""}
-            <a href={entry.slug === "" ? "/docs" : `/docs/${entry.slug}`}>{entry.title}</a>
-          </span>
+      <nav className="muted" aria-label="Docs">
+        {PUBLISHED_DOCS.map((entry) => (
+          <a key={entry.slug} href={entry.slug === "" ? "/docs" : `/docs/${entry.slug}`}>
+            {entry.title}
+          </a>
         ))}
       </nav>
       <Markdown blocks={doc.blocks} />

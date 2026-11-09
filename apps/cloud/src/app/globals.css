@@ -396,7 +396,7 @@ input[type="text"] {
 .page > nav.muted {
   display: flex;
   flex-wrap: wrap;
-  gap: 4px 0;
+  gap: 4px 24px;
   line-height: 2;
 }
 
