@@ -609,10 +609,15 @@ kbd {
 .docs-page .markdown h2 { margin: 40px 0 14px; padding-top: 34px; border-top: 1px solid var(--line); scroll-margin-top: 100px; }
 .docs-page .markdown h3 { scroll-margin-top: 100px; }
 .docs-page .markdown li { color: var(--text-2); line-height: 1.65; }
-.docs-page .markdown table { margin: 16px 0; }
+/* The docs take Get Started's white look: code in its code-block style, and tables with a white header and light lines. */
+.docs-page .markdown pre { margin: 12px 0 0; padding: 18px 22px; border: 1px solid var(--line); border-radius: 12px; background: #ffffff; box-shadow: 0 1px 2px rgba(20, 43, 34, .05), 0 8px 24px -16px rgba(20, 43, 34, .25); color: #3b3b3b; font: 14px/1.6 Menlo, Monaco, "Courier New", monospace; }
+.docs-page .markdown pre code { padding: 0; background: none; color: inherit; font: inherit; }
+.docs-page .markdown table { margin: 16px 0; border-color: var(--line); }
+.docs-page .markdown th, .docs-page .markdown td { border-color: var(--line); color: var(--text-2); }
+.docs-page .markdown thead th { background: #ffffff; color: var(--forest); font-weight: 650; }
 .docs-page .guide-updated a { color: var(--text-2); }
 /* A drawn Mermaid diagram sits centred in a bordered box, which scrolls sideways when the diagram is wider. */
-.mermaid-diagram { margin: 18px 0; padding: 20px; overflow-x: auto; border: 1px solid var(--line); border-radius: 12px; background: #ffffff; text-align: center; }
+.mermaid-diagram { margin: 18px 0; padding: 20px; overflow-x: auto; border: 1px solid var(--line); border-radius: 12px; background: #ffffff; box-shadow: 0 1px 2px rgba(20, 43, 34, .05), 0 8px 24px -16px rgba(20, 43, 34, .25); text-align: center; }
 .mermaid-diagram svg { display: inline-block; max-width: none; height: auto; }
 /* Labels keep the line height Mermaid measured them with, rather than the article's. */
 .docs-page .mermaid-diagram p { margin: 0; line-height: 1.5; color: inherit; }

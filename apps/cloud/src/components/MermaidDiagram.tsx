@@ -21,15 +21,20 @@ export function MermaidDiagram({ source }: { source: string }) {
           flowchart: { useMaxWidth: false },
           sequence: { useMaxWidth: false },
           themeVariables: {
-            primaryColor: "#eaf0e8",
-            primaryBorderColor: "#477646",
-            primaryTextColor: "#142b22",
-            lineColor: "#4f6055",
-            secondaryColor: "#f7f9f4",
+            // White boxes with grey borders, as Get Started's panels and code blocks have.
+            primaryColor: "#ffffff",
+            primaryBorderColor: "#9aa59d",
+            primaryTextColor: "#182a22",
+            lineColor: "#7b867e",
+            secondaryColor: "#ffffff",
             tertiaryColor: "#ffffff",
-            clusterBkg: "#f7f9f4",
-            clusterBorder: "#b8c6b5",
+            clusterBkg: "#fafbf9",
+            clusterBorder: "#cad1c6",
             edgeLabelBackground: "#ffffff",
+            actorBkg: "#ffffff",
+            actorBorder: "#9aa59d",
+            noteBkgColor: "#fafbf9",
+            noteBorderColor: "#cad1c6",
           },
         });
         const drawn = await mermaid.render(id, source);
