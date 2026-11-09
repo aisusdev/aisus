@@ -96,7 +96,7 @@ Deploying is a hard stop. Get a teammate's go first.
 - **Local files:** the script needs `~/.config/aisus/` with `secrets.env`, `aisus.pem`, `server.env` and `known_hosts`. Get these from a teammate by a private channel, never through git. Add your own SSH key to the server rather than share `aisus.pem`. `infra/env.example` lists the secrets.
 - **The stack:** `infra/compose.yaml` runs Caddy, the cloud, Umami, Prometheus, node-exporter and Grafana. Their configs are under `infra/`. Visit counts are at `https://stats.aisus.dev` and metrics at `https://aisus.dev/grafana/`.
 - **Other scripts:** `infra/aws-up.sh` and `infra/aws-down.sh --yes` create and remove the server. `infra/stripe-setup.sh` sets up Stripe.
-- **The deploy workflow:** `.github/workflows/deploy-cloud.yml` runs on pushes to `main` when the repository variable `AISUS_DEPLOY` is `true`, and calls the secret `AISUS_DEPLOY_HOOK`.
+- **The deploy workflow:** `.github/workflows/deploy-cloud.yml` runs on pushes to `main` when the repository variable `AISUS_DEPLOY` is `true`, and calls the secret `AISUS_DEPLOY_HOOK`. The variable is `false` today, because the server has no deploy hook, so the workflow skips its job and the cloud is deployed with `infra/deploy.sh`.
 
 ## The IntelliJ plugin
 

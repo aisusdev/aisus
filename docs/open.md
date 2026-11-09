@@ -1,12 +1,11 @@
 # Open problems and unfinished work
 
-Every known problem and unfinished piece of work, with an ID that never changes. Add new items with the next free ID. Remove an item when it is solved, and record its ID and commit in your shift doc. The next free ID is P-38.
+Every known problem and unfinished piece of work, with an ID that never changes. Add new items with the next free ID. Remove an item when it is solved, and record its ID and commit in your shift doc. The next free ID is P-39.
 
 ## Broken now
 
 - **P-1 Windows unit tests fail in CI.** `check (windows-latest)` fails in `validate.test.ts`, `session.test.ts`, `hooksFiles.test.ts` and `repoFacts.test.ts`, as in run 40316109729. Ubuntu and macOS pass. This is ENG-01's open `[ci]` half.
 - **P-2 The e2e job fails in CI.** On Linux under xvfb, LRN-01's Claude session test, SAF-06's hook test and SKL-02's tour test's setup fail, as in run 40316109729. The same suite passes locally on macOS.
-- **P-3 The cloud deploy workflow fails on every push.** The repository variable `AISUS_DEPLOY` is `true`, but the secret `AISUS_DEPLOY_HOOK` is empty, so `curl` exits 3. Set the hook (a hard stop) or set the variable to `false`.
 - **P-4 `/docs` on aisus.dev answers 500.** The cloud's image copies neither `README.md` nor `docs/`, which `apps/cloud/src/lib/docs.ts` reads at request time.
 - **P-25 On a phone, the map page's side panel covers the freshness bar.** Below the phone breakpoint, `.map-side` in `apps/cloud/src/app/globals.css` docks at the foot of the window, 12 pixels from the bottom and up to 40% of its height. The viewer's `.freshness` bar sits 8 pixels from the bottom too, so the panel hides it with its Refresh link on the map, pull request and share link pages. A first step is to dock the panel above the bar, or to fold the panel to its title until it is tapped.
 - **P-26 A folder's first run is still estimated far below what it spends.** Estimates now scale to what the folder's last five finished runs spent, and `aisus.estimate.detailed` plans a Generate run's reads (see [shifts/2026-11-01-xplus2g4.md](shifts/2026-11-01-xplus2g4.md)). Before a folder has a finished run, the estimate still comes from the provisional `packages/core/model/coefficients.json` and from `TURN_MODEL` in `packages/core/model/estimate.ts`. On this repository the old estimate said 160k–320k tokens against 1.46M spent, and the detailed one says 610k–1.2M. The fix is the CST-06 bench and `npm run bench:fit`, which need paid agent calls (P-11). Ask runs write no `run.json`, so their estimates are never scaled.
@@ -33,7 +32,7 @@ Every known problem and unfinished piece of work, with an ID that never changes.
 - **P-10 Release v0.3.3** after P-5. A teammate pushes the tag. Then delete the v0.3.0 release with `gh release delete v0.3.0 -R aisusdev/aisus --cleanup-tag --yes`.
 - **P-23 The team page shows no seats bought after a first purchase.** Stripe's `checkout.session.completed` carries no seat count, and `applyEvent` in `apps/cloud/src/lib/billing.ts` stores seats only from `customer.subscription.updated`. Until the seats change in the portal, a new Team account's page says "N seats in use" without "of M". A first step is for `checkoutUrl` to add the seat count to the session's metadata, beside the account and plan it already sends, and for `applyEvent` to store it.
 - **P-24 People removed on GitHub stay on the team page.** `teamOf` in `apps/cloud/src/lib/team.ts` and `seatsOf` read the stored access rows. `checkAccess` rechecks a row only when that same person signs in or opens one of the account's repositories, so someone who left the organization and never returns stays listed and counts as a seat. A first step is to recheck the account's rows older than `ACCESS_TTL_MS` when an owner opens the page, with the owner's token or the GitHub App (P-8).
-
+- **P-38 Grafana and Umami are set up, but the team cannot sign in to them.** `infra/deploy.sh` generates `UMAMI_ADMIN_PASSWORD` and `GRAFANA_ADMIN_PASSWORD` on the first deploy and keeps them in `~/.config/aisus/secrets.env` on the machine that deployed. Teammates who need the dashboards get the passwords from that file through a password manager, never in chat or the repository. This was issue #8, closed in favour of this item.
 
 ## Waiting on a hard stop or a manual check
 
