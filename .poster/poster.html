@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>aisus poster (A1)</title>
+<link rel="stylesheet" href="poster.css">
+<style>
+  /* A1 is 594 x 841 mm. At 96 CSS px per inch that is 2245 x 3178 px. */
+  @page { size: 594mm 841mm; margin: 0; }
+
+  html, body { width: 2245px; height: 3178px; overflow: hidden; }
+  body {
+    position: relative;
+    background-color: var(--paper);
+    background-image: radial-gradient(circle, #d9e3d1 2.4px, transparent 2.6px);
+    background-size: 40px 40px;
+    background-position: 20px 20px;
+  }
+
+  iframe { position: absolute; border: 0; background: transparent; }
+
+  /* Each frame matches the size its section file declares. */
+  #header    { left: 0;      top: 0;      width: 2245px; height: 720px; }
+  #problems  { left: 0;      top: 726px;  width: 1300px; height: 920px; }
+  #showcase  { left: 1290px; top: 480px;  width: 955px;  height: 1260px; }
+  #features  { left: 0;      top: 1667px; width: 2245px; height: 690px; }
+  #scenarios { left: 0;      top: 2378px; width: 2245px; height: 630px; }
+  #sponsors  { left: 0;      top: 3008px; width: 2245px; height: 170px; }
+</style>
+</head>
+<body>
+  <iframe id="header"   src="sections/01-header.html"   title="Header"></iframe>
+  <iframe id="problems" src="sections/02-problems.html" title="Problems with AI workflows"></iframe>
+  <iframe id="showcase" src="sections/03-showcase.html" title="Showcase"></iframe>
+  <iframe id="features" src="sections/04-features.html" title="Features"></iframe>
+  <iframe id="scenarios" src="sections/05-scenarios.html" title="Scenario study"></iframe>
+  <iframe id="sponsors" src="sections/06-sponsors.html" title="Sponsors"></iframe>
+</body>
+</html>

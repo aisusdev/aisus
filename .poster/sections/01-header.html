@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>aisus poster: header</title>
+<link rel="stylesheet" href="../poster.css">
+<script>if (self === top) document.documentElement.classList.add("solo")</script>
+<style>
+  html, body { width: 2245px; height: 720px; position: relative; overflow: hidden; }
+
+  .tag {
+    position: absolute; left: 110px; top: 76px;
+    font-family: var(--chunky); font-size: 76px; line-height: 1;
+    color: var(--pink); border: 7px solid var(--pink); border-radius: 10px;
+    padding: 14px 30px 10px;
+  }
+
+  .ide {
+    position: absolute; left: 630px; top: 62px; height: 150px;
+    display: flex; align-items: center; gap: 34px;
+  }
+  .ide h2 { font-family: var(--chunky); font-weight: 400; font-size: 50px; line-height: 1.02; color: var(--ink); width: 330px; }
+  .ide .vscode { height: 128px; display: block; }
+
+  .mascot { position: absolute; left: 116px; top: 214px; width: 186px; }
+
+  .pitch { position: absolute; left: 340px; top: 236px; width: 900px; }
+  .pitch p { font-size: 37px; line-height: 1.32; font-weight: 400; color: var(--text); }
+  .pitch p b { font-weight: 600; color: var(--ink); }
+
+  .wordmark { position: absolute; left: 104px; top: 392px; width: 1060px; }
+
+  .vote {
+    position: absolute; right: 110px; top: 56px; width: 372px;
+    background: var(--card); border-radius: 26px; box-shadow: var(--shadow);
+    padding: 26px 30px 24px; text-align: center;
+  }
+  .vote h3 { font-family: var(--chunky); font-weight: 400; font-size: 50px; line-height: 1; color: var(--pink); }
+  .vote .code { position: relative; width: 312px; height: 312px; margin: 18px 0 12px; }
+  .vote .code img.qr { width: 100%; height: 100%; display: block; }
+  .vote .code .badge {
+    position: absolute; left: 50%; top: 50%; width: 76px; height: 76px; transform: translate(-50%, -50%);
+    background: var(--card); border-radius: 14px; padding: 8px;
+  }
+  .vote .code .badge img { width: 100%; display: block; }
+  .vote p { font-size: 26px; line-height: 1.3; color: var(--text-2); }
+  .vote p b { color: var(--ink); font-weight: 600; }
+
+  /* A browser window opening aisus.dev, with the pointer clicking its address. */
+  .browser {
+    position: absolute; left: 1300px; top: 82px; width: 430px;
+    background: var(--card); border-radius: 18px;
+    border: 2px solid #d5dccf; box-shadow: var(--shadow);
+    transform: rotate(-2.5deg);
+  }
+  .browser .chrome {
+    display: flex; align-items: center; gap: 14px; padding: 12px 14px;
+    background: #ecefe8; border-bottom: 2px solid #dde3d8; border-radius: 16px 16px 0 0;
+  }
+  .browser .dots { display: flex; gap: 7px; flex: none; }
+  .browser .dots i { width: 12px; height: 12px; border-radius: 50%; display: block; }
+  .browser .address {
+    position: relative; flex: 1; display: flex; align-items: center; gap: 9px; height: 48px; padding: 0 14px;
+    background: #fff; border-radius: 999px; border: 3px solid var(--pink);
+    font-family: "Poppins", var(--display); font-weight: 500; font-size: 26px; color: var(--ink);
+  }
+  .browser .address svg { width: 18px; height: 20px; flex: none; }
+  .browser .address span { color: var(--text-2); }
+  .browser .address svg.pointer { position: absolute; left: 268px; top: 8px; width: 70px; height: auto; }
+  .browser .page { padding: 20px 22px 22px; }
+  .browser .page .top { display: flex; align-items: center; justify-content: space-between; }
+  .browser .page img { width: 150px; display: block; }
+  .browser .page .cta {
+    padding: 8px 18px; border-radius: 6px;
+    background: var(--pink); color: #fff; font-family: "Poppins", var(--display); font-weight: 600; font-size: 20px;
+  }
+  .browser .page h4 { margin-top: 12px; font-family: "Poppins", var(--display); font-weight: 600; font-size: 28px; line-height: 1.15; color: var(--forest); }
+</style>
+</head>
+<body>
+  <div class="tag">CS3216-07</div>
+
+  <div class="ide">
+    <h2>IDE extension available for</h2>
+    <img class="vscode" src="../assets/trimmed/logo-vscode.png" alt="Visual Studio Code">
+  </div>
+
+  <img class="mascot" src="../assets/aisus-runner.png" alt="">
+  <div class="pitch">
+    <p>A coding agent maps your repository into a diagram. <b>Every box opens the code it cites</b>, so you can review and learn what AI wrote.</p>
+  </div>
+  <img class="wordmark" src="../assets/trimmed/aisus-wordmark.png" alt="aisus">
+
+  <div class="vote">
+    <h3>Vote for aisus</h3>
+    <div class="code">
+      <img class="qr" src="../assets/qr-vote.svg" alt="QR code for the STePS vote page">
+      <div class="badge"><img src="../assets/aisus-runner.png" alt=""></div>
+    </div>
+    <p>Scan to vote for us at<br><b>29th STePS</b></p>
+  </div>
+
+  <div class="browser">
+    <div class="chrome">
+      <div class="dots"><i style="background:#ff5f57"></i><i style="background:#febc2e"></i><i style="background:#28c840"></i></div>
+      <div class="address">
+        <svg viewBox="0 0 20 22" fill="none" stroke="#4f6055" stroke-width="2.6" stroke-linejoin="round"><rect x="2" y="9" width="16" height="11" rx="2.5" fill="#4f6055"/><path d="M5.5 9V6.5a4.5 4.5 0 0 1 9 0V9"/></svg>
+        <div><span>https://</span>aisus.dev</div>
+        <svg class="pointer" viewBox="0 0 90 110" fill="none" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M22 18l-9-9M34 15V3M19 30H7" stroke="#c92c6d" stroke-width="5"/>
+          <path d="M34 30v56l14-13 11 25 12-5-11-25h19z" fill="#142b22" stroke="#fffef9" stroke-width="4"/>
+        </svg>
+      </div>
+    </div>
+    <div class="page">
+      <div class="top">
+        <img src="../assets/trimmed/aisus-wordmark.png" alt="aisus">
+        <div class="cta">Get Started</div>
+      </div>
+      <h4>See your codebase<br>as a map</h4>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>aisus poster: problems</title>
+<link rel="stylesheet" href="../poster.css">
+<script>if (self === top) document.documentElement.classList.add("solo")</script>
+<style>
+  html, body { width: 1300px; height: 920px; position: relative; overflow: hidden; }
+
+  .wrap { position: absolute; left: 110px; top: 0; width: 1170px; }
+
+  h2 {
+    font-family: var(--chunky); font-weight: 400; font-size: 84px; line-height: 1; color: var(--ink);
+    display: inline-block; padding: 0 10px; margin-left: -10px;
+    background: linear-gradient(transparent 62%, var(--lime) 62%, var(--lime) 92%, transparent 92%);
+  }
+
+  .grid { margin-top: 24px; display: grid; grid-template-columns: 1fr 1fr; gap: 22px; }
+
+  .card {
+    background: var(--card); border-radius: 28px; box-shadow: var(--shadow);
+    padding: 26px 34px 28px;
+  }
+  .card.wide { grid-column: 1 / -1; }
+
+  .head { display: flex; align-items: center; gap: 22px; }
+  .head img { width: 84px; height: 84px; flex: none; }
+  .head h3 { font-family: var(--display); font-weight: 600; font-size: 42px; line-height: 1.08; color: var(--ink); }
+
+  .stat { display: flex; align-items: center; gap: 20px; margin: 16px 0 14px; padding: 12px 20px; border-radius: 16px; background: var(--pink-soft); }
+  .stat strong { font-family: var(--chunky); font-weight: 400; font-size: 72px; line-height: 0.9; color: var(--pink); flex: none; }
+  .stat span { font-size: 24px; line-height: 1.3; color: var(--text); }
+
+  p { font-size: 28px; line-height: 1.36; color: var(--text); }
+  p b { font-weight: 600; color: var(--ink); }
+
+  .wide .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin-top: 14px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h2>Problems with AI workflows</h2>
+
+  <div class="grid">
+    <section class="card">
+      <div class="head">
+        <img src="../assets/icons/pr-overload.svg" alt="">
+        <h3>PR review overload</h3>
+      </div>
+      <div class="stat"><strong>2&times;</strong><span>review workload per reviewer in one enterprise study as AI adoption grew</span></div>
+      <p>AI generates changes faster than teams can review them. The pressure lands on the people who check what ships.</p>
+    </section>
+
+    <section class="card">
+      <div class="head">
+        <img src="../assets/icons/comprehension-debt.svg" alt="">
+        <h3>Comprehension debt</h3>
+      </div>
+      <div class="stat"><strong>59%</strong><span>of surveyed developers used AI code they did not fully understand</span></div>
+      <p>Delegating unfamiliar tasks leaves developers with working code they <b>cannot explain or debug</b>.</p>
+    </section>
+
+    <section class="card wide">
+      <div class="head">
+        <img src="../assets/icons/lost-in-codebase.svg" alt="">
+        <h3>Lost in the codebase</h3>
+      </div>
+      <div class="cols">
+        <p>You know what needs to change but not where to start. In an unfamiliar codebase, finding the relevant files and tracing how they connect can take <b>longer than writing the change</b>.</p>
+        <p>Onboarding a new hire costs effort, time and money. Developers start working effectively only once they have <b>an overall picture</b> of the system.</p>
+      </div>
+    </section>
+  </div>
+</div>
+</body>
+</html>

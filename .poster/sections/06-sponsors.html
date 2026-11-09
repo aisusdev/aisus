@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>aisus poster: sponsors</title>
+<link rel="stylesheet" href="../poster.css">
+<script>if (self === top) document.documentElement.classList.add("solo")</script>
+<style>
+  html, body { width: 2245px; height: 170px; position: relative; overflow: hidden; }
+
+  .band {
+    position: absolute; left: 110px; right: 110px; top: 10px; height: 152px;
+    display: flex; align-items: center; justify-content: space-between;
+    border-top: 3px solid var(--line); padding-top: 16px;
+  }
+  .band h2 { font-family: var(--chunky); font-weight: 400; font-size: 32px; line-height: 1.05; color: var(--text-2); width: 120px; }
+  .band img { display: block; }
+
+  .tier { display: flex; align-items: center; gap: 46px; }
+  /* The tier name reads bottom to top, with the letters' feet facing right. */
+  .tier .label {
+    writing-mode: vertical-rl; transform: rotate(180deg);
+    padding: 14px 7px; border-radius: 10px;
+    font-family: var(--chunky); font-weight: 400; font-size: 26px; line-height: 1; letter-spacing: 0.04em;
+  }
+  .platinum .label { background: linear-gradient(90deg, #f4f6f8, #cfd5db); color: #3e4a54; box-shadow: inset 0 0 0 2px #b9c1c9; }
+  .gold .label { background: linear-gradient(90deg, #fbe7a6, #e2b44a); color: #5b3f05; box-shadow: inset 0 0 0 2px #cf9f33; }
+
+  .divider { width: 3px; height: 112px; background: var(--line); border-radius: 2px; }
+
+  .authors { display: flex; align-items: center; gap: 26px; }
+  .authors h3 { font-family: var(--chunky); font-weight: 400; font-size: 32px; line-height: 1.05; color: var(--text-2); width: 70px; }
+  .authors ul { list-style: none; }
+  .authors li { font-family: "Poppins", var(--display); font-weight: 600; font-size: 25px; line-height: 1.32; color: var(--ink); white-space: nowrap; }
+</style>
+</head>
+<body>
+  <div class="band">
+    <h2>Supported by</h2>
+
+    <div class="tier platinum">
+      <div class="label">Platinum</div>
+      <img src="../assets/sponsor-dsta.png" alt="DSTA" style="height:70px">
+      <img src="../assets/sponsor-garena.png" alt="Garena" style="height:50px">
+      <img src="../assets/trimmed/sponsor-sea-group.png" alt="Sea" style="height:62px">
+      <img src="../assets/trimmed/sponsor-tealseed.png" alt="Tealseed" style="height:72px">
+    </div>
+
+    <div class="tier gold">
+      <div class="label">Gold</div>
+      <img src="../assets/sponsor-sg-innovate.png" alt="SGInnovate" style="height:76px">
+      <img src="../assets/trimmed/sponsor-symsis.png" alt="SIMSYS" style="height:58px">
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="authors">
+      <h3>Built by</h3>
+      <ul>
+        <li>Dinh Duy Linh Dan</li>
+        <li>Kerk Tai Heng</li>
+        <li>Chen Jianxi</li>
+      </ul>
+    </div>
+  </div>
+</body>
+</html>
