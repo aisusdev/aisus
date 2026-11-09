@@ -486,14 +486,6 @@ thead th { background: var(--paper-2); }
 .guide-sidebar strong, .guide-aside strong { margin-bottom: 12px; color: var(--forest); }
 .guide-sidebar a { padding: 7px 12px; border-radius: 8px; color: var(--text-2); }
 .guide-sidebar a.active { color: var(--forest); font-weight: 700; }
-.guide-sidebar a.guide-sub { display: block; padding-left: 40px; }
-.guide-row { display: flex; align-items: center; margin-left: -12px; }
-.guide-row a { flex: 1; padding-left: 4px; }
-.guide-toggle { display: grid; place-items: center; flex: none; width: 32px; height: 32px; padding: 0; border: 0; border-radius: 8px; background: none; color: var(--text-2); cursor: pointer; }
-.guide-toggle:hover { background: var(--paper-2); color: var(--forest); }
-.guide-toggle .i { width: 16px; height: 16px; stroke-width: 2.2; transition: transform .2s; }
-.guide-toggle[aria-expanded="true"] .i { transform: rotate(90deg); }
-.guide-children { margin-left: -12px; }
 .guide-sidebar a:hover { background: var(--paper-2); color: var(--forest); }
 .guide-aside { padding-left: 18px; border-left: 1px solid var(--line); }
 .guide-aside a { padding: 6px 0; color: var(--text-2); }
@@ -599,7 +591,6 @@ kbd {
 .stops dt { color: var(--forest); font-weight: 650; }
 .stops dd { margin: 4px 0 16px; color: var(--text-2); }
 .stops dd:last-child { margin-bottom: 0; }
-.guide-toggle-space { flex: none; width: 32px; }
 /* The docs' part of the left panel: a gap before Docs, and each group's name above its pages. */
 .guide-sidebar .guide-heading-docs { margin-top: 26px; }
 .guide-group { display: flex; flex-direction: column; }
@@ -806,9 +797,6 @@ kbd {
   .guide-group { display: contents; }
   .guide-group-title { display: none; }
   .guide-sidebar a { flex: none; margin: 0; padding: 8px 11px; }
-  .guide-sidebar a.guide-sub { padding-left: 11px; }
-  .guide-node, .guide-row, .guide-children:not([hidden]) { display: contents; }
-  .guide-toggle, .guide-toggle-space { display: none; }
   .guide-shot .fd-window { zoom: .78; }
   .panel-body, .steps-with-picture.steps-panel { padding: 18px 16px; }
   .pricing-plans { grid-template-columns: 1fr; }

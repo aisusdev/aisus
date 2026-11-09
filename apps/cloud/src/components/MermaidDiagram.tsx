@@ -19,7 +19,7 @@ export function MermaidDiagram({ source }: { source: string }) {
           fontFamily: '"Avenir Next", Avenir, "Helvetica Neue", system-ui, sans-serif',
           // Diagrams keep their natural size, and a wide one scrolls inside its box rather than shrinking its text.
           flowchart: { useMaxWidth: false },
-          sequence: { useMaxWidth: false },
+          sequence: { useMaxWidth: false, width: 120, actorMargin: 24 },
           themeVariables: {
             // White boxes with grey borders, as Get Started's panels and code blocks have.
             primaryColor: "#ffffff",

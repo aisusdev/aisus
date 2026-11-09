@@ -11,23 +11,23 @@ export const PUBLISHED_DOCS: readonly { slug: string; file: string; title: strin
   { slug: "cloud", file: "docs/cloud.md", title: "aisus cloud", group: "Use aisus" },
   { slug: "contributing", file: "CONTRIBUTING.md", title: "Contributing", group: "Contribute" },
   { slug: "maintaining", file: "docs/maintaining.md", title: "Maintaining", group: "Contribute" },
-  { slug: "architecture", file: "docs/architecture.md", title: "Architecture", group: "Contribute" },
+  // The site shows the architecture written for people. docs/architecture.md, the reference for coding agents, stays off the site.
+  { slug: "architecture", file: "docs/how-aisus-works.md", title: "Architecture", group: "Contribute" },
 ];
 
 export type DocGroup = "Use aisus" | "Contribute";
 
-/** A page in the guide's panel, with the sections listed under it. */
+/** A page in the guide's panel. */
 export interface TreePage {
   href: string;
   label: string;
-  steps: { id: string; label: string }[];
 }
 
-/** The docs' groups, each with its pages and their sections, in the panel's order. */
+/** The docs' groups, each with its pages, in the panel's order. */
 export function docTree(): { title: DocGroup; pages: TreePage[] }[] {
   const groups: { title: DocGroup; pages: TreePage[] }[] = [];
   for (const doc of PUBLISHED_DOCS) {
-    const page = { href: pagePath(doc.slug), label: doc.title, steps: loadDoc(doc.slug)?.sections ?? [] };
+    const page = { href: pagePath(doc.slug), label: doc.title };
     const group = groups.find((entry) => entry.title === doc.group);
     if (group) group.pages.push(page);
     else groups.push({ title: doc.group, pages: [page] });
@@ -83,7 +83,7 @@ export interface Doc {
   source: string;
   /** The file's blocks without its first `#` heading, which the page's title replaces. */
   blocks: Block[];
-  /** The `##` headings, for On this page and the panel. */
+  /** The `##` headings, for On this page. */
   sections: { id: string; label: string }[];
 }
 

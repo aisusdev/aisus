@@ -40,7 +40,7 @@ test("CLD-08 the docs show the README's image from this server, and their panel 
   expect(response.status()).toBe(200);
   expect(response.headers()["content-type"]).toBe("image/gif");
   for (const name of ["Contributing", "Maintaining", "GitHub Action"]) {
-    await page.locator("main nav .guide-row").getByRole("link", { name, exact: true }).click();
+    await page.getByRole("navigation", { name: "Guide" }).getByRole("link", { name, exact: true }).click();
     await expect(page.locator("h1")).toHaveText(name);
   }
 });
@@ -56,7 +56,7 @@ test("CLD-08 a docs page is marked in the panel, titled with its name, and lists
   await expect(page.getByRole("navigation", { name: "Guide" }).locator("a[aria-current=page]")).toHaveText("Architecture");
   await expect(page.locator("h1")).toHaveText("Architecture");
   const sections = page.getByRole("complementary", { name: "On this page" }).getByRole("link");
-  await expect(sections.first()).toHaveText("Components");
+  await expect(sections.first()).toHaveText("The big picture");
   await expect(sections).toHaveCount(await page.locator(".markdown h2").count());
 });
 
@@ -65,23 +65,23 @@ test("CLD-08 Get Started's panel links to the docs", async ({ page }) => {
   await expect(page.getByRole("navigation", { name: "Guide" }).getByRole("link", { name: "GitHub Action", exact: true })).toHaveAttribute("href", "/docs/github-action");
 });
 
-test("CLD-08 the architecture page draws its four Mermaid diagrams as SVG without requesting another host", async ({ page }) => {
+test("CLD-08 the architecture page draws its two Mermaid diagrams as SVG without requesting another host", async ({ page }) => {
   const hosts = new Set<string>();
   page.on("request", (request) => hosts.add(new URL(request.url()).host));
   await page.goto("/docs/architecture");
-  await expect(page.locator(".mermaid-diagram svg")).toHaveCount(4);
+  await expect(page.locator(".mermaid-diagram svg")).toHaveCount(2);
   expect([...hosts]).toEqual(["127.0.0.1:3210"]);
 });
 
 test("CLD-08 the docs panel opens the aisus cloud guide", async ({ page }) => {
   await page.goto("/docs");
-  await page.locator("main nav .guide-row").getByRole("link", { name: "aisus cloud", exact: true }).click();
+  await page.getByRole("navigation", { name: "Guide" }).getByRole("link", { name: "aisus cloud", exact: true }).click();
   await expect(page.locator("h1")).toHaveText("aisus cloud");
 });
 
 test("CLD-08 a code-only cell in a docs table stays on one line", async ({ page }) => {
   await page.goto("/docs/architecture");
-  const cell = page.locator(".markdown td:first-child > code", { hasText: /^types\.ts$/ }).first();
+  const cell = page.locator(".markdown td:first-child > code", { hasText: /^packages\/viewer\/$/ });
   expect(await cell.evaluate((code) => code.getClientRects().length)).toBe(1);
 });
 
@@ -128,13 +128,12 @@ test("CLD-08 choosing Codex shows its install command and $aisus-architecture, a
   await expect(page.locator("#generate")).toContainText("$aisus-architecture checkout flow");
 });
 
-test("CLD-08 the guide's left panel opens the page being read, and its chevron folds the steps away", async ({ page }) => {
+test("CLD-08 the left panel lists pages without their sections, and marks the page being read", async ({ page }) => {
   await page.goto("/get-started");
   const tree = page.getByRole("navigation", { name: "Guide" });
-  await expect(tree.getByRole("link", { name: "1. Installation" })).toBeVisible();
-  await expect(tree.getByRole("link", { name: "1. Install the plugin" })).toBeHidden();
-  await tree.getByRole("button", { name: "Hide the steps of Get Started" }).click();
-  await expect(tree.getByRole("link", { name: "1. Installation" })).toBeHidden();
+  await expect(tree.locator("a[aria-current=page]")).toHaveText("Get Started");
+  await expect(tree.getByRole("link", { name: "1. Installation" })).toHaveCount(0);
+  await expect(tree.getByRole("button")).toHaveCount(0);
 });
 
 test("CLD-08 the IntelliJ page's Download button opens /install/intellij", async ({ page }) => {

@@ -35,7 +35,7 @@ Generating a map needs Claude Code or Codex installed and signed in. Viewing map
 | `packages/cli/` | The CLI that installs skills, runs checks and publishes maps |
 | `skills/` | The agent skills that write and update maps |
 
-[docs/architecture.md](docs/architecture.md) describes the modules and the contracts between them. [docs/maintaining.md](docs/maintaining.md) says how to build, test and run each part.
+[How aisus works](docs/how-aisus-works.md) explains how the parts fit together. [docs/architecture.md](docs/architecture.md) is the detailed reference for each module and the contracts between them. [docs/maintaining.md](docs/maintaining.md) says how to build, test and run each part.
 
 ## Pick something to work on
 

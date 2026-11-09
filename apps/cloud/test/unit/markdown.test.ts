@@ -7,7 +7,8 @@ test("CLD-08 links go to the web, to anchors or to published docs; script URLs b
   const page = (path: string): string | null => docPath("README.md", path);
   expect(linkTarget("https://example.com/a", page)).toBe("https://example.com/a");
   expect(linkTarget("#setup", page)).toBe("#setup");
-  expect(linkTarget("docs/architecture.md#modules", page)).toBe("/docs/architecture#modules");
+  expect(linkTarget("docs/how-aisus-works.md#the-big-picture", page)).toBe("/docs/architecture#the-big-picture");
+  expect(linkTarget("docs/architecture.md", page)).toBeNull();
   expect(linkTarget("docs/progress-v0.3.md", page)).toBeNull();
   expect(linkTarget("javascript:alert(1)", page)).toBeNull();
   expect(linkTarget("JaVaScRiPt:alert(1)", page)).toBeNull();
