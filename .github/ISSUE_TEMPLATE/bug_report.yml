@@ -1,0 +1,53 @@
+name: Bug report
+description: Something in aisus behaves differently from what you expected.
+labels: ["bug"]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+      description: Describe what you saw, and what you expected to see instead.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: List the steps that lead to the problem, starting from opening the folder.
+      placeholder: |
+        1. Open a folder with a committed map.
+        2. Click Show Changes on Diagram.
+        3. The overlay counts no boxes.
+    validations:
+      required: true
+  - type: dropdown
+    id: where
+    attributes:
+      label: Where it happened
+      options:
+        - VS Code extension
+        - Cursor or another VS Code based editor
+        - IntelliJ plugin
+        - aisus cloud
+        - GitHub Action
+        - CLI or agent skills
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: aisus version
+      description: The extension's version from the Extensions view, or the release you downloaded.
+      placeholder: 0.3.4
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: Editor, operating system and coding agent
+      placeholder: VS Code 1.141 on macOS 15 with Claude Code
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs or screenshots
+      description: Paste any error message or attach a screenshot. Remove tokens and private code first.

@@ -167,6 +167,14 @@ aisus makes no AI calls of its own. Your agent does the work, on your account.
 
 To leave aisus cloud, choose **Delete my account** in its settings. Your account and every repository space it owns are removed at once.
 
+## Contributing
+
+Bug reports, fixes and ideas are welcome. [CONTRIBUTING.md](CONTRIBUTING.md) covers setting up, finding an issue to work on, running the checks and opening a pull request. Everyone taking part follows the [code of conduct](CODE_OF_CONDUCT.md). Security problems are reported privately, as [SECURITY.md](SECURITY.md) describes.
+
+## Licence
+
+The extension, the IntelliJ plugin, the CLI, the GitHub Action, the agent skills and the shared packages are licensed under the [Apache License 2.0](LICENSE). The aisus cloud server in `apps/cloud/` is licensed under the [GNU Affero General Public License v3.0 only](apps/cloud/LICENSE). Anyone who runs a changed copy of the cloud for other people offers those people the changed source under the same licence.
+
 ## License notices
 
 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md), shipped with the extension, lists the Archify material (MIT) included in aisus.
