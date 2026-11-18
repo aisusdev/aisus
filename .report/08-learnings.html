@@ -10,34 +10,118 @@
     <nav class="section-nav"><a href="index.html">Full report</a></nav>
     <main>
       <section class="report-section" id="learnings">
+        <style>
+          figure.wide {
+            position: relative;
+            left: 50%;
+            width: min(1040px, calc(100vw - 48px));
+            transform: translateX(-50%);
+          }
+
+          figure.wide figcaption {
+            max-width: 748px;
+            margin-inline: auto;
+          }
+
+          @media print {
+            figure.wide {
+              left: 0;
+              width: auto;
+              transform: none;
+            }
+          }
+        </style>
         <h1 id="s8">8 What we learned</h1>
 
         <h2 id="s8-1">8.1 Technical</h2>
-        <p><strong>An agent's output needs a strict checker.</strong> Agents write plausible maps that cite lines which do not exist, files outside the repository and sometimes secrets. We stopped trusting the draft and wrote a validator that refuses each of these and tells the agent what to fix. The agent then corrects its own draft in the same run. The validator is the part of aisus that makes a map worth trusting.</p>
-        <p><strong>Fingerprints make freshness free.</strong> Storing a hash of every cited line lets the editor tell a fresh box from a moved, edited or missing one without calling a model. This one decision made the pull request check, the change review and cheap refreshes possible, and none of them spends a token.</p>
-        <p><strong>Using the user's own agent moves the cost problem to the user.</strong> aisus runs on one small server because it never pays for inference. The user pays instead, and we underestimated how much. Our own repository's first map spent 1.46 million tokens against an estimate of 160k to 320k. We found that 93% of those tokens were cache reads, since each turn sends the whole conversation again. Estimates now scale to what a folder's last five runs spent, but a folder's first run is still estimated too low.</p>
-        <p><strong>One viewer in three hosts saves work and spreads bugs.</strong> The same viewer draws maps in VS Code, aisus cloud and IntelliJ IDEA. A fix to the viewer reaches all three at once. The viewer's stylesheet also reached all three, and once it shrank the text of the cloud page around it.</p>
-        <p><strong>Tests on three operating systems find what one machine hides.</strong> Our unit tests still fail on Windows in CI, and some end-to-end tests fail on Linux. On one machine the end-to-end suite found Devin Desktop, installed the day before, at a fixed path that the test setup could not hide, and 28 tests failed until the runner learned to hide it.</p>
-        <p><strong>Data needs protection before it matters.</strong> On 9 November a teardown script ran by accident and removed our server with its only disk. Every cloud account and all site analytics up to that day were lost. A disk snapshot a day would have cost under US$1 a month.</p>
+        <p><strong>An agent's output needs a strict checker.</strong> Agents write plausible maps
+          that cite lines which do not exist, files outside the repository and sometimes secrets. We
+          stopped trusting the draft and wrote a validator that refuses each of these and tells the
+          agent what to fix. The agent then corrects its own draft in the same run. The validator is
+          the part of aisus that makes a map worth trusting.</p>
+        <p><strong>Fingerprints make freshness free.</strong> Storing a hash of every cited line
+          lets the editor tell a fresh box from a moved, edited or missing one without calling a
+          model. This one decision made the pull request check, the change review and cheap
+          refreshes possible, and none of them spends a token.</p>
+        <p><strong>Using the user's own agent moves the cost problem to the user.</strong> aisus
+          runs on one small server because it never pays for inference. The user pays instead, and
+          we underestimated how much. Our own repository's first map spent 1.46 million tokens
+          against an estimate of 160k to 320k. We found that 93% of those tokens were cache reads,
+          since each turn sends the whole conversation again. Estimates now scale to what a folder's
+          last five runs spent, but a folder's first run is still estimated too low.</p>
+        <p><strong>One viewer in three hosts saves work and spreads bugs.</strong> The same viewer
+          draws maps in VS Code, aisus cloud and IntelliJ IDEA. A fix to the viewer reaches all
+          three at once. The viewer's stylesheet also reached all three, and once it shrank the text
+          of the cloud page around it.</p>
+        <p><strong>Tests on three operating systems find what one machine hides.</strong> Our unit
+          tests still fail on Windows in CI, and some end-to-end tests fail on Linux. On one machine
+          the end-to-end suite found Devin Desktop, installed the day before, at a fixed path that
+          the test setup could not hide, and 28 tests failed until the runner learned to hide
+          it.</p>
+        <p><strong>Data needs protection before it matters.</strong> On 9 November a teardown script
+          ran by accident and removed our server with its only disk. Every cloud account and all
+          site analytics up to that day were lost. A disk snapshot a day would have cost under US$1
+          a month.</p>
 
         <h2 id="s8-2">8.2 Product and market</h2>
-        <p><strong>Feedback set our focus.</strong> Our mentor said our pitch held four products. Both testers valued only the map and its click into the code. We cut the rest and judged every later feature by whether it served the map.</p>
-        <p><strong>Our users were not where we built.</strong> We built for VS Code, and none of the developers we interviewed used it. Students in CS2103 work in IntelliJ IDEA. That finding produced the IntelliJ IDEA plugin, but late in the term.</p>
-        <p><strong>The agent is the main competitor.</strong> Every interviewee could ask an agent to explain a repository. aisus has to offer what a chat answer cannot. A chat answer is gone after the session and cites nothing checkable. A map stays in the repository and is checked against the code for free, and the pull request check gives a team something no chat window gives.</p>
-        <p><strong>Store listings decide who can find a developer tool.</strong> For our first week, installing aisus meant downloading a VSIX from GitHub. The Marketplace listing came on 1 November. Open VSX, which Cursor users need, waits on a licence decision we kept deferring. Each missing store listing removed a group of possible users before they saw the product.</p>
-        <p><strong>Setup cost is part of the product.</strong> A first map needs Node.js, a signed-in agent and the user's own tokens. Our mentor called the install slow. The setup checklist in the sidebar now names each missing piece and offers a fix.</p>
+        <p><strong>Feedback set our focus.</strong> Our mentor said our pitch held four products.
+          Both testers valued only the map and its click into the code. We cut the rest and judged
+          every later feature by whether it served the map.</p>
+        <p><strong>Our users were not where we built.</strong> We built for VS Code, and none of the
+          developers we interviewed used it. Students in CS2103 work in IntelliJ IDEA. That finding
+          produced the IntelliJ IDEA plugin, but late in the term.</p>
+        <p><strong>The agent is the main competitor.</strong> Every interviewee could ask an agent
+          to explain a repository. aisus has to offer what a chat answer cannot. A chat answer is
+          gone after the session and cites nothing checkable. A map stays in the repository and is
+          checked against the code for free, and the pull request check gives a team something no
+          chat window gives.</p>
+        <p><strong>Store listings decide who can find a developer tool.</strong> For our first week,
+          installing aisus meant downloading a VSIX from GitHub. The Marketplace listing came on 1
+          November. Open VSX, which Cursor users need, waits on a licence decision we kept
+          deferring. Each missing store listing removed a group of possible users before they saw
+          the product.</p>
+        <p><strong>Setup cost is part of the product.</strong> A first map needs Node.js, a
+          signed-in agent and the user's own tokens. Our mentor called the install slow. The setup
+          checklist in the sidebar now names each missing piece and offers a fix.</p>
 
         <h2 id="s8-3">8.3 Teamwork and process</h2>
-        <p>We worked in shifts of a few days, one person at a time on <code>main</code>. Each shift kept a shift doc. Before writing code, the person on shift wrote a proposal table that listed each file to change, the estimated size and the tests needed. During the shift they logged each decision and each departure from the proposal. At the end they wrote a handover. The next person started from that doc and the list of open problems, where every problem has an ID that never changes.</p>
-        <p>Coding agents wrote most of the code under one shared set of instructions. The instructions held the working agreement, the writing rules and a list of hard stops. Deploying, spending money, installing software and publishing to a store each needed a teammate's explicit go. These stops slowed some work, and they also kept an agent from deploying or spending on its own.</p>
-        <p>The process kept work moving across three people on different machines and schedules. Its cost was writing. Shift docs grew to hundreds of lines, and keeping them accurate took time that features did not get. Different machines also meant different Node.js versions and missing tools, and each shift recorded these in its log so that the next one did not rediscover them.</p>
+        <p>Section 4.1 introduced Chen Dan Quirk divide and conquer. Here is what it looks like from
+          the inside.</p>
+        <figure class="wide">
+          <img src="figures/8-1-cdq.png" alt="A sequence map with six participants in a row, chen_0, dan_0, quirk_0, chen_1, dan_1 and quirk_1. Each one is active in turn and passes a communicate message to the next.">
+          <figcaption>Figure 8.1 Chen Dan Quirk divide and conquer, drawn as an aisus sequence map. Each bar is a shift, and each arrow is a handover.</figcaption>
+        </figure>
+        <p>Each bar is one shift. Each arrow is a handover. One of us holds the whole product at a
+          time, pushes it as far as it will go, then passes the baton forward. Nobody runs in
+          parallel, and nobody waits. And yes, we drew our own process in aisus. It is a sequence
+          map like any other.</p>
+        <p>The arrows are where the real work hides. Every shift kept a shift doc. Before writing a
+          line of code, the person on shift wrote a proposal table with every file they would touch,
+          its estimated size and the tests it needed. During the shift they logged every decision
+          and every departure from the plan. At the end they wrote the handover. The next person
+          started from that doc and from a list of open problems, each with an ID that never
+          changes.</p>
+        <p>Coding agents wrote most of the code, under one shared set of instructions. Those
+          instructions held the working agreement, the writing rules and a list of hard stops.
+          Deploying, spending money, installing software and publishing to a store each needed a
+          teammate's explicit go. The stops slowed us down now and then. They also meant no agent
+          ever deployed or spent money on its own.</p>
+        <p>The cost was writing. Shift docs grew to hundreds of lines, and keeping them honest took
+          time that features never got. We would pay it again.</p>
 
         <h2 id="s8-4">8.4 What we would do differently</h2>
-        <p>We would publish to every store in the first week, settle the licence on day one, and announce as soon as a first map worked end to end. Real users would then have steered the iterate track sooner.</p>
-        <p>We would build for IntelliJ IDEA first, since that is where our interviewees work, and add VS Code second.</p>
-        <p>We would ship fewer surfaces. The mentor's warning about four products in one pitch applied to our build too. We released an extension, skills, a plugin, a cloud and an Action, and each one split the team's time and testing.</p>
-        <p>We would turn on termination protection and daily snapshots before the server held any user data.</p>
-        <p>We would run a small paid benchmark early to calibrate token estimates, rather than learning the real cost from our own repository at the end.</p>
+        <p>We would publish to every store in the first week, settle the licence on day one, and
+          announce as soon as a first map worked end to end. Real users would then have steered the
+          iterate track sooner.</p>
+        <p>We would build for IntelliJ IDEA first, since that is where our interviewees work, and
+          add VS Code second.</p>
+        <p>We would ship fewer surfaces. The mentor's warning about four products in one pitch
+          applied to our build too. We released an extension, skills, a plugin, a cloud and an
+          Action, and each one split the team's time and testing.</p>
+        <p>We would turn on termination protection and daily snapshots before the server held any
+          user data.</p>
+        <p>We would run a small paid benchmark early to calibrate token estimates, rather than
+          learning the real cost from our own repository at the end.</p>
       </section>
     </main>
   </body>
