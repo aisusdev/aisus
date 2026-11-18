@@ -13,22 +13,69 @@
         <h1 id="s1">1 The application</h1>
 
         <h2 id="s1-1">1.1 What aisus is</h2>
-        <p>aisus turns a codebase into a picture a person can hold in their head. It draws the whole system as one map of boxes and arrows, and every box opens the exact lines of code behind it. A developer sees the architecture of a repository at a glance and can check every claim the picture makes against the code itself.</p>
-        <p>The developer's own coding agent draws the map, and aisus holds the agent to the truth. Every box must cite real lines inside the repository, or aisus sends the map back. Once drawn, the map stays true. aisus watches the code and marks every part of the picture the code has left behind, and checking costs no tokens. The agent then redraws only the parts that changed.</p>
-        <p>The map goes wherever code is read. It lives in VS Code and IntelliJ IDEA, and Claude Code, Codex and Devin draw it through aisus's skills. It travels with the repository, appears on pull requests through a GitHub Action, and opens for a whole team on the web at aisus.dev. Wherever a developer meets code they did not write, aisus puts the system's picture beside it.</p>
+        <p>aisus turns a codebase into a picture a person can hold in their head. It draws the whole
+          system as one map of boxes and arrows, and every box opens the exact lines of code behind
+          it. A developer sees the architecture of a repository at a glance and can check every
+          claim the picture makes against the code itself.</p>
+        <p>The developer's own coding agent draws the map, and aisus holds the agent to the truth.
+          Every box must cite real lines inside the repository, or aisus sends the map back. Once
+          drawn, the map stays true. aisus watches the code and marks every part of the picture the
+          code has left behind, and checking costs no tokens. The agent then redraws only the parts
+          that changed.</p>
+        <p>The map goes wherever code is read. It lives in VS Code and IntelliJ IDEA, and Claude
+          Code, Codex and Devin draw it through aisus's skills. It travels with the repository,
+          appears on pull requests through a GitHub Action, and opens for a whole team on the web at
+          aisus.dev. Wherever a developer meets code they did not write, aisus puts the system's
+          picture beside it.</p>
 
         <h2 id="s1-2">1.2 The symptom</h2>
-        <p>Software is now written faster than anyone understands it, a gap well-known <strong>comprehension debt</strong>. It costs nothing while the system runs. The bill arrives as an outage, and the team pays it by learning the system under pressure.</p>
-        <p>Agents do not close the gap. An agent reads a few files at a time, and its picture of the system ends with the session. It can explain one function well and still miss how two services depend on each other.</p>
-        <p>Microsoft is the clearest case we know. In August 2026 Jay Parikh, Microsoft's executive vice president of CoreAI, wrote to engineers that "tokenmaxxing is not what we are optimizing for." Copilot dashboards had made each engineer's AI spending visible, and for some employees they had turned into something like a leaderboard. In a voluntary internal spreadsheet, the median spend was about US$300 in tokens every 28 days, and one employee reported about US$28,000. November's Patch Tuesday fixed 1,094 vulnerabilities, and Microsoft credited AI for the number.</p>
-        <p>Two days later Exchange Online went down around the world for 23 hours and 50 minutes. Microsoft's preliminary report traces the outage to a change shipped in July. Under load, the change made gateway servers wait on each other's locks until they ran out of CPU and memory. The defect was worse on newer machines with more cores. Microsoft's load tests ran on weaker machines with fewer cores, and the defect passed them. A routine failover then moved Teams traffic onto the gateway that Exchange uses, while 14% of its servers were already down. More than 80% of the gateway stopped responding. The boundaries meant to hold a failure inside one region did not hold. The change was too old to roll back. Servers that came back up were flooded by waiting traffic and failed again.</p>
-        <p>Microsoft says AI did not cause the outage, and we do not claim it did. We read the outage as the shape comprehension debt takes. An engineer who knew the gateway inside out would have asked how a lock behaves on a machine with more cores. That engineer would have load tested on the machines that run in production. Nobody asked for four months. A company that counts the tokens its engineers spend is shipping code faster than it understands it, and its customers paid the bill for a day.</p>
-        <p class="note">Cite Microsoft's preliminary post-incident report (EX1550543 and MO1550821), the 404 Media report of Parikh's memo, Ynet on the spending spreadsheet, and the Patch Tuesday figure.</p>
+        <p>Software is now written faster than anyone understands it, a gap well-known
+          <strong>comprehension debt</strong>. It costs nothing while the system runs. The bill
+          arrives as an outage, and the team pays it by learning the system under pressure.</p>
+        <p>Agents do not close the gap. An agent reads a few files at a time, and its picture of the
+          system ends with the session. It can explain one function well and still miss how two
+          services depend on each other.</p>
+        <p>Microsoft is the clearest case we know. In August 2026 Jay Parikh, Microsoft's executive
+          vice president of CoreAI, wrote to engineers that "tokenmaxxing is not what we are
+          optimizing for." Copilot dashboards had made each engineer's AI spending visible, and for
+          some employees they had turned into something like a leaderboard. In a voluntary internal
+          spreadsheet, the median spend was about US$300 in tokens every 28 days, and one employee
+          reported about US$28,000. November's Patch Tuesday fixed 1,094 vulnerabilities, and
+          Microsoft credited AI for the number.</p>
+        <p>Two days later Exchange Online went down around the world for 23 hours and 50 minutes.
+          Microsoft's preliminary report traces the outage to a change shipped in July. Under load,
+          the change made gateway servers wait on each other's locks until they ran out of CPU and
+          memory. The defect was worse on newer machines with more cores. Microsoft's load tests ran
+          on weaker machines with fewer cores, and the defect passed them. A routine failover then
+          moved Teams traffic onto the gateway that Exchange uses, while 14% of its servers were
+          already down. More than 80% of the gateway stopped responding. The boundaries meant to
+          hold a failure inside one region did not hold. The change was too old to roll back.
+          Servers that came back up were flooded by waiting traffic and failed again.</p>
+        <p>Microsoft says AI did not cause the outage, and we do not claim it did. We read the
+          outage as the shape comprehension debt takes. An engineer who knew the gateway inside out
+          would have asked how a lock behaves on a machine with more cores. That engineer would have
+          load tested on the machines that run in production. Nobody asked for four months. A
+          company that counts the tokens its engineers spend is shipping code faster than it
+          understands it, and its customers paid the bill for a day.</p>
+        <p class="note">Cite Microsoft's preliminary post-incident report (EX1550543 and MO1550821),
+          the 404 Media report of Parikh's memo, Ynet on the spending spreadsheet, and the Patch
+          Tuesday figure.</p>
 
         <h2 id="s1-3">1.3 The vision</h2>
-        <p>Programming stands at a precipice. Each generation of tools has carried people further from the machine. Assembly was too much, and we wrote C. C was too much, and we wrote Python. Code itself is now too much, and agents write it for us. Each step let people build more while understanding less of what lies beneath.</p>
-        <p>Two futures wait past the edge. In one, agents reach general intelligence. They understand the systems for us, and most of us are out of a job. In the other, agents stop getting better as fast as they have, and the chain continues. Something must then sit above code, the way code sits above assembly. aisus is our hedge against the first future and our bet on the second.</p>
-        <p>We predict that the next step is the picture. People understood the world by seeing it long before they read or wrote. Engineers still reach for a whiteboard when they need to explain a system. The chain of abstraction ends where it began, with the way humans meet the world. aisus is a step in that direction. It draws the system as a picture and ties every part of the picture to the code that proves it.</p>
+        <p>Programming stands at a precipice. Each generation of tools has carried people further
+          from the machine. Assembly was too much, and we wrote C. C was too much, and we wrote
+          Python. Code itself is now too much, and agents write it for us. Each step let people
+          build more while understanding less of what lies beneath.</p>
+        <p>Two futures wait past the edge. In one, agents reach general intelligence. They
+          understand the systems for us, and most of us are out of a job. In the other, agents stop
+          getting better as fast as they have, and the chain continues. Something must then sit
+          above code, the way code sits above assembly. aisus is our hedge against the first future
+          and our bet on the second.</p>
+        <p>We predict that the next step is the picture. People understood the world by seeing it
+          long before they read or wrote. Engineers still reach for a whiteboard when they need to
+          explain a system. The chain of abstraction ends where it began, with the way humans meet
+          the world. aisus is a step in that direction. It draws the system as a picture and ties
+          every part of the picture to the code that proves it.</p>
       </section>
     </main>
   </body>
