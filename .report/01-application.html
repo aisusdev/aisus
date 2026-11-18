@@ -13,10 +13,14 @@
         <h1 id="s1">1 The application</h1>
 
         <h2 id="s1-1">1.1 The problem</h2>
-        <p class="note">Describe the developer who now reads more code than they wrote, such as agent output, a teammate's large pull request or an unfamiliar codebase.</p>
+        <p>Developers now read more code than they write. A coding agent produces a feature in minutes. A teammate opens a pull request that touches dozens of files. A new job or a course project such as CS2103 starts in a codebase that someone else built over years. In each case the developer has to understand code they did not write before they can change it safely.</p>
+        <p>The usual answer is to ask the agent. A chat answer disappears with the session. The next question costs a full exploration of the repository again, and the answer cites nothing the developer can check. Our interviews found developers who read every line an agent writes and developers who avoid autonomous agents for this reason. Both groups spend time building a picture of the code that nothing keeps for them.</p>
 
         <h2 id="s1-2">1.2 What aisus does</h2>
-        <p class="note">Explain how a coding agent maps the repository, how every box cites line ranges, and how the editor marks each box as fresh, moved, edited or missing.</p>
+        <p>aisus turns a repository into a map. The map is a diagram of boxes and arrows, and every box cites the files and line ranges it describes. A click on a box opens those lines beside the map.</p>
+        <p>aisus makes no AI calls of its own. The developer's own coding agent, such as Claude Code, Codex or Devin, draws the map by following an aisus skill. The skill's first script collects facts about the repository. The agent reads the code and writes a draft. The skill's validator then checks the draft. It refuses a box that cites a file outside the repository, a line that does not exist or a secret such as a <code>.env</code> file, and it tells the agent what to fix. When the draft passes, the validator saves the map with a fingerprint of every cited line.</p>
+        <p>The fingerprints keep the map honest after the code changes. Whenever a cited file changes, the editor compares the code with the fingerprints and marks each box as fresh, moved, edited or missing. A moved box still opens at the right lines. This check runs no agent and spends no tokens. Refresh then asks the agent to redraw only the edited and missing boxes, so its cost follows the size of the change rather than the size of the repository.</p>
+        <p>Maps are plain JSON files in <code>.aisus/maps/</code>. A team commits them with the code, and every teammate gets them with the next pull. The extension itself sends nothing over the network.</p>
 
         <h2 id="s1-3">1.3 Where aisus runs</h2>
         <table>
@@ -24,28 +28,31 @@
             <tr><th>Surface</th><th>What it does</th><th>Status</th></tr>
           </thead>
           <tbody>
-            <tr><td>VS Code extension</td><td></td><td></td></tr>
-            <tr><td>Agent skills</td><td></td><td></td></tr>
-            <tr><td>IntelliJ IDEA plugin</td><td></td><td></td></tr>
-            <tr><td>aisus cloud</td><td></td><td></td></tr>
-            <tr><td>GitHub Action</td><td></td><td></td></tr>
+            <tr><td>VS Code extension</td><td>Starts the agent from a sidebar, shows the map, opens cited code, marks stale boxes and reviews a branch's changes against the map.</td><td>Released. Version 0.3.4 is on the VS Code Marketplace and on GitHub releases. Open VSX, which Cursor uses, is not published yet.</td></tr>
+            <tr><td>Agent skills</td><td>Teach Claude Code, Codex and Devin to draw, refresh, audit and tour a map, and to post a diagram on a pull request.</td><td>Released with every GitHub release. They install with <code>npx skills add aisusdev/aisus</code> or as a Claude Code plugin.</td></tr>
+            <tr><td>IntelliJ IDEA plugin</td><td>Shows the same map with the same viewer inside JetBrains IDEs, and opens cited code there.</td><td>Released as a zip on GitHub releases from version 0.3.4. It is not on the JetBrains Marketplace yet.</td></tr>
+            <tr><td>aisus cloud</td><td>Keeps uploaded maps at aisus.dev with a page per pull request, map history, share links and a team page. It stores maps and check results, never code.</td><td>Live at aisus.dev on one server. Paid plans run in Stripe's test mode. Private repositories wait on the GitHub App sign-in.</td></tr>
+            <tr><td>GitHub Action</td><td>Comments on each pull request with the boxes it touches, the boxes it leaves stale and the changed code no box covers. It spends no tokens.</td><td>Released. A repository adds it with one workflow file.</td></tr>
           </tbody>
         </table>
 
         <h2 id="s1-4">1.4 A walkthrough</h2>
-        <p class="note">Follow one user from installation to reviewing a change, with a screenshot at each step.</p>
+        <p>A developer installs aisus from the VS Code Marketplace and clicks the aisus icon in the Activity Bar. The sidebar's setup checklist names anything missing, such as Node.js or a signed-in agent, and offers a fix for each. The developer picks Claude Code as the agent.</p>
         <figure class="placeholder">
           <div class="frame">Screenshot of installation and setup</div>
           <figcaption>Figure 1.1 Installing aisus and choosing an agent.</figcaption>
         </figure>
+        <p>The developer types an optional focus, such as "payment flow", and reads the token estimate under Generate. A click on Generate starts the agent, and the sidebar shows its progress and the tokens it spends. When the validator accepts the draft, the map opens.</p>
         <figure class="placeholder">
           <div class="frame">Screenshot of the first map</div>
           <figcaption>Figure 1.2 The first map of a repository.</figcaption>
         </figure>
+        <p>Hovering a box shows its description and every source it cites. A click opens the cited lines beside the map with the lines selected. The developer commits the map folder, and the team gets the same map with the next pull.</p>
         <figure class="placeholder">
           <div class="frame">Screenshot of a box opening its cited code</div>
           <figcaption>Figure 1.3 A box opens the lines it cites.</figcaption>
         </figure>
+        <p>A week later a teammate opens a pull request. The developer checks out the branch and opens Review changes in the sidebar. aisus compares the branch with its base and highlights the boxes the change touches, the boxes it leaves stale and the changed files no box covers. The developer reads the highlighted boxes first. Refresh then updates only those boxes, and the GitHub Action posts the same report on the pull request.</p>
         <figure class="placeholder">
           <div class="frame">Screenshot of Review Changes</div>
           <figcaption>Figure 1.4 Review Changes highlights the boxes a change affects.</figcaption>
