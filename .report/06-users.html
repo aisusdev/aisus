@@ -13,7 +13,9 @@
         <h1 id="s6">6 Users and analytics</h1>
 
         <h2 id="s6-1">6.1 What we measure</h2>
-        <p class="note">The extension sends no telemetry by design. Explain which sources the numbers come from instead, such as site analytics, store install counts and cloud accounts.</p>
+        <p>The extension sends no telemetry. aisus reads private code, and we decided that a tool which reports on its users would lose the developers it is for. An optional usage log counts each action per day, stays in VS Code's own storage and leaves the machine only when the user exports it.</p>
+        <p>Our numbers come from four places outside the extension. The VS Code Marketplace publishes install and download counts for the listing. GitHub counts downloads of each release file, and it reports views and clones of the repository for the last 14 days. Umami counts visits to aisus.dev without cookies. aisus cloud's database holds the accounts that signed in and the maps they uploaded.</p>
+        <p>On 9 November a teardown script ran by accident and removed the server with its only disk. The cloud's database and Umami's history from before that date were lost. Site and cloud figures therefore cover 9 November onwards.</p>
 
         <h2 id="s6-2">6.2 Current numbers</h2>
         <table>
@@ -21,14 +23,17 @@
             <tr><th>Metric</th><th>Value</th><th>Source</th><th>Date</th></tr>
           </thead>
           <tbody>
-            <tr><td>Site visitors</td><td></td><td></td><td></td></tr>
-            <tr><td>Downloads and installs</td><td></td><td></td><td></td></tr>
-            <tr><td>Cloud sign-ups</td><td></td><td></td><td></td></tr>
-            <tr><td>Active users</td><td></td><td></td><td></td></tr>
-            <tr><td>Maps created</td><td></td><td></td><td></td></tr>
+            <tr><td>Site visitors</td><td></td><td>Umami on aisus.dev, from 9 November</td><td></td></tr>
+            <tr><td>Downloads and installs</td><td>5 installs and 113 downloads</td><td>VS Code Marketplace, listed since 1 November</td><td>18 Nov 2026</td></tr>
+            <tr><td>Downloads and installs</td><td>49 extension, 10 IntelliJ plugin and 5 skill downloads</td><td>GitHub release files, versions 0.3.0 to 0.3.4</td><td>18 Nov 2026</td></tr>
+            <tr><td>Repository visitors</td><td>23 unique visitors, 104 unique cloners</td><td>GitHub traffic, last 14 days</td><td>18 Nov 2026</td></tr>
+            <tr><td>Cloud sign-ups</td><td></td><td>aisus cloud database, from 9 November</td><td></td></tr>
+            <tr><td>Active users</td><td>Not measured</td><td>The extension sends no telemetry</td><td>18 Nov 2026</td></tr>
+            <tr><td>Maps created</td><td></td><td>Maps uploaded to aisus cloud, from 9 November</td><td></td></tr>
             <tr><td>Pilot users</td><td></td><td></td><td></td></tr>
           </tbody>
         </table>
+        <p class="note">Fill in site visitors from stats.aisus.dev, sign-ups and uploaded maps from the cloud database, and the pilot users. The cloners figure includes CI runs and our own machines.</p>
 
         <h2 id="s6-3">6.3 Analytics evidence</h2>
         <figure class="placeholder">
@@ -41,10 +46,16 @@
         </figure>
 
         <h2 id="s6-4">6.4 User feedback</h2>
-        <p class="note">Summarise feedback from pilot users and the class demo, with quotes where you have them.</p>
+        <p>Two developers tested early builds. Both valued the same thing, the map together with the click from a box into its code. That result is why we kept the map and its link to the code at the centre and cut the rest of our original pitch.</p>
+        <p>Our interviews changed who we build for. One interviewee reads every line an agent writes, and another avoids autonomous agents altogether. Both care about understanding the code they keep. One interviewee asked why they would not just ask Codex. aisus's answer is a map that stays in the repository, is checked against the code for free and refreshes only what changed. None of the developers we interviewed used VS Code, and that led us to build the IntelliJ IDEA plugin.</p>
+        <p>The Marketplace listing has one rating, of five stars.</p>
+        <p class="note">Add feedback from the pilot users, the class demo and the poster session, with quotes where you have them.</p>
 
         <h2 id="s6-5">6.5 What the numbers show</h2>
-        <p class="note">Compare the numbers with the targets and explain the gap.</p>
+        <p>The numbers fall well short of our plan. We set a gate of about ten teams uploading maps every week before we would charge for aisus cloud. We have five Marketplace installs, no stars on the repository and no team uploading every week.</p>
+        <p>Four causes explain most of the gap. We held back the public announcements on Show HN and Reddit until the first users' bugs were fixed, and they have not gone out. The extension reached the Marketplace only on 1 November, and before that a user had to download a VSIX and install it by hand. It is still missing from Open VSX, which Cursor uses, because that store needs a licence field we had not settled. The IntelliJ IDEA plugin, built for the users we interviewed, is a zip on GitHub rather than a listing on the JetBrains Marketplace.</p>
+        <p>Trying aisus also costs more than installing it. A first map needs Node.js and a signed-in Claude Code or Codex, and it spends the user's own tokens. Our own repository's first map spent 1.46 million tokens, about US$1.49, while the estimate said 160k to 320k.</p>
+        <p>Without telemetry we cannot see where people stop between the listing and a first map. That blind spot is the cost of the privacy choice in section 6.1.</p>
       </section>
     </main>
   </body>
