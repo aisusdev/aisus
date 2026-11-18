@@ -23,9 +23,10 @@
         <li><a href="#summary-title">Summary</a></li>
         <li><a href="#s1">1 The application</a>
           <ul>
-            <li><a href="#s1-1">1.1 What aisus is</a></li>
-            <li><a href="#s1-2">1.2 The symptom</a></li>
-            <li><a href="#s1-3">1.3 The vision</a></li>
+            <li><a href="#s1-1">1.1 Try aisus</a></li>
+            <li><a href="#s1-2">1.2 What aisus is</a></li>
+            <li><a href="#s1-3">1.3 The symptom</a></li>
+            <li><a href="#s1-4">1.4 The vision</a></li>
           </ul>
         </li>
         <li><a href="#s2">2 Similar applications and what makes aisus different</a>
@@ -124,6 +125,10 @@
               max-width: 860px;
             }
 
+            .live > h2:first-child {
+              margin-top: 0;
+            }
+
             .live-tabs {
               display: flex;
               flex-wrap: wrap;
@@ -178,12 +183,17 @@
               }
             }
           </style>
-          <p>This is VS Code running the released aisus 0.3.4, open on real repositories with the maps
-            and tours aisus drew of them. Nothing here is a mock-up. Click the aisus icon in the
-            Activity Bar on the left, then Open. A click on any box opens the code it cites, and Tour
-            walks through the map one stop at a time.</p>
-          <p>The code is read-only and no agent is connected. Generate, Refresh and Ask therefore stop
-            at the setup checklist, as they would on a machine without Claude Code or Codex.</p>
+          <h2 id="s1-1">1.1 Try aisus</h2>
+          <p>This is VS Code running the released aisus 0.3.4 on four real repositories. Nothing here
+            is a mock-up.</p>
+          <h3>Step 1</h3>
+          <p>Click the aisus icon in the Activity Bar on the left, then click Open.</p>
+          <h3>Step 2</h3>
+          <p>Click any box to open the code it cites. Click Tour to walk through the map one stop at a
+            time.</p>
+          <p>Maps in the aisus sidebar lists every map of the repository. Paxos and Caerus also have a
+            sequence diagram.</p>
+          <p>Generate, Refresh and Ask features are disabled as they require an agent.</p>
           <div class="live-tabs" role="tablist" aria-label="Repository">
             <button type="button" role="tab" aria-selected="true" data-folder="tp">TeamSync, a CS2103T team project</button>
             <button type="button" role="tab" aria-selected="false" data-folder="cs4223">ccsim, a CS4223 cache coherence simulator</button>
@@ -214,7 +224,7 @@
           </script>
         </div>
 
-        <h2 id="s1-1">1.1 What aisus is</h2>
+        <h2 id="s1-2">1.2 What aisus is</h2>
         <p>aisus turns a codebase into a picture a person can hold in their head. A developer sees the 
             architecture of a repository as a powerful visual abstraction and
           can check every claim the picture makes against the code itself.</p>
@@ -229,7 +239,7 @@
           and GitHub Copilot, Gemini CLI and OpenCode take a copied prompt. Even the rendering is
           open. Anyone can draw the map their own way (the diagrams are in JSON).</p>
 
-        <h2 id="s1-2">1.2 The symptom</h2>
+        <h2 id="s1-3">1.3 The symptom</h2>
         <p>Software is now written faster than anyone understands it, a gap well-known
           <strong>comprehension debt</strong>. On the best of days, its the existential crisis
           shared by millions of SWEs world wide. On the worst, comprehension debt rears its ugly
@@ -255,7 +265,7 @@
           tested on the machines that run in production. Even in top shops like Microsoft, that engineer 
           doesn't exist anymore.</p>
 
-        <h2 id="s1-3">1.3 The vision</h2>
+        <h2 id="s1-4">1.4 The vision</h2>
         <p>Programming stands at a precipice. Each generation of tools has carried people further
           from the machine. Assembly was too much, and we wrote C. C was too much, and we wrote
           Python. Code itself is now too much, and agents write it for us. Each step lets people
