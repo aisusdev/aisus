@@ -39,6 +39,15 @@ useHost({
     queueMicrotask(() => handler({ type: "load", doc: data.doc, file: data.title }));
   },
 });
+
+// In a report dialog, Escape asks the report page to close the dialog. Escape in a text field,
+// such as the viewer's box finder, stays with that field.
+if (window.parent !== window) {
+  window.addEventListener("keydown", (event) => {
+    const field = event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement || event.target instanceof HTMLSelectElement;
+    if (event.key === "Escape" && !field) window.parent.postMessage({ type: "aisus-close-figure" }, "*");
+  });
+}
 startViewer();
 
 window.aisus = {

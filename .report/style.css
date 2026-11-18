@@ -154,6 +154,66 @@ figcaption {
   margin: 0;
 }
 
+/* A figure opens its live map in a dialog almost as large as the window. */
+figure a[href$=".html"] {
+  cursor: zoom-in;
+}
+
+.figure-dialog {
+  width: calc(100vw - 48px);
+  height: calc(100vh - 48px);
+  height: calc(100dvh - 48px);
+  max-width: none;
+  max-height: none;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: 0 8px 40px rgb(20 43 34 / 25%);
+}
+
+.figure-dialog[open] {
+  display: flex;
+  flex-direction: column;
+}
+
+.figure-dialog::backdrop {
+  background: rgb(20 43 34 / 45%);
+}
+
+.figure-dialog__bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--line);
+}
+
+.figure-dialog__title {
+  margin: 0;
+  font-family: var(--display);
+  font-weight: 600;
+  color: var(--forest);
+}
+
+.figure-dialog__close {
+  flex: none;
+  padding: 6px 16px;
+  border: 1px solid var(--forest);
+  border-radius: 6px;
+  background: var(--accent);
+  color: var(--forest);
+  font: 600 16px/1.4 var(--sans);
+  cursor: pointer;
+}
+
+.figure-dialog__map {
+  flex: 1;
+  width: 100%;
+  border: 0;
+}
+
 .section-nav {
   max-width: 860px;
   margin: 0 auto;
@@ -195,6 +255,12 @@ figcaption {
     flex-direction: column;
   }
 
+  .figure-dialog {
+    width: calc(100vw - 16px);
+    height: calc(100vh - 16px);
+    height: calc(100dvh - 16px);
+  }
+
   main {
     padding: 32px 20px 48px;
   }
@@ -228,6 +294,10 @@ figcaption {
   }
 
   .section-nav {
+    display: none;
+  }
+
+  .figure-dialog {
     display: none;
   }
 
