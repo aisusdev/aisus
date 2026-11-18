@@ -34,14 +34,13 @@
         <h1 id="s7">7 Future plans and strategies</h1>
 
         <h2 id="s7-1">7.1 aisus cloud</h2>
-        <p>The extension is free, and it stays free. Nobody should pay to understand their own
-          code.</p>
-        <p>Teams are a different story. A team wants one place for its maps, with a page for every
-          pull request, the history of every map and a link anyone can open. That place is aisus
-          cloud. It holds maps and check results. It never holds code.</p>
-        <p>The free GitHub Action is the hook. It comments on every pull request with the boxes the
-          change touches, and it costs zero tokens. Flip on upload, and the team gets pull request
-          pages, history and a team page. <strong>That is what a team pays for.</strong></p>
+        <p>The extension is free. We needed that to gain traction early on anyway. The costs are absorbed
+            by the users anyhow, in their token usage and disk space/repo bloat.
+        </p>
+        <p>Cloud, team synchronization and enterprise plan, on the other hand, is a well-established monetization model that
+            <em>does</em> require costs from us. We do indeed already have this deployed, but we have not
+            been vomitously marketing it. With sufficient traction, we will be able to start charging for it. 
+        </p>
         <table>
           <thead>
             <tr><th>Plan</th><th>Price</th><th>For</th></tr>
@@ -57,13 +56,6 @@
           <img src="figures/7-1-cloud.png" alt="aisus cloud's Your repositories page, shown with test accounts. Each account lists its repositories with its plan, Free or Team, and offers Upgrade to Pro, Upgrade to Team, Manage billing or Set up.">
           <figcaption>Figure 7.1 The signed-in cloud, shown with test accounts. Each account carries its plan, with a button to upgrade or manage billing.</figcaption>
         </figure>
-        <p>The economics are simple. The agent runs on the user's machine, on the user's own
-          subscription, and aisus never pays for a single token of inference. The whole cloud runs
-          on one small server. Each new team is close to pure margin.</p>
-        <p>Three things stand between us and the first paying team. Private repositories need a
-          GitHub App sign-in. The database moves from PGlite to Postgres. And payments, already
-          built and running in Stripe's test mode, go live once about ten teams upload maps every
-          week.</p>
 
         <h2 id="s7-2">7.2 aisus for education</h2>
         <p>Every CS2103 team starts the same way. They inherit a working codebase, then spend the
@@ -79,7 +71,8 @@
         </figure>
         <p><strong>Bug hunt.</strong> The agent builds a task in steps and quietly plants one bug in
           each. The student hunts it down and fixes it. The agent is never allowed to fix it for
-          them. Bug hunt stays hidden while we test it.</p>
+          them.</p>
+          <p>Similarly, we have not been vomitously marketing this plan to place emphasis on polishing our main feature.</p>
         <figure class="wide">
           <img src="figures/7-3-bug-hunt-planted.webp" alt="A Bug hunt in VS Code. The agent has written citation-text.ts for step 1 of 3, and the Learning Session panel beside it reads Hunting, with 0 found, 0 fixed and 1 seeded.">
           <figcaption>Figure 7.3 Step 1 of a Bug hunt. The agent has planted a bug, and the student is hunting for it.</figcaption>
@@ -91,30 +84,36 @@
         <p><strong>Check my understanding.</strong> Three questions about a change, each graded
           against the code. Every finished tour, hunt and check lands in the student's practice
           log.</p>
-        <p>CS2103 is our first course, and the fit is almost too neat. The course runs on IntelliJ
-          IDEA, and so does aisus. A teaching team ships a map and a tour with the starter code, and
-          every student meets the architecture before touching it. The TeamSync demo in section 1.1
-          is a CS2103T project, already mapped and toured.</p>
+        <p>CS2103 is our target first course, with Prof Damith's blessing. The course runs on IntelliJ
+          IDEA. aisus supports it, but it requires more polish to reach the smoothness of our VSCode extension.
+            The main selling point to educators is a grounded, healthy compromise. Students are going
+            to outsource an inordinate majority of the work to AI anyway, for one reason or another. 
+            At least with aisus, the work is not totally blind.</p> 
+          <p>The TeamSync demo in section 1.1 is a CS2103T project, already mapped and toured.</p>
 
         <h2 id="s7-3">7.3 sakai</h2>
-        <p>aisus reads the code that exists and draws its map. Its spiritual successor, sakai, runs
+        <p>aisus reads the code that exists and draws its map. Its spiritual successor, sakai, also runs
           the other way.</p>
-        <p>In sakai, the map is the program. You place blocks, link them and press Build. A coding
+          <p>Here's a quick pitch:</p>
+        <p><em>In sakai, the map is the program. You place blocks, link them and press Build. A coding
           agent on your own machine writes the code that makes the map true. Already have a
-          codebase? Import it, and sakai draws the map for you.</p>
+          codebase? Import it, and sakai draws the map for you.</em></p>
         <p>This is the step section 1.4 predicted. Assembly, then C, then Python, then prompts. In
           sakai, the architecture itself is what you work in.</p>
         <p>Links are first-class, with kinds, properties and code of their own. The facts that make
           or break a design, like concurrent, atomic or asynchronous, sit right on the map where
-          nobody can miss them. And the whole thing should feel like an engineering strategy
-          game.</p>
+          nobody can miss them. Sakai's experience is designed to feel like an engineering strategy
+          game, a bit like Factorio. We learned this lesson after seeing all the success the games were
+        having at STePS.</p>
+        <p>Once that is in place, the next step becomes formal verification methods like static analysis, TLA+,
+            Lean etc. to ensure the diagrams and code match up perfectly. Huge trend in the industry right now.
+        </p>
         <figure class="wide">
           <img src="figures/7-5-sakai.png" alt="sakai's map of a notes app. A web app, a notes API, a digest worker and an export tool link to a SQLite store and a mail service. Belts carry flow between blocks, and yellow tags mark properties such as concurrent, atomic, asynchronous and retries 3.">
           <figcaption>Figure 7.5 A map in sakai. Belts carry flow, and properties such as atomic and asynchronous sit on the blocks and links they belong to.</figcaption>
         </figure>
-        <p>Our team is building sakai right now. In four days it went from an empty repository to a
-          working map, blocks that hold maps of their own, and import from a real codebase.</p>
-        <p>And yes, we are genuinely asking whether sakai is a startup.</p>
+        <p>Our team is building sakai right now. </p>
+        <p>Lowkey we are genuinely asking whether sakai has startup potential...</p>
       </section>
     </main>
   </body>
