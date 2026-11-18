@@ -106,6 +106,78 @@
         <h1 id="s1">1 The application</h1>
 
         <div class="live">
+          <style>
+            /* The live demo in part 1 spans nearly the full window width, outside the text column. */
+            .live {
+              position: relative;
+              left: 50%;
+              width: min(1680px, calc(100vw - 48px));
+              margin: 8px 0 56px;
+              padding: 32px;
+              border-radius: 12px;
+              background: #fff;
+              box-shadow: 0 2px 24px rgb(20 43 34 / 8%);
+              transform: translateX(-50%);
+            }
+
+            .live p {
+              max-width: 860px;
+            }
+
+            .live-tabs {
+              display: flex;
+              flex-wrap: wrap;
+              gap: 8px;
+              margin: 24px 0 12px;
+            }
+
+            .live-tabs button {
+              padding: 8px 16px;
+              border: 1px solid var(--line);
+              border-radius: 999px;
+              background: var(--white);
+              color: var(--forest);
+              font: inherit;
+              cursor: pointer;
+            }
+
+            .live-tabs button[aria-selected="true"] {
+              border-color: var(--forest);
+              background: var(--accent);
+            }
+
+            .live-frame {
+              display: block;
+              width: 100%;
+              height: max(640px, calc(100vh - 160px));
+              border: 1px solid var(--line);
+              border-radius: 8px;
+              background: #fff;
+            }
+
+            @media (max-width: 640px) {
+              .live {
+                width: calc(100vw - 16px);
+                padding: 20px 12px;
+              }
+            }
+
+            @media print {
+              .live-tabs,
+              .live-frame {
+                display: none;
+              }
+
+              .live {
+                left: 0;
+                width: auto;
+                margin: 0;
+                padding: 0;
+                box-shadow: none;
+                transform: none;
+              }
+            }
+          </style>
           <p>This is VS Code running the released aisus 0.3.4, open on real repositories with the maps
             and tours aisus drew of them. Nothing here is a mock-up. Click the aisus icon in the
             Activity Bar on the left, then Open. A click on any box opens the code it cites, and Tour
@@ -118,11 +190,11 @@
             <button type="button" role="tab" aria-selected="false" data-folder="cs5223">Paxos, a CS5223 lab</button>
             <button type="button" role="tab" aria-selected="false" data-folder="caerus">Caerus, a market data capture system</button>
           </div>
-          <iframe class="live-frame" title="VS Code with aisus" src="__DEMO_URL__?folder=/home/coder/repos/tp" allow="clipboard-read; clipboard-write"></iframe>
-          <p class="live-open"><a href="__DEMO_URL__?folder=/home/coder/repos/tp" target="_blank" rel="noopener">Open this repository in a new tab</a></p>
+          <iframe class="live-frame" title="VS Code with aisus" src="https://18-140-229-72.sslip.io/24c0af7986a9d7caa157a28a7dde743a/?folder=/home/coder/repos/tp" allow="clipboard-read; clipboard-write"></iframe>
+          <p class="live-open"><a href="https://18-140-229-72.sslip.io/24c0af7986a9d7caa157a28a7dde743a/?folder=/home/coder/repos/tp" target="_blank" rel="noopener">Open this repository in a new tab</a></p>
           <script>
             (() => {
-              const host = "__DEMO_URL__?folder=/home/coder/repos/";
+              const host = "https://18-140-229-72.sslip.io/24c0af7986a9d7caa157a28a7dde743a/?folder=/home/coder/repos/";
               const frame = document.querySelector(".live-frame");
               const open = document.querySelector(".live-open a");
               // VS Code takes focus as it starts, and the browser scrolls the frame into view.

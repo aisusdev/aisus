@@ -34,7 +34,3 @@ marketing/
 # Design tool state, kept outside the repository.
 .impeccable/
 .video/
-
-# The live demo address and the hand-in copy of the report that carries it.
-.report/demo-url
-.report/submit.html

@@ -138,54 +138,6 @@ figcaption {
   color: var(--text-2);
 }
 
-/* The live demo in part 1 spans nearly the full window width, outside the text column. */
-.live {
-  position: relative;
-  left: 50%;
-  width: min(1680px, calc(100vw - 48px));
-  margin: 8px 0 56px;
-  padding: 32px;
-  border-radius: 12px;
-  background: #fff;
-  box-shadow: 0 2px 24px rgb(20 43 34 / 8%);
-  transform: translateX(-50%);
-}
-
-.live p {
-  max-width: 860px;
-}
-
-.live-tabs {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin: 24px 0 12px;
-}
-
-.live-tabs button {
-  padding: 8px 16px;
-  border: 1px solid var(--line);
-  border-radius: 999px;
-  background: var(--white);
-  color: var(--forest);
-  font: inherit;
-  cursor: pointer;
-}
-
-.live-tabs button[aria-selected="true"] {
-  border-color: var(--forest);
-  background: var(--accent);
-}
-
-.live-frame {
-  display: block;
-  width: 100%;
-  height: max(640px, calc(100vh - 160px));
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  background: #fff;
-}
-
 .section-nav {
   max-width: 860px;
   margin: 0 auto;
@@ -223,11 +175,6 @@ figcaption {
 }
 
 @media (max-width: 640px) {
-  .live {
-    width: calc(100vw - 16px);
-    padding: 20px 12px;
-  }
-
   main {
     padding: 32px 20px 48px;
   }
@@ -260,19 +207,8 @@ figcaption {
     box-shadow: none;
   }
 
-  .section-nav,
-  .live-tabs,
-  .live-frame {
+  .section-nav {
     display: none;
-  }
-
-  .live {
-    left: 0;
-    width: auto;
-    margin: 0;
-    padding: 0;
-    box-shadow: none;
-    transform: none;
   }
 
   .report-section:not(.cover) {

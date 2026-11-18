@@ -81,16 +81,3 @@ ${rest.join("\n\n")}
 
 writeFileSync(join(dir, "index.html"), page);
 console.log(`Wrote index.html from ${SECTIONS.length} sections.`);
-
-// The hand-in copy, submit.html, carries the live demo's address in place of __DEMO_URL__.
-// The address stays out of git. It is read from .report/demo-url, which git ignores.
-let demoUrl;
-try {
-  demoUrl = readFileSync(join(dir, "demo-url"), "utf8").trim();
-} catch {
-  console.log("No .report/demo-url, so no submit.html.");
-}
-if (demoUrl) {
-  writeFileSync(join(dir, "submit.html"), page.replaceAll("__DEMO_URL__", demoUrl));
-  console.log("Wrote submit.html with the live demo's address.");
-}
