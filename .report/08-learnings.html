@@ -90,11 +90,9 @@
           <code>--check-cmd</code> argument as a shell command. Planted text could run any command
           through it.</p>
         <p>The fix removed the argument, narrowed every rule to scripts that only read and write
-          data, and pre-approved no edit tool (ADR 0041).</p>
-        <p>One guarantee is out of reach. aisus cannot stop the agent from sending code to its own
-          model provider, because the agent belongs to the user.</p>
-        <p>The no-network invariant also has a cost. Without telemetry, there is no way to see where
-          users get stuck. Section 6 shows the result.</p>
+          data, and pre-approved no edit tool.</p>
+        <p>The no-network invariant prevents us from obtaining proper telemetry, which means we cannot see where
+          users get stuck. This affected the analysis in Section 6.</p>
 
         <h2 id="s8-3">8.3 How good we are at marketing</h2>
         <p>'Nuff said.</p>
