@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>aisus final report</title>
     <link rel="stylesheet" href="style.css">
+    <script src="engine/figures.js" defer></script>
   </head>
   <body>
     <main>
@@ -55,12 +56,9 @@
         </li>
         <li><a href="#s5">5 Application design</a>
           <ul>
-            <li><a href="#s5-1">5.1 System context</a></li>
-            <li><a href="#s5-2">5.2 Components</a></li>
-            <li><a href="#s5-3">5.3 Data model</a></li>
-            <li><a href="#s5-4">5.4 Key flows</a></li>
-            <li><a href="#s5-5">5.5 Deployment</a></li>
-            <li><a href="#s5-6">5.6 Key design decisions</a></li>
+            <li><a href="#s5-1">5.1 Data model</a></li>
+            <li><a href="#s5-2">5.2 Key flows</a></li>
+            <li><a href="#s5-3">5.3 Deployment</a></li>
           </ul>
         </li>
         <li><a href="#s6">6 Users and analytics</a>
@@ -280,68 +278,44 @@
 
 <section class="report-section" id="design">
         <h1 id="s5">5 Application design</h1>
-        <p class="note">Use diagrams and prose only. This section contains no code.</p>
-
-        <h2 id="s5-1">5.1 System context</h2>
-        <figure class="placeholder">
-          <div class="frame">Diagram of the extension, agent skills, viewer, cloud, IntelliJ plugin and GitHub Action</div>
-          <figcaption>Figure 5.1 aisus and the systems around it.</figcaption>
+        <p>aisus keeps its core libraries apart from the platforms that show a map. The core libraries are the map model, the layout manager and the agent skills. Each platform adds only a thin layer on top of them, made of a panel that starts runs and a diagram viewer that draws the result. Figure 5 shows this split for the VS Code extension and the IntelliJ plugin.</p>
+        <p>The split lets aisus reach a new platform quickly. The IntelliJ plugin hosts the same diagram viewer as the VS Code extension, inside the IDE's built-in browser, and both rely on the same core libraries. A new platform needs its own panel and a place for the viewer, and the core logic stays as it is.</p>
+        <p>The split also keeps the agent skills independent of how a map is drawn. A skill has one job, which is to produce a JSON document in the map format described in <a href="#s5-1">section 5.1</a>. The map model checks that document before it is published. Any viewer that reads the map format can then draw it, on whichever platform it runs.</p>
+        <figure>
+          <a href="figures/design/components.html"><img src="figures/design/components.svg" alt="Component diagram of the aisus modules"></a>
+          <figcaption>Figure 5 The modules and the contracts between them.</figcaption>
         </figure>
 
-        <h2 id="s5-2">5.2 Components</h2>
-        <p class="note">Show the modules and the contracts between them. docs/architecture.md is the source.</p>
-        <figure class="placeholder">
-          <div class="frame">Component diagram</div>
-          <figcaption>Figure 5.2 The modules and the contracts between them.</figcaption>
+        <h2 id="s5-1">5.1 Data model</h2>
+        <p>The map format treats a diagram as a set of claims about the code. A box claims that a part of the system exists, an arrow claims that one part relies on another, and a group claims that some parts belong together. A map is only as useful as these claims are true. The format therefore ties every box to evidence, as Figure 5.1 shows from left to right.</p>
+        <p>That evidence is the citation. A box must point to the lines of code that make it real, and a box that points to nothing is refused. A reader never has to take the diagram on trust. They can open any box and read the code it stands for, which turns the map from a picture into an index of the codebase.</p>
+        <figure>
+          <a href="figures/design/map-format.html"><img src="figures/design/map-format.svg" alt="Diagram of a map's boxes, arrows, groups and citations, the fingerprint saved for each citation, and the freshness worked out from it"></a>
+          <figcaption>Figure 5.1 The map format.</figcaption>
         </figure>
 
-        <h2 id="s5-3">5.3 Data model</h2>
-        <h3>The map format</h3>
-        <figure class="placeholder">
-          <div class="frame">Entity diagram of map, box, edge, citation and freshness state</div>
-          <figcaption>Figure 5.3 The map format.</figcaption>
-        </figure>
-        <h3>The cloud database</h3>
-        <figure class="placeholder">
-          <div class="frame">Database schema of users, teams, maps and pull request pages</div>
-          <figcaption>Figure 5.4 The aisus cloud database schema.</figcaption>
-        </figure>
+        <h2 id="s5-2">5.2 Key flows</h2>
+        <p>Two workflows carry most of what aisus does. The first, in Figure 5.2.1, turns a request into a map. A developer asks for a map, and a coding agent studies the repository and drafts one. aisus does not take the draft on trust. It checks the draft against the map format and against the code it cites, and hands it back with every problem it finds until the draft passes. These checks are plain code rather than a model's judgement. Hence, a map that passes is certain to render, and every box in it points to code that exists. Only such a map is kept and shown to the developer.</p>
+        <p>The second workflow, in Figure 5.2.2, shows what has changed. The developer picks an earlier map of the same code, and aisus compares the two. It works out which parts of the system appeared, changed or disappeared in between, and marks them on the map on screen. The comparison is also plain code without agent involvement. A reviewer sees how a change moves the architecture, rather than piecing it together from the files it touched. Together the two workflows let a team draw a map once and then follow how its architecture moves over time.</p>
+        <div class="figure-row">
+          <figure>
+            <a href="figures/design/generate-flow.html"><img src="figures/design/generate-flow.svg" alt="Sequence diagram of generating a map"></a>
+            <figcaption>Figure 5.2.1 Generating a map.</figcaption>
+          </figure>
+          <figure>
+            <a href="figures/design/compare-flow.html"><img src="figures/design/compare-flow.svg" alt="Sequence diagram of comparing a map with an earlier one"></a>
+            <figcaption>Figure 5.2.2 Comparing a map with an earlier one.</figcaption>
+          </figure>
+        </div>
 
-        <h2 id="s5-4">5.4 Key flows</h2>
-        <figure class="placeholder">
-          <div class="frame">Sequence diagram of generating a map</div>
-          <figcaption>Figure 5.5 Generating a map.</figcaption>
+        <h2 id="s5-3">5.3 Deployment</h2>
+        <p>Figure 5.3 shows where each part of aisus runs. Nearly all of it runs on the developer's own computer. The extension, the coding agent and the maps sit beside the code, and drawing or comparing a map needs no aisus server. A developer who never shares a map can use aisus without an aisus account.</p>
+        <p>Only two paths lead to aisus cloud, and a person chooses each one. A developer can share a map with the team, and a team can let the pull request check send its results. What travels is the map and its findings. The code stays in the repository, and the check comments on the pull request whether or not anything is sent.</p>
+        <p>The cloud itself is one small server. It hosts the website where a team reads shared maps, and it keeps those maps in its database. GitHub tells it who someone is and which repositories they may see, and Stripe takes the payments. aisus therefore holds no passwords and no card details. Running a single server keeps the cost of the service low.</p>
+        <figure>
+          <a href="figures/design/deployment.html"><img src="figures/design/deployment.svg" alt="Infrastructure diagram of the developer's computer, GitHub, Stripe and the aisus cloud server"></a>
+          <figcaption>Figure 5.3 The aisus infrastructure.</figcaption>
         </figure>
-        <figure class="placeholder">
-          <div class="frame">Sequence diagram of checking freshness</div>
-          <figcaption>Figure 5.6 Checking each box against its cited lines.</figcaption>
-        </figure>
-        <figure class="placeholder">
-          <div class="frame">Sequence diagram of the pull request check</div>
-          <figcaption>Figure 5.7 The pull request check.</figcaption>
-        </figure>
-        <figure class="placeholder">
-          <div class="frame">Sequence diagram of sharing a map to the cloud</div>
-          <figcaption>Figure 5.8 Sharing a map with a team.</figcaption>
-        </figure>
-
-        <h2 id="s5-5">5.5 Deployment</h2>
-        <p class="note">Describe the single server, what runs on the developer's machine, and which data leaves it.</p>
-        <figure class="placeholder">
-          <div class="frame">Deployment diagram</div>
-          <figcaption>Figure 5.9 Where each part of aisus runs.</figcaption>
-        </figure>
-
-        <h2 id="s5-6">5.6 Key design decisions</h2>
-        <p class="note">Summarise the decisions recorded in docs/adr/.</p>
-        <table>
-          <thead>
-            <tr><th>Decision</th><th>Reason</th><th>Record</th></tr>
-          </thead>
-          <tbody>
-            <tr><td></td><td></td><td></td></tr>
-          </tbody>
-        </table>
       </section>
 
 <section class="report-section" id="users">
