@@ -49,6 +49,17 @@
           .chart .note {
             fill: var(--text);
           }
+
+          .quote {
+            margin: 16px 0;
+            padding: 12px 20px;
+            border-left: 4px solid var(--accent);
+            background: var(--paper);
+          }
+
+          .quote p {
+            margin: 4px 0;
+          }
         </style>
         <h1 id="s6">6 Users and analytics</h1>
 
@@ -143,7 +154,28 @@
           and our own testing. The estimate is a range for that reason. Even its low end is four
           times what Umami has counted since.</p>
 
-        <h2 id="s6-5">6.5 What the numbers show</h2>
+        <h2 id="s6-5">6.5 What users said</h2>
+        <p>Three people tried the production build and told us what they thought.</p>
+        <p><strong>Tejas, a first-year student.</strong> He tried aisus as soon as he got back to
+          his room. His messages, verbatim:</p>
+        <blockquote class="quote">
+          <p>Bro ngl</p>
+          <p>I went back to my room</p>
+          <p>And used ur project instantly 😂</p>
+          <p>My only feedback is that.. after you click generate once... It's hard to give feedback
+            on the next generate... Or like I couldn't find a way to ask it to regenerate with new
+            feedback</p>
+          <p>On the same diagram</p>
+          <p>Otherwise it's really good</p>
+        </blockquote>
+        <p><strong>Satvik, an engineer at AICET.</strong> He liked the concept. He wants stress
+          tests on larger codebases first, to see whether aisus avoids the scaling problems he
+          expects: diagrams that grow too complicated, and boxes that lose their granularity.</p>
+        <p><strong>Yao Hui, an engineer at AICET.</strong> He joked about having to download VS Code
+          again. He also liked the concept, and expects friction from engineers who are deeply set
+          in their own prompting habits.</p>
+
+        <h2 id="s6-6">6.6 What the numbers show</h2>
         <p>Prof Ben took our marketing apart after the second progress report. We took it
           personally. The flyers went up the day after the server launched, and on 26 October the
           site sent 108 MB, its biggest day on record. The first release was downloaded 29 times
