@@ -36,47 +36,53 @@
         <h2 id="s8-1">8.1 Chen Dan Quirk divide and conquer</h2>
         <p>Chen Dan Quirk divide and conquer is a workflow we pioneered, and aisus is what made it
           work.</p>
-        <p>There is some multilayered humour here (which is admittedly only really funny if you are a super nerd).
-            The name itself is a play on CDQ Divide and Conquer, an advanced algorithmic technique invented
-            by Princeton University Computer Science Professor and IOI Gold medallist Chen Danqi. We already
-            have a Chen and Dan on our team, Kerk just had to be given a sobriquet. Satvik Sinha was already
-            calling Kerk "Quirk" all the time anyway.
-        </p>
+        <p>There is some multilayered humour here (which is admittedly only really funny if you are
+          a super nerd). The name itself is a play on CDQ Divide and Conquer, an advanced
+          algorithmic technique invented by Princeton University Computer Science Professor and IOI
+          Gold medallist Chen Danqi. We already have a Chen and Dan on our team, Kerk just had to be
+          given a sobriquet. Satvik Sinha was already calling Kerk "Quirk" all the time anyway. </p>
         <figure>
           <img src="figures/8-1-quirky.png" alt="A chat with Satvik, searched for the word quirky, showing two messages from him: yo quirky, and what are you doing rn.">
           <figcaption>Figure 8.1 Satvik Sinha, on record.</figcaption>
         </figure>
-        <p>Secondly, using aisus to develop aisus is really meta. One can surely something witty to say about
-            recursive self-improvement here. Prof Ben brought this up during one of our progress reports.
-        </p>
+        <p>Secondly, using aisus to develop aisus is really meta. One can surely something witty to
+          say about recursive self-improvement here. Prof Ben brought this up during one of our
+          progress reports. </p>
         <p>With AI in the loop, work stops parallelising. Writing code, the computation, is no
           longer the bottleneck. Communication is: merging, meeting and presenting ideas to each
           other. Worse, the presenter often does not fully know what their own AI wrote. And with
-          three people, consensus is hard. One presentation can be read two different ways.</p>
-        <p>So we stopped trying. Our shifts are strictly one sender and one receiver, with no
-          distributed consensus to reach. The person on shift works at full speed without worrying
-          about anyone else, and keeps some of the shift to understand the changes they
-          inherited.</p>
-        <figure class="wide">
-          <img src="figures/8-2-cdq.png" alt="A sequence map with six participants in a row, chen_0, dan_0, quirk_0, chen_1, dan_1 and quirk_1. Each one is active in turn and passes a communicate message to the next.">
-          <figcaption>Figure 8.2 Chen Dan Quirk divide and conquer, drawn as an aisus sequence map. Each bar is a shift, and each arrow is a handover.</figcaption>
-        </figure>
-        <p>How did we hand over a shift? With aisus diagrams, of course. Figure 8.2 is one of
-          them.</p>
-        <p>The shifts also freed up real time for our other courses, for this report and for
-          marketing. By our own rough estimate, we moved about three times faster this way. That is
-          a gut feeling, not a measurement.</p>
+          three people, consensus is hard. One presenter can be read two different ways by the two
+          listeners.</p>
+        <p>Our shifts are strictly one sender and one receiver, with no distributed consensus to
+          reach. The person on shift works at full speed without worrying about anyone else, and has
+          sufficient time within the shift to prepare a comprehensive presentation of their work to
+          the next person. <figure class="wide"> <img src="figures/8-2-cdq.png" alt="A sequence map
+          with six participants in a row, chen_0, dan_0, quirk_0, chen_1, dan_1 and quirk_1. Each
+          one is active in turn and passes a communicate message to the next."> <figcaption>Figure
+          8.2 Chen Dan Quirk divide and conquer, drawn as an aisus sequence map. Each bar is a
+          shift, and each arrow is a handover.</figcaption> </figure> <p>How did we hand over a
+          shift? With aisus diagrams, of course. </p>
+        <p>The shifts also had practical benefits, freeing up real for our other courses, reports
+          and for marketing. By our own rough estimate, we moved about three times faster this
+          way.</p>
 
         <h2 id="s8-2">8.2 How hard privacy is to get right</h2>
-        <p>The promise is easy to write down. The extension makes no network requests and collects
-          no telemetry. Keeping it meant saying no, over and over. We set Google Analytics aside for
-          Umami on the site. The team page lists who has access, never what anyone did. The cloud
-          accepts maps and check results, and refuses everything else.</p>
-        <p>The hard part is everything around the promise. A map cites files. Unless the validator
-          refuses it, a box could point at a <code>.env</code> file or a private key. A review of
-          our own code found that the Bug hunt skill pre-approved its scripts so broadly that one of
-          them could run any shell command without a prompt. And choosing no telemetry made us
-          blind. We could not see where users got stuck, as section 6 shows.</p>
+        <p>Privacy sounds simple. Don't send the user's code anywhere. aisus keeps that promise, and
+          keeping it was the hardest constraint we worked under.</p>
+        <p>First, the agent is not ours. aisus itself never sends code over the network, but the
+          coding agent that draws the map sends code to its model provider on every run. The most we
+          can honestly promise is that aisus adds no new place for the code to go.</p>
+        <p>Second, a map leaks more than it looks. It holds no code, but its boxes name the parts of
+          a private system, its arrows show how they talk, and its citations list the file paths.
+          Sharing a map means sharing the architecture. That is why uploading to aisus cloud is
+          opt-in, and why the cloud accepts maps and check results and refuses everything else.</p>
+        <p>Third, the repository itself can attack. aisus runs an agent inside code it has never
+          seen, and that code can carry instructions of its own. A review of our own skills found
+          that Bug hunt pre-approved its scripts so broadly that text planted in a repository could
+          have steered the agent into running any shell command without a prompt. Every permission
+          we granted became one more thing to defend.</p>
+        <p>And privacy has a price. We chose to collect no telemetry, and it left us blind to where
+          users got stuck. Section 6 is what that blindness looks like.</p>
 
         <h2 id="s8-3">8.3 How good we are at marketing</h2>
         <p>'Nuff said.</p>
@@ -84,11 +90,12 @@
       </section>
 
       <section class="report-section" id="conclusion">
-        <h1 id="s9">9 Conclusion</h1>
+        <h1 id="s9">9 Conclusion and Acknowledgements</h1>
         <p>We set out to answer comprehension debt with a picture: a map of the whole system, where
           every box opens the code that proves it. Code has become too much for people to write, and
           we believe the next step after agents is the visual medium. aisus is our first step there,
-          and we gave it everything we had. sakai is the next one.</p>
+          and we gave it everything we had. We have a humble patronage of users who seem to
+          agree.</p>
         <p>Thank you to Dr Ben Leong and Dr Soo Yuen Jien for running CS3216, a course that lets
           students build something real. Thank you to our head teaching assistant Phillmont Muktar,
           and to our teaching assistants Lee Jia Wei, Markus Yeo Jing Yu and Rajarshi Basu, for
