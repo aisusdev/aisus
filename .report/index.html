@@ -66,9 +66,9 @@
         <li><a href="#s6">6 Users and analytics</a>
           <ul>
             <li><a href="#s6-1">6.1 What we measure</a></li>
-            <li><a href="#s6-2">6.2 Current numbers</a></li>
-            <li><a href="#s6-3">6.3 Analytics evidence</a></li>
-            <li><a href="#s6-4">6.4 User feedback</a></li>
+            <li><a href="#s6-2">6.2 The numbers</a></li>
+            <li><a href="#s6-3">6.3 Evidence</a></li>
+            <li><a href="#s6-4">6.4 How we estimated the lost visits</a></li>
             <li><a href="#s6-5">6.5 What the numbers show</a></li>
           </ul>
         </li>
@@ -345,41 +345,145 @@
       </section>
 
 <section class="report-section" id="users">
+        <style>
+          .chart-wrap {
+            overflow-x: auto;
+          }
+
+          .chart {
+            display: block;
+            width: 100%;
+            min-width: 760px;
+            height: auto;
+          }
+
+          .chart .grid {
+            stroke: var(--line);
+            stroke-width: 1;
+          }
+
+          .chart .bar {
+            fill: #477646;
+          }
+
+          .chart .bar:hover {
+            fill: var(--forest);
+          }
+
+          .chart .mark {
+            stroke: var(--text-2);
+            stroke-width: 2;
+            stroke-dasharray: 4 4;
+          }
+
+          .chart text {
+            font: 16px var(--sans);
+            fill: var(--text-2);
+          }
+
+          .chart .note {
+            fill: var(--text);
+          }
+        </style>
         <h1 id="s6">6 Users and analytics</h1>
 
         <h2 id="s6-1">6.1 What we measure</h2>
-        <p class="note">The extension sends no telemetry by design. Explain which sources the numbers come from instead, such as site analytics, store install counts and cloud accounts.</p>
+        <p>aisus sends no telemetry. We count people where they meet us: on aisus.dev, on the VS
+          Code Marketplace, and on GitHub, where every release and every visit to the repository is
+          counted.</p>
+        <p>On 9 November a teardown script deleted our server and its only disk. Umami's history
+          went with it. AWS kept the deleted server's network traffic, and we estimate the visits
+          before 9 November from that traffic.</p>
 
-        <h2 id="s6-2">6.2 Current numbers</h2>
+        <h2 id="s6-2">6.2 The numbers</h2>
         <table>
           <thead>
-            <tr><th>Metric</th><th>Value</th><th>Source</th><th>Date</th></tr>
+            <tr><th>Metric</th><th>Value</th><th>Source</th></tr>
           </thead>
           <tbody>
-            <tr><td>Site visitors</td><td></td><td></td><td></td></tr>
-            <tr><td>Downloads and installs</td><td></td><td></td><td></td></tr>
-            <tr><td>Cloud sign-ups</td><td></td><td></td><td></td></tr>
-            <tr><td>Active users</td><td></td><td></td><td></td></tr>
-            <tr><td>Maps created</td><td></td><td></td><td></td></tr>
-            <tr><td>Pilot users</td><td></td><td></td><td></td></tr>
+            <tr><td>Site visitors, 9 to 18 Nov</td><td>66 visitors, 92 visits, 155 page views</td><td>Umami</td></tr>
+            <tr><td>Site visitors, 24 Oct to 8 Nov</td><td>About 260 to 430 visitors and 600 to 1,000 page views, estimated</td><td>The deleted server's traffic in AWS CloudWatch</td></tr>
+            <tr><td>Time on site</td><td>1 minute 2 seconds a visit</td><td>Umami</td></tr>
+            <tr><td>Marketplace</td><td>5 installs, 115 downloads, one rating of five stars</td><td>VS Code Marketplace, listed since 1 Nov</td></tr>
+            <tr><td>Release downloads</td><td>51 extension, 11 IntelliJ IDEA plugin and 6 skills downloads</td><td>GitHub releases</td></tr>
+            <tr><td>Repository</td><td>23 visitors and 104 cloners in 14 days</td><td>GitHub traffic</td></tr>
+            <tr><td>Cloud sign-ups</td><td></td><td>The GitHub sign-in app's user count</td></tr>
+            <tr><td>Active users</td><td>Not measured</td><td>aisus sends no telemetry</td></tr>
           </tbody>
         </table>
+        <p>All figures are from 18 November 2026.</p>
+        <p class="note">Fill in cloud sign-ups from the aisusdev organization's OAuth app on
+          GitHub.</p>
 
-        <h2 id="s6-3">6.3 Analytics evidence</h2>
-        <figure class="placeholder">
-          <div class="frame">Screenshot of the site analytics dashboard</div>
-          <figcaption>Figure 6.1 Visitors to aisus.dev.</figcaption>
+        <h2 id="s6-3">6.3 Evidence</h2>
+        <figure>
+          <img src="figures/6-1-umami.png" alt="Umami's dashboard for aisus.dev over the last 30 days, with 66 visitors, 92 visits and 155 views, all from 9 November onwards.">
+          <figcaption>Figure 6.1 Umami for aisus.dev. Its history starts on 9 November, when the server was rebuilt.</figcaption>
         </figure>
-        <figure class="placeholder">
-          <div class="frame">Screenshot of install or download counts</div>
-          <figcaption>Figure 6.2 Installs and downloads.</figcaption>
+        <figure>
+          <div class="chart-wrap"><svg class="chart" viewBox="0 0 760 340" role="img" aria-labelledby="f62">
+          <line x1="48" x2="752" y1="300.0" y2="300.0" class="grid"/>
+          <text x="40" y="300.0" class="tick" text-anchor="end" dominant-baseline="central">0</text>
+          <line x1="48" x2="752" y1="198.3" y2="198.3" class="grid"/>
+          <text x="40" y="198.3" class="tick" text-anchor="end" dominant-baseline="central">50</text>
+          <line x1="48" x2="752" y1="96.7" y2="96.7" class="grid"/>
+          <text x="40" y="96.7" class="tick" text-anchor="end" dominant-baseline="central">100</text>
+          <path d="M50.0,300 V189.5 Q50.0,185.5 54.0,185.5 H69.1 Q73.1,185.5 73.1,189.5 V300Z" class="bar"><title>24 Oct: 56 MB</title></path>
+          <path d="M77.1,300 V170.0 Q77.1,166.0 81.1,166.0 H96.2 Q100.2,166.0 100.2,170.0 V300Z" class="bar"><title>25 Oct: 66 MB</title></path>
+          <path d="M104.2,300 V85.0 Q104.2,81.0 108.2,81.0 H123.2 Q127.2,81.0 127.2,85.0 V300Z" class="bar"><title>26 Oct: 108 MB</title></path>
+          <path d="M131.2,300 V173.7 Q131.2,169.7 135.2,169.7 H150.3 Q154.3,169.7 154.3,173.7 V300Z" class="bar"><title>27 Oct: 64 MB</title></path>
+          <path d="M158.3,300 V258.7 Q158.3,254.7 162.3,254.7 H177.4 Q181.4,254.7 181.4,258.7 V300Z" class="bar"><title>28 Oct: 22 MB</title></path>
+          <path d="M185.4,300 V240.6 Q185.4,236.6 189.4,236.6 H204.5 Q208.5,236.6 208.5,240.6 V300Z" class="bar"><title>29 Oct: 31 MB</title></path>
+          <path d="M212.5,300 V141.9 Q212.5,137.9 216.5,137.9 H231.5 Q235.5,137.9 235.5,141.9 V300Z" class="bar"><title>30 Oct: 80 MB</title></path>
+          <path d="M239.5,300 V282.0 Q239.5,278.0 243.5,278.0 H258.6 Q262.6,278.0 262.6,282.0 V300Z" class="bar"><title>31 Oct: 11 MB</title></path>
+          <path d="M266.6,300 V251.1 Q266.6,247.1 270.6,247.1 H285.7 Q289.7,247.1 289.7,251.1 V300Z" class="bar"><title>1 Nov: 26 MB</title></path>
+          <path d="M293.7,300 V173.9 Q293.7,169.9 297.7,169.9 H312.8 Q316.8,169.9 316.8,173.9 V300Z" class="bar"><title>2 Nov: 64 MB</title></path>
+          <path d="M320.8,300 V217.6 Q320.8,213.6 324.8,213.6 H339.8 Q343.8,213.6 343.8,217.6 V300Z" class="bar"><title>3 Nov: 42 MB</title></path>
+          <path d="M347.8,300 V254.8 Q347.8,250.8 351.8,250.8 H366.9 Q370.9,250.8 370.9,254.8 V300Z" class="bar"><title>4 Nov: 24 MB</title></path>
+          <path d="M374.9,300 V257.8 Q374.9,253.8 378.9,253.8 H394.0 Q398.0,253.8 398.0,257.8 V300Z" class="bar"><title>5 Nov: 23 MB</title></path>
+          <path d="M402.0,300 V239.7 Q402.0,235.7 406.0,235.7 H421.1 Q425.1,235.7 425.1,239.7 V300Z" class="bar"><title>6 Nov: 32 MB</title></path>
+          <path d="M429.1,300 V262.3 Q429.1,258.3 433.1,258.3 H448.2 Q452.2,258.3 452.2,262.3 V300Z" class="bar"><title>7 Nov: 20 MB</title></path>
+          <path d="M456.2,300 V271.3 Q456.2,267.3 460.2,267.3 H475.2 Q479.2,267.3 479.2,271.3 V300Z" class="bar"><title>8 Nov: 16 MB</title></path>
+          <path d="M483.2,300 V175.3 Q483.2,171.3 487.2,171.3 H502.3 Q506.3,171.3 506.3,175.3 V300Z" class="bar"><title>9 Nov: 63 MB</title></path>
+          <path d="M510.3,300 V263.5 Q510.3,259.5 514.3,259.5 H529.4 Q533.4,259.5 533.4,263.5 V300Z" class="bar"><title>10 Nov: 20 MB</title></path>
+          <path d="M537.4,300 V258.7 Q537.4,254.7 541.4,254.7 H556.5 Q560.5,254.7 560.5,258.7 V300Z" class="bar"><title>11 Nov: 22 MB</title></path>
+          <path d="M564.5,300 V283.5 Q564.5,279.5 568.5,279.5 H583.5 Q587.5,279.5 587.5,283.5 V300Z" class="bar"><title>12 Nov: 10 MB</title></path>
+          <path d="M591.5,300 V285.3 Q591.5,281.3 595.5,281.3 H610.6 Q614.6,281.3 614.6,285.3 V300Z" class="bar"><title>13 Nov: 9 MB</title></path>
+          <path d="M618.6,300 V283.3 Q618.6,279.3 622.6,279.3 H637.7 Q641.7,279.3 641.7,283.3 V300Z" class="bar"><title>14 Nov: 10 MB</title></path>
+          <path d="M645.7,300 V288.5 Q645.7,284.5 649.7,284.5 H664.8 Q668.8,284.5 668.8,288.5 V300Z" class="bar"><title>15 Nov: 8 MB</title></path>
+          <path d="M672.8,300 V285.3 Q672.8,281.3 676.8,281.3 H691.8 Q695.8,281.3 695.8,285.3 V300Z" class="bar"><title>16 Nov: 9 MB</title></path>
+          <path d="M699.8,300 V245.0 Q699.8,241.0 703.8,241.0 H718.9 Q722.9,241.0 722.9,245.0 V300Z" class="bar"><title>17 Nov: 29 MB</title></path>
+          <path d="M726.9,300 V278.0 Q726.9,274.0 730.9,274.0 H746.0 Q750.0,274.0 750.0,278.0 V300Z" class="bar"><title>18 Nov: 13 MB</title></path>
+          <text x="61.5" y="328" class="tick" text-anchor="middle">24 Oct</text>
+          <text x="251.1" y="328" class="tick" text-anchor="middle">31 Oct</text>
+          <text x="440.6" y="328" class="tick" text-anchor="middle">7 Nov</text>
+          <text x="630.2" y="328" class="tick" text-anchor="middle">14 Nov</text>
+          <line x1="481.2" x2="481.2" y1="48" y2="300" class="mark"/>
+          <text x="489.2" y="36" class="note">Server lost, Umami restarts</text>
+          <text x="105.7" y="36" class="note">Flyers go up</text>
+          </svg></div>
+          
+          <figcaption id="f62">Figure 6.2 Megabytes aisus.dev sent each day, from AWS CloudWatch. The old server's traffic survived its deletion.</figcaption>
         </figure>
 
-        <h2 id="s6-4">6.4 User feedback</h2>
-        <p class="note">Summarise feedback from pilot users and the class demo, with quotes where you have them.</p>
+        <h2 id="s6-4">6.4 How we estimated the lost visits</h2>
+        <p>The new server lets us calibrate. On quiet days it sends about 7 MB of background
+          traffic. Each page view adds about 0.6 MB on top. The old server sent 686 MB from 24
+          October to 8 November. Without the background, that is 600 to 1,000 page views. At the new
+          site's ratio of visitors to views, it is 260 to 430 visitors.</p>
+        <p>These are bytes, not visits. The homepage changed on 2 November, and some traffic is bots
+          and our own testing. The estimate is a range for that reason. Even its low end is four
+          times what Umami has counted since.</p>
 
         <h2 id="s6-5">6.5 What the numbers show</h2>
-        <p class="note">Compare the numbers with the targets and explain the gap.</p>
+        <p>The flyers worked. They went up the day after the server launched, and on 26 October the
+          site sent 108 MB, its biggest day on record. The first release, which the site's install
+          link served until 1 November, was downloaded 29 times.</p>
+        <p>Visits turn into installs slowly. Between 330 and 500 people reached the site. GitHub
+          served 68 release files, and the Marketplace counted 5 installs. Installing aisus is easy.
+          Using it needs Node.js, a signed-in Claude Code or Codex, and the user's own tokens.
+          Without telemetry we cannot see where people stop, and that setup is the likeliest place.
+          The live demo in section 1.1 lets a reader skip all three.</p>
       </section>
 
 <section class="report-section" id="future">
