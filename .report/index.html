@@ -456,22 +456,32 @@
           way.</p>
 
         <h2 id="s8-2">8.2 How hard privacy is to get right</h2>
-        <p>Privacy sounds simple. Don't send the user's code anywhere. aisus keeps that promise, and
-          keeping it was the hardest constraint we worked under.</p>
-        <p>First, the agent is not ours. aisus itself never sends code over the network, but the
-          coding agent that draws the map sends code to its model provider on every run. The most we
-          can honestly promise is that aisus adds no new place for the code to go.</p>
-        <p>Second, a map leaks more than it looks. It holds no code, but its boxes name the parts of
-          a private system, its arrows show how they talk, and its citations list the file paths.
-          Sharing a map means sharing the architecture. That is why uploading to aisus cloud is
-          opt-in, and why the cloud accepts maps and check results and refuses everything else.</p>
-        <p>Third, the repository itself can attack. aisus runs an agent inside code it has never
-          seen, and that code can carry instructions of its own. A review of our own skills found
-          that Bug hunt pre-approved its scripts so broadly that text planted in a repository could
-          have steered the agent into running any shell command without a prompt. Every permission
-          we granted became one more thing to defend.</p>
-        <p>And privacy has a price. We chose to collect no telemetry, and it left us blind to where
-          users got stuck. Section 6 is what that blindness looks like.</p>
+        <p>We wrote privacy down as invariants, and gave each one a mechanism that enforces it.</p>
+        <table>
+          <thead>
+            <tr><th>Invariant</th><th>How it is enforced</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>The extension sends nothing over the network.</td><td>No module outside <code>packages/cloud-client/</code> may import <code>http</code>, <code>https</code>, <code>net</code>, <code>tls</code> or <code>dgram</code>, or call <code>fetch</code>, <code>XMLHttpRequest</code> or <code>WebSocket</code>. A unit test scans the source and fails the build on any violation. The cloud client sends only when the user publishes.</td></tr>
+            <tr><td>A map never cites a secret or a file outside the repository.</td><td>The validator accepts only relative paths with no <code>.</code> or <code>..</code> segments, resolves symlinks, and requires the real path to stay inside the repository's real path. A deny-list refuses <code>.git</code>, <code>.env</code> files, credential files, SSH keys and key or certificate files. The same check runs again on every click.</td></tr>
+            <tr><td>The cloud holds maps, never code.</td><td>Uploads go to one endpoint with a closed JSON schema, where no object allows extra properties. A secret scan runs over the whole body, and a body over 1 MiB is refused before it is parsed. The command line runs the same check before it sends.</td></tr>
+            <tr><td>The map viewer sees only the map.</td><td>The webview runs under <code>default-src 'none'</code> with one nonce'd script, and receives the diagram's JSON, never file contents.</td></tr>
+            <tr><td>No input reaches a shell.</td><td>Agents and git start by absolute path with a fixed argument vector and no shell. The prompt is a single argument. Claude Code gets an exact list of tools, and no permission-skipping flag is ever passed.</td></tr>
+            <tr><td>Answer keys stay hidden from the student.</td><td>Bug hunt's planted bugs are recorded in a manifest only its referee script reads. Check my understanding keeps each answer key in the extension host and sends the sidebar only questions and grades.</td></tr>
+          </tbody>
+        </table>
+        <p>The hard part is the boundary with the agent. aisus runs the user's agent inside a
+          repository it has never seen, and the repository's text can steer that agent. Our own
+          skills widened that boundary without our noticing. Claude Code applies a skill's
+          pre-approved commands without a prompt, and a <code>*</code> in a rule matches any
+          arguments. The Bug hunt skill pre-approved its scripts with such a rule, and one script
+          took a <code>--check-cmd</code> argument that it ran as a shell command. Planted text
+          could have run anything. We dropped the argument, narrowed every rule to scripts that only
+          read and write data, and pre-approved no edit tool (ADR 0041).</p>
+        <p>Two guarantees stay out of reach. aisus cannot stop the agent from sending code to its
+          own model provider, because the agent belongs to the user. And the first invariant has a
+          price: with no telemetry, we cannot see where users get stuck. Section 6 shows that
+          cost.</p>
 
         <h2 id="s8-3">8.3 How good we are at marketing</h2>
         <p>'Nuff said.</p>
