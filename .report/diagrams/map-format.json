@@ -1,0 +1,228 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "The map format",
+    "output": "figures/design/map-format.html"
+  },
+  "components": [
+    {
+      "id": "document",
+      "type": "database",
+      "label": "Map",
+      "sublabel": "title, repository, commit",
+      "tag": "candidate.json",
+      "sources": [
+        {
+          "path": "packages/core/model/types.ts",
+          "line": 74,
+          "end_line": 82
+        },
+        {
+          "path": "packages/core/model/types.ts",
+          "line": 20,
+          "end_line": 27
+        },
+        {
+          "path": "packages/core/model/schemas/architecture.schema.json",
+          "line": 1,
+          "end_line": 25
+        }
+      ]
+    },
+    {
+      "id": "box",
+      "type": "database",
+      "label": "Box",
+      "sublabel": "one part of the system",
+      "sources": [
+        {
+          "path": "packages/core/model/types.ts",
+          "line": 46,
+          "end_line": 58
+        },
+        {
+          "path": "packages/core/model/schemas/architecture.schema.json",
+          "line": 73,
+          "end_line": 104
+        },
+        {
+          "path": "packages/core/model/checks.ts",
+          "line": 72,
+          "end_line": 80
+        }
+      ]
+    },
+    {
+      "id": "arrow",
+      "type": "database",
+      "label": "Arrow",
+      "sublabel": "call or dependency",
+      "sources": [
+        {
+          "path": "packages/core/model/types.ts",
+          "line": 60,
+          "end_line": 66
+        },
+        {
+          "path": "packages/core/model/schemas/architecture.schema.json",
+          "line": 123,
+          "end_line": 149
+        },
+        {
+          "path": "packages/core/model/checks.ts",
+          "line": 48,
+          "end_line": 56
+        }
+      ]
+    },
+    {
+      "id": "boundary",
+      "type": "database",
+      "label": "Group",
+      "sublabel": "related boxes",
+      "sources": [
+        {
+          "path": "packages/core/model/types.ts",
+          "line": 68,
+          "end_line": 72
+        },
+        {
+          "path": "packages/core/model/schemas/architecture.schema.json",
+          "line": 105,
+          "end_line": 122
+        },
+        {
+          "path": "packages/core/model/checks.ts",
+          "line": 82,
+          "end_line": 101
+        }
+      ]
+    },
+    {
+      "id": "citation",
+      "type": "database",
+      "label": "Citation",
+      "sublabel": "file and lines",
+      "sources": [
+        {
+          "path": "packages/core/model/types.ts",
+          "line": 39,
+          "end_line": 44
+        },
+        {
+          "path": "packages/core/model/schemas/common.schema.json",
+          "line": 148,
+          "end_line": 163
+        }
+      ]
+    },
+    {
+      "id": "fingerprint",
+      "type": "database",
+      "label": "Fingerprint",
+      "sublabel": "hash of cited lines",
+      "tag": "fingerprints.json",
+      "sources": [
+        {
+          "path": "packages/core/model/fingerprints.ts",
+          "line": 13,
+          "end_line": 27
+        },
+        {
+          "path": "packages/core/model/fingerprints.ts",
+          "line": 56,
+          "end_line": 79
+        },
+        {
+          "path": "packages/core/model/fingerprints.ts",
+          "line": 29,
+          "end_line": 35
+        }
+      ]
+    },
+    {
+      "id": "freshness",
+      "type": "database",
+      "label": "Freshness",
+      "sublabel": "fresh, moved, edited, missing",
+      "tag": "worked out on open",
+      "sources": [
+        {
+          "path": "packages/core/model/staleness.ts",
+          "line": 10,
+          "end_line": 13
+        },
+        {
+          "path": "packages/core/model/staleness.ts",
+          "line": 24,
+          "end_line": 31
+        },
+        {
+          "path": "packages/core/model/staleness.ts",
+          "line": 97,
+          "end_line": 104
+        }
+      ]
+    }
+  ],
+  "boundaries": [
+    {
+      "kind": "region",
+      "label": "Saved in the map",
+      "wraps": [
+        "document",
+        "box",
+        "arrow",
+        "boundary",
+        "citation"
+      ]
+    }
+  ],
+  "connections": [
+    {
+      "from": "document",
+      "to": "box",
+      "label": "has 1 or more",
+      "variant": "emphasis"
+    },
+    {
+      "from": "document",
+      "to": "arrow",
+      "label": "has"
+    },
+    {
+      "from": "document",
+      "to": "boundary",
+      "label": "has"
+    },
+    {
+      "from": "arrow",
+      "to": "box",
+      "label": "joins 2"
+    },
+    {
+      "from": "boundary",
+      "to": "box",
+      "label": "wraps"
+    },
+    {
+      "from": "box",
+      "to": "citation",
+      "label": "cites 1 to 3",
+      "variant": "emphasis"
+    },
+    {
+      "from": "citation",
+      "to": "fingerprint",
+      "label": "recorded as",
+      "variant": "emphasis"
+    },
+    {
+      "from": "fingerprint",
+      "to": "freshness",
+      "label": "decides",
+      "variant": "emphasis"
+    }
+  ]
+}

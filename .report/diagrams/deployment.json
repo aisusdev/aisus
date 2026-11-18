@@ -1,0 +1,281 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "The aisus infrastructure",
+    "output": "figures/design/deployment.html"
+  },
+  "components": [
+    {
+      "id": "vscode",
+      "type": "frontend",
+      "label": "VS Code extension",
+      "sublabel": "shows and opens maps",
+      "sources": [
+        {
+          "path": "apps/vscode/src/extension.ts",
+          "line": 78,
+          "end_line": 108
+        },
+        {
+          "path": "apps/vscode/src/panel.ts",
+          "line": 196,
+          "end_line": 205
+        },
+        {
+          "path": "apps/vscode/src/cloud.ts",
+          "line": 1,
+          "end_line": 8
+        }
+      ]
+    },
+    {
+      "id": "agent",
+      "type": "external",
+      "label": "Coding agent",
+      "sublabel": "Claude Code or Codex",
+      "sources": [
+        {
+          "path": "packages/core/model/agents.ts",
+          "line": 57,
+          "end_line": 73
+        },
+        {
+          "path": "apps/vscode/src/runner.ts",
+          "line": 49,
+          "end_line": 55
+        }
+      ]
+    },
+    {
+      "id": "repo",
+      "type": "database",
+      "label": "Repository",
+      "sublabel": "the code and its maps",
+      "sources": [
+        {
+          "path": "packages/core/model/runFolder.ts",
+          "line": 116,
+          "end_line": 131
+        },
+        {
+          "path": "packages/core/model/runFolder.ts",
+          "line": 189,
+          "end_line": 207
+        }
+      ]
+    },
+    {
+      "id": "cloudApp",
+      "type": "backend",
+      "label": "aisus cloud",
+      "sublabel": "website for shared maps",
+      "sources": [
+        {
+          "path": "apps/cloud/Dockerfile",
+          "line": 18,
+          "end_line": 32
+        },
+        {
+          "path": "infra/caddy/Caddyfile",
+          "line": 8,
+          "end_line": 31
+        },
+        {
+          "path": "apps/cloud/src/app/api/v1/uploads/route.ts",
+          "line": 20,
+          "end_line": 37
+        }
+      ]
+    },
+    {
+      "id": "db",
+      "type": "database",
+      "label": "Database",
+      "sublabel": "shared maps and accounts",
+      "sources": [
+        {
+          "path": "apps/cloud/src/db/client.ts",
+          "line": 23,
+          "end_line": 41
+        },
+        {
+          "path": "apps/cloud/Dockerfile",
+          "line": 20,
+          "end_line": 20
+        },
+        {
+          "path": "apps/cloud/src/db/schema.ts",
+          "line": 1,
+          "end_line": 2
+        }
+      ]
+    },
+    {
+      "id": "monitoring",
+      "type": "backend",
+      "label": "Usage dashboards",
+      "sublabel": "visits and server health",
+      "sources": [
+        {
+          "path": "infra/compose.yaml",
+          "line": 51,
+          "end_line": 78
+        },
+        {
+          "path": "infra/compose.yaml",
+          "line": 80,
+          "end_line": 92
+        },
+        {
+          "path": "infra/prometheus/prometheus.yml",
+          "line": 5,
+          "end_line": 12
+        }
+      ]
+    },
+    {
+      "id": "runner",
+      "type": "backend",
+      "label": "aisus check",
+      "sublabel": "runs on each pull request",
+      "sources": [
+        {
+          "path": "apps/action/action.yml",
+          "line": 35,
+          "end_line": 37
+        },
+        {
+          "path": "apps/action/src/main.ts",
+          "line": 58,
+          "end_line": 72
+        }
+      ]
+    },
+    {
+      "id": "github",
+      "type": "external",
+      "label": "GitHub",
+      "sublabel": "sign-in and pull requests",
+      "sources": [
+        {
+          "path": "apps/cloud/src/auth.ts",
+          "line": 13,
+          "end_line": 36
+        },
+        {
+          "path": "apps/action/src/github.ts",
+          "line": 17,
+          "end_line": 23
+        },
+        {
+          "path": "apps/cloud/src/lib/oidc.ts",
+          "line": 60,
+          "end_line": 64
+        }
+      ]
+    },
+    {
+      "id": "stripe",
+      "type": "external",
+      "label": "Stripe",
+      "sublabel": "payments",
+      "sources": [
+        {
+          "path": "apps/cloud/src/lib/billing.ts",
+          "line": 51,
+          "end_line": 60
+        },
+        {
+          "path": "apps/cloud/src/app/api/stripe/webhook/route.ts",
+          "line": 8,
+          "end_line": 22
+        }
+      ]
+    }
+  ],
+  "boundaries": [
+    {
+      "kind": "region",
+      "label": "Developer's computer",
+      "wraps": [
+        "vscode",
+        "agent",
+        "repo"
+      ]
+    },
+    {
+      "kind": "region",
+      "label": "One cloud server on AWS",
+      "wraps": [
+        "cloudApp",
+        "db",
+        "monitoring"
+      ]
+    },
+    {
+      "kind": "region",
+      "label": "GitHub",
+      "wraps": [
+        "runner",
+        "github"
+      ]
+    }
+  ],
+  "connections": [
+    {
+      "from": "vscode",
+      "to": "agent",
+      "label": "starts"
+    },
+    {
+      "from": "agent",
+      "to": "repo",
+      "label": "saves maps"
+    },
+    {
+      "from": "vscode",
+      "to": "repo",
+      "label": "reads maps"
+    },
+    {
+      "from": "github",
+      "to": "cloudApp",
+      "label": "confirms who signs in",
+      "variant": "security"
+    },
+    {
+      "from": "vscode",
+      "to": "cloudApp",
+      "label": "shares a map",
+      "variant": "emphasis"
+    },
+    {
+      "from": "runner",
+      "to": "cloudApp",
+      "label": "sends results",
+      "variant": "emphasis"
+    },
+    {
+      "from": "runner",
+      "to": "github",
+      "label": "comments on the pull request"
+    },
+    {
+      "from": "cloudApp",
+      "to": "db",
+      "label": "stores"
+    },
+    {
+      "from": "cloudApp",
+      "to": "monitoring",
+      "label": "reports usage",
+      "variant": "dashed"
+    },
+    {
+      "from": "stripe",
+      "to": "cloudApp",
+      "label": "plans and payments"
+    }
+  ]
+}

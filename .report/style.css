@@ -138,6 +138,22 @@ figcaption {
   color: var(--text-2);
 }
 
+/* Figures in a row share the text column side by side, with their captions on one line, and stack on a phone. */
+.figure-row {
+  display: flex;
+  gap: 16px;
+  margin: 24px 0;
+}
+
+.figure-row figure {
+  display: flex;
+  flex: 1 1 0;
+  flex-direction: column;
+  justify-content: space-between;
+  min-width: 0;
+  margin: 0;
+}
+
 .section-nav {
   max-width: 860px;
   margin: 0 auto;
@@ -175,6 +191,10 @@ figcaption {
 }
 
 @media (max-width: 640px) {
+  .figure-row {
+    flex-direction: column;
+  }
+
   main {
     padding: 32px 20px 48px;
   }
@@ -220,8 +240,15 @@ figcaption {
   }
 
   figure,
+  .figure-row,
   table {
     break-inside: avoid;
+  }
+
+  /* A tall figure shrinks to leave room for its caption on one A4 page. */
+  figure img {
+    max-height: 230mm;
+    width: auto;
   }
 
   h2,
