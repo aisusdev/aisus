@@ -67,32 +67,34 @@
           way.</p>
 
         <h2 id="s8-2">8.2 How hard privacy is to get right</h2>
-        <p>We wrote privacy down as invariants, and gave each one a mechanism that enforces it.</p>
+        <p>aisus states its privacy guarantees as invariants. Each invariant has a mechanism that
+          enforces it.</p>
         <table>
           <thead>
-            <tr><th>Invariant</th><th>How it is enforced</th></tr>
+            <tr><th>Invariant</th><th>Enforced by</th></tr>
           </thead>
           <tbody>
-            <tr><td>The extension sends nothing over the network.</td><td>No module outside <code>packages/cloud-client/</code> may import <code>http</code>, <code>https</code>, <code>net</code>, <code>tls</code> or <code>dgram</code>, or call <code>fetch</code>, <code>XMLHttpRequest</code> or <code>WebSocket</code>. A unit test scans the source and fails the build on any violation. The cloud client sends only when the user publishes.</td></tr>
-            <tr><td>A map never cites a secret or a file outside the repository.</td><td>The validator accepts only relative paths with no <code>.</code> or <code>..</code> segments, resolves symlinks, and requires the real path to stay inside the repository's real path. A deny-list refuses <code>.git</code>, <code>.env</code> files, credential files, SSH keys and key or certificate files. The same check runs again on every click.</td></tr>
-            <tr><td>The cloud holds maps, never code.</td><td>Uploads go to one endpoint with a closed JSON schema, where no object allows extra properties. A secret scan runs over the whole body, and a body over 1 MiB is refused before it is parsed. The command line runs the same check before it sends.</td></tr>
-            <tr><td>The map viewer sees only the map.</td><td>The webview runs under <code>default-src 'none'</code> with one nonce'd script, and receives the diagram's JSON, never file contents.</td></tr>
-            <tr><td>No input reaches a shell.</td><td>Agents and git start by absolute path with a fixed argument vector and no shell. The prompt is a single argument. Claude Code gets an exact list of tools, and no permission-skipping flag is ever passed.</td></tr>
-            <tr><td>Answer keys stay hidden from the student.</td><td>Bug hunt's planted bugs are recorded in a manifest only its referee script reads. Check my understanding keeps each answer key in the extension host and sends the sidebar only questions and grades.</td></tr>
+            <tr><td>The extension sends nothing over the network.</td><td>A unit test that bans network imports and APIs outside the cloud client.</td></tr>
+            <tr><td>A map cites no secret and no file outside the repository.</td><td>Path confinement with symlinks resolved, and a deny-list of secret files.</td></tr>
+            <tr><td>The cloud stores maps, never code.</td><td>A closed upload schema and a secret scan of every upload.</td></tr>
+            <tr><td>The map viewer receives only the map.</td><td>A webview under <code>default-src 'none'</code> that is sent JSON, never files.</td></tr>
+            <tr><td>No input reaches a shell.</td><td>Agents and git launched by absolute path, with fixed arguments and no shell.</td></tr>
+            <tr><td>Answer keys stay hidden from the student.</td><td>Keys held by the referee script or the extension host, never by the interface.</td></tr>
           </tbody>
         </table>
-        <p>The hard part is the boundary with the agent. aisus runs the user's agent inside a
-          repository it has never seen, and the repository's text can steer that agent. Our own
-          skills widened that boundary without our noticing. Claude Code applies a skill's
-          pre-approved commands without a prompt, and a <code>*</code> in a rule matches any
-          arguments. The Bug hunt skill pre-approved its scripts with such a rule, and one script
-          took a <code>--check-cmd</code> argument that it ran as a shell command. Planted text
-          could have run anything. We dropped the argument, narrowed every rule to scripts that only
-          read and write data, and pre-approved no edit tool (ADR 0041).</p>
-        <p>Two guarantees stay out of reach. aisus cannot stop the agent from sending code to its
-          own model provider, because the agent belongs to the user. And the first invariant has a
-          price: with no telemetry, we cannot see where users get stuck. Section 6 shows that
-          cost.</p>
+        <p>The weakest boundary is the agent. It runs inside a repository it has never seen, and
+          text in that repository can steer it.</p>
+        <p>Pre-approved commands widen that boundary. Claude Code runs a skill's pre-approved
+          commands without a prompt, and a <code>*</code> in a rule matches any arguments. The Bug
+          hunt skill pre-approved its scripts with such a rule, and one script ran its
+          <code>--check-cmd</code> argument as a shell command. Planted text could run any command
+          through it.</p>
+        <p>The fix removed the argument, narrowed every rule to scripts that only read and write
+          data, and pre-approved no edit tool (ADR 0041).</p>
+        <p>One guarantee is out of reach. aisus cannot stop the agent from sending code to its own
+          model provider, because the agent belongs to the user.</p>
+        <p>The no-network invariant also has a cost. Without telemetry, there is no way to see where
+          users get stuck. Section 6 shows the result.</p>
 
         <h2 id="s8-3">8.3 How good we are at marketing</h2>
         <p>'Nuff said.</p>
