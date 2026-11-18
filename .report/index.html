@@ -74,10 +74,8 @@
         </li>
         <li><a href="#s7">7 Future plans and strategies</a>
           <ul>
-            <li><a href="#s7-1">7.1 Product</a></li>
-            <li><a href="#s7-2">7.2 Validation</a></li>
-            <li><a href="#s7-3">7.3 Growth and distribution</a></li>
-            <li><a href="#s7-4">7.4 Business</a></li>
+            <li><a href="#s7-1">7.1 aisus cloud</a></li>
+            <li><a href="#s7-2">7.2 aisus for education</a></li>
           </ul>
         </li>
         <li><a href="#s8">8 What we learned</a>
@@ -385,17 +383,45 @@
 <section class="report-section" id="future">
         <h1 id="s7">7 Future plans and strategies</h1>
 
-        <h2 id="s7-1">7.1 Product</h2>
-        <p class="note">Cover the Marketplace launch, onboarding, map accuracy and IntelliJ performance.</p>
+        <h2 id="s7-1">7.1 aisus cloud</h2>
+        <p>aisus stays free on the developer's machine. The money is in teams. aisus cloud keeps a
+          team's maps in one place, with a page for each pull request, the history of every map and
+          links anyone on the team can open. It stores maps and check results, never code.</p>
+        <p>The free GitHub Action is the way in. It comments on every pull request with the boxes
+          the change touches, and it spends no tokens. Turning on upload adds the pull request
+          pages, the history and the team page. That is what a team pays for.</p>
+        <table>
+          <thead>
+            <tr><th>Plan</th><th>Price</th><th>For</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Free</td><td>US$0</td><td>The extension, the skills, the command line and the Action's comment</td></tr>
+            <tr><td>Pro</td><td>US$5 a month</td><td>aisus cloud for one person's repositories</td></tr>
+            <tr><td>Team</td><td>US$10 per seat a month</td><td>aisus cloud for a GitHub organization, with seats and the team page</td></tr>
+            <tr><td>Enterprise</td><td>Quote</td><td>aisus cloud on the company's own servers</td></tr>
+          </tbody>
+        </table>
+        <p>The cloud runs on one small server. The agent work happens on the user's machine, with
+          the user's own agent, and aisus never pays for inference. Each paying team adds revenue
+          and almost no cost.</p>
+        <p>Three steps stand between the cloud and its first paying team. Private repositories need
+          sign-in through a GitHub App. The database moves from PGlite to Postgres. Payments, built
+          and running in Stripe's test mode, go live once about ten teams upload maps every
+          week.</p>
 
-        <h2 id="s7-2">7.2 Validation</h2>
-        <p class="note">Describe how to measure whether agents that read the map first use fewer tokens, and how to run user studies on task time and understanding.</p>
-
-        <h2 id="s7-3">7.3 Growth and distribution</h2>
-        <p class="note">Cover the community channel, public showcase maps and the choice of licence.</p>
-
-        <h2 id="s7-4">7.4 Business</h2>
-        <p class="note">Cover pricing, running costs and the path to paying teams.</p>
+        <h2 id="s7-2">7.2 aisus for education</h2>
+        <p>Courses hand students code they did not write. CS2103 gives every team a working codebase
+          to extend, and the first weeks go to finding out how it fits together. Agents make the
+          problem worse. A student can now ship a feature in a codebase they never understood.</p>
+        <p>aisus already has the tools a course needs. A tour walks a newcomer through the map one
+          stop at a time and asks a question at each stop. Check my understanding asks three
+          questions about a change and grades each answer against the code. Bug hunt, still hidden
+          while we test it, has the agent build a task in steps and plant one bug in each. The
+          student finds and fixes it, and the agent never fixes it for them.</p>
+        <p>Our first course is CS2103. A teaching team can ship a map and a tour with the starting
+          code, and every student meets the architecture before they change it. CS2103 works in
+          IntelliJ IDEA, and aisus already runs there. The TeamSync demo in section 1.1 is a CS2103T
+          project, mapped and toured by aisus.</p>
       </section>
 
 <section class="report-section" id="learnings">
