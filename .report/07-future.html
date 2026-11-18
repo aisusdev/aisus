@@ -51,6 +51,25 @@
           code, and every student meets the architecture before they change it. CS2103 works in
           IntelliJ IDEA, and aisus already runs there. The TeamSync demo in section 1.1 is a CS2103T
           project, mapped and toured by aisus.</p>
+
+        <h2 id="s7-3">7.3 sakai</h2>
+        <p>aisus maps the code that exists. Its spiritual successor, sakai, runs the other way. In
+          sakai the program is a map of blocks and links, and a coding agent on the developer's
+          machine writes the code that makes the map true. It is the step section 1.4 predicts.
+          Assembly gave way to C, C to Python, and Python to prompts. In sakai the architecture
+          itself is what a person works in.</p>
+        <p>A user imports a codebase and gets its map, or starts from an empty map, places blocks,
+          links them and presses Build. Links are as real as blocks, with kinds, properties and code
+          of their own. The facts that decide whether a design works, such as concurrent, atomic or
+          asynchronous, sit on the map where nobody can miss them. It should feel like an
+          engineering strategy game.</p>
+        <figure>
+          <img src="figures/7-1-sakai.png" alt="sakai's map of a notes app. A web app, a notes API, a digest worker and an export tool link to a SQLite store and a mail service. Belts carry flow between blocks, and yellow tags mark properties such as concurrent, atomic, asynchronous and retries 3.">
+          <figcaption>Figure 7.1 A map in sakai. Belts carry flow, and properties such as atomic and asynchronous sit on the blocks and links they belong to.</figcaption>
+        </figure>
+        <p>Our team is building sakai now. In its first four days it gained the map, blocks that
+          hold maps of their own, and import from a real codebase. We are starting to ask, in
+          earnest, whether sakai is a startup.</p>
       </section>
     </main>
   </body>
