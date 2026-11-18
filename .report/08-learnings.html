@@ -91,10 +91,27 @@
           through it.</p>
         <p>The fix removed the argument, narrowed every rule to scripts that only read and write
           data, and pre-approved no edit tool.</p>
-        <p>The no-network invariant prevents us from obtaining proper telemetry, which means we cannot see where
-          users get stuck. This affected the analysis in Section 6.</p>
+        <p>The no-network invariant prevents us from obtaining proper telemetry, which means we
+          cannot see where users get stuck. This affected the analysis in Section 6.</p>
 
-        <h2 id="s8-3">8.3 How good we are at marketing</h2>
+        <h2 id="s8-3">8.3 Skills can carry code</h2>
+        <p>Our biggest technical lesson was that an agent skill can carry code as well as
+          instructions.</p>
+        <p>We began by writing skills as markdown alone, and the agent did every step itself. Many
+          of those steps had one right answer and needed no judgement. Before mapping, the skill
+          records the current commit, sizes the repository to cap how many files the agent reads,
+          and finds the previous map to build on. Afterwards, it checks the map against its schema
+          and renders it to HTML.</p>
+        <p>That kind of work is exactly where an agent hallucinates. It sometimes invented a file
+          path, skipped a field or produced a map that would not load.</p>
+        <p>So we moved those steps into JavaScript that ships with each skill. The agent now runs a
+          script wherever a fixed rule decides the result, and spends its effort on the reading and
+          naming that need judgement. The scripts give the same output on every run, and we test
+          them like the rest of the codebase.</p>
+        <p>The wider lesson is that a skill need not be markdown only. <strong>Any step that code
+          can do reliably should be handed to code.</strong></p>
+
+        <h2 id="s8-4">8.4 How good we are at marketing</h2>
         <p>'Nuff said.</p>
 
       </section>
