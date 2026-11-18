@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>5 Application design · aisus final report</title>
+    <link rel="stylesheet" href="style.css">
+  </head>
+  <body>
+    <nav class="section-nav"><a href="index.html">Full report</a></nav>
+    <main>
+      <section class="report-section" id="design">
+        <h1 id="s5">5 Application design</h1>
+        <p class="note">Use diagrams and prose only. This section contains no code.</p>
+
+        <h2 id="s5-1">5.1 System context</h2>
+        <figure class="placeholder">
+          <div class="frame">Diagram of the extension, agent skills, viewer, cloud, IntelliJ plugin and GitHub Action</div>
+          <figcaption>Figure 5.1 aisus and the systems around it.</figcaption>
+        </figure>
+
+        <h2 id="s5-2">5.2 Components</h2>
+        <p class="note">Show the modules and the contracts between them. docs/architecture.md is the source.</p>
+        <figure class="placeholder">
+          <div class="frame">Component diagram</div>
+          <figcaption>Figure 5.2 The modules and the contracts between them.</figcaption>
+        </figure>
+
+        <h2 id="s5-3">5.3 Data model</h2>
+        <h3>The map format</h3>
+        <figure class="placeholder">
+          <div class="frame">Entity diagram of map, box, edge, citation and freshness state</div>
+          <figcaption>Figure 5.3 The map format.</figcaption>
+        </figure>
+        <h3>The cloud database</h3>
+        <figure class="placeholder">
+          <div class="frame">Database schema of users, teams, maps and pull request pages</div>
+          <figcaption>Figure 5.4 The aisus cloud database schema.</figcaption>
+        </figure>
+
+        <h2 id="s5-4">5.4 Key flows</h2>
+        <figure class="placeholder">
+          <div class="frame">Sequence diagram of generating a map</div>
+          <figcaption>Figure 5.5 Generating a map.</figcaption>
+        </figure>
+        <figure class="placeholder">
+          <div class="frame">Sequence diagram of checking freshness</div>
+          <figcaption>Figure 5.6 Checking each box against its cited lines.</figcaption>
+        </figure>
+        <figure class="placeholder">
+          <div class="frame">Sequence diagram of the pull request check</div>
+          <figcaption>Figure 5.7 The pull request check.</figcaption>
+        </figure>
+        <figure class="placeholder">
+          <div class="frame">Sequence diagram of sharing a map to the cloud</div>
+          <figcaption>Figure 5.8 Sharing a map with a team.</figcaption>
+        </figure>
+
+        <h2 id="s5-5">5.5 Deployment</h2>
+        <p class="note">Describe the single server, what runs on the developer's machine, and which data leaves it.</p>
+        <figure class="placeholder">
+          <div class="frame">Deployment diagram</div>
+          <figcaption>Figure 5.9 Where each part of aisus runs.</figcaption>
+        </figure>
+
+        <h2 id="s5-6">5.6 Key design decisions</h2>
+        <p class="note">Summarise the decisions recorded in docs/adr/.</p>
+        <table>
+          <thead>
+            <tr><th>Decision</th><th>Reason</th><th>Record</th></tr>
+          </thead>
+          <tbody>
+            <tr><td></td><td></td><td></td></tr>
+          </tbody>
+        </table>
+      </section>
+    </main>
+  </body>
+</html>

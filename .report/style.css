@@ -1,0 +1,231 @@
+/* Shared styles for every section file and for the combined report in index.html. */
+
+:root {
+  --paper: #f7f9f4;
+  --paper-2: #eaf0e8;
+  --white: #fffef9;
+  --forest: #142b22;
+  --text: #182a22;
+  --text-2: #4f6055;
+  --line: #cad1c6;
+  --accent: #c8ef72;
+  --pink: #c92c6d;
+  --link: #477646;
+  --link-hover: #315f3d;
+  --display: Poppins, "Avenir Next", "Helvetica Neue", system-ui, sans-serif;
+  --sans: "Avenir Next", "Helvetica Neue", system-ui, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--text);
+  font: 16px/1.6 var(--sans);
+}
+
+main {
+  max-width: 860px;
+  margin: 0 auto 64px;
+  padding: 48px 56px 72px;
+  background: #fff;
+  box-shadow: 0 2px 24px rgb(20 43 34 / 8%);
+}
+
+a {
+  color: var(--link);
+}
+
+a:hover {
+  color: var(--link-hover);
+}
+
+.report-section + .report-section {
+  margin-top: 96px;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--display);
+  font-weight: 600;
+  line-height: 1.25;
+  color: var(--forest);
+}
+
+h1 {
+  margin: 0 0 32px;
+  padding-bottom: 12px;
+  border-bottom: 4px solid var(--accent);
+  font-size: 32px;
+}
+
+h2 {
+  margin: 40px 0 12px;
+  font-size: 24px;
+}
+
+h3 {
+  margin: 28px 0 8px;
+  font-size: 19px;
+}
+
+table {
+  width: 100%;
+  margin: 16px 0 24px;
+  border-collapse: collapse;
+}
+
+th,
+td {
+  padding: 8px 10px;
+  border: 1px solid var(--line);
+  text-align: left;
+  vertical-align: top;
+}
+
+th {
+  background: var(--paper-2);
+  font-weight: 600;
+}
+
+td:empty::after {
+  content: "\00a0";
+}
+
+/* A note tells the writer what a part of the report should hold. Delete it once the part is written. */
+.note {
+  margin: 12px 0 20px;
+  padding: 12px 16px;
+  border-left: 4px solid var(--pink);
+  background: #fbf0f5;
+  color: var(--text-2);
+}
+
+.note::before {
+  content: "To write: ";
+  font-weight: 600;
+  color: var(--pink);
+}
+
+figure {
+  margin: 24px 0;
+}
+
+figure img {
+  max-width: 100%;
+  border: 1px solid var(--line);
+}
+
+/* A placeholder figure marks where a screenshot or diagram goes. */
+figure.placeholder .frame {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+  padding: 24px;
+  border: 2px dashed var(--line);
+  background: var(--paper);
+  color: var(--text-2);
+  text-align: center;
+}
+
+figcaption {
+  margin-top: 8px;
+  color: var(--text-2);
+}
+
+.section-nav {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 20px 0;
+}
+
+.cover {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 70vh;
+}
+
+.cover h1 {
+  font-size: 44px;
+}
+
+.cover .subtitle {
+  font-family: var(--display);
+  font-size: 22px;
+  color: var(--forest);
+}
+
+.toc ul {
+  padding-left: 0;
+  list-style: none;
+}
+
+.toc ul ul {
+  padding-left: 28px;
+}
+
+.toc li {
+  margin: 4px 0;
+}
+
+@media (max-width: 640px) {
+  main {
+    padding: 32px 20px 48px;
+  }
+
+  .section-nav {
+    padding: 16px 20px;
+  }
+
+  table {
+    display: block;
+    overflow-x: auto;
+  }
+}
+
+@media print {
+  @page {
+    size: A4;
+    margin: 20mm;
+  }
+
+  body,
+  main {
+    background: #fff;
+  }
+
+  main {
+    max-width: none;
+    margin: 0;
+    padding: 0;
+    box-shadow: none;
+  }
+
+  .section-nav {
+    display: none;
+  }
+
+  .report-section:not(.cover) {
+    break-before: page;
+  }
+
+  .report-section + .report-section {
+    margin-top: 0;
+  }
+
+  figure,
+  table {
+    break-inside: avoid;
+  }
+
+  h2,
+  h3 {
+    break-after: avoid;
+  }
+}
