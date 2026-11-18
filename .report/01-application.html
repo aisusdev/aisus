@@ -31,8 +31,98 @@
               max-width: 860px;
             }
 
-            .live > h2:first-child {
+            .live > h2 {
               margin-top: 0;
+            }
+
+            .live-steps {
+              margin: 20px 0;
+              padding: 0;
+              list-style: none;
+              counter-reset: step;
+            }
+
+            .live-steps li {
+              position: relative;
+              margin: 10px 0;
+              min-height: 32px;
+              padding: 3px 0 0 44px;
+              counter-increment: step;
+            }
+
+            .live-steps li::before {
+              content: counter(step);
+              position: absolute;
+              left: 0;
+              top: 0;
+              width: 32px;
+              height: 32px;
+              border-radius: 50%;
+              background: var(--forest);
+              color: #fff;
+              font-family: var(--display);
+              font-weight: 600;
+              line-height: 32px;
+              text-align: center;
+            }
+
+            .live strong {
+              color: var(--forest);
+            }
+
+            .callout {
+              display: flex;
+              gap: 14px;
+              align-items: flex-start;
+              max-width: 860px;
+              margin: 10px 0;
+              padding: 12px 20px;
+              border: 1px solid;
+              border-radius: 6px;
+            }
+
+            .callout p {
+              margin: 0;
+            }
+
+            .callout-icon {
+              flex: none;
+              width: 26px;
+              height: 26px;
+              border-radius: 50%;
+              color: #fff;
+              font-weight: 700;
+              line-height: 26px;
+              text-align: center;
+            }
+
+            .callout.tip {
+              border-color: #b9d98a;
+              background: #f3f9e8;
+            }
+
+            .callout.tip .callout-icon {
+              background: #477646;
+            }
+
+            .callout.info {
+              border-color: var(--line);
+              background: var(--paper);
+            }
+
+            .callout.info .callout-icon {
+              background: var(--forest);
+              font-family: Georgia, serif;
+              font-style: italic;
+            }
+
+            .callout.warn {
+              border-color: #e8c98a;
+              background: #fdf6e7;
+            }
+
+            .callout.warn .callout-icon {
+              background: #a86b0c;
             }
 
             .live-tabs {
@@ -92,13 +182,18 @@
           <h2 id="s1-1">1.1 Try aisus</h2>
           <p>This is VS Code running the released aisus 0.3.4 on four real repositories. Nothing here
             is a mock-up.</p>
-          <h3>Step 1</h3>
-          <p>Click the aisus icon in the Activity Bar on the left, then click Maps and pick a map.</p>
-          <h3>Step 2</h3>
-          <p>Click any box or message to open the code it cites. Click Tour to walk through the map one
-            stop at a time.</p>
-          <p>Paxos is a sequence diagram. Caerus has a sequence diagram beside its architecture map.</p>
-          <p>Generate, Refresh and Ask features are disabled as they require an agent.</p>
+          <ol class="live-steps">
+            <li>Click the <strong>aisus</strong> icon in the Activity Bar on the left.</li>
+            <li>Click <strong>Maps</strong>.</li>
+            <li>Click a map's name to open it.</li>
+            <li>Click any box or message to open the code it cites.</li>
+          </ol>
+          <div class="callout tip"><span class="callout-icon" aria-hidden="true">✓</span>
+            <p>Click <strong>Tour</strong> in a map to walk through it one stop at a time.</p></div>
+          <div class="callout info"><span class="callout-icon" aria-hidden="true">i</span>
+            <p>Paxos is a sequence diagram. Caerus has a sequence diagram beside its architecture map.</p></div>
+          <div class="callout warn"><span class="callout-icon" aria-hidden="true">!</span>
+            <p><strong>Generate</strong>, <strong>Refresh</strong> and <strong>Ask</strong> are disabled as they require an agent.</p></div>
           <div class="live-tabs" role="tablist" aria-label="Repository">
             <button type="button" role="tab" aria-selected="true" data-folder="tp">TeamSync, a CS2103T team project</button>
             <button type="button" role="tab" aria-selected="false" data-folder="cs4223">ccsim, a CS4223 cache coherence simulator</button>
