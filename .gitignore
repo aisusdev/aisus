@@ -33,3 +33,4 @@ apps/vscode/LICENSE
 marketing/
 # Design tool state, kept outside the repository.
 .impeccable/
+.video/
