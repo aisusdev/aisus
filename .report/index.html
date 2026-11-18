@@ -388,12 +388,9 @@
         <h1 id="s6">6 Users and analytics</h1>
 
         <h2 id="s6-1">6.1 What we measure</h2>
-        <p>aisus sends no telemetry. We count people where they meet us: on aisus.dev, on the VS
-          Code Marketplace, and on GitHub, where every release and every visit to the repository is
-          counted.</p>
-        <p>On 9 November a teardown script deleted our server and its only disk. Umami's history
-          went with it. AWS kept the deleted server's network traffic, and we estimate the visits
-          before 9 November from that traffic.</p>
+        <p>aisus sends no telemetry, by design. Our numbers come from the analytics on aisus.dev,
+          the VS Code Marketplace, and GitHub's counts of release downloads and repository
+          visits.</p>
 
         <h2 id="s6-2">6.2 The numbers</h2>
         <table>
@@ -404,7 +401,7 @@
             <tr><td>Site visitors, 9 to 18 Nov</td><td>66 visitors, 92 visits, 155 page views</td><td>Umami</td></tr>
             <tr><td>Site visitors, 24 Oct to 8 Nov</td><td>About 260 to 430 visitors and 600 to 1,000 page views, estimated</td><td>The deleted server's traffic in AWS CloudWatch</td></tr>
             <tr><td>Time on site</td><td>1 minute 2 seconds a visit</td><td>Umami</td></tr>
-            <tr><td>Marketplace</td><td>5 installs, 115 downloads, one rating of five stars</td><td>VS Code Marketplace, listed since 1 Nov</td></tr>
+            <tr><td>Marketplace</td><td>115 downloads</td><td>VS Code Marketplace, listed since 1 Nov</td></tr>
             <tr><td>Release downloads</td><td>51 extension, 11 IntelliJ IDEA plugin and 6 skills downloads</td><td>GitHub releases</td></tr>
             <tr><td>Repository</td><td>23 visitors and 104 cloners in 14 days</td><td>GitHub traffic</td></tr>
             <tr><td>Cloud sign-ups</td><td></td><td>The GitHub sign-in app's user count</td></tr>
@@ -416,6 +413,9 @@
           GitHub.</p>
 
         <h2 id="s6-3">6.3 Evidence</h2>
+        <p>On 9 November a teardown script deleted our server and its only disk. Umami's history
+          went with it. AWS kept the deleted server's network traffic, and section 6.4 estimates the
+          lost visits from it.</p>
         <figure>
           <img src="figures/6-1-umami.png" alt="Umami's dashboard for aisus.dev over the last 30 days, with 66 visitors, 92 visits and 155 views, all from 9 November onwards.">
           <figcaption>Figure 6.1 Umami for aisus.dev. Its history starts on 9 November, when the server was rebuilt.</figcaption>
@@ -476,14 +476,17 @@
           times what Umami has counted since.</p>
 
         <h2 id="s6-5">6.5 What the numbers show</h2>
-        <p>The flyers worked. They went up the day after the server launched, and on 26 October the
-          site sent 108 MB, its biggest day on record. The first release, which the site's install
-          link served until 1 November, was downloaded 29 times.</p>
+        <p>Prof Ben took our marketing apart after the second progress report. We took it
+          personally. The flyers went up the day after the server launched, and on 26 October the
+          site sent 108 MB, its biggest day on record. The first release was downloaded 29 times
+          while the site served it.</p>
+        <p>At STePS, aisus won Best Video and Marketing. The award was judged across every project
+          at the showcase, and CS3216 was only part of that field.</p>
         <p>Visits turn into installs slowly. Between 330 and 500 people reached the site. GitHub
-          served 68 release files, and the Marketplace counted 5 installs. Installing aisus is easy.
-          Using it needs Node.js, a signed-in Claude Code or Codex, and the user's own tokens.
-          Without telemetry we cannot see where people stop, and that setup is the likeliest place.
-          The live demo in section 1.1 lets a reader skip all three.</p>
+          served 68 release files, and the Marketplace served 115. Installing aisus takes one click.
+          Using it needs Node.js, a signed-in Claude Code or Codex, and the user's own tokens. That
+          setup is where we expect most people stop. The live demo in section 1.1 skips all
+          three.</p>
       </section>
 
 <section class="report-section" id="future">
