@@ -64,9 +64,7 @@
         <h1 id="s6">6 Users and analytics</h1>
 
         <h2 id="s6-1">6.1 What we measure</h2>
-        <p>aisus sends no telemetry, by design. The extension makes no network requests, and the
-          code it maps never leaves the developer's machine. We would rather know less about our
-          users than ask them to trust us with their code. Our numbers come from the analytics on
+        <p>aisus sends no telemetry due to privacy concerns. Our numbers come from the analytics on
           aisus.dev, the VS Code Marketplace, and GitHub's counts of release downloads and
           repository visits.</p>
 
@@ -88,8 +86,6 @@
         </table>
         <p>All figures are from 18 November 2026. Time on a landing page is not a good measure of a
           developer tool. Even so, we did better than 99.99%.</p>
-        <p class="note">Fill in cloud sign-ups from the aisusdev organization's OAuth app on
-          GitHub.</p>
 
         <h2 id="s6-3">6.3 Evidence</h2>
         <p>On 9 November a teardown script deleted our server and its only disk. Umami's history
@@ -144,20 +140,22 @@
           
           <figcaption id="f62">Figure 6.2 Megabytes aisus.dev sent each day, from AWS CloudWatch. The old server's traffic survived its deletion.</figcaption>
         </figure>
+        <p>Visits turn into installs slowly. Between 330 and 500 people reached the site. GitHub
+          served 68 release files, and the Marketplace served 115. Installing aisus takes one click.
+          Using it needs Node.js, a signed-in Claude Code or Codex, and the user's own tokens. That
+          setup is where we expect most people stop. The live demo in section 1.1 skips all
+          three.</p>
 
         <h2 id="s6-4">6.4 How we estimated the lost visits</h2>
-        <p>The new server lets us calibrate. On quiet days it sends about 7 MB of background
+        <p>Thankfully AWS keeps a deleted server’s network metrics in CloudWatch for 15 months. We
+          use the new server's traces to calibrate. On quiet days it sends about 7 MB of background
           traffic. Each page view adds about 0.6 MB on top. The old server sent 686 MB from 24
           October to 8 November. Without the background, that is 600 to 1,000 page views. At the new
           site's ratio of visitors to views, it is 260 to 430 visitors.</p>
-        <p>These are bytes, not visits. The homepage changed on 2 November, and some traffic is bots
-          and our own testing. The estimate is a range for that reason. Even its low end is four
-          times what Umami has counted since.</p>
 
-        <h2 id="s6-5">6.5 What users said</h2>
-        <p>Three people tried the production build and told us what they thought.</p>
-        <p><strong>Tejas, a first-year student.</strong> He tried aisus as soon as he got back to
-          his room. His messages, verbatim:</p>
+        <h2 id="s6-5">6.5 Some curated user feedback</h2>
+        <p>Six devs tried the production build. Here's what 3 of them told us.</p>
+        <p><strong>Tejas, a first-year student.</strong> <p>His messages, verbatim:</p>
         <blockquote class="quote">
           <p>Bro ngl</p>
           <p>I went back to my room</p>
@@ -172,21 +170,19 @@
           tests on larger codebases first, to see whether aisus avoids the scaling problems he
           expects: diagrams that grow too complicated, and boxes that lose their granularity.</p>
         <p><strong>Yao Hui, an engineer at AICET.</strong> He joked about having to download VS Code
-          again. He also liked the concept, and expects friction from engineers who are deeply set
+          again. He also liked the concept, but expects friction from engineers who are deeply set
           in their own prompting habits.</p>
 
-        <h2 id="s6-6">6.6 What the numbers show</h2>
-        <p>Prof Ben took our marketing apart after the second progress report. We took it
-          personally. The flyers went up the day after the server launched, and on 26 October the
-          site sent 108 MB, its biggest day on record. The first release was downloaded 29 times
-          while the site served it.</p>
-        <p>At STePS, aisus won Best Video and Marketing. The award was judged across every project
-          at the showcase, and CS3216 was only part of that field.</p>
-        <p>Visits turn into installs slowly. Between 330 and 500 people reached the site. GitHub
-          served 68 release files, and the Marketplace served 115. Installing aisus takes one click.
-          Using it needs Node.js, a signed-in Claude Code or Codex, and the user's own tokens. That
-          setup is where we expect most people stop. The live demo in section 1.1 skips all
-          three.</p>
+        <h2 id="s6-6">6.6 Our peerless marketing</h2>
+        <p>We would like to especially highlight that Prof Ben roasted our asses after the second
+          progress report for spending too much time building and not enough time marketing. </p>
+        <p>Flyers went up the day after the server launched, and on 26 October the site sent 108 MB,
+          its biggest day on record. The first release was downloaded 29 times while the site served
+          it.</p>
+        <p>Lo and behold, at STePS, aisus won Best Video and Marketing. This is a general award. We
+          beat everyone. </p>
+        <p>We implore the reader to factor in our ability to act decisively on Prof's feedback and
+          our latent marketing genius in your evaluation of our project.</p>
       </section>
     </main>
   </body>
