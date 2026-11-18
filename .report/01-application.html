@@ -12,70 +12,100 @@
       <section class="report-section" id="application">
         <h1 id="s1">1 The application</h1>
 
+        <div class="live">
+          <p>This is VS Code running the released aisus 0.3.4, open on real repositories with the maps
+            and tours aisus drew of them. Nothing here is a mock-up. Click the aisus icon in the
+            Activity Bar on the left, then Open. A click on any box opens the code it cites, and Tour
+            walks through the map one stop at a time.</p>
+          <p>The code is read-only and no agent is connected. Generate, Refresh and Ask therefore stop
+            at the setup checklist, as they would on a machine without Claude Code or Codex.</p>
+          <div class="live-tabs" role="tablist" aria-label="Repository">
+            <button type="button" role="tab" aria-selected="true" data-folder="tp">TeamSync, a CS2103T team project</button>
+            <button type="button" role="tab" aria-selected="false" data-folder="cs4223">ccsim, a CS4223 cache coherence simulator</button>
+            <button type="button" role="tab" aria-selected="false" data-folder="cs5223">Paxos, a CS5223 lab</button>
+            <button type="button" role="tab" aria-selected="false" data-folder="caerus">Caerus, a market data capture system</button>
+          </div>
+          <iframe class="live-frame" title="VS Code with aisus" src="__DEMO_URL__?folder=/home/coder/repos/tp" allow="clipboard-read; clipboard-write"></iframe>
+          <p class="live-open"><a href="__DEMO_URL__?folder=/home/coder/repos/tp" target="_blank" rel="noopener">Open this repository in a new tab</a></p>
+          <script>
+            (() => {
+              const host = "__DEMO_URL__?folder=/home/coder/repos/";
+              const frame = document.querySelector(".live-frame");
+              const open = document.querySelector(".live-open a");
+              // VS Code takes focus as it starts, and the browser scrolls the frame into view.
+              // The page keeps its place until the reader scrolls or clicks.
+              let settled = false;
+              for (const kind of ["wheel", "touchstart", "keydown", "mousedown"]) addEventListener(kind, () => { settled = true; }, { once: true, capture: true });
+              const keepTop = () => { if (!settled) scrollTo(0, 0); };
+              addEventListener("scroll", keepTop);
+              setTimeout(() => removeEventListener("scroll", keepTop), 15000);
+              for (const tab of document.querySelectorAll(".live-tabs button")) {
+                tab.addEventListener("click", () => {
+                  for (const other of document.querySelectorAll(".live-tabs button")) other.setAttribute("aria-selected", String(other === tab));
+                  frame.src = open.href = host + tab.dataset.folder;
+                });
+              }
+            })();
+          </script>
+        </div>
+
         <h2 id="s1-1">1.1 What aisus is</h2>
-        <p>aisus turns a codebase into a picture a person can hold in their head. It draws the whole
-          system as one map of boxes and arrows, and every box opens the exact lines of code behind
-          it. A developer sees the architecture of a repository at a glance and can check every
-          claim the picture makes against the code itself.</p>
+        <p>aisus turns a codebase into a picture a person can hold in their head. A developer sees the 
+            architecture of a repository as a powerful visual abstraction and
+          can check every claim the picture makes against the code itself.</p>
         <p>The developer's own coding agent draws the map, and aisus holds the agent to the truth.
-          Every box must cite real lines inside the repository, or aisus sends the map back. Once
-          drawn, the map stays true. aisus watches the code and marks every part of the picture the
-          code has left behind, and checking costs no tokens. The agent then redraws only the parts
-          that changed.</p>
-        <p>The map goes wherever code is read. It lives in VS Code and IntelliJ IDEA, and Claude
-          Code, Codex and Devin draw it through aisus's skills. It travels with the repository,
-          appears on pull requests through a GitHub Action, and opens for a whole team on the web at
-          aisus.dev. Wherever a developer meets code they did not write, aisus puts the system's
-          picture beside it.</p>
+          Every box must cite real lines inside the repository, or aisus sends the map back. When
+          the code changes, aisus compares it with fingerprints stored in the map, on the
+          developer’s own machine, and marks every part of the picture the code has left behind. The
+          check costs no tokens, and aisus itself never sends code anywhere.  </p>
+        <p>The map belongs to no single tool. It opens in VS Code, Cursor and IntelliJ IDEA, as a
+          page in any browser, on pull requests through a GitHub Action and on the web at aisus.dev.
+          Any coding agent can draw it. Claude Code, Codex and Devin run aisus's skills directly,
+          and GitHub Copilot, Gemini CLI and OpenCode take a copied prompt. Even the rendering is
+          open. Anyone can draw the map their own way (the diagrams are in JSON).</p>
 
         <h2 id="s1-2">1.2 The symptom</h2>
         <p>Software is now written faster than anyone understands it, a gap well-known
-          <strong>comprehension debt</strong>. It costs nothing while the system runs. The bill
-          arrives as an outage, and the team pays it by learning the system under pressure.</p>
-        <p>Agents do not close the gap. An agent reads a few files at a time, and its picture of the
-          system ends with the session. It can explain one function well and still miss how two
+          <strong>comprehension debt</strong>. On the best of days, its the existential crisis
+          shared by millions of SWEs world wide. On the worst, comprehension debt rears its ugly
+          head when it arrives as an outage, and the team pays it by learning the system under
+          pressure.</p>
+        <p>Agents do not close the gap. An agent reads a few files at a time, then forgets about the
+          system at the end of the session. It can explain one function well and still miss how two
           services depend on each other.</p>
-        <p>Microsoft is the clearest case we know. In August 2026 Jay Parikh, Microsoft's executive
-          vice president of CoreAI, wrote to engineers that "tokenmaxxing is not what we are
-          optimizing for." Copilot dashboards had made each engineer's AI spending visible, and for
-          some employees they had turned into something like a leaderboard. In a voluntary internal
-          spreadsheet, the median spend was about US$300 in tokens every 28 days, and one employee
-          reported about US$28,000. November's Patch Tuesday fixed 1,094 vulnerabilities, and
-          Microsoft credited AI for the number.</p>
-        <p>Two days later Exchange Online went down around the world for 23 hours and 50 minutes.
-          Microsoft's preliminary report traces the outage to a change shipped in July. Under load,
-          the change made gateway servers wait on each other's locks until they ran out of CPU and
-          memory. The defect was worse on newer machines with more cores. Microsoft's load tests ran
-          on weaker machines with fewer cores, and the defect passed them. A routine failover then
-          moved Teams traffic onto the gateway that Exchange uses, while 14% of its servers were
-          already down. More than 80% of the gateway stopped responding. The boundaries meant to
-          hold a failure inside one region did not hold. The change was too old to roll back.
-          Servers that came back up were flooded by waiting traffic and failed again.</p>
-        <p>Microsoft says AI did not cause the outage, and we do not claim it did. We read the
-          outage as the shape comprehension debt takes. An engineer who knew the gateway inside out
-          would have asked how a lock behaves on a machine with more cores. That engineer would have
-          load tested on the machines that run in production. Nobody asked for four months. A
-          company that counts the tokens its engineers spend is shipping code faster than it
-          understands it, and its customers paid the bill for a day.</p>
-        <p class="note">Cite Microsoft's preliminary post-incident report (EX1550543 and MO1550821),
-          the 404 Media report of Parikh's memo, Ynet on the spending spreadsheet, and the Patch
-          Tuesday figure.</p>
+        <p>We can let Microsoft's recent outage explain that point for us. </p>
+        <p>November's Patch Tuesday fixed 1,094 vulnerabilities. Microsoft credited AI for the
+          number. Two days later Exchange Online went down around the world for 23 hours and 50
+          minutes. Microsoft's preliminary report traces the outage to a change shipped in July.
+          Under load, the change made gateway servers wait on each other's locks until they ran out
+          of CPU and memory. The defect was worse on newer machines with more cores. Microsoft's
+          load tests ran on weaker machines with fewer cores, and the defect passed them. A routine
+          failover then moved Teams traffic onto the gateway that Exchange uses, while 14% of its
+          servers were already down. More than 80% of the gateway stopped responding. The boundaries
+          meant to hold a failure inside one region did not hold. The change was too old to roll
+          back. Servers that came back up were flooded by waiting traffic and failed again.</p>
+        <p>Microsoft says AI did not cause the outage, and we do not claim it did directly. But
+          consider that in the good ol' days, an engineer who knew the gateway inside out would have
+          asked how a lock behaves on a machine with more cores. That engineer would have load
+          tested on the machines that run in production. Even in top shops like Microsoft, that engineer 
+          doesn't exist anymore.</p>
 
         <h2 id="s1-3">1.3 The vision</h2>
         <p>Programming stands at a precipice. Each generation of tools has carried people further
           from the machine. Assembly was too much, and we wrote C. C was too much, and we wrote
-          Python. Code itself is now too much, and agents write it for us. Each step let people
+          Python. Code itself is now too much, and agents write it for us. Each step lets people
           build more while understanding less of what lies beneath.</p>
-        <p>Two futures wait past the edge. In one, agents reach general intelligence. They
-          understand the systems for us, and most of us are out of a job. In the other, agents stop
-          getting better as fast as they have, and the chain continues. Something must then sit
-          above code, the way code sits above assembly. aisus is our hedge against the first future
-          and our bet on the second.</p>
-        <p>We predict that the next step is the picture. People understood the world by seeing it
-          long before they read or wrote. Engineers still reach for a whiteboard when they need to
-          explain a system. The chain of abstraction ends where it began, with the way humans meet
-          the world. aisus is a step in that direction. It draws the system as a picture and ties
-          every part of the picture to the code that proves it.</p>
+          <p>What's next?</p>
+          <p>It might be AGI. That would be the end of everything anyway.</p>
+        <p>Or it might not. There is still a market in hedging for this future, where AI tooling has
+          reached its efficiency ceiling and stabilises. The winner then becomes the one who
+          predicts the next step after agents.</p>
+            <p>And it is the visual medium.</p>
+            <p>People understood the world by seeing it long before they read or wrote. Engineers
+              still reach for a whiteboard when they need to explain a system. The chain of
+              abstraction ends where it began, with the way humans meet the world. aisus is a step
+              in that direction. It draws the system as a picture and ties every part of the picture
+              to the code that proves it.</p>
       </section>
     </main>
   </body>
