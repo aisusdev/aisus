@@ -10,18 +10,122 @@
     <nav class="section-nav"><a href="index.html">Full report</a></nav>
     <main>
       <section class="report-section" id="learnings">
+        <style>
+          figure.wide {
+            position: relative;
+            left: 50%;
+            width: min(1040px, calc(100vw - 48px));
+            transform: translateX(-50%);
+          }
+
+          figure.wide figcaption {
+            max-width: 748px;
+            margin-inline: auto;
+          }
+
+          @media print {
+            figure.wide {
+              left: 0;
+              width: auto;
+              transform: none;
+            }
+          }
+        </style>
         <h1 id="s8">8 What we learned</h1>
 
-        <h2 id="s8-1">8.1 Technical</h2>
-        <p class="note">Describe what building the extension, agent skills, cloud and IntelliJ plugin taught the team.</p>
+        <h2 id="s8-1">8.1 Chen Dan Quirk Divide and Conquer</h2>
+        <p>Chen Dan Quirk Divide and Conquer is a workflow we pioneered, and aisus is what made it
+          work.</p>
+        <p>There is some multilayered humour here (which is admittedly only really funny if you are
+          a super nerd). The name itself is a play on CDQ Divide and Conquer, an advanced
+          algorithmic technique invented by Princeton University Computer Science Professor and IOI
+          Gold medallist Chen Danqi. We already have a Chen and Dan on our team, Kerk just had to be
+          given a sobriquet to fit the acronym. Satvik Sinha was already calling Kerk "Quirk" all the time anyway. </p>
+        <figure>
+          <img src="figures/8-1-quirky.png" alt="A chat with Satvik, searched for the word quirky, showing two messages from him: yo quirky, and what are you doing rn.">
+          <figcaption>Figure 8.1 Satvik Sinha, on record.</figcaption>
+        </figure>
+        <p>Secondly, using aisus to develop aisus is really meta. One can surely something witty to
+          say about recursive self-improvement here. Prof Ben brought this up during one of our
+          progress reports. </p>
+        <p>With AI in the loop, work stops parallelising. Writing code, the computation, is no
+          longer the bottleneck. Communication is: merging, meeting and presenting ideas to each
+          other. Worse, the presenter often does not fully know what their own AI wrote. And with
+          three people, consensus is hard. One presenter can be read two different ways by the two
+          listeners.</p>
+        <p>Our shifts are strictly one sender and one receiver, with no distributed consensus to
+          reach. The person on shift works at full speed without worrying about anyone else, and has
+          sufficient time within the shift to prepare a comprehensive presentation of their work to
+          the next person.</p>
+        <figure class="wide">
+          <img src="figures/8-2-cdq.png" alt="A sequence map with six participants in a row, chen_0, dan_0, quirk_0, chen_1, dan_1 and quirk_1. Each one is active in turn and passes a communicate message to the next.">
+          <figcaption>Figure 8.2 Chen Dan Quirk Divide and Conquer, drawn as an aisus sequence map. Each bar is a shift, and each arrow is a handover.</figcaption>
+        </figure>
+        <p>How did we hand over a shift? With aisus diagrams, of course.</p>
+        <p>The shifts also had practical benefits, freeing up real for our other courses, reports
+          and for marketing. By our own rough estimate, we moved about three times faster this
+          way.</p>
 
-        <h2 id="s8-2">8.2 Product and market</h2>
-        <p class="note">Describe what the team learned about getting a developer tool discovered and installed, and about what users valued.</p>
+        <h2 id="s8-2">8.2 How hard privacy is to get right</h2>
+        <p>aisus states its privacy guarantees as invariants. Each invariant has a mechanism that
+          enforces it.</p>
+        <table>
+          <thead>
+            <tr><th>Invariant</th><th>Enforced by</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>The extension sends nothing over the network.</td><td>A unit test that bans network imports and APIs outside the cloud client.</td></tr>
+            <tr><td>A map cites no secret and no file outside the repository.</td><td>Path confinement with symlinks resolved, and a deny-list of secret files.</td></tr>
+            <tr><td>The cloud stores maps, never code.</td><td>A closed upload schema and a secret scan of every upload.</td></tr>
+            <tr><td>The map viewer receives only the map.</td><td>A webview under <code>default-src 'none'</code> that is sent JSON, never files.</td></tr>
+            <tr><td>No input reaches a shell.</td><td>Agents and git launched by absolute path, with fixed arguments and no shell.</td></tr>
+            <tr><td>Answer keys stay hidden from the student.</td><td>Keys held by the referee script or the extension host, never by the interface.</td></tr>
+          </tbody>
+        </table>
+        <p>The weakest boundary is the agent. It runs inside a repository it has never seen, and
+          text in that repository can steer it.</p>
+        <p>Pre-approved commands widen that boundary. Claude Code runs a skill's pre-approved
+          commands without a prompt, and a <code>*</code> in a rule matches any arguments. The Bug
+          hunt skill pre-approved its scripts with such a rule, and one script ran its
+          <code>--check-cmd</code> argument as a shell command. Planted text could run any command
+          through it.</p>
+        <p>The fix removed the argument, narrowed every rule to scripts that only read and write
+          data, and pre-approved no edit tool.</p>
+        <p>The no-network invariant prevents us from obtaining proper telemetry, which means we
+          cannot see where users get stuck. This affected the analysis in Section 6.</p>
 
-        <h2 id="s8-3">8.3 Teamwork and process</h2>
-        <p class="note">Describe how the team planned, split work and handed over between shifts.</p>
+        <h2 id="s8-3">8.3 Skills can carry code</h2>
+        <p>An agent skill can carry code as well as instructions.</p>
+        <p>The first aisus skills were markdown alone, and the agent did every step itself. Many of
+          those steps had one right answer and needed no judgement. Before mapping, a skill records
+          the current commit, sizes the repository to cap how many files the agent reads, and finds
+          the previous map to build on. Afterwards, it checks the map against its schema and renders
+          it to HTML.</p>
+        <p>That kind of work is exactly where an agent hallucinates. It sometimes invented a file
+          path, skipped a field or produced a map that would not load.</p>
+        <p>Those steps now live in JavaScript that ships with each skill. The agent runs a script
+          wherever a fixed rule decides the result, and spends its effort on the reading and naming
+          that need judgement. The scripts are thus now much less non-deterministic and can be tested
+          and improved in isolation.</p>
 
-        <h2 id="s8-4">8.4 What we would do differently</h2>
+        <h2 id="s8-4">8.4 How good we are at marketing</h2>
+        <p>'Nuff said.</p>
+
+      </section>
+
+      <section class="report-section" id="conclusion">
+        <h1 id="s9">9 Conclusion and Acknowledgements</h1>
+        <p>We set out to answer comprehension debt with a picture: a map of the whole system, where
+          every box opens the code that proves it. Code has become too much for people to write, and
+          we believe the next step after agents is the visual medium. aisus is our first step there,
+          and we gave it everything we had. We have a humble patronage of users who seem to
+          agree.</p>
+        <p>Thank you to Dr Ben Leong and Dr Soo Yuen Jien for running CS3216, a course that lets
+          students build something real. Thank you to our head teaching assistant Phillmont Muktar,
+          and to our teaching assistants Lee Jia Wei, Markus Yeo Jing Yu and Rajarshi Basu, for
+          their feedback and patience. Thank you to every guest speaker who showed us what building
+          a product actually takes. And thank you to Prof Ben for the roast after our second
+          progress report, without which there would be no Best Video and Marketing award.</p>
       </section>
     </main>
   </body>
