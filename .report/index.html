@@ -56,6 +56,12 @@
         vertical-align: -0.4em;
       }
 
+      /* Boxes with margins of their own still line up with the text column. */
+      .report-section > blockquote.quote,
+      .report-section > .note {
+        margin-inline: auto;
+      }
+
       /* Figures and their captions sit in the middle of their column. */
       figure {
         text-align: center;
@@ -722,7 +728,7 @@
         </div>
 
         <h2 id="s5-3">5.3 Deployment</h2>
-        <p>Figure 5.3 shows where each part of <img class="wordmark" src="figures/aisus-wordmark.png" alt="aisus"> runs. Nearly all of it runs on the developer's own computer. Drawing or comparing a map needs no <img class="wordmark" src="figures/aisus-wordmark.png" alt="aisus"> server. The extension, the coding agent and the maps all sit beside the code. A developer who never shares a map can use <img class="wordmark" src="figures/aisus-wordmark.png" alt="aisus"> without an <img class="wordmark" src="figures/aisus-wordmark.png" alt="aisus"> account.</p>
+        <p>Figure 5.3 shows where each part of <img class="wordmark" src="figures/aisus-wordmark.png" alt="aisus"> runs. Nearly all of it runs on the developer's own computer. Drawing or comparing a map needs no server. The extension, the coding agent and the maps all sit beside the code. A developer who never shares a map can use it without an account.</p>
         <p>Only two paths lead to <img class="wordmark" src="figures/aisus-wordmark.png" alt="aisus"> cloud, each chosen by a person. A developer can share a map with the team. A team can let the pull request check send its results. What travels is the map and its findings. The code stays in the repository.</p>
         <p>The cloud itself is one small server. It hosts the website where a team reads shared maps, and the database that keeps them. <img class="wordmark" src="figures/aisus-wordmark.png" alt="aisus"> holds no passwords and no card details. GitHub handles sign-in and repository access. Stripe takes the payments. Running a single server keeps the cost of the service low.</p>
         <figure>
