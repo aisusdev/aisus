@@ -504,7 +504,7 @@
             architecture of a repository as a powerful visual abstraction and
           can check every claim the picture makes against the code itself.</p>
         <p><img class="wordmark" src="figures/aisus-wordmark.png" alt="aisus"> holds the developer's own coding agent to the truth while it draws the map.
-          Every box must cite real lines inside the repository, or <img class="wordmark" src="figures/aisus-wordmark.png" alt="aisus"> sends the map back. When the code changes, <img class="wordmark" src="figures/aisus-wordmark.png" alt="aisus"> marks every part of the picture the code has left behind. It compares the code with fingerprints stored in the map, on the developer's own machine. <img class="wordmark" src="figures/aisus-wordmark.png" alt="aisus"> itself never sends code anywhere. The check costs no tokens.  </p>
+          Every box must cite real lines inside the repository, or the map goes back. When the code changes, it marks every part of the picture the code has left behind. It compares the code with fingerprints stored in the map, on the developer's own machine. It never sends code anywhere itself. The check costs no tokens.  </p>
         <p>The map belongs to no single tool. It opens in VS Code, Cursor and IntelliJ IDEA, as a
           page in any browser, on pull requests through a GitHub Action and on the web at aisus.dev.
           Any coding agent can draw it. Claude Code, Codex and Devin run <img class="wordmark" src="figures/aisus-wordmark.png" alt="aisus">'s skills directly. GitHub Copilot, Gemini CLI and OpenCode take a copied prompt. Even the rendering is
@@ -586,7 +586,7 @@
 
         <h3>An index for agents</h3>
         <p>The map lists each part of the system with the files and lines that implement it. An agent that reads it first can go straight to the code a task touches, which saves exploration time and tokens on every task.</p>
-        <p><img class="wordmark" src="figures/aisus-wordmark.png" alt="aisus"> already writes the map into AGENTS.md and CLAUDE.md, the files coding agents read at the start of a session. Because <img class="wordmark" src="figures/aisus-wordmark.png" alt="aisus"> knows which boxes are fresh, it can tell the agent which entries to trust. The competitors' MCP servers give agents a diagram or a model without that signal. Their diagrams drift from the code unless someone maintains both.</p>
+        <p><img class="wordmark" src="figures/aisus-wordmark.png" alt="aisus"> already writes the map into AGENTS.md and CLAUDE.md, the files coding agents read at the start of a session. Because it knows which boxes are fresh, it can tell the agent which entries to trust. The competitors' MCP servers give agents a diagram or a model without that signal. Their diagrams drift from the code unless someone maintains both.</p>
 
         <h2 id="s2-5">2.5 Where <img class="wordmark" src="figures/aisus-wordmark.png" alt="aisus"> falls short</h2>
 
@@ -659,7 +659,7 @@
           everything: the extension, the cloud, the server and the docs. They push <img class="wordmark" src="figures/aisus-wordmark.png" alt="aisus"> as far as
           they can with tunnel vision, write a handover, and pass it on. The next person starts from
           that handover and never waits on anyone. No one owns a module. Each of us answers for the
-          whole product. Chapter 8 explains why the workflow works and how <img class="wordmark" src="figures/aisus-wordmark.png" alt="aisus"> diagrams carry each handover.</p>
+          whole product. Chapter 8 explains why the workflow works and how its diagrams carry each handover.</p>
 
         <h2 id="s4-2">4.2 The shifts</h2>
         <table>
@@ -714,7 +714,7 @@
         </figure>
 
         <h2 id="s5-2">5.2 Key flows</h2>
-        <p>Two workflows carry most of what <img class="wordmark" src="figures/aisus-wordmark.png" alt="aisus"> does. The first, in Figure 5.2.1, turns a request into a map. When a developer asks for a map, a coding agent studies the repository and drafts one. <img class="wordmark" src="figures/aisus-wordmark.png" alt="aisus"> does not take the draft on trust. Until the draft passes, <img class="wordmark" src="figures/aisus-wordmark.png" alt="aisus"> hands it back with every problem it finds against the map format and the code it cites. These checks are plain code rather than a model's judgement. Hence every box in a passing map points to code that exists. The map is also certain to render. Only such a map is kept and shown to the developer.</p>
+        <p>Two workflows carry most of what <img class="wordmark" src="figures/aisus-wordmark.png" alt="aisus"> does. The first, in Figure 5.2.1, turns a request into a map. When a developer asks for a map, a coding agent studies the repository and drafts one. The draft is not taken on trust. It goes back with every problem found against the map format and the code it cites, until it passes. These checks are plain code rather than a model's judgement. Hence every box in a passing map points to code that exists. The map is also certain to render. Only such a map is kept and shown to the developer.</p>
         <p>The second workflow, in Figure 5.2.2, shows what has changed. <img class="wordmark" src="figures/aisus-wordmark.png" alt="aisus"> compares the map with an earlier one of the same code, which the developer picks. It marks which parts of the system appeared, changed or disappeared in between. The comparison is plain code too, with no agent involved. A reviewer sees how a change moves the architecture, rather than piecing it together from the files it touched. Together the two workflows let a team draw a map once and then follow how its architecture moves over time.</p>
         <div class="figure-row">
           <figure>
@@ -972,7 +972,7 @@
           IDEA. <img class="wordmark" src="figures/aisus-wordmark.png" alt="aisus"> supports it, but it requires more polish to reach the smoothness of our VSCode extension.
             The main selling point to educators is a grounded, healthy compromise. Students are going
             to outsource an inordinate majority of the work to AI anyway, for one reason or another. 
-            At least with <img class="wordmark" src="figures/aisus-wordmark.png" alt="aisus">, the work is not totally blind.</p> 
+            At least the work is not totally blind.</p> 
           <p>The TeamSync demo in section 1.1 is a CS2103T project, already mapped and toured.</p>
 
         <h2 id="s7-3">7.3 sakai</h2>
@@ -1014,7 +1014,7 @@
           <img src="figures/8-1-quirky.png" alt="A chat with Satvik, searched for the word quirky, showing two messages from him: yo quirky, and what are you doing rn.">
           <figcaption>Figure 8.1 Satvik Sinha, on record.</figcaption>
         </figure>
-        <p>Secondly, using <img class="wordmark" src="figures/aisus-wordmark.png" alt="aisus"> to develop <img class="wordmark" src="figures/aisus-wordmark.png" alt="aisus"> is really meta. One can surely something witty to
+        <p>Secondly, using <img class="wordmark" src="figures/aisus-wordmark.png" alt="aisus"> to develop itself is really meta. One can surely something witty to
           say about recursive self-improvement here. Prof Ben brought this up during one of our
           progress reports. </p>
         <p>With AI in the loop, work stops parallelising. Writing code, the computation, is no
