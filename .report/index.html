@@ -518,7 +518,8 @@
           system at the end of the session. It can explain one function well and still miss how two
           services depend on each other.</p>
         <p>We can let Microsoft's recent outage explain that point for us. </p>
-        <p>November's Patch Tuesday fixed 1,094 vulnerabilities. Microsoft credited AI for the number. Two days later Exchange Online went down around the world for 23 hours and 50 minutes.</p>
+        <p>November's Patch Tuesday fixed 1,094 vulnerabilities. Microsoft credited AI for the number.</p>
+        <p>Two days later Exchange Online went down around the world for 23 hours and 50 minutes.</p>
         <p>Microsoft's preliminary report traces the outage to a change shipped in July. Under load, the change made gateway servers wait on each other's locks until they ran out of CPU and memory. The defect was worse on newer machines with more cores. The defect passed Microsoft's load tests, which ran on weaker machines with fewer cores.</p>
         <p>A routine failover then moved Teams traffic onto the gateway that Exchange uses, while 14% of its servers were already down. More than 80% of the gateway stopped responding. The boundaries meant to hold a failure inside one region did not hold. The change was too old to roll back. Servers that came back up were flooded by waiting traffic and failed again.</p>
         <p>Microsoft says AI did not cause the outage. We do not claim it did directly. But
@@ -697,25 +698,83 @@
 
 <section class="report-section" id="design">
         <h1 id="s5">5 Application design</h1>
-        <p><img class="wordmark" src="figures/aisus-wordmark.png" alt="aisus"> keeps its core libraries apart from the platforms that show a map. The core libraries are the map model, the layout manager and the agent skills. Each platform adds only a thin layer on top of them, made of a panel that starts runs and a diagram viewer that draws the result. Figure 5 shows this split for the VS Code extension and the IntelliJ plugin.</p>
-        <p>The split lets <img class="wordmark" src="figures/aisus-wordmark.png" alt="aisus"> reach a new platform quickly. The IntelliJ plugin and the VS Code extension share the same core libraries and diagram viewer. The plugin hosts the viewer inside the IDE's built-in browser. The core logic stays as it is. A new platform needs only its own panel and a place for the viewer.</p>
-        <p>The split also keeps the agent skills independent of how a map is drawn. A skill has one job, which is to produce a JSON document in the map format described in <a href="#s5-1">section 5.1</a>. The map model checks that document before it is published. Any viewer that reads the map format can then draw it, on whichever platform it runs.</p>
+        <p><img class="wordmark" src="figures/aisus-wordmark.png" alt="aisus"> separates a platform-independent core from thin hosts. Figure 5 shows the modules and the contracts between them.</p>
+        <table>
+          <thead>
+            <tr><th>Module</th><th>Role</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Map model</td><td>The map format, the validator, git facts and the change check.</td></tr>
+            <tr><td>Layout</td><td>Places boxes and routes arrows.</td></tr>
+            <tr><td>Agent skills</td><td>Instruct a coding agent to draft a map, and ship the scripts that check and save it.</td></tr>
+            <tr><td>Viewer</td><td>Draws a map. Every host uses the same viewer.</td></tr>
+            <tr><td>Host</td><td>Starts runs and shows the viewer: the VS Code extension, the IntelliJ plugin and the cloud.</td></tr>
+          </tbody>
+        </table>
+        <h3>Notes</h3>
+        <p>A new host needs only a panel that starts runs and a place for the viewer. The core does not change.</p>
+        <p>A skill's only output is a map document (<a href="#s5-1">5.1</a>). Any viewer that reads the format can draw it.</p>
         <figure>
           <a href="figures/design/components.html"><img src="figures/design/components.svg" alt="Component diagram of the aisus modules"></a>
           <figcaption>Figure 5 The modules and the contracts between them.</figcaption>
         </figure>
 
         <h2 id="s5-1">5.1 Data model</h2>
-        <p>The map format treats a diagram as a set of claims about the code. A box claims that a part of the system exists, an arrow claims that one part relies on another, and a group claims that some parts belong together. A map is only as useful as these claims are true. The format therefore ties every box to evidence, as Figure 5.1 shows from left to right.</p>
-        <p>That evidence is the citation. A box must point to the lines of code that make it real. A reader never has to take the diagram on trust. They can open any box and read the code it stands for, which turns the map from a picture into an index of the codebase.</p>
+        <p>A map is a JSON document. Each element in it makes one claim about the code.</p>
+        <table>
+          <thead>
+            <tr><th>Element</th><th>Claim</th><th>Required fields</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Component (box)</td><td>A part of the system exists.</td><td><code>id</code>, <code>type</code>, <code>label</code>, <code>sources</code></td></tr>
+            <tr><td>Connection (arrow)</td><td>One part relies on another.</td><td><code>from</code>, <code>to</code></td></tr>
+            <tr><td>Boundary (group)</td><td>Some parts share a runtime, owner or trust boundary.</td><td><code>kind</code>, <code>label</code>, <code>wraps</code></td></tr>
+            <tr><td>Source (citation)</td><td>These lines make the claim true.</td><td><code>path</code>, <code>line</code>, <code>end_line</code></td></tr>
+          </tbody>
+        </table>
+        <h3>Invariants</h3>
+        <ul>
+          <li>Every component has one to three sources.</li>
+          <li>A source path is relative, has no <code>.</code> or <code>..</code> segment, and resolves inside the repository after symlinks.</li>
+          <li>A source never cites a file on the deny-list, such as <code>.env</code> files, keys or <code>.git</code>.</li>
+          <li>Every cited line exists in its file.</li>
+        </ul>
+        <h3>Freshness</h3>
+        <p>On acceptance, the validator saves a fingerprint for every source: the file's git blob id and a hash of the cited lines. Freshness is computed from the fingerprints alone. No agent runs.</p>
+        <table>
+          <thead>
+            <tr><th>State</th><th>Meaning</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Fresh</td><td>The cited lines are unchanged.</td></tr>
+            <tr><td>Moved</td><td>The cited lines are unchanged at a new position. The box opens them there.</td></tr>
+            <tr><td>Edited</td><td>The cited lines have changed.</td></tr>
+            <tr><td>Missing</td><td>The cited file is gone.</td></tr>
+          </tbody>
+        </table>
+        <p>A box takes the worst state among its sources.</p>
         <figure class="wide">
           <a href="figures/design/map-format.html"><img src="figures/design/map-format.svg" alt="Diagram of a map's boxes, arrows, groups and citations, the fingerprint saved for each citation, and the freshness worked out from it"></a>
           <figcaption>Figure 5.1 The map format.</figcaption>
         </figure>
 
         <h2 id="s5-2">5.2 Key flows</h2>
-        <p>Two workflows carry most of what <img class="wordmark" src="figures/aisus-wordmark.png" alt="aisus"> does. The first, in Figure 5.2.1, turns a request into a map. When a developer asks for a map, a coding agent studies the repository and drafts one. The draft is not taken on trust. It goes back with every problem found against the map format and the code it cites, until it passes. These checks are plain code rather than a model's judgement. Hence every box in a passing map points to code that exists. The map is also certain to render. Only such a map is kept and shown to the developer.</p>
-        <p>The second workflow, in Figure 5.2.2, shows what has changed. <img class="wordmark" src="figures/aisus-wordmark.png" alt="aisus"> compares the map with an earlier one of the same code, which the developer picks. It marks which parts of the system appeared, changed or disappeared in between. The comparison is plain code too, with no agent involved. A reviewer sees how a change moves the architecture, rather than piecing it together from the files it touched. Together the two workflows let a team draw a map once and then follow how its architecture moves over time.</p>
+        <h3>Generating a map</h3>
+        <ol>
+          <li>The host starts the developer's coding agent with the architecture skill and an optional focus.</li>
+          <li><code>repo-facts</code> records the commit and the repository's facts, and creates the run folder.</li>
+          <li>The agent reads the code and writes a draft.</li>
+          <li><code>validate</code> checks the draft: schema, references, then citations. The agent revises the draft from each error, which comes back with a JSON pointer.</li>
+          <li>Once the draft passes, the validator saves the map with its fingerprints. The host opens it.</li>
+        </ol>
+        <p>Steps 2, 4 and 5 are plain code. Every box in an accepted map cites lines that exist. The map always renders.</p>
+        <h3>Comparing two maps</h3>
+        <ol>
+          <li>The developer picks an earlier map of the same code.</li>
+          <li>The map model diffs the two maps, element by element.</li>
+          <li>The viewer marks each box and arrow as added, changed, renamed or removed.</li>
+        </ol>
+        <p>No agent runs. The comparison costs no tokens.</p>
         <div class="figure-row">
           <figure>
             <a href="figures/design/generate-flow.html"><img src="figures/design/generate-flow.svg" alt="Sequence diagram of generating a map"></a>
@@ -728,9 +787,21 @@
         </div>
 
         <h2 id="s5-3">5.3 Deployment</h2>
-        <p>Figure 5.3 shows where each part of <img class="wordmark" src="figures/aisus-wordmark.png" alt="aisus"> runs. Nearly all of it runs on the developer's own computer. Drawing or comparing a map needs no server. The extension, the coding agent and the maps all sit beside the code. A developer who never shares a map can use it without an account.</p>
-        <p>Only two paths lead to <img class="wordmark" src="figures/aisus-wordmark.png" alt="aisus"> cloud, each chosen by a person. A developer can share a map with the team. A team can let the pull request check send its results. What travels is the map and its findings. The code stays in the repository.</p>
-        <p>The cloud itself is one small server. It hosts the website where a team reads shared maps, and the database that keeps them. <img class="wordmark" src="figures/aisus-wordmark.png" alt="aisus"> holds no passwords and no card details. GitHub handles sign-in and repository access. Stripe takes the payments. Running a single server keeps the cost of the service low.</p>
+        <table>
+          <thead>
+            <tr><th>Part</th><th>Runs on</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Extension, coding agent and maps</td><td>The developer's computer, beside the code</td></tr>
+            <tr><td>Pull request check</td><td>The repository's GitHub Actions runner</td></tr>
+            <tr><td>Cloud website and database</td><td>One small server</td></tr>
+            <tr><td>Sign-in and repository access</td><td>GitHub</td></tr>
+            <tr><td>Payments</td><td>Stripe</td></tr>
+          </tbody>
+        </table>
+        <h3>What leaves the developer's computer</h3>
+        <p>Drawing or comparing a map needs no server and no account. Data reaches the cloud only when a person chooses one of two paths: a developer shares a map, or a team turns on the pull request check's upload.</p>
+        <p>Only maps and check results travel. Code never does. The cloud holds no passwords and no card details.</p>
         <figure>
           <a href="figures/design/deployment.html"><img src="figures/design/deployment.svg" alt="Infrastructure diagram of the developer's computer, GitHub, Stripe and the aisus cloud server"></a>
           <figcaption>Figure 5.3 The <img class="wordmark" src="figures/aisus-wordmark.png" alt="aisus"> infrastructure.</figcaption>
@@ -1029,7 +1100,7 @@
           <figcaption>Figure 8.2 Chen Dan Quirk Divide and Conquer, drawn as an <img class="wordmark" src="figures/aisus-wordmark.png" alt="aisus"> sequence map. Each bar is a shift, and each arrow is a handover.</figcaption>
         </figure>
         <p>How did we hand over a shift? With <img class="wordmark" src="figures/aisus-wordmark.png" alt="aisus"> diagrams, of course.</p>
-        <p>The shifts also had practical benefits, freeing up real for our other courses, reports
+        <p>The shifts also had practical benefits, freeing up real time for our other courses, reports
           and for marketing. By our own rough estimate, we moved about three times faster this
           way.</p>
         <p>Each shift also let its owner build an idea out before anyone could argue it down. Nobody had to win a meeting first. The person on shift simply built it, and the next person judged something that worked. Actions speak louder than words.</p>
