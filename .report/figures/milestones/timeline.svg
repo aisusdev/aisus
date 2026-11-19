@@ -1,0 +1,75 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 748 612" width="748" height="612" font-family="Avenir Next, Helvetica Neue, system-ui, sans-serif" font-size="16">
+<rect width="748" height="612" fill="#ffffff"/>
+<line x1="242.1" y1="40" x2="242.1" y2="560" stroke="#cad1c6"/>
+<text x="242.1" y="32" fill="#4f6055" text-anchor="middle">Oct 5</text>
+<line x1="312.6" y1="40" x2="312.6" y2="560" stroke="#cad1c6"/>
+<text x="312.6" y="32" fill="#4f6055" text-anchor="middle">Oct 12</text>
+<line x1="383.2" y1="40" x2="383.2" y2="560" stroke="#cad1c6"/>
+<text x="383.2" y="32" fill="#4f6055" text-anchor="middle">Oct 19</text>
+<line x1="453.8" y1="40" x2="453.8" y2="560" stroke="#cad1c6"/>
+<text x="453.8" y="32" fill="#4f6055" text-anchor="middle">Oct 26</text>
+<line x1="524.3" y1="40" x2="524.3" y2="560" stroke="#cad1c6"/>
+<text x="524.3" y="32" fill="#4f6055" text-anchor="middle">Nov 2</text>
+<line x1="594.9" y1="40" x2="594.9" y2="560" stroke="#cad1c6"/>
+<text x="594.9" y="32" fill="#4f6055" text-anchor="middle">Nov 9</text>
+<line x1="665.4" y1="40" x2="665.4" y2="560" stroke="#cad1c6"/>
+<text x="665.4" y="32" fill="#4f6055" text-anchor="middle">Nov 16</text>
+<line x1="232" y1="40" x2="736" y2="40" stroke="#4f6055"/>
+<rect x="0" y="48" width="748" height="32" fill="#f7f9f4" opacity="0.7"/>
+<text x="8" y="69" fill="#182a22">Prototyping</text>
+<rect x="232.0" y="53" width="70.6" height="22" rx="3" fill="#eaf0e8" stroke="#9fb09a"/>
+<rect x="292.5" y="59" width="20.2" height="10" rx="2" fill="#142b22"/>
+<text x="8" y="101" fill="#182a22">Progress Report 1</text>
+<path d="M307.6 89.0 L314.6 96.0 L307.6 103.0 L300.6 96.0 Z" fill="#142b22"/>
+<rect x="0" y="112" width="748" height="32" fill="#f7f9f4" opacity="0.7"/>
+<text x="8" y="133" fill="#182a22">Ask and Learning Session</text>
+<rect x="312.6" y="117" width="50.4" height="22" rx="3" fill="#eaf0e8" stroke="#9fb09a"/>
+<rect x="332.8" y="123" width="60.5" height="10" rx="2" fill="#142b22"/>
+<text x="8" y="165" fill="#182a22">Landing page and v0.3.0</text>
+<rect x="312.6" y="149" width="50.4" height="22" rx="3" fill="#eaf0e8" stroke="#9fb09a"/>
+<rect x="373.1" y="155" width="70.6" height="10" rx="2" fill="#142b22"/>
+<rect x="0" y="176" width="748" height="32" fill="#f7f9f4" opacity="0.7"/>
+<text x="8" y="197" fill="#182a22">Refresh and staleness</text>
+<rect x="312.6" y="181" width="50.4" height="22" rx="3" fill="#eaf0e8" stroke="#9fb09a"/>
+<rect x="373.1" y="187" width="10.1" height="10" rx="2" fill="#142b22"/>
+<text x="8" y="229" fill="#182a22">Demo video</text>
+<rect x="383.2" y="213" width="50.4" height="22" rx="3" fill="#eaf0e8" stroke="#9fb09a"/>
+<rect x="473.9" y="219" width="30.2" height="10" rx="2" fill="#142b22"/>
+<rect x="524.3" y="219" width="10.1" height="10" rx="2" fill="#142b22"/>
+<rect x="584.8" y="219" width="10.1" height="10" rx="2" fill="#142b22"/>
+<rect x="0" y="240" width="748" height="32" fill="#f7f9f4" opacity="0.7"/>
+<text x="8" y="261" fill="#182a22">Developer outreach</text>
+<rect x="383.2" y="245" width="211.7" height="22" rx="3" fill="#eaf0e8" stroke="#9fb09a"/>
+<rect x="433.6" y="251" width="171.4" height="10" rx="2" fill="#142b22"/>
+<text x="8" y="293" fill="#182a22">IntelliJ IDEA plugin</text>
+<rect x="413.4" y="277" width="211.7" height="22" rx="3" fill="#eaf0e8" stroke="#9fb09a"/>
+<rect x="383.2" y="283" width="151.2" height="10" rx="2" fill="#142b22"/>
+<rect x="0" y="304" width="748" height="32" fill="#f7f9f4" opacity="0.7"/>
+<text x="8" y="325" fill="#182a22">Reduce LLM credits</text>
+<rect x="413.4" y="309" width="121.0" height="22" rx="3" fill="#eaf0e8" stroke="#9fb09a"/>
+<rect x="514.2" y="315" width="20.2" height="10" rx="2" fill="#142b22"/>
+<text x="8" y="357" fill="#182a22">Progress Report 2</text>
+<path d="M448.7 345.0 L455.7 352.0 L448.7 359.0 L441.7 352.0 Z" fill="#142b22"/>
+<rect x="0" y="368" width="748" height="32" fill="#f7f9f4" opacity="0.7"/>
+<text x="8" y="389" fill="#182a22">Security scan</text>
+<rect x="453.8" y="373" width="80.6" height="22" rx="3" fill="#eaf0e8" stroke="#9fb09a"/>
+<text x="542.4" y="389" fill="#c92c6d">No scan ran</text>
+<text x="8" y="421" fill="#182a22">Marketing poster design</text>
+<rect x="453.8" y="405" width="151.2" height="22" rx="3" fill="#eaf0e8" stroke="#9fb09a"/>
+<rect x="584.8" y="411" width="20.2" height="10" rx="2" fill="#142b22"/>
+<rect x="0" y="432" width="748" height="32" fill="#f7f9f4" opacity="0.7"/>
+<text x="8" y="453" fill="#182a22">Class demo</text>
+<path d="M529.4 441.0 L536.4 448.0 L529.4 455.0 L522.4 448.0 Z" fill="#142b22"/>
+<text x="8" y="485" fill="#182a22">Pilot fixes</text>
+<rect x="534.4" y="469" width="80.6" height="22" rx="3" fill="#eaf0e8" stroke="#9fb09a"/>
+<rect x="494.1" y="475" width="110.9" height="10" rx="2" fill="#142b22"/>
+<rect x="0" y="496" width="748" height="32" fill="#f7f9f4" opacity="0.7"/>
+<text x="8" y="517" fill="#182a22">STePS preparation</text>
+<path d="M630.2 505.0 L637.2 512.0 L630.2 519.0 L623.2 512.0 Z" fill="#142b22"/>
+<text x="8" y="549" fill="#182a22">Final report</text>
+<rect x="685.6" y="539" width="40.3" height="10" rx="2" fill="#142b22"/>
+<path d="M731.0 537.0 L738.0 544.0 L731.0 551.0 L724.0 544.0 Z" fill="#142b22"/>
+<rect x="8" y="576" width="34" height="18" rx="3" fill="#eaf0e8" stroke="#9fb09a"/><text x="50" y="590" fill="#182a22">Planned</text>
+<rect x="140" y="581" width="34" height="8" rx="2" fill="#142b22"/><text x="182" y="590" fill="#182a22">Actual</text>
+<path d="M280 578 L287 585 L280 592 L273 585 Z" fill="#142b22"/><text x="296" y="590" fill="#182a22">Milestone or deadline</text>
+</svg>

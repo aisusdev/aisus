@@ -96,6 +96,45 @@ td:empty::after {
   content: "\00a0";
 }
 
+/* A milestone's cell is coloured by its status, and a legend under the table's heading names each colour. */
+.status-hit {
+  background: #dcf2ac;
+}
+
+.status-late {
+  background: #f6e3a6;
+}
+
+.status-missed {
+  background: #f4cadb;
+}
+
+.status-hit,
+.status-late,
+.status-missed {
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+.status-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 24px;
+  margin: 0 0 16px;
+}
+
+.status-legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.status-legend i {
+  width: 20px;
+  height: 20px;
+  border: 1px solid var(--line);
+}
+
 /* A note tells the writer what a part of the report should hold. Delete it once the part is written. */
 .note {
   margin: 12px 0 20px;
