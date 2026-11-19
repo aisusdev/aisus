@@ -13,42 +13,36 @@
         <h1 id="s3">3 Milestones and timeline</h1>
 
         <h2 id="s3-1">3.1 Planned and actual timeline</h2>
-        <figure class="placeholder">
-          <div class="frame">Gantt chart from Progress Report 2</div>
-          <figcaption>Figure 3.1 The schedule as planned in Progress Report 2.</figcaption>
-        </figure>
-        <figure class="placeholder">
-          <div class="frame">Final Gantt chart</div>
-          <figcaption>Figure 3.2 The schedule as it happened.</figcaption>
+        <figure>
+          <img src="figures/milestones/timeline.svg" alt="Gantt chart of sixteen tasks and milestones from 4 October to 22 November, with each planned period drawn as a pale bar and the actual period as a dark bar inside or beside it">
+          <figcaption>Figure 3.1 The schedule as it happened.</figcaption>
         </figure>
 
         <h2 id="s3-2">3.2 Milestones hit and missed</h2>
-        <p class="note">The planned dates were read from the Progress Report 2 chart. Check each one against the source schedule, then fill in the actual date, a status of hit, late, missed or dropped, and a note.</p>
-        <table>
+        <p class="status-legend"><span><i class="status-hit"></i>Hit</span><span><i class="status-late"></i>Late</span><span><i class="status-missed"></i>Missed</span></p>
+        <table class="milestone-table">
           <thead>
-            <tr><th>Milestone</th><th>Type</th><th>Planned</th><th>Actual</th><th>Status</th><th>Note</th></tr>
+            <tr><th>Milestone</th><th>Note</th></tr>
           </thead>
           <tbody>
-            <tr><td>Progress Report 1</td><td>Milestone</td><td>Oct 11</td><td></td><td></td><td></td></tr>
-            <tr><td>Ask and Learning Session feature</td><td>Task</td><td>Oct 12 to Oct 18</td><td></td><td></td><td></td></tr>
-            <tr><td>Landing page and v0.3.0</td><td>Task</td><td>Oct 12 to Oct 18</td><td></td><td></td><td></td></tr>
-            <tr><td>Refresh and staleness feature</td><td>Task</td><td>Oct 12 to Oct 18</td><td></td><td></td><td></td></tr>
-            <tr><td>Demo video</td><td>Task</td><td>Oct 19 to Oct 23</td><td></td><td></td><td></td></tr>
-            <tr><td>Developer outreach</td><td>Task</td><td>Oct 19 to Nov 5</td><td></td><td></td><td></td></tr>
-            <tr><td>IntelliJ IDEA plugin</td><td>Task</td><td>Oct 22 to Nov 11</td><td></td><td></td><td></td></tr>
-            <tr><td>Reduce LLM credits</td><td>Task</td><td>Oct 22 to Nov 2</td><td></td><td></td><td></td></tr>
-            <tr><td>Progress Report 2</td><td>Milestone</td><td>Oct 25</td><td></td><td></td><td></td></tr>
-            <tr><td>Security scan</td><td>Task</td><td>Oct 26 to Nov 2</td><td></td><td></td><td></td></tr>
-            <tr><td>Poster design</td><td>Task</td><td>Oct 26 to Nov 9</td><td></td><td></td><td></td></tr>
-            <tr><td>Class demo</td><td>Milestone</td><td>Nov 2</td><td></td><td></td><td></td></tr>
-            <tr><td>Pilot fixes</td><td>Task</td><td>Nov 3 to Nov 10</td><td></td><td></td><td></td></tr>
-            <tr><td>Poster session</td><td>Milestone</td><td>Nov 12</td><td></td><td></td><td></td></tr>
-            <tr><td>Final report</td><td>Milestone</td><td>Nov 18</td><td></td><td></td><td></td></tr>
+            <tr><td class="status-hit"><strong>Interviews & Prototyping</strong><br>Initial understanding of the problem space</td><td>Interviewed 5 students on their coding habits. Based on the findings and our own opinions, we vibe-coded a few variations before finalising on one idea.</td></tr>
+            <tr><td class="status-hit"><strong>Progress Report 1</strong><br>Prototype, customer contact report & prototype feedback</td><td>v0.1.0 prototype is an VS Code extension that generates diagrams with backlinks to code.</td></tr>
+            <tr><td class="status-late"><strong>Learning Session feature</strong><br>Guided task mode, aim to allow users to understand codebase better.</td><td>The feature is broken down into: Ask, code tours, explain-back and bug hunt sessions.</td></tr>
+            <tr><td class="status-late"><strong>Landing page</strong><br>Marketing material preparation.</td><td>Launched aisus.dev landing page together with v0.3.0 extension.</td></tr>
+            <tr><td class="status-late"><strong>Diagram version control</strong><br>Allow versioned diagrams so that the users can visualize the changes.</td><td>Took many iterations to refine the experience:<br> Code-freshness badge; Show changes UI interface; Diagram comparison; Change summary panel; <code> /aisus-plan</code>: visualize AI's spec plan in a diagram.</td></tr>
+            <tr><td class="status-late"><strong>Demo video</strong><br>Show users the features of aisus.</td><td>Vid 1: A tutorial on generating diagrams, we didn't use it because it is too dry. (<a href="https://www.youtube.com/watch?v=LzG8YSjc4ss">link</a>). <br>Vid 2: An onboarding video for the interviewees and class demo<br>Vid 3: STePS promotional video (<a href="https://www.youtube.com/watch?v=_wKfk5baTSU">best promotional video!</a>).</td></tr>
+            <tr><td class="status-hit"><strong>Developer outreach</strong><br>understanding user's need</td><td>The team contacted six developers and interviewed them about their experience with aisus, as section 6 describes. .<br>CS2103 evaluation pilot. (dropped, cs2103 students had finished their projects)</td></tr>
+            <tr><td class="status-missed"><strong>IntelliJ IDEA plugin</strong><br>Prepared for cs2103 cohort.</td><td>The plugin generates maps, opens cited code and reviews changes. Its feature set isn't as complete as VS code.</td></tr>
+            <tr><td class="status-missed"><strong>Reduce LLM credits</strong><br>Reduce cost while maintaining accuracy.</td><td>It is a hard problem. An agent that reads less can miss the code a box should cite, and finding the balance needs deeper research than the schedule allowed.</td></tr>
+            <tr><td class="status-hit"><strong>Progress Report 2</strong><br>Competitor analysis; Project iteration feedback; Marketing plans</td><td>Explored cloud features to allow users to collaborate. Shifting focus to product marketing and distribution via different media channels.</td></tr>
+            <tr><td class="status-missed"><strong>Security scan</strong><br>Prevent code leakage and unintended code execution.</td><td>No security tests ran, because the team lacked the security expertise. The safety rules built into v0.3 keep writes inside the repository, let agents run only pre-approved commands, and cover prompt injection and secrets.</td></tr>
+            <tr><td class="status-hit"><strong>Class demo</strong><br>Prepare the demo and pitch.</td><td>v0.3.3 released.</td></tr>
+            <tr><td class="status-hit"><strong>Marketing poster design</strong><br>Project infographics.</td><td>Designed and distributed flyers in SoC.</td></tr>
+            <tr><td class="status-hit"><strong>Pilot fixes</strong><br>Resolve critical usability issues raised by the users.</td><td>Incremental fixes throughout the last two weeks. v0.3.4 released</td></tr>
+            <tr><td class="status-hit"><strong>STePS preparation</strong></td><td>aisus presented its poster and its video at STePS, and won best promotional video.</td></tr>
+            <tr><td class="status-hit"><strong>Final report</strong></td><td>Submit the final report before Nov 22.</td></tr>
           </tbody>
         </table>
-
-        <h2 id="s3-3">3.3 Why milestones moved</h2>
-        <p class="note">Explain each late, missed or dropped milestone and what the team changed in response.</p>
       </section>
     </main>
   </body>
