@@ -135,6 +135,15 @@ td:empty::after {
   border: 1px solid var(--line);
 }
 
+/* The milestone table splits its width 5 to 7 between the milestone and its note. */
+.milestone-table {
+  table-layout: fixed;
+}
+
+.milestone-table th:first-child {
+  width: calc(100% * 5 / 12);
+}
+
 /* A note tells the writer what a part of the report should hold. Delete it once the part is written. */
 .note {
   margin: 12px 0 20px;
