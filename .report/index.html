@@ -40,7 +40,7 @@
       /* The wordmark stands in for the word aisus, at the height of the text around it. */
       img.wordmark {
         display: inline;
-        height: 1.1em;
+        height: 1.35em;
         width: auto;
         margin: 0;
         border: 0;
@@ -497,31 +497,25 @@
         <p><img class="wordmark" src="figures/aisus-wordmark.png" alt="aisus"> turns a codebase into a picture a person can hold in their head. A developer sees the 
             architecture of a repository as a powerful visual abstraction and
           can check every claim the picture makes against the code itself.</p>
-        <p>The developer's own coding agent draws the map, and <img class="wordmark" src="figures/aisus-wordmark.png" alt="aisus"> holds the agent to the truth.
-          Every box must cite real lines inside the repository, or <img class="wordmark" src="figures/aisus-wordmark.png" alt="aisus"> sends the map back. When
-          the code changes, <img class="wordmark" src="figures/aisus-wordmark.png" alt="aisus"> compares it with fingerprints stored in the map, on the
-          developer’s own machine, and marks every part of the picture the code has left behind. The
-          check costs no tokens, and <img class="wordmark" src="figures/aisus-wordmark.png" alt="aisus"> itself never sends code anywhere.  </p>
+        <p><img class="wordmark" src="figures/aisus-wordmark.png" alt="aisus"> holds the developer's own coding agent to the truth while it draws the map.
+          Every box must cite real lines inside the repository, or <img class="wordmark" src="figures/aisus-wordmark.png" alt="aisus"> sends the map back. When the code changes, <img class="wordmark" src="figures/aisus-wordmark.png" alt="aisus"> marks every part of the picture the code has left behind. It compares the code with fingerprints stored in the map, on the developer's own machine. <img class="wordmark" src="figures/aisus-wordmark.png" alt="aisus"> itself never sends code anywhere. The check costs no tokens.  </p>
         <p>The map belongs to no single tool. It opens in VS Code, Cursor and IntelliJ IDEA, as a
           page in any browser, on pull requests through a GitHub Action and on the web at aisus.dev.
-          Any coding agent can draw it. Claude Code, Codex and Devin run <img class="wordmark" src="figures/aisus-wordmark.png" alt="aisus">'s skills directly,
-          and GitHub Copilot, Gemini CLI and OpenCode take a copied prompt. Even the rendering is
+          Any coding agent can draw it. Claude Code, Codex and Devin run <img class="wordmark" src="figures/aisus-wordmark.png" alt="aisus">'s skills directly. GitHub Copilot, Gemini CLI and OpenCode take a copied prompt. Even the rendering is
           open. Anyone can draw the map their own way (the diagrams are in JSON).</p>
 
         <h2 id="s1-3">1.3 The symptom</h2>
         <p>Software is now written faster than anyone understands it, a gap well-known
           <strong>comprehension debt</strong>. On the best of days, its the existential crisis
-          shared by millions of SWEs world wide. On the worst, comprehension debt rears its ugly
-          head when it arrives as an outage, and the team pays it by learning the system under
-          pressure.</p>
+          shared by millions of SWEs world wide. On the worst, comprehension debt rears its ugly head as an outage.</p>
         <p>Agents do not close the gap. An agent reads a few files at a time, then forgets about the
           system at the end of the session. It can explain one function well and still miss how two
           services depend on each other.</p>
         <p>We can let Microsoft's recent outage explain that point for us. </p>
         <p>November's Patch Tuesday fixed 1,094 vulnerabilities. Microsoft credited AI for the number. Two days later Exchange Online went down around the world for 23 hours and 50 minutes.</p>
-        <p>Microsoft's preliminary report traces the outage to a change shipped in July. Under load, the change made gateway servers wait on each other's locks until they ran out of CPU and memory. The defect was worse on newer machines with more cores. Microsoft's load tests ran on weaker machines with fewer cores, and the defect passed them.</p>
+        <p>Microsoft's preliminary report traces the outage to a change shipped in July. Under load, the change made gateway servers wait on each other's locks until they ran out of CPU and memory. The defect was worse on newer machines with more cores. The defect passed Microsoft's load tests, which ran on weaker machines with fewer cores.</p>
         <p>A routine failover then moved Teams traffic onto the gateway that Exchange uses, while 14% of its servers were already down. More than 80% of the gateway stopped responding. The boundaries meant to hold a failure inside one region did not hold. The change was too old to roll back. Servers that came back up were flooded by waiting traffic and failed again.</p>
-        <p>Microsoft says AI did not cause the outage, and we do not claim it did directly. But
+        <p>Microsoft says AI did not cause the outage. We do not claim it did directly. But
           consider that in the good ol' days, an engineer who knew the gateway inside out would have
           asked how a lock behaves on a machine with more cores. That engineer would have load
           tested on the machines that run in production. Even in top shops like Microsoft, that engineer 
@@ -554,7 +548,7 @@
           <figcaption>Figure 2.1 The demo reel on eraser.io, captured on 18 November 2026.</figcaption>
         </figure>
 
-        <p><strong>How it works.</strong> Eraser serves system architects. It draws diagrams from cloud accounts, code, configuration databases and spreadsheets. To map code, a team connects a GitHub, GitLab or Azure DevOps repository and prompts for a diagram, and Eraser scans the files on its own servers. Its Eraserbot watches chosen files and draws the diagram again when a pull request touches them.</p>
+        <p><strong>How it works.</strong> Eraser serves system architects. It draws diagrams from cloud accounts, code, configuration databases and spreadsheets. Eraser scans a team's code on its own servers. To map it, a team connects a GitHub, GitLab or Azure DevOps repository and prompts for a diagram. Its Eraserbot watches chosen files and draws the diagram again when a pull request touches them.</p>
         <p><strong>Business model.</strong> Eraser sells seats, with AI usage metered in credits. The free plan has 3 files and 3 AI credits. Business costs $45 per member a month on an annual plan, with 100 credits and one connected repository. Every new AI drawing, including each Eraserbot update, spends credits, Revenue grows with both team size and AI use.</p>
         <p><strong>Traction.</strong> Eraser was founded in 2020. By May 2024 it had raised $6 million in venture funding, its AI had generated more than one million diagrams, and it reported tenfold growth since adding AI features. Its website shows Microsoft, Amazon, Visa, Gartner, KPMG and Kakao among its customers.</p>
 
@@ -563,8 +557,8 @@
           <img src="figures/icepanel-demo.gif" alt="IcePanel's demo video, in which an architecture diagram builds up, the API service is selected to show its connections and details, and the view zooms out to the whole model.">
           <figcaption>Figure 2.2 The demo video on icepanel.io, captured on 18 November 2026.</figcaption>
         </figure>
-        <p><strong>How it works.</strong> IcePanel serves software architects and engineering organisations, and also non-tech teams who need to understand a system. It is a collaborative tool for C4 models, which describe a system at the levels of context, container and component. People build the model by hand, and every diagram draws from that one model. Since October 2026 a model can also be drawn through a plugin for Claude Code and Copilot.</p>
-        <p><strong>Business model.</strong> IcePanel charges per editor, and viewers are always free. One paying architect can share the model with a whole organisation. The free plan has one editor and 100 objects. Growth costs $40 per editor a month with MCP server support. Enterprise starts at 50 editors with single-tenant hosting. After Y Combinator the founders chose not to raise further capital, and the company grows on its revenue.</p>
+        <p><strong>How it works.</strong> IcePanel serves software architects and engineering organisations. It is a collaborative tool for C4 models, which describe a system at the levels of context, container and component. Every diagram draws from one model, which people build by hand. Since October 2026 a model can also be drawn through a plugin for Claude Code and Copilot.</p>
+        <p><strong>Business model.</strong> IcePanel charges per editor. Viewers are always free. One paying architect can share the model with a whole organisation. The free plan has one editor and 100 objects. Growth costs $40 per editor a month with MCP server support. Enterprise starts at 50 editors with single-tenant hosting. After Y Combinator, the founders chose to grow on revenue instead of raising more capital.</p>
         <p><strong>Traction.</strong> Two founders launched IcePanel in March 2021 and won their first paying customer, a Fortune 500 company, five months later. It joined Y Combinator's Winter 2023 batch. Its annual recurring revenue reached $2 million in January 2025 and $3.5 million by July 2026, with 900 customers. Its team has nine people. Its customer page lists Cisco, BMW, Alphabet and Shift4, among others.</p>
 
         <h2 id="s2-3">2.3 CodeBoarding</h2>
@@ -572,26 +566,26 @@
           <img src="figures/codeboarding-pr.png" alt="CodeBoarding's review of a pull request in its eShop example. A panel on the left lists a medium merge risk and two new dependencies, and the map on the right shows the four components the pull request modified.">
           <figcaption>Figure 2.3 A pull request review on CodeBoarding's web platform, captured on 18 November 2026.</figcaption>
         </figure>
-        <p><strong>How it works.</strong> CodeBoarding serves developers and code reviewers, and is the closest competitor to <img class="wordmark" src="figures/aisus-wordmark.png" alt="aisus">. It draws interactive architecture maps of a codebase and reviews pull requests as changes to those maps. Its engine runs language servers to find symbols and call graphs in 9 languages, then asks a language model to name and describe the components.</p>
-        <p><strong>Business model.</strong> CodeBoarding follows an open core model. The engine is open source under the MIT licence and free to use. Because users bring their own model key, CodeBoarding carries little of the model cost itself. Pro costs $9.99 a month and offers unmetered use, faster generation and health monitoring, and teams are sold through demos.</p>
-        <p><strong>Traction.</strong> The engine's repository was created in April 2025. On 18 November 2026 it had 2,685 stars and 235 forks, and the VS Code extension had 1,900 installs. CodeBoarding also publishes many example maps of public repositories. Its company page lists a team of three.</p>
+        <p><strong>How it works.</strong> CodeBoarding is the closest competitor to <img class="wordmark" src="figures/aisus-wordmark.png" alt="aisus">. It serves developers and code reviewers. It draws interactive architecture maps of a codebase and reviews pull requests as changes to those maps. Its engine runs language servers to find symbols and call graphs in 9 languages, then asks a language model to name and describe the components.</p>
+        <p><strong>Business model.</strong> CodeBoarding follows an open core model. The engine is open source under the MIT licence and free to use. Because users bring their own model key, CodeBoarding carries little of the model cost itself. Pro costs $9.99 a month and offers unmetered use, faster generation and health monitoring.</p>
+        <p><strong>Traction.</strong> The engine's repository was created in April 2025. On 18 November 2026 its VS Code extension had 1,900 installs. The engine had 2,685 stars and 235 forks. CodeBoarding also publishes many example maps of public repositories. Its company page lists a team of three.</p>
 
         <h2 id="s2-4">2.4 What makes <img class="wordmark" src="figures/aisus-wordmark.png" alt="aisus"> different</h2>
 
         <h3>Integrated viewing experience</h3>
-        <p>Eraser and IcePanel are web platforms, and CodeBoarding's explore and review modes favour its web app. A diagram in a browser tab sits far from the code it describes. The developer switches windows to check what a box means, and loses their place in both. <img class="wordmark" src="figures/aisus-wordmark.png" alt="aisus"> opens the map in a panel beside the code, in VS Code, Cursor or whichever editor the developer already uses. </p>
+        <p>Eraser and IcePanel are web platforms. CodeBoarding's explore and review modes favour its web app too. A diagram in a browser tab sits far from the code it describes. Checking what a box means costs the developer a window switch and their place in both. <img class="wordmark" src="figures/aisus-wordmark.png" alt="aisus"> opens the map in a panel beside the code, in VS Code, Cursor or whichever editor the developer already uses. </p>
 
         <h3>Visualising plans with diagrams</h3>
-        <p>Developers now vibe code. They happily accept long plans written in plain text. When a plan grows long, it is hard to picture which parts of the system it touches, or what it might break by accident. <img class="wordmark" src="figures/aisus-wordmark.png" alt="aisus">'s plan skill turns a text spec into a change diagram based on the current system. The developer sees the reach and the risks of a change before any code is written, and can correct the plan while that is still cheap.</p>
+        <p>Developers now vibe code. They happily accept long plans written in plain text. When a plan grows long, it is hard to picture which parts of the system it touches, or what it might break by accident. <img class="wordmark" src="figures/aisus-wordmark.png" alt="aisus">'s plan skill turns a text spec into a change diagram based on the current system. The developer can correct a plan while it is still cheap, because they see its reach and risks before any code is written.</p>
 
         <h3>An index for agents</h3>
         <p>The map lists each part of the system with the files and lines that implement it. An agent that reads it first can go straight to the code a task touches, which saves exploration time and tokens on every task.</p>
-        <p><img class="wordmark" src="figures/aisus-wordmark.png" alt="aisus"> already writes the map into AGENTS.md and CLAUDE.md, the files coding agents read at the start of a session, and Ask answers questions from it. Because <img class="wordmark" src="figures/aisus-wordmark.png" alt="aisus"> knows which boxes are fresh, it can tell the agent which entries to trust. The competitors' MCP servers give agents a diagram or a model without that signal. Their diagrams drift from the code unless someone maintains both.</p>
+        <p><img class="wordmark" src="figures/aisus-wordmark.png" alt="aisus"> already writes the map into AGENTS.md and CLAUDE.md, the files coding agents read at the start of a session. Because <img class="wordmark" src="figures/aisus-wordmark.png" alt="aisus"> knows which boxes are fresh, it can tell the agent which entries to trust. The competitors' MCP servers give agents a diagram or a model without that signal. Their diagrams drift from the code unless someone maintains both.</p>
 
         <h2 id="s2-5">2.5 Where <img class="wordmark" src="figures/aisus-wordmark.png" alt="aisus"> falls short</h2>
 
         <h3>Grounding</h3>
-        <p>CodeBoarding's relationships come from static analysis, which no language model can invent. <img class="wordmark" src="figures/aisus-wordmark.png" alt="aisus">'s come from an agent and are checked against evidence rules, and correct citations do not guarantee correct groupings. Pilot users raised map accuracy as a concern in Progress Report 2. A benchmark of map accuracy is future work, and it would give the tool more credibility.</p>
+        <p>CodeBoarding's relationships come from static analysis, which no language model can invent. <img class="wordmark" src="figures/aisus-wordmark.png" alt="aisus">'s come from an agent. Evidence rules check the citations, but correct citations do not guarantee correct groupings. Pilot users raised map accuracy as a concern in Progress Report 2. A benchmark of map accuracy, still future work, would give the tool more credibility.</p>
 
         <h3>Breadth</h3>
         <p>Eraser and IcePanel serve audiences and diagram types that <img class="wordmark" src="figures/aisus-wordmark.png" alt="aisus"> deliberately leaves out, such as presentation diagrams, business processes and future-state designs. We accept that. We would rather focus on developers, the audience we know best.</p>
@@ -599,7 +593,7 @@
         <h2 id="s2-6">2.6 Threats</h2>
 
         <h3>Convergence</h3>
-        <p>The incumbents are adopting the idea of generating diagrams with the user's own agent. IcePanel's plugin of 22 October 2026 and Eraser's MCP server both show it. These generated diagrams are rarely versioned, and they can drift from the code. That gap is where <img class="wordmark" src="figures/aisus-wordmark.png" alt="aisus"> fits.</p>
+        <p>The incumbents are adopting the idea of generating diagrams with the user's own agent. IcePanel's plugin of 22 October 2026 and Eraser's MCP server both show it. These generated diagrams drift from the code, with no version history to show it. That gap is where <img class="wordmark" src="figures/aisus-wordmark.png" alt="aisus"> fits.</p>
 
         <h3>Agents' own indexes</h3>
         <p>Agent tools also build their own repository indexes and memory files. If those summaries become good enough, the agent half of the pitch weakens and the developer half has to carry it.</p>
@@ -636,13 +630,13 @@
             <tr><td class="status-late"><strong>Demo video</strong><br>Show users the features of <img class="wordmark" src="figures/aisus-wordmark.png" alt="aisus">.</td><td>Video 1, a <a href="https://www.youtube.com/watch?v=LzG8YSjc4ss">tutorial on generating diagrams</a>, was too dry to use.<br>Video 2 onboarded the interviewees and ran at the class demo.<br>Video 3, the <a href="https://www.youtube.com/watch?v=_wKfk5baTSU">STePS promotional video</a>, won Best Video and Marketing.</td></tr>
             <tr><td class="status-hit"><strong>Developer outreach</strong><br>Understanding users' needs</td><td>We contacted six developers and interviewed them about <img class="wordmark" src="figures/aisus-wordmark.png" alt="aisus">, as section 6 describes.<br>A CS2103 evaluation pilot was dropped, because the CS2103 students had already finished their projects.</td></tr>
             <tr><td class="status-missed"><strong>IntelliJ IDEA plugin</strong><br>Prepared for the CS2103 cohort.</td><td>The plugin generates maps, opens cited code and reviews changes. It does less than the VS Code extension.</td></tr>
-            <tr><td class="status-missed"><strong>Reduce LLM credits</strong><br>Reduce cost while maintaining accuracy.</td><td>It is a hard problem. An agent that reads less can miss the code a box should cite, and finding the balance needs deeper research than the schedule allowed.</td></tr>
+            <tr><td class="status-missed"><strong>Reduce LLM credits</strong><br>Reduce cost while maintaining accuracy.</td><td>It is a hard problem. An agent that reads less can miss the code a box should cite. Finding the balance needs deeper research than the schedule allowed.</td></tr>
             <tr><td class="status-hit"><strong>Progress Report 2</strong><br>Competitor analysis; Project iteration feedback; Marketing plans</td><td>We explored cloud features for collaboration, then shifted our focus to marketing and distribution across several channels.</td></tr>
             <tr><td class="status-missed"><strong>Security scan</strong><br>Prevent code leakage and unintended code execution.</td><td>No security tests ran, because the team lacked the security expertise. The safety rules built into v0.3 keep writes inside the repository, let agents run only pre-approved commands, and cover prompt injection and secrets.</td></tr>
             <tr><td class="status-hit"><strong>Class demo</strong><br>Prepare the demo and pitch.</td><td>v0.3.3 released.</td></tr>
             <tr><td class="status-hit"><strong>Marketing poster design</strong><br>Project infographics.</td><td>We designed flyers and put them up around SoC.</td></tr>
-            <tr><td class="status-hit"><strong>Pilot fixes</strong><br>Resolve critical usability issues raised by the users.</td><td>Fixes landed through the last two weeks, and v0.3.4 shipped.</td></tr>
-            <tr><td class="status-hit"><strong>STePS preparation</strong></td><td><img class="wordmark" src="figures/aisus-wordmark.png" alt="aisus"> presented its poster and its video at STePS, and won Best Video and Marketing.</td></tr>
+            <tr><td class="status-hit"><strong>Pilot fixes</strong><br>Resolve critical usability issues raised by the users.</td><td>v0.3.4 shipped after two weeks of fixes.</td></tr>
+            <tr><td class="status-hit"><strong>STePS preparation</strong></td><td><img class="wordmark" src="figures/aisus-wordmark.png" alt="aisus"> won Best Video and Marketing at STePS, with its poster and its video.</td></tr>
             <tr><td class="status-hit"><strong>Final report</strong></td><td>Submit the final report before Nov 22.</td></tr>
           </tbody>
         </table>
@@ -659,7 +653,7 @@
           everything: the extension, the cloud, the server and the docs. They push <img class="wordmark" src="figures/aisus-wordmark.png" alt="aisus"> as far as
           they can with tunnel vision, write a handover, and pass it on. The next person starts from
           that handover and never waits on anyone. No one owns a module. Each of us answers for the
-          whole product. Chapter 8 explains why the workflow works, and how <img class="wordmark" src="figures/aisus-wordmark.png" alt="aisus"> diagrams carry each handover.</p>
+          whole product. Chapter 8 explains why the workflow works and how <img class="wordmark" src="figures/aisus-wordmark.png" alt="aisus"> diagrams carry each handover.</p>
 
         <h2 id="s4-2">4.2 The shifts</h2>
         <table>
@@ -698,7 +692,7 @@
 <section class="report-section" id="design">
         <h1 id="s5">5 Application design</h1>
         <p><img class="wordmark" src="figures/aisus-wordmark.png" alt="aisus"> keeps its core libraries apart from the platforms that show a map. The core libraries are the map model, the layout manager and the agent skills. Each platform adds only a thin layer on top of them, made of a panel that starts runs and a diagram viewer that draws the result. Figure 5 shows this split for the VS Code extension and the IntelliJ plugin.</p>
-        <p>The split lets <img class="wordmark" src="figures/aisus-wordmark.png" alt="aisus"> reach a new platform quickly. The IntelliJ plugin hosts the same diagram viewer as the VS Code extension, inside the IDE's built-in browser, and both rely on the same core libraries. A new platform needs its own panel and a place for the viewer, and the core logic stays as it is.</p>
+        <p>The split lets <img class="wordmark" src="figures/aisus-wordmark.png" alt="aisus"> reach a new platform quickly. The IntelliJ plugin and the VS Code extension share the same core libraries and diagram viewer. The plugin hosts the viewer inside the IDE's built-in browser. The core logic stays as it is. A new platform needs only its own panel and a place for the viewer.</p>
         <p>The split also keeps the agent skills independent of how a map is drawn. A skill has one job, which is to produce a JSON document in the map format described in <a href="#s5-1">section 5.1</a>. The map model checks that document before it is published. Any viewer that reads the map format can then draw it, on whichever platform it runs.</p>
         <figure>
           <a href="figures/design/components.html"><img src="figures/design/components.svg" alt="Component diagram of the aisus modules"></a>
@@ -707,15 +701,15 @@
 
         <h2 id="s5-1">5.1 Data model</h2>
         <p>The map format treats a diagram as a set of claims about the code. A box claims that a part of the system exists, an arrow claims that one part relies on another, and a group claims that some parts belong together. A map is only as useful as these claims are true. The format therefore ties every box to evidence, as Figure 5.1 shows from left to right.</p>
-        <p>That evidence is the citation. A box must point to the lines of code that make it real, and a box that points to nothing is refused. A reader never has to take the diagram on trust. They can open any box and read the code it stands for, which turns the map from a picture into an index of the codebase.</p>
+        <p>That evidence is the citation. A box must point to the lines of code that make it real. A reader never has to take the diagram on trust. They can open any box and read the code it stands for, which turns the map from a picture into an index of the codebase.</p>
         <figure class="wide">
           <a href="figures/design/map-format.html"><img src="figures/design/map-format.svg" alt="Diagram of a map's boxes, arrows, groups and citations, the fingerprint saved for each citation, and the freshness worked out from it"></a>
           <figcaption>Figure 5.1 The map format.</figcaption>
         </figure>
 
         <h2 id="s5-2">5.2 Key flows</h2>
-        <p>Two workflows carry most of what <img class="wordmark" src="figures/aisus-wordmark.png" alt="aisus"> does. The first, in Figure 5.2.1, turns a request into a map. A developer asks for a map, and a coding agent studies the repository and drafts one. <img class="wordmark" src="figures/aisus-wordmark.png" alt="aisus"> does not take the draft on trust. It checks the draft against the map format and against the code it cites, and hands it back with every problem it finds until the draft passes. These checks are plain code rather than a model's judgement. Hence, a map that passes is certain to render, and every box in it points to code that exists. Only such a map is kept and shown to the developer.</p>
-        <p>The second workflow, in Figure 5.2.2, shows what has changed. The developer picks an earlier map of the same code, and <img class="wordmark" src="figures/aisus-wordmark.png" alt="aisus"> compares the two. It works out which parts of the system appeared, changed or disappeared in between, and marks them on the map on screen. The comparison is plain code too, with no agent involved. A reviewer sees how a change moves the architecture, rather than piecing it together from the files it touched. Together the two workflows let a team draw a map once and then follow how its architecture moves over time.</p>
+        <p>Two workflows carry most of what <img class="wordmark" src="figures/aisus-wordmark.png" alt="aisus"> does. The first, in Figure 5.2.1, turns a request into a map. When a developer asks for a map, a coding agent studies the repository and drafts one. <img class="wordmark" src="figures/aisus-wordmark.png" alt="aisus"> does not take the draft on trust. Until the draft passes, <img class="wordmark" src="figures/aisus-wordmark.png" alt="aisus"> hands it back with every problem it finds against the map format and the code it cites. These checks are plain code rather than a model's judgement. Hence every box in a passing map points to code that exists. The map is also certain to render. Only such a map is kept and shown to the developer.</p>
+        <p>The second workflow, in Figure 5.2.2, shows what has changed. <img class="wordmark" src="figures/aisus-wordmark.png" alt="aisus"> compares the map with an earlier one of the same code, which the developer picks. It marks which parts of the system appeared, changed or disappeared in between. The comparison is plain code too, with no agent involved. A reviewer sees how a change moves the architecture, rather than piecing it together from the files it touched. Together the two workflows let a team draw a map once and then follow how its architecture moves over time.</p>
         <div class="figure-row">
           <figure>
             <a href="figures/design/generate-flow.html"><img src="figures/design/generate-flow.svg" alt="Sequence diagram of generating a map"></a>
@@ -728,9 +722,9 @@
         </div>
 
         <h2 id="s5-3">5.3 Deployment</h2>
-        <p>Figure 5.3 shows where each part of <img class="wordmark" src="figures/aisus-wordmark.png" alt="aisus"> runs. Nearly all of it runs on the developer's own computer. The extension, the coding agent and the maps sit beside the code, and drawing or comparing a map needs no <img class="wordmark" src="figures/aisus-wordmark.png" alt="aisus"> server. A developer who never shares a map can use <img class="wordmark" src="figures/aisus-wordmark.png" alt="aisus"> without an <img class="wordmark" src="figures/aisus-wordmark.png" alt="aisus"> account.</p>
-        <p>Only two paths lead to <img class="wordmark" src="figures/aisus-wordmark.png" alt="aisus"> cloud, and a person chooses each one. A developer can share a map with the team, and a team can let the pull request check send its results. What travels is the map and its findings. The code stays in the repository, and the check comments on the pull request whether or not anything is sent.</p>
-        <p>The cloud itself is one small server. It hosts the website where a team reads shared maps, and it keeps those maps in its database. GitHub tells it who someone is and which repositories they may see, and Stripe takes the payments. <img class="wordmark" src="figures/aisus-wordmark.png" alt="aisus"> therefore holds no passwords and no card details. Running a single server keeps the cost of the service low.</p>
+        <p>Figure 5.3 shows where each part of <img class="wordmark" src="figures/aisus-wordmark.png" alt="aisus"> runs. Nearly all of it runs on the developer's own computer. Drawing or comparing a map needs no <img class="wordmark" src="figures/aisus-wordmark.png" alt="aisus"> server. The extension, the coding agent and the maps all sit beside the code. A developer who never shares a map can use <img class="wordmark" src="figures/aisus-wordmark.png" alt="aisus"> without an <img class="wordmark" src="figures/aisus-wordmark.png" alt="aisus"> account.</p>
+        <p>Only two paths lead to <img class="wordmark" src="figures/aisus-wordmark.png" alt="aisus"> cloud, each chosen by a person. A developer can share a map with the team. A team can let the pull request check send its results. What travels is the map and its findings. The code stays in the repository.</p>
+        <p>The cloud itself is one small server. It hosts the website where a team reads shared maps, and the database that keeps them. <img class="wordmark" src="figures/aisus-wordmark.png" alt="aisus"> holds no passwords and no card details. GitHub handles sign-in and repository access. Stripe takes the payments. Running a single server keeps the cost of the service low.</p>
         <figure>
           <a href="figures/design/deployment.html"><img src="figures/design/deployment.svg" alt="Infrastructure diagram of the developer's computer, GitHub, Stripe and the aisus cloud server"></a>
           <figcaption>Figure 5.3 The <img class="wordmark" src="figures/aisus-wordmark.png" alt="aisus"> infrastructure.</figcaption>
@@ -817,8 +811,7 @@
 
         <h2 id="s6-3">6.3 Evidence</h2>
         <p>On 9 November a teardown script deleted our server and its only disk. Umami's history
-          went with it. AWS kept the deleted server's network traffic, and section 6.4 estimates the
-          lost visits from it.</p>
+          went with it. Section 6.4 estimates the lost visits from the network traffic AWS kept.</p>
         <figure class="wide">
           <img src="figures/6-1-umami.png" alt="Umami's dashboard for aisus.dev over the last 30 days, with 66 visitors, 92 visits and 155 views, all from 9 November onwards.">
           <figcaption>Figure 6.1 Umami for aisus.dev. Its history starts on 9 November, when the server was rebuilt.</figcaption>
@@ -868,8 +861,7 @@
           
           <figcaption id="f62">Figure 6.2 Megabytes aisus.dev sent each day, from AWS CloudWatch. The old server's traffic survived its deletion.</figcaption>
         </figure>
-        <p>Visits turn into installs slowly. Between 330 and 500 people reached the site. GitHub
-          served 68 release files, and the Marketplace served 115. Installing <img class="wordmark" src="figures/aisus-wordmark.png" alt="aisus"> takes one click.
+        <p>Visits turn into installs slowly. Between 330 and 500 people reached the site. GitHub served 68 release files and the Marketplace 115. Installing <img class="wordmark" src="figures/aisus-wordmark.png" alt="aisus"> takes one click.
           Using it needs Node.js, a signed-in Claude Code or Codex, and the user's own tokens. That
           setup is where we expect most people stop. The live demo in section 1.1 skips all
           three.</p>
@@ -908,8 +900,7 @@
         <h2 id="s6-6">6.6 Our peerless marketing</h2>
         <p>We would like to especially highlight that Prof Ben roasted our asses after the second
           progress report for spending too much time building and not enough time marketing. </p>
-        <p>Flyers went up the day after the server launched, and on 26 October the site sent 108 MB,
-          its biggest day on record. The first release was downloaded 29 times while the site served
+        <p>On 26 October, the day after the flyers went up, the site sent 108 MB, its biggest day on record. The first release was downloaded 29 times while the site served
           it.</p>
         <p>Lo and behold, at STePS, <img class="wordmark" src="figures/aisus-wordmark.png" alt="aisus"> won Best Video and Marketing. This is a general award. We
           beat everyone. </p>
@@ -962,7 +953,7 @@
           <p>Similarly, we have not been vomitously marketing this plan to place emphasis on polishing our main feature.</p>
         <figure class="wide">
           <img src="figures/7-3-bug-hunt-planted.webp" alt="A Bug hunt in VS Code. The agent has written citation-text.ts for step 1 of 3, and the Learning Session panel beside it reads Hunting, with 0 found, 0 fixed and 1 seeded.">
-          <figcaption>Figure 7.3 Step 1 of a Bug hunt. The agent has planted a bug, and the student is hunting for it.</figcaption>
+          <figcaption>Figure 7.3 Step 1 of a Bug hunt. The student hunts for the bug the agent planted.</figcaption>
         </figure>
         <figure class="wide">
           <img src="figures/7-4-bug-hunt-done.webp" alt="The finished Bug hunt. The Learning Session panel reads Done, with 3 found, 3 fixed and a score of 25 on the leaderboard, and the Check my understanding page in the sidebar lists the hunt under Your practice.">
@@ -997,7 +988,7 @@
         </p>
         <figure class="wide">
           <img src="figures/7-5-sakai.png" alt="sakai's map of a notes app. A web app, a notes API, a digest worker and an export tool link to a SQLite store and a mail service. Belts carry flow between blocks, and yellow tags mark properties such as concurrent, atomic, asynchronous and retries 3.">
-          <figcaption>Figure 7.5 A map in sakai. Belts carry flow, and properties such as atomic and asynchronous sit on the blocks and links they belong to.</figcaption>
+          <figcaption>Figure 7.5 A map in sakai. Properties such as atomic and asynchronous sit on the blocks and links they belong to.</figcaption>
         </figure>
         <p>Our team is building sakai right now. </p>
         <p>Lowkey we are genuinely asking whether sakai has startup potential...</p>
@@ -1007,8 +998,7 @@
         <h1 id="s8">8 What we learned</h1>
 
         <h2 id="s8-1">8.1 Chen Dan Quirk Divide and Conquer</h2>
-        <p>Chen Dan Quirk Divide and Conquer is a workflow we pioneered, and <img class="wordmark" src="figures/aisus-wordmark.png" alt="aisus"> is what made it
-          work.</p>
+        <p>We pioneered Chen Dan Quirk Divide and Conquer, a workflow <img class="wordmark" src="figures/aisus-wordmark.png" alt="aisus"> made possible.</p>
         <p>There is some multilayered humour here (which is admittedly only really funny if you are
           a super nerd). The name itself is a play on CDQ Divide and Conquer, an advanced
           algorithmic technique invented by Princeton University Computer Science Professor and IOI
@@ -1027,9 +1017,7 @@
           three people, consensus is hard. One presenter can be read two different ways by the two
           listeners.</p>
         <p>Our shifts are strictly one sender and one receiver, with no distributed consensus to
-          reach. The person on shift works at full speed without worrying about anyone else, and has
-          sufficient time within the shift to prepare a comprehensive presentation of their work to
-          the next person.</p>
+          reach. The person on shift works at full speed without worrying about anyone else. They also have time within the shift to prepare a comprehensive presentation of their work for the next person.</p>
         <figure class="wide">
           <img src="figures/8-2-cdq.png" alt="A sequence map with six participants in a row, chen_0, dan_0, quirk_0, chen_1, dan_1 and quirk_1. Each one is active in turn and passes a communicate message to the next.">
           <figcaption>Figure 8.2 Chen Dan Quirk Divide and Conquer, drawn as an <img class="wordmark" src="figures/aisus-wordmark.png" alt="aisus"> sequence map. Each bar is a shift, and each arrow is a handover.</figcaption>
@@ -1055,11 +1043,8 @@
             <tr><td>Answer keys stay hidden from the student.</td><td>Keys held by the referee script or the extension host, never by the interface.</td></tr>
           </tbody>
         </table>
-        <p>The weakest boundary is the agent. It runs inside a repository it has never seen, and
-          text in that repository can steer it.</p>
-        <p>Pre-approved commands widen that boundary. Claude Code runs a skill's pre-approved
-          commands without a prompt, and a <code>*</code> in a rule matches any arguments. The Bug
-          hunt skill pre-approved its scripts with such a rule, and one script ran its
+        <p>The weakest boundary is the agent. Text in a repository it has never seen can steer it.</p>
+        <p>Pre-approved commands widen that boundary. Claude Code runs a skill's pre-approved commands without a prompt. A <code>*</code> in a rule matches any arguments. The Bug hunt skill pre-approved its scripts with such a rule. One script ran its
           <code>--check-cmd</code> argument as a shell command. Planted text could run any command
           through it.</p>
         <p>The fix removed the argument, narrowed every rule to scripts that only read and write
@@ -1069,16 +1054,14 @@
 
         <h2 id="s8-3">8.3 Skills can carry code</h2>
         <p>An agent skill can carry code as well as instructions.</p>
-        <p>The first <img class="wordmark" src="figures/aisus-wordmark.png" alt="aisus"> skills were markdown alone, and the agent did every step itself. Many of
+        <p>In the first <img class="wordmark" src="figures/aisus-wordmark.png" alt="aisus"> skills, written in markdown alone, the agent did every step itself. Many of
           those steps had one right answer and needed no judgement. Before mapping, a skill records
           the current commit, sizes the repository to cap how many files the agent reads, and finds
           the previous map to build on. Afterwards, it checks the map against its schema and renders
           it to HTML.</p>
         <p>That kind of work is exactly where an agent hallucinates. It sometimes invented a file
           path, skipped a field or produced a map that would not load.</p>
-        <p>Those steps now live in JavaScript that ships with each skill. The agent runs a script
-          wherever a fixed rule decides the result, and spends its effort on the reading and naming
-          that need judgement. The scripts are thus now much less non-deterministic and can be tested
+        <p>Those steps now live in JavaScript that ships with each skill. The agent spends its effort on the reading and naming that need judgement. Wherever a fixed rule decides the result, it runs a script. The scripts are thus now much less non-deterministic and can be tested
           and improved in isolation.</p>
 
         <h2 id="s8-4">8.4 How good we are at marketing</h2>
@@ -1089,9 +1072,7 @@
       <section class="report-section" id="conclusion">
         <h1 id="s9">9 Conclusion and Acknowledgements</h1>
         <p>We set out to answer comprehension debt with a picture: a map of the whole system, where
-          every box opens the code that proves it. Code has become too much for people to write, and
-          we believe the next step after agents is the visual medium. <img class="wordmark" src="figures/aisus-wordmark.png" alt="aisus"> is our first step there,
-          and we gave it everything we had. We have a humble patronage of users who seem to
+          every box opens the code that proves it. Code has become too much for people to write. We believe the next step after agents is the visual medium. <img class="wordmark" src="figures/aisus-wordmark.png" alt="aisus"> is our first step there, and it got everything we had. We have a humble patronage of users who seem to
           agree.</p>
         <p>Thank you to Dr Ben Leong and Dr Soo Yuen Jien for running CS3216, a course that lets
           students build something real. Thank you to our head teaching assistant Phillmont Muktar,
