@@ -10,19 +10,110 @@
     <nav class="section-nav"><a href="index.html">Full report</a></nav>
     <main>
       <section class="report-section" id="future">
+        <style>
+          figure.wide {
+            position: relative;
+            left: 50%;
+            width: min(1280px, calc(100vw - 48px));
+            transform: translateX(-50%);
+          }
+
+          figure.wide figcaption {
+            max-width: 748px;
+            margin-inline: auto;
+          }
+
+          @media print {
+            figure.wide {
+              left: 0;
+              width: auto;
+              transform: none;
+            }
+          }
+        </style>
         <h1 id="s7">7 Future plans and strategies</h1>
 
-        <h2 id="s7-1">7.1 Product</h2>
-        <p class="note">Cover the Marketplace launch, onboarding, map accuracy and IntelliJ performance.</p>
+        <h2 id="s7-1">7.1 aisus cloud</h2>
+        <p>The extension is free. We needed that to gain traction early on anyway. The costs are absorbed
+            by the users anyhow, in their token usage and disk space/repo bloat.
+        </p>
+        <p>Cloud, team synchronization and enterprise plan, on the other hand, is a well-established monetization model that
+            <em>does</em> require costs from us. We do indeed already have this deployed, but we have not
+            been vomitously marketing it. With sufficient traction, we will be able to start charging for it. 
+        </p>
+        <table>
+          <thead>
+            <tr><th>Plan</th><th>Price</th><th>For</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Free</td><td>US$0</td><td>The extension, the skills, the command line and the Action's comment</td></tr>
+            <tr><td>Pro</td><td>US$5 a month</td><td>aisus cloud for one person's repositories</td></tr>
+            <tr><td>Team</td><td>US$10 per seat a month</td><td>aisus cloud for a GitHub organization, with seats and the team page</td></tr>
+            <tr><td>Enterprise</td><td>Quote</td><td>aisus cloud on the company's own servers</td></tr>
+          </tbody>
+        </table>
+        <figure class="wide">
+          <img src="figures/7-1-cloud.png" alt="aisus cloud's Your repositories page, shown with test accounts. Each account lists its repositories with its plan, Free or Team, and offers Upgrade to Pro, Upgrade to Team, Manage billing or Set up.">
+          <figcaption>Figure 7.1 The signed-in cloud, shown with test accounts. Each account carries its plan, with a button to upgrade or manage billing.</figcaption>
+        </figure>
 
-        <h2 id="s7-2">7.2 Validation</h2>
-        <p class="note">Describe how to measure whether agents that read the map first use fewer tokens, and how to run user studies on task time and understanding.</p>
+        <h2 id="s7-2">7.2 aisus for education</h2>
+        <p>Every CS2103 team starts the same way. They inherit a working codebase, then spend the
+          first weeks figuring out how it fits together.</p>
+        <p>Agents have made this worse. A student can now ship a feature into a codebase they never
+          understood.</p>
+        <p>aisus already has what a course needs.</p>
+        <p><strong>Tours.</strong> A tour walks a newcomer through the map one stop at a time. Each
+          stop opens the code, explains it and asks a question.</p>
+        <figure class="wide">
+          <img src="figures/7-2-tour.webp" alt="A tour of a sequence map of a CS2103T project in VS Code. Stop 4 of 11, Two levels of command words, explains how AddressBookParser picks a command parser, asks what happens to an unknown first word, and shows the answer, while AddressBookParser.java lines 42 to 85 are selected beside the map.">
+          <figcaption>Figure 7.2 Stop 4 of a tour of a CS2103T project, with its question answered.</figcaption>
+        </figure>
+        <p><strong>Bug hunt.</strong> The agent builds a task in steps and quietly plants one bug in
+          each. The student hunts it down and fixes it. The agent is never allowed to fix it for
+          them.</p>
+          <p>Similarly, we have not been vomitously marketing this plan to place emphasis on polishing our main feature.</p>
+        <figure class="wide">
+          <img src="figures/7-3-bug-hunt-planted.webp" alt="A Bug hunt in VS Code. The agent has written citation-text.ts for step 1 of 3, and the Learning Session panel beside it reads Hunting, with 0 found, 0 fixed and 1 seeded.">
+          <figcaption>Figure 7.3 Step 1 of a Bug hunt. The agent has planted a bug, and the student is hunting for it.</figcaption>
+        </figure>
+        <figure class="wide">
+          <img src="figures/7-4-bug-hunt-done.webp" alt="The finished Bug hunt. The Learning Session panel reads Done, with 3 found, 3 fixed and a score of 25 on the leaderboard, and the Check my understanding page in the sidebar lists the hunt under Your practice.">
+          <figcaption>Figure 7.4 The finished hunt: three bugs found and fixed, on the leaderboard and in the practice log.</figcaption>
+        </figure>
+        <p><strong>Check my understanding.</strong> Three questions about a change, each graded
+          against the code. Every finished tour, hunt and check lands in the student's practice
+          log.</p>
+        <p>CS2103 is our target first course, with Prof Damith's blessing. The course runs on IntelliJ
+          IDEA. aisus supports it, but it requires more polish to reach the smoothness of our VSCode extension.
+            The main selling point to educators is a grounded, healthy compromise. Students are going
+            to outsource an inordinate majority of the work to AI anyway, for one reason or another. 
+            At least with aisus, the work is not totally blind.</p> 
+          <p>The TeamSync demo in section 1.1 is a CS2103T project, already mapped and toured.</p>
 
-        <h2 id="s7-3">7.3 Growth and distribution</h2>
-        <p class="note">Cover the community channel, public showcase maps and the choice of licence.</p>
-
-        <h2 id="s7-4">7.4 Business</h2>
-        <p class="note">Cover pricing, running costs and the path to paying teams.</p>
+        <h2 id="s7-3">7.3 sakai</h2>
+        <p>aisus reads the code that exists and draws its map. Its spiritual successor, sakai, also runs
+          the other way.</p>
+          <p>Here's a quick pitch:</p>
+        <p><em>In sakai, the map is the program. You place blocks, link them and press Build. A coding
+          agent on your own machine writes the code that makes the map true. Already have a
+          codebase? Import it, and sakai draws the map for you.</em></p>
+        <p>This is the step section 1.4 predicted. Assembly, then C, then Python, then prompts. In
+          sakai, the architecture itself is what you work in.</p>
+        <p>Links are first-class, with kinds, properties and code of their own. The facts that make
+          or break a design, like concurrent, atomic or asynchronous, sit right on the map where
+          nobody can miss them. Sakai's experience is designed to feel like an engineering strategy
+          game, a bit like Factorio. We learned this lesson after seeing all the success the games were
+        having at STePS.</p>
+        <p>Once that is in place, the next step becomes formal verification methods like static analysis, TLA+,
+            Lean etc. to ensure the diagrams and code match up perfectly. Huge trend in the industry right now.
+        </p>
+        <figure class="wide">
+          <img src="figures/7-5-sakai.png" alt="sakai's map of a notes app. A web app, a notes API, a digest worker and an export tool link to a SQLite store and a mail service. Belts carry flow between blocks, and yellow tags mark properties such as concurrent, atomic, asynchronous and retries 3.">
+          <figcaption>Figure 7.5 A map in sakai. Belts carry flow, and properties such as atomic and asynchronous sit on the blocks and links they belong to.</figcaption>
+        </figure>
+        <p>Our team is building sakai right now. </p>
+        <p>Lowkey we are genuinely asking whether sakai has startup potential...</p>
       </section>
     </main>
   </body>
