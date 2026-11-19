@@ -12,44 +12,275 @@
       <section class="report-section" id="application">
         <h1 id="s1">1 The application</h1>
 
-        <h2 id="s1-1">1.1 The problem</h2>
-        <p class="note">Describe the developer who now reads more code than they wrote, such as agent output, a teammate's large pull request or an unfamiliar codebase.</p>
+        <div class="live">
+          <style>
+            /* The live demo in part 1 spans nearly the full window width, outside the text column. */
+            .live {
+              position: relative;
+              left: 50%;
+              width: min(1680px, calc(100vw - 48px));
+              margin: 8px 0 56px;
+              padding: 32px;
+              border-radius: 12px;
+              background: #fff;
+              box-shadow: 0 2px 24px rgb(20 43 34 / 8%);
+              transform: translateX(-50%);
+            }
 
-        <h2 id="s1-2">1.2 What aisus does</h2>
-        <p class="note">Explain how a coding agent maps the repository, how every box cites line ranges, and how the editor marks each box as fresh, moved, edited or missing.</p>
+            .live p {
+              max-width: 860px;
+            }
 
-        <h2 id="s1-3">1.3 Where aisus runs</h2>
-        <table>
-          <thead>
-            <tr><th>Surface</th><th>What it does</th><th>Status</th></tr>
-          </thead>
-          <tbody>
-            <tr><td>VS Code extension</td><td></td><td></td></tr>
-            <tr><td>Agent skills</td><td></td><td></td></tr>
-            <tr><td>IntelliJ IDEA plugin</td><td></td><td></td></tr>
-            <tr><td>aisus cloud</td><td></td><td></td></tr>
-            <tr><td>GitHub Action</td><td></td><td></td></tr>
-          </tbody>
-        </table>
+            .live > h2 {
+              margin-top: 0;
+            }
 
-        <h2 id="s1-4">1.4 A walkthrough</h2>
-        <p class="note">Follow one user from installation to reviewing a change, with a screenshot at each step.</p>
-        <figure class="placeholder">
-          <div class="frame">Screenshot of installation and setup</div>
-          <figcaption>Figure 1.1 Installing aisus and choosing an agent.</figcaption>
-        </figure>
-        <figure class="placeholder">
-          <div class="frame">Screenshot of the first map</div>
-          <figcaption>Figure 1.2 The first map of a repository.</figcaption>
-        </figure>
-        <figure class="placeholder">
-          <div class="frame">Screenshot of a box opening its cited code</div>
-          <figcaption>Figure 1.3 A box opens the lines it cites.</figcaption>
-        </figure>
-        <figure class="placeholder">
-          <div class="frame">Screenshot of Review Changes</div>
-          <figcaption>Figure 1.4 Review Changes highlights the boxes a change affects.</figcaption>
-        </figure>
+            .live-steps {
+              margin: 20px 0;
+              padding: 0;
+              list-style: none;
+              counter-reset: step;
+            }
+
+            .live-steps li {
+              position: relative;
+              margin: 10px 0;
+              min-height: 32px;
+              padding: 3px 0 0 44px;
+              counter-increment: step;
+            }
+
+            .live-steps li::before {
+              content: counter(step);
+              position: absolute;
+              left: 0;
+              top: 0;
+              width: 32px;
+              height: 32px;
+              border-radius: 50%;
+              background: var(--forest);
+              color: #fff;
+              font-family: var(--display);
+              font-weight: 600;
+              line-height: 32px;
+              text-align: center;
+            }
+
+            .live strong {
+              color: var(--forest);
+            }
+
+            .callout {
+              display: flex;
+              gap: 14px;
+              align-items: flex-start;
+              max-width: 860px;
+              margin: 10px 0;
+              padding: 12px 20px;
+              border: 1px solid;
+              border-radius: 6px;
+            }
+
+            .callout p {
+              margin: 0;
+            }
+
+            .callout-icon {
+              flex: none;
+              width: 26px;
+              height: 26px;
+              border-radius: 50%;
+              color: #fff;
+              font-weight: 700;
+              line-height: 26px;
+              text-align: center;
+            }
+
+            .callout.tip {
+              border-color: #b9d98a;
+              background: #f3f9e8;
+            }
+
+            .callout.tip .callout-icon {
+              background: #477646;
+            }
+
+            .callout.info {
+              border-color: var(--line);
+              background: var(--paper);
+            }
+
+            .callout.info .callout-icon {
+              background: var(--forest);
+              font-family: Georgia, serif;
+              font-style: italic;
+            }
+
+            .callout.warn {
+              border-color: #e8c98a;
+              background: #fdf6e7;
+            }
+
+            .callout.warn .callout-icon {
+              background: #a86b0c;
+            }
+
+            .live-tabs {
+              display: flex;
+              flex-wrap: wrap;
+              gap: 8px;
+              margin: 24px 0 12px;
+            }
+
+            .live-tabs button {
+              padding: 8px 16px;
+              border: 1px solid var(--line);
+              border-radius: 999px;
+              background: var(--white);
+              color: var(--forest);
+              font: inherit;
+              cursor: pointer;
+            }
+
+            .live-tabs button[aria-selected="true"] {
+              border-color: var(--forest);
+              background: var(--accent);
+            }
+
+            .live-frame {
+              display: block;
+              width: 100%;
+              height: max(640px, calc(100vh - 160px));
+              border: 1px solid var(--line);
+              border-radius: 8px;
+              background: #fff;
+            }
+
+            @media (max-width: 640px) {
+              .live {
+                width: calc(100vw - 16px);
+                padding: 20px 12px;
+              }
+            }
+
+            @media print {
+              .live-tabs,
+              .live-frame {
+                display: none;
+              }
+
+              .live {
+                left: 0;
+                width: auto;
+                margin: 0;
+                padding: 0;
+                box-shadow: none;
+                transform: none;
+              }
+            }
+          </style>
+          <h2 id="s1-1">1.1 Try aisus</h2>
+          <p>This is VS Code running the released aisus 0.3.4 on four real repositories. Nothing here
+            is a mock-up.</p>
+          <ol class="live-steps">
+            <li>Click the <strong>aisus</strong> icon in the Activity Bar on the left.</li>
+            <li>Click <strong>Maps</strong>.</li>
+            <li>Click a map's name to open it.</li>
+            <li>Click any box or message to open the code it cites.</li>
+          </ol>
+          <div class="callout tip"><span class="callout-icon" aria-hidden="true">✓</span>
+            <p>Click <strong>Tour</strong> in a map to walk through it one stop at a time.</p></div>
+          <div class="callout info"><span class="callout-icon" aria-hidden="true">i</span>
+            <p>Paxos is a sequence diagram. Caerus has a sequence diagram beside its architecture map.</p></div>
+          <div class="callout warn"><span class="callout-icon" aria-hidden="true">!</span>
+            <p><strong>Generate</strong>, <strong>Refresh</strong> and <strong>Ask</strong> are disabled as they require an agent.</p></div>
+          <div class="live-tabs" role="tablist" aria-label="Repository">
+            <button type="button" role="tab" aria-selected="true" data-folder="tp">TeamSync, a CS2103T team project</button>
+            <button type="button" role="tab" aria-selected="false" data-folder="cs4223">ccsim, a CS4223 cache coherence simulator</button>
+            <button type="button" role="tab" aria-selected="false" data-folder="cs5223">Paxos, a CS5223 lab</button>
+            <button type="button" role="tab" aria-selected="false" data-folder="caerus">Caerus, a market data capture system</button>
+          </div>
+          <iframe class="live-frame" title="VS Code with aisus" src="https://18-140-229-72.sslip.io/24c0af7986a9d7caa157a28a7dde743a/?folder=/home/coder/repos/tp" allow="clipboard-read; clipboard-write"></iframe>
+          <p class="live-open"><a href="https://18-140-229-72.sslip.io/24c0af7986a9d7caa157a28a7dde743a/?folder=/home/coder/repos/tp" target="_blank" rel="noopener">Open this repository in a new tab</a></p>
+          <script>
+            (() => {
+              const host = "https://18-140-229-72.sslip.io/24c0af7986a9d7caa157a28a7dde743a/?folder=/home/coder/repos/";
+              const frame = document.querySelector(".live-frame");
+              const open = document.querySelector(".live-open a");
+              // VS Code takes focus as it starts, and the browser scrolls the frame into view.
+              // The page keeps its place until the reader scrolls or clicks.
+              let settled = false;
+              for (const kind of ["wheel", "touchstart", "keydown", "mousedown"]) addEventListener(kind, () => { settled = true; }, { once: true, capture: true });
+              const keepTop = () => { if (!settled) scrollTo(0, 0); };
+              addEventListener("scroll", keepTop);
+              setTimeout(() => removeEventListener("scroll", keepTop), 15000);
+              for (const tab of document.querySelectorAll(".live-tabs button")) {
+                tab.addEventListener("click", () => {
+                  for (const other of document.querySelectorAll(".live-tabs button")) other.setAttribute("aria-selected", String(other === tab));
+                  frame.src = open.href = host + tab.dataset.folder;
+                });
+              }
+            })();
+          </script>
+        </div>
+
+        <h2 id="s1-2">1.2 What aisus is</h2>
+        <p>aisus turns a codebase into a picture a person can hold in their head. A developer sees the 
+            architecture of a repository as a powerful visual abstraction and
+          can check every claim the picture makes against the code itself.</p>
+        <p>The developer's own coding agent draws the map, and aisus holds the agent to the truth.
+          Every box must cite real lines inside the repository, or aisus sends the map back. When
+          the code changes, aisus compares it with fingerprints stored in the map, on the
+          developer’s own machine, and marks every part of the picture the code has left behind. The
+          check costs no tokens, and aisus itself never sends code anywhere.  </p>
+        <p>The map belongs to no single tool. It opens in VS Code, Cursor and IntelliJ IDEA, as a
+          page in any browser, on pull requests through a GitHub Action and on the web at aisus.dev.
+          Any coding agent can draw it. Claude Code, Codex and Devin run aisus's skills directly,
+          and GitHub Copilot, Gemini CLI and OpenCode take a copied prompt. Even the rendering is
+          open. Anyone can draw the map their own way (the diagrams are in JSON).</p>
+
+        <h2 id="s1-3">1.3 The symptom</h2>
+        <p>Software is now written faster than anyone understands it, a gap well-known
+          <strong>comprehension debt</strong>. On the best of days, its the existential crisis
+          shared by millions of SWEs world wide. On the worst, comprehension debt rears its ugly
+          head when it arrives as an outage, and the team pays it by learning the system under
+          pressure.</p>
+        <p>Agents do not close the gap. An agent reads a few files at a time, then forgets about the
+          system at the end of the session. It can explain one function well and still miss how two
+          services depend on each other.</p>
+        <p>We can let Microsoft's recent outage explain that point for us. </p>
+        <p>November's Patch Tuesday fixed 1,094 vulnerabilities. Microsoft credited AI for the
+          number. Two days later Exchange Online went down around the world for 23 hours and 50
+          minutes. Microsoft's preliminary report traces the outage to a change shipped in July.
+          Under load, the change made gateway servers wait on each other's locks until they ran out
+          of CPU and memory. The defect was worse on newer machines with more cores. Microsoft's
+          load tests ran on weaker machines with fewer cores, and the defect passed them. A routine
+          failover then moved Teams traffic onto the gateway that Exchange uses, while 14% of its
+          servers were already down. More than 80% of the gateway stopped responding. The boundaries
+          meant to hold a failure inside one region did not hold. The change was too old to roll
+          back. Servers that came back up were flooded by waiting traffic and failed again.</p>
+        <p>Microsoft says AI did not cause the outage, and we do not claim it did directly. But
+          consider that in the good ol' days, an engineer who knew the gateway inside out would have
+          asked how a lock behaves on a machine with more cores. That engineer would have load
+          tested on the machines that run in production. Even in top shops like Microsoft, that engineer 
+          doesn't exist anymore.</p>
+
+        <h2 id="s1-4">1.4 The vision</h2>
+        <p>Programming stands at a precipice. Each generation of tools has carried people further
+          from the machine. Assembly was too much, and we wrote C. C was too much, and we wrote
+          Python. Code itself is now too much, and agents write it for us. Each step lets people
+          build more while understanding less of what lies beneath.</p>
+          <p>What's next?</p>
+          <p>It might be AGI. That would be the end of everything anyway.</p>
+        <p>Or it might not. There is still a market in hedging for this future, where AI tooling has
+          reached its efficiency ceiling and stabilises. The winner then becomes the one who
+          predicts the next step after agents.</p>
+            <p>And it is the visual medium.</p>
+            <p>People understood the world by seeing it long before they read or wrote. Engineers
+              still reach for a whiteboard when they need to explain a system. The chain of
+              abstraction ends where it began, with the way humans meet the world. aisus is a step
+              in that direction. It draws the system as a picture and ties every part of the picture
+              to the code that proves it.</p>
       </section>
     </main>
   </body>
