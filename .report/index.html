@@ -1122,12 +1122,10 @@
             <tr><td>Answer keys stay hidden from the student.</td><td>Keys held by the referee script or the extension host, never by the interface.</td></tr>
           </tbody>
         </table>
-        <p>The weakest boundary is the agent. Text in a repository it has never seen can steer it.</p>
-        <p>Pre-approved commands widen that boundary. Claude Code runs a skill's pre-approved commands without a prompt. A <code>*</code> in a rule matches any arguments. The Bug hunt skill pre-approved its scripts with such a rule. One script ran its
-          <code>--check-cmd</code> argument as a shell command. Planted text could run any command
-          through it.</p>
-        <p>The fix removed the argument, narrowed every rule to scripts that only read and write
-          data, and pre-approved no edit tool.</p>
+        <p>Each invariant is easy to state and hard to keep. Most threats come from features, not bugs.</p>
+        <p>Every feature that moves data opens a new way out. Sharing to the cloud, the pull request check's upload and the usage log each needed its own opt-in and a fixed list of what it may carry. The no-network rule is a unit test so that a new feature cannot quietly add a request.</p>
+        <p>Data derived from code still leaks. A map holds no code, but its labels name the parts of a private system and its sources list file paths. A label can even carry a secret. The cloud scans every upload for secrets, although it accepts no code.</p>
+        <p>The agent sits outside every guarantee. It runs on the user's account and sends code to its own model provider. <img class="wordmark" src="figures/aisus-wordmark.png" alt="aisus"> can only promise to add no new place for the code to go.</p>
         <p>The no-network invariant prevents us from obtaining proper telemetry, which means we
           cannot see where users get stuck. This affected the analysis in Section 6.</p>
 
