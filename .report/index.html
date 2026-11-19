@@ -37,6 +37,30 @@
         max-width: var(--wide);
       }
 
+      /* Figures and their captions sit in the middle of their column. */
+      figure {
+        text-align: center;
+      }
+
+      figure img {
+        display: block;
+        margin-inline: auto;
+      }
+
+      /* The text inside the 1.1 demo card lines up with the report's text column. */
+      .report-section > .live > * {
+        max-width: var(--text);
+        margin-inline: auto;
+      }
+
+      .report-section > .live > .live-frame {
+        max-width: none;
+      }
+
+      .report-section > .live .callout {
+        max-width: var(--text);
+      }
+
       .side-toc {
         position: fixed;
         inset: 0 auto 0 0;
@@ -162,7 +186,6 @@
     <nav class="side-toc" id="side-toc" aria-label="Contents">
       <p class="side-toc-title">Contents</p>
       <ul>
-        <li><a href="#summary-title">Summary</a></li>
         <li><a href="#s1">1 The application</a>
           <ul>
             <li><a href="#s1-1">1.1 Try aisus</a></li>
@@ -191,7 +214,7 @@
           <ul>
             <li><a href="#s4-1">4.1 Chen Dan Quirk Divide and Conquer</a></li>
             <li><a href="#s4-2">4.2 The shifts</a></li>
-            <li><a href="#s4-3">4.3 Where each of us was</a></li>
+            <li><a href="#s4-3">4.3 Our niches</a></li>
           </ul>
         </li>
         <li><a href="#s5">5 Application design</a>
@@ -227,13 +250,6 @@
           </ul>
         </li>
         <li><a href="#s9">9 Conclusion and Acknowledgements</a></li>
-        <li><a href="#appendix">Appendices</a>
-          <ul>
-            <li><a href="#appendix-a">A Full Gantt charts</a></li>
-            <li><a href="#appendix-b">B Additional screenshots</a></li>
-            <li><a href="#appendix-c">C User survey or interview script</a></li>
-          </ul>
-        </li>
         </ul>
     </nav>
     <main>
@@ -241,15 +257,12 @@
         <h1>aisus</h1>
         <p class="subtitle">Final Report</p>
         <p>Group 7</p>
-        <p class="note">List each member's name and student number.</p>
+        <p>Chen Jianxi</p>
+        <p>Dinh Duy Linh Dan</p>
+        <p>Kerk Tai Heng</p>
         <p>November 2026</p>
       </section>
 
-
-<section class="report-section" id="summary">
-        <h1 id="summary-title">Summary</h1>
-        <p class="note">In half a page, say what aisus is, what shipped, how many people use it and the main lesson. Write this part last.</p>
-      </section>
 
 <section class="report-section" id="application">
         <h1 id="s1">1 The application</h1>
@@ -486,16 +499,9 @@
           system at the end of the session. It can explain one function well and still miss how two
           services depend on each other.</p>
         <p>We can let Microsoft's recent outage explain that point for us. </p>
-        <p>November's Patch Tuesday fixed 1,094 vulnerabilities. Microsoft credited AI for the
-          number. Two days later Exchange Online went down around the world for 23 hours and 50
-          minutes. Microsoft's preliminary report traces the outage to a change shipped in July.
-          Under load, the change made gateway servers wait on each other's locks until they ran out
-          of CPU and memory. The defect was worse on newer machines with more cores. Microsoft's
-          load tests ran on weaker machines with fewer cores, and the defect passed them. A routine
-          failover then moved Teams traffic onto the gateway that Exchange uses, while 14% of its
-          servers were already down. More than 80% of the gateway stopped responding. The boundaries
-          meant to hold a failure inside one region did not hold. The change was too old to roll
-          back. Servers that came back up were flooded by waiting traffic and failed again.</p>
+        <p>November's Patch Tuesday fixed 1,094 vulnerabilities. Microsoft credited AI for the number. Two days later Exchange Online went down around the world for 23 hours and 50 minutes.</p>
+        <p>Microsoft's preliminary report traces the outage to a change shipped in July. Under load, the change made gateway servers wait on each other's locks until they ran out of CPU and memory. The defect was worse on newer machines with more cores. Microsoft's load tests ran on weaker machines with fewer cores, and the defect passed them.</p>
+        <p>A routine failover then moved Teams traffic onto the gateway that Exchange uses, while 14% of its servers were already down. More than 80% of the gateway stopped responding. The boundaries meant to hold a failure inside one region did not hold. The change was too old to roll back. Servers that came back up were flooded by waiting traffic and failed again.</p>
         <p>Microsoft says AI did not cause the outage, and we do not claim it did directly. But
           consider that in the good ol' days, an engineer who knew the gateway inside out would have
           asked how a lock behaves on a machine with more cores. That engineer would have load
@@ -630,7 +636,7 @@
           everything: the extension, the cloud, the server and the docs. They push aisus as far as
           they can with tunnel vision, write a handover, and pass it on. The next person starts from
           that handover and never waits on anyone. No one owns a module. Each of us answers for the
-          whole product.</p>
+          whole product. Chapter 8 explains why the workflow works, and how aisus diagrams carry each handover.</p>
 
         <h2 id="s4-2">4.2 The shifts</h2>
         <table>
@@ -649,7 +655,7 @@
           </tbody>
         </table>
 
-        <h2 id="s4-3">4.3 Where each of us was</h2>
+        <h2 id="s4-3">4.3 Our niches</h2>
         <p>Owning the product by time put each of us in every part of it. Think of an electron cloud.
           Each of us is everywhere at once, but more likely to be found in some places than
           others.</p>
@@ -1072,16 +1078,6 @@
           progress report, without which there would be no Best Video and Marketing award.</p>
       </section>
 
-<section class="report-section" id="appendices">
-        <h1 id="appendix">Appendices</h1>
-
-        <h2 id="appendix-a">A Full Gantt charts</h2>
-
-        <h2 id="appendix-b">B Additional screenshots</h2>
-
-        <h2 id="appendix-c">C User survey or interview script</h2>
-        <p class="note">Include this appendix only if the team used a survey or interview script.</p>
-      </section>
     </main>
     <script>
       (() => {
