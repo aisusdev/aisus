@@ -285,6 +285,12 @@ figure a[href$=".html"] {
   color: var(--forest);
 }
 
+/* The browser hint sits apart from the cover's details in the secondary text colour. */
+.cover .cover-browser {
+  margin-top: 32px;
+  color: var(--text-2);
+}
+
 .toc ul {
   padding-left: 0;
   list-style: none;
